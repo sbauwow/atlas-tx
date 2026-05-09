@@ -37,6 +37,7 @@ _(empty)_
 | docs | feynman | Add weather / hydrologic contract language and draft normalized row shapes for NWS alerts, USGS streamflow, drought, precipitation, and temperature context | working tree |
 | docs | feynman | Add Milestone 1.2 weather / hydrologic context planning rows for alerts, streamflow, drought, precipitation, temperature, and county-summary follow-on contract work | working tree |
 | docs | feynman | Add Milestone 1.1 mismatch-signal planning rows and dataset-registry contract language for boil notices, disinfectant residuals, and biological integrity | working tree |
+| docs | claude-opus-4-7 | Initialize `docs/wiki/` Karpathy-style LLM wiki (schema + skeleton + 11 seed pages: 4 agencies, 1 portal, 3 datasets, 1 concept, 1 source, 1 episode). No contract changes. | branch `docs/wiki-init` |
 | data | hermes | Add TWDB hydrology refresh script and wire centroid-based hydrology context into county breakdowns | working tree |
 | data | hermes | Add first TWDB hydrology ingestion slice with tested normalizer, compact cached snapshot, and dataset registry entries | working tree |
 | docs | hermes | Document browser-fallback hook and current Search One automation limits in README/contracts/plan docs | working tree |
