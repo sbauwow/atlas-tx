@@ -86,7 +86,9 @@ Run it directly:
 ```bash
 npm run mcp -- discover_datasets
 npm run mcp -- list_permit_filing_red_flags '{"county":"Travis County","limit":5}'
+npm run mcp -- get_permit_filing_detail '{"tceq_id":"WQ0000447000"}'
 npm run mcp -- build_permit_protest_prep '{"tceq_id":"WQ0000447000"}'
+npm run mcp -- list_county_pending_fights '{"county":"Travis County","limit":5}'
 npm run mcp -- get_pipeline_health
 ```
 
@@ -97,8 +99,12 @@ Current MCP surface includes:
 - `list_protested_permits`
 - `score_protest_density`
 - `list_permit_filing_red_flags`
+- `get_permit_filing_detail`
 - `build_permit_protest_prep`
+- `list_county_pending_fights`
 - `get_pipeline_health`
+
+Note: filing-detail and protest-prep commands require a CID snapshot row for the requested `tceq_id`. If CID has not been refreshed yet, run `npm run refresh:cid` first.
 
 See `docs/contracts/mcp-tools.md` for the contract.
 

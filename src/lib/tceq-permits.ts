@@ -71,6 +71,26 @@ export type PendingPermitCountyMapRow = {
   hasProceduralPressure: boolean;
 };
 
+export type CountyPendingFightRow = {
+  tceqId: string;
+  applicantName: string;
+  county: string | null;
+  countySlug: string | null;
+  programArea: string;
+  countyPermitCount: number;
+  proceduralPressureScore: number;
+  itemStatus: string;
+  tceqDocketNumber: string | null;
+  soahDocketNumber: string | null;
+  latestFiledAt: string | null;
+  filingCounts: {
+    comments: number;
+    hearingRequests: number;
+    publicMeetingRequests: number;
+  };
+  namedFilingOrgs: string[];
+};
+
 export type CidCaseWithFilings = CidCaseRow & {
   filingCounts: {
     comments: number;
@@ -203,6 +223,52 @@ export function buildPendingPermitCountyMapRows(
       left.county.localeCompare(right.county)
     );
   });
+}
+
+export function listCountyPendingFights(
+  permits: TceqWaterPermit[],
+  cases: CidCaseWithFilings[],
+  county?: string | null,
+): CountyPendingFightRow[] {
+  const filteredCases = county?.trim()
+    ? cases.filter((item) => item.county && sameCounty(item.county, county))
+    : cases;
+
+  return filteredCases
+    .map((item) => {
+      const normalizedCounty = item.county ? normalizeCountyName(item.county) : null;
+      const countyPermitCount = normalizedCounty
+        ? permits.filter((permit) => permit.county && sameCounty(permit.county, normalizedCounty)).length
+        : 0;
+      const proceduralPressureScore =
+        item.filingCounts.hearingRequests * 5 +
+        item.filingCounts.publicMeetingRequests * 4 +
+        item.filingCounts.comments;
+
+      return {
+        tceqId: item.tceqId,
+        applicantName: item.applicantName,
+        county: normalizedCounty,
+        countySlug: normalizedCounty ? countySlug(normalizedCounty) : null,
+        programArea: item.programArea,
+        countyPermitCount,
+        proceduralPressureScore,
+        itemStatus: item.itemStatus,
+        tceqDocketNumber: item.tceqDocketNumber,
+        soahDocketNumber: item.soahDocketNumber,
+        latestFiledAt: item.latestFiledAt,
+        filingCounts: item.filingCounts,
+        namedFilingOrgs: [],
+      } satisfies CountyPendingFightRow;
+    })
+    .sort((left, right) => {
+      return (
+        right.proceduralPressureScore - left.proceduralPressureScore ||
+        right.countyPermitCount - left.countyPermitCount ||
+        (right.latestFiledAt ?? "").localeCompare(left.latestFiledAt ?? "") ||
+        left.tceqId.localeCompare(right.tceqId)
+      );
+    });
 }
 
 export function summarizePendingPermits(
@@ -347,7 +413,7 @@ export function getPermitFilingDetailPageData({
 }): PermitFilingDetailPageData {
   const caseRow = cidSummary.cases.find((row) => row.tceqId === tceqId);
   if (!caseRow) {
-    throw new Error(`Permit filing not found: ${tceqId}`);
+    throw new Error(`Permit filing not found in CID snapshot: ${tceqId}. Run refresh:cid or confirm the filing is present in the current snapshot.`);
   }
 
   const relatedPermits = permits.filter((permit) => {

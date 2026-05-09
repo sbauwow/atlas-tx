@@ -3,7 +3,7 @@ import pkg from "../package.json";
 
 describe("package scripts", () => {
   it("exposes an mcp script for running the Atlas TX MCP tool surface", () => {
-    expect(pkg.scripts["mcp"]).toBe("node packages/mcp-server/src/index.js");
+    expect(pkg.scripts["mcp"]).toBe("tsx packages/mcp-server/src/index.js");
   });
 
   it("exposes a refresh:all script for running the staged refresh pipeline", () => {

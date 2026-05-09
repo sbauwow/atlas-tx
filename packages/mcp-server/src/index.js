@@ -1,7 +1,15 @@
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
 
-import { MVP_DATASETS } from '../../../src/lib/mvp-datasets.ts';
+import * as datasetsModule from '../../../src/lib/mvp-datasets.ts';
+
+const { MVP_DATASETS } = datasetsModule;
+const DATASETS = Array.isArray(MVP_DATASETS) ? MVP_DATASETS : [];
+
+async function loadMvpDatasets() {
+  const mod = await import('../../../src/lib/mvp-datasets.ts');
+  return Array.isArray(mod.MVP_DATASETS) ? mod.MVP_DATASETS : [];
+}
 
 const DATASET_URLS = {
   'tceq-cid-search-one': 'https://www14.tceq.texas.gov/epic/eCID/index.cfm#searchone',
@@ -11,7 +19,7 @@ const DATASET_URLS = {
 };
 
 function datasetById(datasetId) {
-  return MVP_DATASETS.find((dataset) => dataset.id === datasetId);
+  return DATASETS.find((dataset) => dataset.id === datasetId);
 }
 
 async function loadAcsCountyPopulationFromSnapshot() {
@@ -45,6 +53,7 @@ async function loadPermitHelpers() {
     buildPermitProtestPrep: mod.buildPermitProtestPrep,
     getPermitFilingDetailPageData: mod.getPermitFilingDetailPageData,
     getTceqPendingPermitsPageData: mod.getTceqPendingPermitsPageData,
+    listCountyPendingFights: mod.listCountyPendingFights,
   };
 }
 
@@ -177,9 +186,10 @@ export function createAtlasTxMcpHandlers(deps = {}) {
 
   return {
     async discover_datasets(params = {}) {
+      const datasets = await loadMvpDatasets();
       const data = params.category
-        ? MVP_DATASETS.filter((dataset) => dataset.category === params.category)
-        : MVP_DATASETS;
+        ? datasets.filter((dataset) => dataset.category === params.category)
+        : datasets;
       const now = new Date().toISOString();
       return envelope(data, {
         generatedAt: now,
@@ -190,7 +200,8 @@ export function createAtlasTxMcpHandlers(deps = {}) {
     },
 
     async get_dataset_schema({ dataset_id }) {
-      const dataset = datasetById(dataset_id);
+      const datasets = await loadMvpDatasets();
+      const dataset = datasets.find((row) => row.id === dataset_id);
       if (!dataset) {
         throw new Error(`Unknown dataset_id: ${dataset_id}`);
       }
@@ -360,6 +371,99 @@ export function createAtlasTxMcpHandlers(deps = {}) {
         caveats: [
           'Atlas TX provides drafting support only and does not provide legal advice or submit filings.',
           'No individual commenter names are surfaced; only aggregate filing signals and public-record context.',
+        ],
+      });
+    },
+
+    async get_permit_filing_detail({ tceq_id }) {
+      const permitData = await loadPermitPageData();
+      const helpers = await loadPermitHelpers();
+      const detail = helpers.getPermitFilingDetailPageData({
+        tceqId: tceq_id,
+        permits: permitData.permits,
+        cidSummary: permitData.cidSummary,
+      });
+      return envelope({
+        tceq_id,
+        procedural_status: {
+          county: detail.caseRow.county,
+          program_area: detail.caseRow.programArea,
+          item_status: detail.caseRow.itemStatus,
+          tceq_docket_number: detail.caseRow.tceqDocketNumber,
+          soah_docket_number: detail.caseRow.soahDocketNumber,
+          latest_filed_at: detail.caseRow.latestFiledAt,
+          filing_counts: {
+            comments: detail.caseRow.filingCounts.comments,
+            hearing_requests: detail.caseRow.filingCounts.hearingRequests,
+            public_meeting_requests: detail.caseRow.filingCounts.publicMeetingRequests,
+          },
+        },
+        county_permit_count: detail.countyPermitCount,
+        related_permits: detail.relatedPermits.map((permit) => ({
+          permit_number: permit.permitNumber,
+          permittee_name: permit.permitteeName,
+          authorization_type: permit.authorizationType,
+          county: permit.county,
+          nearest_city: permit.nearestCity,
+        })),
+        red_flag: detail.redFlagRow ? {
+          score: detail.redFlagRow.score,
+          reasons: detail.redFlagRow.reasons.map((reason) => reason.text),
+          components: {
+            procedural_pressure: detail.redFlagRow.components.proceduralPressure,
+            county_pressure: detail.redFlagRow.components.countyPressure,
+          },
+          caveats: detail.redFlagRow.caveats,
+        } : null,
+      }, {
+        generatedAt: permitData.generatedAt,
+        cacheState: permitData.cacheState,
+        sources: [
+          source('7fq8-wig2', permitData.generatedAt, permitData.permits.length),
+          source('tceq-cid-search-one', permitData.cidSummary.generatedAt ?? permitData.generatedAt, permitData.cidSummary.cases.length),
+        ],
+        caveats: [
+          'Filing detail is procedural context and not a final legal determination.',
+          'Related permits are matched by applicant name and county context; confirm exact project scope in the public record.',
+        ],
+      });
+    },
+
+    async list_county_pending_fights(params = {}) {
+      const permitData = await loadPermitPageData();
+      const helpers = await loadPermitHelpers();
+      const county = normalizeCounty(params.county);
+      const rows = helpers.listCountyPendingFights(permitData.permits, permitData.cidSummary.cases, county)
+        .slice(0, params.limit ?? 25)
+        .map((row) => ({
+          tceq_id: row.tceqId,
+          applicant_name: row.applicantName,
+          county: row.county,
+          county_slug: row.countySlug,
+          program_area: row.programArea,
+          procedural_pressure_score: row.proceduralPressureScore,
+          county_permit_count: row.countyPermitCount,
+          item_status: row.itemStatus,
+          tceq_docket_number: row.tceqDocketNumber,
+          soah_docket_number: row.soahDocketNumber,
+          latest_filed_at: row.latestFiledAt,
+          filing_counts: {
+            comments: row.filingCounts.comments,
+            hearing_requests: row.filingCounts.hearingRequests,
+            public_meeting_requests: row.filingCounts.publicMeetingRequests,
+          },
+          named_filing_orgs: row.namedFilingOrgs,
+        }));
+      return envelope(rows, {
+        generatedAt: permitData.generatedAt,
+        cacheState: permitData.cacheState,
+        sources: [
+          source('7fq8-wig2', permitData.generatedAt, permitData.permits.length),
+          source('tceq-cid-search-one', permitData.cidSummary.generatedAt ?? permitData.generatedAt, permitData.cidSummary.cases.length),
+        ],
+        caveats: [
+          'Pending fights rank procedural pressure from public records and do not imply permit invalidity or project harm.',
+          'Named individual filers are intentionally excluded; this tool returns aggregate filing counts only.',
         ],
       });
     },

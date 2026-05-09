@@ -1,8 +1,9 @@
 # Contract — MCP Tool Surface
 
-> Contract version: **0.4.0** — bump on any breaking change to tool name, params, or response shape. Notify `skill` workstream in `STATE.md` when bumping.
+> Contract version: **0.5.0** — bump on any breaking change to tool name, params, or response shape. Notify `skill` workstream in `STATE.md` when bumping.
 >
 > Changelog:
+> - 0.5.0 (2026-05-10): add `get_permit_filing_detail` and `list_county_pending_fights` so MCP exposes the permit-detail workspace and county-level pending-fights lane.
 > - 0.4.0 (2026-05-10): add `get_pipeline_health` so MCP can read the staged refresh artifact and expose CID fallback/failure state to agents.
 > - 0.3.0 (2026-05-09): add filing-level permit scrutiny tools `list_permit_filing_red_flags` and `build_permit_protest_prep` so MCP matches the new `/permits` filing-detail workflow.
 > - 0.2.0 (2026-05-08): add draft protest/CID tool signatures (`list_protested_permits`, `score_protest_density`) and optional APD folding in `summarize_water_risk_for_county`.
@@ -34,7 +35,7 @@ type Source = {
 
 Tools never return naked data. The skill relies on `sources` and `caveats` to satisfy attribution + safety guardrails.
 
-## Tool catalog (v0.4.0)
+## Tool catalog (v0.5.0)
 
 ### `discover_datasets`
 Lists registered datasets with category + use-case + access type.
@@ -186,6 +187,48 @@ data: {
 };
 ```
 
+### `get_permit_filing_detail`
+Returns the structured filing-detail workspace context for one TCEQ ID.
+
+```ts
+params: {
+  tceq_id: string;
+};
+data: {
+  tceq_id: string;
+  procedural_status: {
+    county: string | null;
+    program_area: string;
+    item_status: string;
+    tceq_docket_number: string | null;
+    soah_docket_number: string | null;
+    latest_filed_at: string | null;
+    filing_counts: {
+      comments: number;
+      hearing_requests: number;
+      public_meeting_requests: number;
+    };
+  };
+  county_permit_count: number;
+  related_permits: Array<{
+    permit_number: string;
+    permittee_name: string;
+    authorization_type: string;
+    county: string | null;
+    nearest_city: string | null;
+  }>;
+  red_flag: {
+    score: number;
+    reasons: string[];
+    components: {
+      procedural_pressure: number;
+      county_pressure: number;
+    };
+    caveats: string[];
+  } | null;
+};
+```
+
 ### `list_permit_filing_red_flags`
 Lists filing-level scrutiny candidates derived from permit concentration plus CID procedural pressure.
 
@@ -205,6 +248,35 @@ data: Array<{
     procedural_pressure: number;
     county_pressure: number;
   };
+}>;
+```
+
+### `list_county_pending_fights`
+Lists county-filterable open fights ranked by procedural pressure for the county workspace lane.
+
+```ts
+params: {
+  county?: string;
+  limit?: number;
+};
+data: Array<{
+  tceq_id: string;
+  applicant_name: string;
+  county: string | null;
+  county_slug: string | null;
+  program_area: string;
+  procedural_pressure_score: number;
+  county_permit_count: number;
+  item_status: string;
+  tceq_docket_number: string | null;
+  soah_docket_number: string | null;
+  latest_filed_at: string | null;
+  filing_counts: {
+    comments: number;
+    hearing_requests: number;
+    public_meeting_requests: number;
+  };
+  named_filing_orgs: string[];
 }>;
 ```
 

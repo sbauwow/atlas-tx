@@ -373,4 +373,168 @@ describe("Atlas TX MCP handlers", () => {
     const dispatched = await runAtlasTxTool("get_pipeline_health", {}, deps);
     expect(dispatched.data.cid.browser_fallback_used).toBe(true);
   });
+
+  it("returns permit filing detail context for one tceq id", async () => {
+    const deps = {
+      loadPermitPageData: async () => ({
+        generatedAt: "2026-05-10T00:00:00.000Z",
+        cacheState: "snapshot",
+        permits: [
+          {
+            permitNumber: "WQ0001",
+            authorizationType: "IND WW",
+            authorizationStatus: "PENDING",
+            permitteeName: "Alpha Water LLC",
+            county: "Travis County",
+            nearestCity: "Austin",
+            latitude: 30.27,
+            longitude: -97.74,
+          },
+          {
+            permitNumber: "WQ0002",
+            authorizationType: "IND WW",
+            authorizationStatus: "PENDING",
+            permitteeName: "Alpha Water LLC",
+            county: "Travis County",
+            nearestCity: "Austin",
+            latitude: 30.28,
+            longitude: -97.75,
+          },
+        ],
+        cidSummary: {
+          available: true,
+          generatedAt: "2026-05-09T00:00:00.000Z",
+          openCaseCount: 1,
+          protestedCaseCount: 1,
+          hearingRequestCount: 1,
+          publicMeetingRequestCount: 0,
+          caveats: ["CID Search One is fragile; treat this lane as best-effort procedural context."],
+          topProgramAreas: [{ programArea: "WQ", count: 1 }],
+          cases: [
+            {
+              tceqId: "WQ0000447000",
+              applicantName: "Alpha Water LLC",
+              county: "Travis County",
+              programArea: "WQ",
+              itemStatus: "open",
+              tceqDocketNumber: "2026-001",
+              soahDocketNumber: "582-26-0001",
+              regulatedEntityNumber: null,
+              customerNumber: null,
+              filingCounts: { comments: 1, hearingRequests: 1, publicMeetingRequests: 0 },
+              latestFiledAt: "2026-04-04",
+            },
+          ],
+        },
+      }),
+    };
+    const handlers = createAtlasTxMcpHandlers(deps);
+
+    const result = await handlers.get_permit_filing_detail({ tceq_id: "WQ0000447000" });
+
+    expect(result.generated_at).toBe("2026-05-10T00:00:00.000Z");
+    expect(result.data.tceq_id).toBe("WQ0000447000");
+    expect(result.data.procedural_status.soah_docket_number).toBe("582-26-0001");
+    expect(result.data.county_permit_count).toBe(2);
+    expect(result.data.related_permits.map((row) => row.permit_number)).toEqual(["WQ0001", "WQ0002"]);
+    expect(result.data.red_flag.reasons).toContain("SOAH docket present");
+    expect(result.data.red_flag.reasons).toContain("2 pending permits in Travis County");
+
+    const dispatched = await runAtlasTxTool("get_permit_filing_detail", { tceq_id: "WQ0000447000" }, deps);
+    expect(dispatched.data.related_permits).toHaveLength(2);
+  });
+
+  it("lists county pending fights ranked by procedural pressure", async () => {
+    const deps = {
+      loadPermitPageData: async () => ({
+        generatedAt: "2026-05-10T00:00:00.000Z",
+        cacheState: "snapshot",
+        permits: [
+          {
+            permitNumber: "WQ0001",
+            authorizationType: "IND WW",
+            authorizationStatus: "PENDING",
+            permitteeName: "Alpha Water LLC",
+            county: "Travis County",
+            nearestCity: "Austin",
+            latitude: 30.27,
+            longitude: -97.74,
+          },
+          {
+            permitNumber: "WQ0002",
+            authorizationType: "IND WW",
+            authorizationStatus: "PENDING",
+            permitteeName: "Beta Ops",
+            county: "Travis County",
+            nearestCity: "Austin",
+            latitude: 30.21,
+            longitude: -97.70,
+          },
+          {
+            permitNumber: "WQ0003",
+            authorizationType: "IND WW",
+            authorizationStatus: "PENDING",
+            permitteeName: "Gamma Water",
+            county: "Travis County",
+            nearestCity: "Austin",
+            latitude: 30.20,
+            longitude: -97.71,
+          },
+        ],
+        cidSummary: {
+          available: true,
+          generatedAt: "2026-05-09T00:00:00.000Z",
+          openCaseCount: 2,
+          protestedCaseCount: 2,
+          hearingRequestCount: 2,
+          publicMeetingRequestCount: 1,
+          caveats: ["CID Search One is fragile; treat this lane as best-effort procedural context."],
+          topProgramAreas: [{ programArea: "WQ", count: 2 }],
+          cases: [
+            {
+              tceqId: "WQ0000447000",
+              applicantName: "Alpha Water LLC",
+              county: "Travis County",
+              programArea: "WQ",
+              itemStatus: "open",
+              tceqDocketNumber: "2026-001",
+              soahDocketNumber: "582-26-0001",
+              regulatedEntityNumber: null,
+              customerNumber: null,
+              filingCounts: { comments: 1, hearingRequests: 1, publicMeetingRequests: 1 },
+              latestFiledAt: "2026-04-04",
+            },
+            {
+              tceqId: "WQ0000447001",
+              applicantName: "Beta Ops",
+              county: "Travis County",
+              programArea: "WQ",
+              itemStatus: "open",
+              tceqDocketNumber: "2026-002",
+              soahDocketNumber: null,
+              regulatedEntityNumber: null,
+              customerNumber: null,
+              filingCounts: { comments: 0, hearingRequests: 1, publicMeetingRequests: 0 },
+              latestFiledAt: "2026-04-03",
+            },
+          ],
+        },
+      }),
+    };
+    const handlers = createAtlasTxMcpHandlers(deps);
+
+    const result = await handlers.list_county_pending_fights({ county: "Travis County", limit: 5 });
+
+    expect(result.generated_at).toBe("2026-05-10T00:00:00.000Z");
+    expect(result.data).toHaveLength(2);
+    expect(result.data[0]?.tceq_id).toBe("WQ0000447000");
+    expect(result.data[0]?.procedural_pressure_score).toBeGreaterThan(result.data[1]?.procedural_pressure_score ?? 0);
+    expect(result.data[0]?.county_permit_count).toBe(3);
+    expect(result.data[0]?.filing_counts.public_meeting_requests).toBe(1);
+    expect(result.data[1]?.named_filing_orgs).toEqual([]);
+
+    const dispatched = await runAtlasTxTool("list_county_pending_fights", { county: "Travis County", limit: 1 }, deps);
+    expect(dispatched.data).toHaveLength(1);
+    expect(dispatched.data[0]?.tceq_id).toBe("WQ0000447000");
+  });
 });
