@@ -46,8 +46,10 @@ function countyRiskScore(county: {
   );
 }
 
-function countyFill(score: number, isSelected: boolean) {
+function countyFill(score: number, mismatchScore: number | undefined, isSelected: boolean) {
   if (isSelected) return "#22d3ee";
+  if ((mismatchScore ?? 0) >= 75) return "#ef4444";
+  if ((mismatchScore ?? 0) >= 40) return "#f97316";
   if (score >= 8) return "#f97316";
   if (score >= 4) return "#eab308";
   if (score >= 1) return "#38bdf8";
@@ -67,6 +69,10 @@ export default async function WaterPage({
   const overview = await service.getWaterOverview();
   const params = searchParams ? await searchParams : undefined;
   const requestedCounty = Array.isArray(params?.county) ? params?.county[0] : params?.county;
+  const requestedMode = Array.isArray((params as { mode?: string | string[] } | undefined)?.mode)
+    ? (params as { mode?: string[] })?.mode?.[0]
+    : (params as { mode?: string } | undefined)?.mode;
+  const mapMode = requestedMode === "mismatch" ? "mismatch" : "risk";
   const selectedSlug = requestedCounty && overview.counties.some((county) => county.county.slug === countySlug(requestedCounty))
     ? countySlug(requestedCounty)
     : overview.counties[0]?.county.slug;
@@ -91,6 +97,11 @@ export default async function WaterPage({
       ...gauge,
       point: projectPoint(gauge.latitude, gauge.longitude),
     }));
+
+  const topMismatchCounties = [...overview.counties]
+    .filter((county) => (county.mismatch?.score ?? 0) > 0)
+    .sort((left, right) => (right.mismatch?.score ?? 0) - (left.mismatch?.score ?? 0))
+    .slice(0, 3);
 
   return (
     <main className="mx-auto flex w-full max-w-7xl flex-1 flex-col gap-10 px-6 py-12">
@@ -137,12 +148,60 @@ export default async function WaterPage({
             <div>
               <h2 className="text-2xl font-semibold text-white">County risk map</h2>
               <p className="mt-2 text-sm text-slate-400">
-                County centroid map using NFHL footprint intensity, active alerts, sewer overflow pressure, and gauge coverage.
+                {mapMode === "mismatch"
+                  ? "Mismatch mode · Counties are colored by contradiction severity rather than operational load."
+                  : "Operational risk mode · County centroid map using NFHL footprint intensity, active alerts, sewer overflow pressure, and gauge coverage."}
               </p>
             </div>
             <div className="text-right text-xs text-slate-400">
               <div>NFHL footprint</div>
               <div>Selected county gauges</div>
+            </div>
+          </div>
+          <div className="mt-6 flex flex-wrap items-center gap-3 text-sm text-slate-300">
+            <span className="font-medium text-white">Map mode</span>
+            <Link
+              href={`/water?county=${selectedSlug ?? ""}&mode=risk`}
+              className={`rounded-full border px-4 py-2 ${mapMode === "risk" ? "border-cyan-400 bg-cyan-400/10 text-cyan-200" : "border-slate-700 text-slate-300"}`}
+            >
+              Operational risk
+            </Link>
+            <Link
+              href={`/water?county=${selectedSlug ?? ""}&mode=mismatch`}
+              className={`rounded-full border px-4 py-2 ${mapMode === "mismatch" ? "border-amber-400 bg-amber-400/10 text-amber-200" : "border-slate-700 text-slate-300"}`}
+            >
+              Mismatch severity
+            </Link>
+            <span className="text-slate-400">Current mode: {mapMode === "mismatch" ? "mismatch severity" : "operational risk"}</span>
+          </div>
+          <div className="mt-6 grid gap-3 lg:grid-cols-[1fr_auto]">
+            <div className="rounded-2xl border border-slate-800 bg-slate-950/70 p-4 text-sm text-slate-300">
+              <div className="font-medium text-white">Top mismatch counties</div>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {topMismatchCounties.length ? topMismatchCounties.map((county) => (
+                  <Link
+                    key={county.county.slug}
+                    href={`/water?county=${county.county.slug}&mode=${mapMode}`}
+                    className="rounded-full border border-amber-700/40 bg-amber-950/30 px-3 py-2 text-xs text-amber-100"
+                  >
+                    {county.county.name} · {formatNumber(county.mismatch?.score)}
+                  </Link>
+                )) : <span className="text-slate-500">No mismatch signals yet.</span>}
+              </div>
+            </div>
+            <div className="rounded-2xl border border-slate-800 bg-slate-950/70 p-4 text-sm text-slate-300">
+              <div className="font-medium text-white">{mapMode === "mismatch" ? "Mismatch mode" : "Mismatch legend"}</div>
+              {mapMode === "mismatch" ? (
+                <div className="mt-3 text-slate-300">
+                  Counties are colored by contradiction severity rather than operational load.
+                </div>
+              ) : (
+                <div className="mt-3 space-y-2">
+                  <div className="flex items-center gap-2"><span className="inline-block h-3 w-3 rounded-full bg-red-500"></span><span>75+ severe contradiction</span></div>
+                  <div className="flex items-center gap-2"><span className="inline-block h-3 w-3 rounded-full bg-orange-500"></span><span>40–74 moderate contradiction</span></div>
+                  <div className="flex items-center gap-2"><span className="inline-block h-3 w-3 rounded-full bg-slate-500"></span><span>0 no mismatch signal</span></div>
+                </div>
+              )}
             </div>
           </div>
           <div className="mt-6 overflow-hidden rounded-3xl border border-slate-800 bg-slate-950/70 p-3">
@@ -154,12 +213,14 @@ export default async function WaterPage({
                   cx={county.point.x}
                   cy={county.point.y}
                   r={county.county.slug === selectedSlug ? 12 : 8}
-                  fill={countyFill(county.riskScore, county.county.slug === selectedSlug)}
+                  fill={mapMode === "mismatch"
+                    ? countyFill(0, county.mismatch?.score, county.county.slug === selectedSlug)
+                    : countyFill(county.riskScore, county.mismatch?.score, county.county.slug === selectedSlug)}
                   stroke={county.metrics.floodplainFeatureCount ? "#f8fafc" : "#0f172a"}
                   strokeWidth={county.metrics.floodplainFeatureCount ? 2 : 1}
                   data-county-slug={county.county.slug}
                 >
-                  <title>{`${county.county.name}: NFHL ${county.metrics.floodplainFeatureCount ?? 0}, alerts ${county.metrics.activeWaterAlertCount ?? 0}, gauges ${county.metrics.streamGaugeCount ?? 0}`}</title>
+                  <title>{`${county.county.name}: mismatch ${county.mismatch?.score ?? 0}, NFHL ${county.metrics.floodplainFeatureCount ?? 0}, alerts ${county.metrics.activeWaterAlertCount ?? 0}, gauges ${county.metrics.streamGaugeCount ?? 0}`}</title>
                 </circle>
               ))}
               {gaugeMapPoints.map((gauge) => (
@@ -269,7 +330,7 @@ export default async function WaterPage({
                 {overview.counties.map((county) => (
                   <tr key={county.county.slug}>
                     <td className="px-3 py-3 font-medium text-white">
-                      <Link href={`/water?county=${county.county.slug}`} className="hover:text-cyan-200">{county.county.name}</Link>
+                      <Link href={`/water?county=${county.county.slug}&mode=${mapMode}`} className="hover:text-cyan-200">{county.county.name}</Link>
                     </td>
                     <td className="px-3 py-3 text-slate-300">{formatNumber(county.metrics.floodplainFeatureCount)}</td>
                     <td className="px-3 py-3 text-slate-300">{formatNumber(county.metrics.activeWaterAlertCount)}</td>
