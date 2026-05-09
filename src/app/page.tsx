@@ -16,15 +16,15 @@ export default function Home() {
       <section className="grid gap-8 lg:grid-cols-[1.4fr_0.9fr]">
         <div className="space-y-6">
           <div className="inline-flex rounded-full border border-cyan-400/30 bg-cyan-400/10 px-3 py-1 text-sm text-cyan-200">
-            Atlas TX · Texas county intelligence
+            Atlas TX · Texas water risk explorer
           </div>
           <div className="space-y-4">
             <h1 className="max-w-3xl text-5xl font-semibold tracking-tight text-white">
-              Explore Texas counties across environment, social strain, and local fiscal capacity.
+              Surface Texas drinking-water risk and environmental-justice burden.
             </h1>
             <p className="max-w-2xl text-lg leading-8 text-slate-300">
-              Atlas TX is an open-source research and decision-support layer over Texas public data.
-              The MVP starts with county comparison, explicit citations, and a safe expansion path into municipal debt analysis.
+              Atlas TX joins Texas permit and water-system context with federal SDWIS, EJScreen, and ACS data.
+              Journalists, policy analysts, and civic-tech teams can spot overlooked counties and Public Water Systems with sourced rows and explicit caveats.
             </p>
           </div>
           <div className="flex flex-wrap gap-3 text-sm">
@@ -38,36 +38,36 @@ export default function Home() {
         </div>
 
         <div className="rounded-3xl border border-slate-800 bg-slate-900/70 p-6 shadow-2xl shadow-cyan-950/30">
-          <h2 className="text-lg font-semibold text-white">MVP thesis</h2>
+          <h2 className="text-lg font-semibold text-white">Water-risk thesis</h2>
           <ul className="mt-4 space-y-3 text-sm leading-7 text-slate-300">
-            <li>• Compare counties with bounded, attributable public data.</li>
-            <li>• Start with environmental burden + social strain + fiscal context.</li>
-            <li>• Expand into municipal debt via Bond Review Board and Comptroller layers.</li>
-            <li>• Ship both a visual interface and agent/MCP scaffolding.</li>
+            <li>• Start with DWRS + EJ overlap + cited permit context.</li>
+            <li>• Primary user: Texas county-newsroom journalists.</li>
+            <li>• Surface overlooked counties and Public Water Systems, not generic compare-counties chrome.</li>
+            <li>• Ship the agent + MCP path first; the UI makes the output legible to humans.</li>
           </ul>
         </div>
       </section>
 
       <section className="grid gap-4 md:grid-cols-3">
         <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-5">
-          <div className="text-3xl font-semibold text-white">8</div>
-          <div className="mt-1 text-sm text-slate-400">MVP data sources locked</div>
+          <div className="text-3xl font-semibold text-white">12</div>
+          <div className="mt-1 text-sm text-slate-400">Atlas TX dataset registry</div>
         </div>
         <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-5">
           <div className="text-3xl font-semibold text-white">3</div>
-          <div className="mt-1 text-sm text-slate-400">Initial lenses: environment, social, fiscal</div>
+          <div className="mt-1 text-sm text-slate-400">Headline signals: DWRS, EJ overlap, protest density</div>
         </div>
         <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-5">
           <div className="text-3xl font-semibold text-white">2</div>
-          <div className="mt-1 text-sm text-slate-400">Technical lanes: MCP server + agent skill</div>
+          <div className="mt-1 text-sm text-slate-400">Primary surfaces: MCP skill + judge-facing web UI</div>
         </div>
       </section>
 
       <section className="space-y-5">
         <div className="space-y-2">
-          <h2 className="text-2xl font-semibold text-white">Locked MVP dataset shortlist</h2>
+          <h2 className="text-2xl font-semibold text-white">Atlas TX dataset registry</h2>
           <p className="text-sm text-slate-400">
-            These are the first datasets Atlas TX will normalize, compare, and cite.
+            These are the public datasets Atlas TX will normalize, score, and cite across the water-risk workflow.
           </p>
         </div>
         <div className="grid gap-4 md:grid-cols-2">

@@ -22,8 +22,9 @@ _(empty)_
 
 | workstream | agent | intent | ref |
 |---|---|---|---|
-| docs | hermes | Permit-protests extension plan + dataset-registry contract bump 0.1.0→0.2.0 (CID Search One/Two + Active Protest Density). Uncommitted; needs `docs/protests-extension` branch. | working tree |
+| web | hermes | Refocus landing page copy around Texas water risk + EJ and add regression tests for the new messaging | working tree |
 | docs | hermes | Live-verify AKVO/WaterScope/Hach references and Texas Stream Team / AgriLife program claims; update smartphone docs accordingly | working tree |
+
 | data | hermes | SDWIS fetcher + normalizer + cached snapshot (4.5 MB, 11,686 rows, TX health-based since 2023-04-01) | branch `data/sdwis-fetcher` |
 | docs | hermes | Tighten smartphone colorimetry memo with explicit honest gaps, Texas program research caveats, and pre-plan open questions | working tree |
 | docs | hermes | Add smartphone colorimetry research note + target-state architecture for non-regulatory community screening | working tree |
