@@ -1,0 +1,127 @@
+{
+  "_comment": "Hand-curated SDWIS fixture pulled from the EPA Envirofacts public API on 2026-05-08, plus three synthetic edge-case rows (lowercase county, st./saint variant, missing GEOGRAPHIC_AREA) so the normalizer test exercises every coercion path. Do NOT regenerate from the API blindly — the synthetic rows would be lost.",
+  "violations": [
+    {
+      "pwsid": "TX0010001",
+      "violation_id": "366",
+      "facility_id": "2870",
+      "population_served_count": 31272,
+      "primacy_agency_code": "TX",
+      "pws_type_code": "CWS",
+      "violation_code": "43",
+      "violation_category_code": "TT",
+      "is_health_based_ind": "Y",
+      "contaminant_code": "0300",
+      "compliance_status_code": "R",
+      "compl_per_begin_date": "2023-06-01 00:00:00",
+      "compl_per_end_date": "2023-06-30 00:00:00",
+      "rule_code": "122",
+      "rule_group_code": "100",
+      "rule_family_code": "120",
+      "public_notification_tier": 1
+    },
+    {
+      "pwsid": "TX2270001",
+      "violation_id": "9001",
+      "facility_id": null,
+      "population_served_count": null,
+      "primacy_agency_code": "TX",
+      "pws_type_code": "CWS",
+      "violation_code": "21",
+      "violation_category_code": "MR",
+      "is_health_based_ind": "N",
+      "contaminant_code": "5000",
+      "compliance_status_code": "U",
+      "compl_per_begin_date": "2024-04-01",
+      "compl_per_end_date": null,
+      "rule_code": "350",
+      "rule_group_code": "300",
+      "rule_family_code": "350",
+      "public_notification_tier": 3
+    },
+    {
+      "pwsid": "TX1110002",
+      "violation_id": "9002",
+      "facility_id": "11",
+      "population_served_count": "  ",
+      "primacy_agency_code": "TX",
+      "pws_type_code": "NTNCWS",
+      "violation_code": "02",
+      "violation_category_code": "MCL",
+      "is_health_based_ind": "y",
+      "contaminant_code": "1041",
+      "compliance_status_code": "R",
+      "compl_per_begin_date": "  2022-08-15 12:00:00 ",
+      "compl_per_end_date": "2022-09-30 00:00:00",
+      "rule_code": "210",
+      "rule_group_code": "200",
+      "rule_family_code": "210",
+      "public_notification_tier": 2
+    },
+    {
+      "pwsid": "TX9999999",
+      "violation_id": "9003",
+      "facility_id": null,
+      "population_served_count": 50,
+      "primacy_agency_code": "TX",
+      "pws_type_code": "TNCWS",
+      "violation_code": "75",
+      "violation_category_code": "Other",
+      "is_health_based_ind": null,
+      "contaminant_code": null,
+      "compliance_status_code": null,
+      "compl_per_begin_date": null,
+      "compl_per_end_date": null,
+      "rule_code": null,
+      "rule_group_code": null,
+      "rule_family_code": null,
+      "public_notification_tier": null
+    }
+  ],
+  "waterSystems": [
+    {
+      "pwsid": "TX0010001",
+      "pws_name": "CITY OF PALESTINE",
+      "pws_type_code": "CWS",
+      "pws_activity_code": "A",
+      "population_served_count": 31272,
+      "city_name": "PALESTINE",
+      "state_code": "TX"
+    },
+    {
+      "pwsid": "TX2270001",
+      "pws_name": "CITY OF AUSTIN",
+      "pws_type_code": "CWS",
+      "pws_activity_code": "A",
+      "population_served_count": 950000,
+      "city_name": "AUSTIN",
+      "state_code": "TX"
+    },
+    {
+      "pwsid": "TX1110002",
+      "pws_name": "ST. JAMES SCHOOL DISTRICT",
+      "pws_type_code": "NTNCWS",
+      "pws_activity_code": "A",
+      "population_served_count": 320,
+      "city_name": "WACO",
+      "state_code": "TX"
+    }
+  ],
+  "geographicAreas": [
+    {
+      "pwsid": "TX0010001",
+      "area_type_code": "CN",
+      "county_served": "anderson"
+    },
+    {
+      "pwsid": "TX2270001",
+      "area_type_code": "CN",
+      "county_served": "Travis County"
+    },
+    {
+      "pwsid": "TX1110002",
+      "area_type_code": "CN",
+      "county_served": "St. James"
+    }
+  ]
+}
