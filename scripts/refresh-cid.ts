@@ -1,4 +1,10 @@
-import { buildCidSearchOneRefreshPlan } from '../src/lib/datasets/cid';
+import {
+  buildCidSearchOneRefreshPlan,
+  fetchCidSearchOneHtml,
+  fetchCidSearchTwoHtml,
+  parseCidCasesHtml,
+  parseCidProtestsHtml,
+} from '../src/lib/datasets/cid';
 
 export type RefreshCidCliOptions = {
   counties: string[];
@@ -39,20 +45,110 @@ export function summarizeCidRefreshPlan(input: {
   };
 }
 
+function dedupeByJson<T>(rows: T[]): T[] {
+  const seen = new Set<string>();
+  const out: T[] = [];
+  for (const row of rows) {
+    const key = JSON.stringify(row);
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push(row);
+  }
+  return out;
+}
+
+export async function executeCidRefresh(options: RefreshCidCliOptions & {
+  generatedAt?: string;
+  fetchSearchOneHtml?: typeof fetchCidSearchOneHtml;
+  fetchSearchTwoHtml?: typeof fetchCidSearchTwoHtml;
+  parseSearchOneHtml?: typeof parseCidCasesHtml;
+  parseSearchTwoHtml?: typeof parseCidProtestsHtml;
+}) {
+  const searchOnePlan = buildDefaultCidRefreshPlan(options);
+  const searchTwoParams = buildCidRefreshSearchTwoParams();
+  const fetchOne = options.fetchSearchOneHtml ?? fetchCidSearchOneHtml;
+  const fetchTwo = options.fetchSearchTwoHtml ?? fetchCidSearchTwoHtml;
+  const parseOne = options.parseSearchOneHtml ?? parseCidCasesHtml;
+  const parseTwo = options.parseSearchTwoHtml ?? parseCidProtestsHtml;
+  const generatedAt = options.generatedAt ?? new Date().toISOString();
+
+  const caseRows = dedupeByJson(
+    (
+      await Promise.all(
+        searchOnePlan.map(async (params) => parseOne(await fetchOne(params))),
+      )
+    ).flat(),
+  );
+
+  const protestRows = dedupeByJson(parseTwo(await fetchTwo(searchTwoParams)));
+
+  const summary = summarizeCidRefreshPlan({ searchOnePlan, searchTwoParams });
+
+  return {
+    searchOnePlan,
+    searchTwoParams,
+    caseRows,
+    protestRows,
+    caseSnapshot: {
+      generatedAt,
+      source: 'https://www14.tceq.texas.gov/epic/eCID/index.cfm#searchone',
+      rowCount: caseRows.length,
+      rows: caseRows,
+      caveats: [
+        'Chunked Search One refresh by county and program area to avoid broad-query fragility.',
+      ],
+    },
+    protestSnapshot: {
+      generatedAt,
+      source: 'https://www14.tceq.texas.gov/epic/eCID/index.cfm#searchtwo',
+      rowCount: protestRows.length,
+      rows: protestRows,
+      caveats: [
+        'Search Two refresh uses one broad open-items query and dedupes identical protest rows.',
+      ],
+    },
+    summary,
+  };
+}
+
+export async function writeCidRefreshSnapshots(
+  refreshResult: {
+    caseSnapshot: unknown;
+    protestSnapshot: unknown;
+  },
+  options: {
+    casePath: string;
+    protestPath: string;
+    writeFile?: (path: string, content: string) => Promise<void>;
+  },
+) {
+  const writeFile =
+    options.writeFile ??
+    (async (path: string, content: string) => {
+      const fs = await import('node:fs/promises');
+      await fs.mkdir((await import('node:path')).dirname(path), { recursive: true });
+      await fs.writeFile(path, content);
+    });
+
+  await writeFile(options.casePath, JSON.stringify(refreshResult.caseSnapshot));
+  await writeFile(options.protestPath, JSON.stringify(refreshResult.protestSnapshot));
+}
+
 export async function main() {
-  const searchOnePlan = buildDefaultCidRefreshPlan({
+  const refreshResult = await executeCidRefresh({
     counties: [],
     programAreas: [],
     resultsPerPage: 25,
   });
-  const searchTwoParams = buildCidRefreshSearchTwoParams();
 
   console.log(
     JSON.stringify(
       {
-        searchOnePlan,
-        searchTwoParams,
-        summary: summarizeCidRefreshPlan({ searchOnePlan, searchTwoParams }),
+        searchOnePlan: refreshResult.searchOnePlan,
+        searchTwoParams: refreshResult.searchTwoParams,
+        caseSnapshot: refreshResult.caseSnapshot,
+        protestSnapshot: refreshResult.protestSnapshot,
+        summary: refreshResult.summary,
       },
       null,
       2,
