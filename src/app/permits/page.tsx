@@ -3,6 +3,8 @@ import Link from "next/link";
 import GlossaryTooltip, { GlossaryInlineList } from "@/app/components/glossary-tooltip";
 import { CountyWorkspaceHeader } from "@/app/components/county-workspace-header";
 import { TexasCountyChoropleth } from "@/app/components/texas-county-choropleth";
+import type { CidCaseRow, CidProtestRow } from "@/lib/datasets/cid";
+import { buildStatewideOperatorSummaryRows } from "@/lib/operator-intelligence";
 import { getAdjacentCountyRefs, getCountyBySlugOrName } from "@/lib/water/county-lookup";
 import {
   buildPendingPermitCountyMapRows,
@@ -25,6 +27,13 @@ export default async function PermitsPage({
   const redFlagRows = scorePermitFilingRedFlags({ permits: data.permits, cases: data.cidSummary.cases }).slice(0, 5);
   const countyWorkspace = data.countyFilter ? getCountyBySlugOrName(data.countyFilter) : null;
   const adjacentCounties = countyWorkspace ? getAdjacentCountyRefs(countyWorkspace.slug) : null;
+  const { cidCases, cidProtests } = synthesizeCidRowsFromSummary(data.cidSummary.cases);
+  const operatorRows = buildStatewideOperatorSummaryRows({
+    permits: data.permits,
+    cidCases,
+    cidProtests,
+  });
+  const topOperatorRows = operatorRows.slice(0, 5);
 
   return (
     <main className="relative mx-auto flex w-full max-w-6xl flex-1 flex-col gap-16 px-6 py-16">
@@ -191,6 +200,69 @@ export default async function PermitsPage({
         </article>
       </section>
 
+      <section className="rounded-2xl bg-slate-900/40 p-6 ring-1 ring-white/5">
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <h2 className="text-2xl font-semibold text-white">Top permittees and applicants</h2>
+            <p className="mt-2 max-w-3xl text-sm text-slate-400">
+              Concentration lane for who is carrying the most pending-permit volume, with CID case overlap added when Atlas has procedural records for the same operator.
+            </p>
+          </div>
+          <div className="rounded-full border border-white/10 px-3 py-1 text-xs text-slate-400">Operator pages when available</div>
+        </div>
+        {topOperatorRows.length ? (
+          <div className="mt-5 grid gap-4 lg:grid-cols-2 xl:grid-cols-5">
+            {topOperatorRows.map((row) => (
+              <Link
+                key={row.slug}
+                href={`/operators/${row.slug}`}
+                className="rounded-2xl border border-white/10 bg-white/[0.03] p-4 transition-colors hover:border-cyan-300/40 hover:bg-white/[0.05]"
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <div className="text-sm font-semibold text-white">{row.operatorName}</div>
+                    <div className="mt-1 text-[11px] uppercase tracking-[0.18em] text-slate-500">
+                      {row.countyCount} count{row.countyCount === 1 ? "y" : "ies"}
+                    </div>
+                  </div>
+                  <div className="rounded-full bg-cyan-400/10 px-2.5 py-1 text-xs font-medium text-cyan-100">
+                    {formatShare(row.concentration.permitShareStatewide)}
+                  </div>
+                </div>
+                <dl className="mt-4 space-y-2 text-sm text-slate-300">
+                  <div className="flex items-center justify-between gap-3">
+                    <dt className="text-slate-500">Pending permits</dt>
+                    <dd>{row.permitCount}</dd>
+                  </div>
+                  <div className="flex items-center justify-between gap-3">
+                    <dt className="text-slate-500">CID cases</dt>
+                    <dd>{row.caseCount}</dd>
+                  </div>
+                  <div className="flex items-center justify-between gap-3">
+                    <dt className="text-slate-500">Procedural pressure</dt>
+                    <dd>{row.proceduralPressureScore}</dd>
+                  </div>
+                </dl>
+                <p className="mt-4 text-sm leading-6 text-slate-400">
+                  {row.concentration.topPermitCounty
+                    ? `${row.concentration.topPermitCounty.county} holds ${row.concentration.topPermitCounty.permitCount} permit${row.concentration.topPermitCounty.permitCount === 1 ? "" : "s"} (${formatShare(row.concentration.topPermitCounty.share)} of this operator's pending lane).`
+                    : "No county concentration could be computed from the current permit roster."}
+                </p>
+                <p className="mt-2 text-xs leading-5 text-slate-500">
+                  {row.caseCount
+                    ? `${formatShare(row.concentration.caseShareStatewide)} of visible CID cases and ${formatShare(row.concentration.proceduralPressureShareStatewide)} of visible procedural pressure.`
+                    : "No CID case overlap is visible for this operator in the current dataset."}
+                </p>
+              </Link>
+            ))}
+          </div>
+        ) : (
+          <div className="mt-5 rounded-xl border border-dashed border-white/10 bg-white/[0.03] px-4 py-6 text-sm text-slate-400">
+            Atlas needs named permittees or CID applicants before it can rank operator concentration on this surface.
+          </div>
+        )}
+      </section>
+
       <section id="top-counties" className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
         <article className="rounded-2xl bg-slate-900/40 p-6 ring-1 ring-white/5">
           <h2 className="text-2xl font-semibold text-white">Pending permit roster</h2>
@@ -289,6 +361,69 @@ function StatTile({ value, label }: { value: string; label: string }) {
       <div className="mt-2 text-sm leading-6 text-slate-400">{label}</div>
     </div>
   );
+}
+
+function synthesizeCidRowsFromSummary(
+  cases: Array<{
+    tceqId: string;
+    applicantName: string;
+    county: string | null;
+    programArea: string;
+    itemStatus: "open" | "closed";
+    tceqDocketNumber: string | null;
+    soahDocketNumber: string | null;
+    regulatedEntityNumber?: string | null;
+    customerNumber?: string | null;
+    filingCounts: { comments: number; hearingRequests: number; publicMeetingRequests: number };
+    latestFiledAt: string | null;
+  }>,
+): { cidCases: CidCaseRow[]; cidProtests: CidProtestRow[] } {
+  const cidCases: CidCaseRow[] = cases.map((row) => ({
+    tceqId: row.tceqId,
+    applicantName: row.applicantName,
+    county: row.county,
+    programArea: row.programArea,
+    itemStatus: row.itemStatus,
+    tceqDocketNumber: row.tceqDocketNumber,
+    soahDocketNumber: row.soahDocketNumber,
+    regulatedEntityNumber: row.regulatedEntityNumber ?? null,
+    customerNumber: row.customerNumber ?? null,
+  }));
+
+  const cidProtests: CidProtestRow[] = cases.flatMap((row) => {
+    const filedAt = row.latestFiledAt ?? "1970-01-01";
+
+    return [
+      ...Array.from({ length: row.filingCounts.comments }, () => ({
+        tceqId: row.tceqId,
+        filingType: "comment" as const,
+        filerOrganization: null,
+        filedAt,
+      })),
+      ...Array.from({ length: row.filingCounts.hearingRequests }, () => ({
+        tceqId: row.tceqId,
+        filingType: "hearing_request" as const,
+        filerOrganization: null,
+        filedAt,
+      })),
+      ...Array.from({ length: row.filingCounts.publicMeetingRequests }, () => ({
+        tceqId: row.tceqId,
+        filingType: "public_meeting_request" as const,
+        filerOrganization: null,
+        filedAt,
+      })),
+    ];
+  });
+
+  return { cidCases, cidProtests };
+}
+
+function formatShare(value: number) {
+  return `${new Intl.NumberFormat("en-US", {
+    style: "percent",
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 1,
+  }).format(value)}`;
 }
 
 function cidSnapshotBadgeTone(freshnessBand: CidSnapshotFreshnessBand) {

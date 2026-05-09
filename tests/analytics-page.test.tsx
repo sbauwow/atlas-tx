@@ -2,10 +2,19 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const readFileMock = vi.fn();
+const getTceqPendingPermitsPageDataMock = vi.fn();
 
 vi.mock("fs/promises", () => ({
   readFile: (...args: unknown[]) => readFileMock(...args),
 }));
+
+vi.mock("@/lib/tceq-permits", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/tceq-permits")>();
+  return {
+    ...actual,
+    getTceqPendingPermitsPageData: (...args: unknown[]) => getTceqPendingPermitsPageDataMock(...args),
+  };
+});
 
 function analyticsFile(filename: string) {
   if (filename.includes("county-history.json")) {
@@ -159,14 +168,99 @@ function analyticsFile(filename: string) {
   throw new Error(`Unexpected file request: ${filename}`);
 }
 
+function analyticsPermitData() {
+  return {
+    countyFilter: null,
+    generatedAt: "2026-05-09T22:08:46.795Z",
+    summary: {
+      pendingPermitCount: 3,
+      activePermitCount: 9,
+      countyCount: 2,
+      authorizationTypeCount: 2,
+      topCounties: [
+        { county: "Harris County", count: 2 },
+        { county: "Orange County", count: 1 },
+      ],
+    },
+    cidSummary: {
+      available: true,
+      generatedAt: "2026-05-09T22:08:46.795Z",
+      openCaseCount: 2,
+      protestedCaseCount: 2,
+      hearingRequestCount: 1,
+      publicMeetingRequestCount: 1,
+      caveats: [],
+      topProgramAreas: [{ programArea: "WQ", count: 2 }],
+      cases: [
+        {
+          tceqId: "WQ0000447000",
+          applicantName: "Alpha Water LLC",
+          county: "Harris County",
+          programArea: "WQ",
+          itemStatus: "open",
+          tceqDocketNumber: "2026-001",
+          soahDocketNumber: "582-26-0001",
+          filingCounts: { comments: 1, hearingRequests: 1, publicMeetingRequests: 0 },
+          latestFiledAt: "2026-05-08",
+        },
+        {
+          tceqId: "WQ0000555000",
+          applicantName: "Beta Utility",
+          county: "Orange County",
+          programArea: "WQ",
+          itemStatus: "open",
+          tceqDocketNumber: null,
+          soahDocketNumber: null,
+          filingCounts: { comments: 0, hearingRequests: 0, publicMeetingRequests: 1 },
+          latestFiledAt: "2026-05-07",
+        },
+      ],
+    },
+    permits: [
+      {
+        permitNumber: "WQ0001",
+        authorizationType: "IND WW",
+        authorizationStatus: "PENDING",
+        permitteeName: "Alpha Water LLC",
+        county: "Harris County",
+        nearestCity: "Houston",
+        latitude: 29.76,
+        longitude: -95.37,
+      },
+      {
+        permitNumber: "WQ0002",
+        authorizationType: "IND WW",
+        authorizationStatus: "PENDING",
+        permitteeName: "Alpha Water LLC",
+        county: "Harris County",
+        nearestCity: "Houston",
+        latitude: 29.77,
+        longitude: -95.36,
+      },
+      {
+        permitNumber: "WQ0003",
+        authorizationType: "MUN WW",
+        authorizationStatus: "PENDING",
+        permitteeName: "Beta Utility",
+        county: "Orange County",
+        nearestCity: "Orange",
+        latitude: 30.09,
+        longitude: -93.74,
+      },
+    ],
+  };
+}
+
 describe("statewide analytics page", () => {
   beforeEach(() => {
     vi.resetModules();
     readFileMock.mockReset();
+    getTceqPendingPermitsPageDataMock.mockReset();
   });
 
   it("renders statewide movers, scatter analysis, and provenance cards from Wave 1 artifacts", async () => {
     readFileMock.mockImplementation(async (filename: string) => analyticsFile(filename));
+    getTceqPendingPermitsPageDataMock.mockResolvedValue(analyticsPermitData());
 
     const pageModule = await import("@/app/analytics/page");
     const page = await pageModule.default();
@@ -186,6 +280,12 @@ describe("statewide analytics page", () => {
     expect(text).toContain('href="/counties/orange-county"');
     expect(text).toContain("Risk +3.6 · pressure 100 · prior rank 3");
     expect(text).toContain("Pressure 14.44 · no prior committed rank in this comparison window.");
+    expect(text).toContain("Operator concentration");
+    expect(text).toContain("Who dominates permit pressure statewide");
+    expect(text).toContain("Alpha Water LLC currently carries the largest pending-permit share in Atlas");
+    expect(text).toContain("2 pending permits · 66.7% of statewide permit pressure");
+    expect(text).toContain("Harris County carries 2 permits (100% of this operator&#x27;s pending lane)");
+    expect(text).toContain('href="/operators/alpha-water-llc"');
     expect(text).toContain("County movers");
     expect(text).toContain("Up 2 rank slots");
     expect(text).toContain("Pressure 100");
@@ -205,6 +305,29 @@ describe("statewide analytics page", () => {
 
   it("degrades gracefully when analytics artifacts are missing", async () => {
     readFileMock.mockRejectedValue(new Error("ENOENT: no such file or directory"));
+    getTceqPendingPermitsPageDataMock.mockResolvedValue({
+      countyFilter: null,
+      generatedAt: "2026-05-09T22:08:46.795Z",
+      summary: {
+        pendingPermitCount: 0,
+        activePermitCount: 0,
+        countyCount: 0,
+        authorizationTypeCount: 0,
+        topCounties: [],
+      },
+      cidSummary: {
+        available: false,
+        generatedAt: null,
+        openCaseCount: 0,
+        protestedCaseCount: 0,
+        hearingRequestCount: 0,
+        publicMeetingRequestCount: 0,
+        caveats: [],
+        topProgramAreas: [],
+        cases: [],
+      },
+      permits: [],
+    });
 
     const pageModule = await import("@/app/analytics/page");
     const page = await pageModule.default();
@@ -215,6 +338,8 @@ describe("statewide analytics page", () => {
     expect(text).toContain("Wave 1 comparison snapshots are not available yet.");
     expect(text).toContain("Atlas only shows this lane when committed artifacts support a real comparison window.");
     expect(text).toContain("Wave 1 did not produce enough mover rows for screening lanes yet.");
+    expect(text).toContain("Operator concentration activates when Atlas has permittee or applicant names in the statewide permit/CID lane.");
+    expect(text).toContain("Atlas will surface operator concentration here once the permit roster or CID lane exposes enough named operators to compare shares.");
     expect(text).toContain("Movers unavailable");
     expect(text).toContain("Pressure outlier bars will appear when pressure-risk-scatter.json contains points.");
     expect(text).toContain("The statewide scatter will appear once pressure-risk-scatter.json is committed.");
@@ -222,6 +347,7 @@ describe("statewide analytics page", () => {
   });
 
   it("falls back to steady counties when the committed comparison window shows no movement", async () => {
+    getTceqPendingPermitsPageDataMock.mockResolvedValue(analyticsPermitData());
     readFileMock.mockImplementation(async (filename: string) => {
       if (filename.includes("county-history.json")) {
         return JSON.stringify({

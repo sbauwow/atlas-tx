@@ -1,6 +1,10 @@
 import { readFile } from "fs/promises";
 import * as path from "path";
 
+import type { CidCaseRow, CidProtestRow } from "@/lib/datasets/cid";
+import { buildStatewideOperatorSummaryRows } from "@/lib/operator-intelligence";
+import { getTceqPendingPermitsPageData } from "@/lib/tceq-permits";
+
 const ANALYTICS_DIR = path.join(process.cwd(), "public", "cache", "analytics");
 
 const QUADRANT_LABELS = {
@@ -161,6 +165,8 @@ export type StatewideAnalyticsViewModel = {
     rowCountLabel: string;
     notes: string[];
   }>;
+  operatorConcentrationSummary: string;
+  operatorConcentrationLanes: ScreeningLane[];
 };
 
 function formatNumber(value: number, digits = 2) {
@@ -238,6 +244,103 @@ function classifyScatterPoint(point: ScatterPoint): "default" | "focus" | "stabl
 
 function buildScatterDetail(point: ScatterPoint) {
   return `${QUADRANT_LABELS[point.quadrant]} · ${formatCompactInteger(point.violationCount)} violations · ${formatCompactInteger(point.impairedSegmentCount)} impaired segments · ${formatCompactInteger(point.systemCount)} systems`;
+}
+
+function synthesizeCidRowsFromSummary(
+  cases: Array<{
+    tceqId: string;
+    applicantName: string;
+    county: string | null;
+    programArea: string;
+    itemStatus: "open" | "closed";
+    tceqDocketNumber: string | null;
+    soahDocketNumber: string | null;
+    regulatedEntityNumber?: string | null;
+    customerNumber?: string | null;
+    filingCounts: { comments: number; hearingRequests: number; publicMeetingRequests: number };
+    latestFiledAt: string | null;
+  }>,
+): { cidCases: CidCaseRow[]; cidProtests: CidProtestRow[] } {
+  const cidCases: CidCaseRow[] = cases.map((row) => ({
+    tceqId: row.tceqId,
+    applicantName: row.applicantName,
+    county: row.county,
+    programArea: row.programArea,
+    itemStatus: row.itemStatus,
+    tceqDocketNumber: row.tceqDocketNumber,
+    soahDocketNumber: row.soahDocketNumber,
+    regulatedEntityNumber: row.regulatedEntityNumber ?? null,
+    customerNumber: row.customerNumber ?? null,
+  }));
+
+  const cidProtests: CidProtestRow[] = cases.flatMap((row) => {
+    const filedAt = row.latestFiledAt ?? "1970-01-01";
+
+    return [
+      ...Array.from({ length: row.filingCounts.comments }, () => ({
+        tceqId: row.tceqId,
+        filingType: "comment" as const,
+        filerOrganization: null,
+        filedAt,
+      })),
+      ...Array.from({ length: row.filingCounts.hearingRequests }, () => ({
+        tceqId: row.tceqId,
+        filingType: "hearing_request" as const,
+        filerOrganization: null,
+        filedAt,
+      })),
+      ...Array.from({ length: row.filingCounts.publicMeetingRequests }, () => ({
+        tceqId: row.tceqId,
+        filingType: "public_meeting_request" as const,
+        filerOrganization: null,
+        filedAt,
+      })),
+    ];
+  });
+
+  return { cidCases, cidProtests };
+}
+
+function formatPercent(value: number) {
+  return `${formatNumber(value * 100, 1)}%`;
+}
+
+function buildOperatorConcentrationLane(operatorRows: ReturnType<typeof buildStatewideOperatorSummaryRows>): Pick<
+  StatewideAnalyticsViewModel,
+  "operatorConcentrationSummary" | "operatorConcentrationLanes"
+> {
+  if (!operatorRows.length) {
+    return {
+      operatorConcentrationSummary:
+        "Operator concentration activates when Atlas has permittee or applicant names in the statewide permit/CID lane.",
+      operatorConcentrationLanes: [],
+    };
+  }
+
+  const leaders = operatorRows.slice(0, 4).map((row, index) => {
+    const primary = `${row.permitCount} pending permit${row.permitCount === 1 ? "" : "s"} · ${formatPercent(row.concentration.permitShareStatewide)} of statewide permit pressure`;
+    const countyLead = row.concentration.topPermitCounty
+      ? `${row.concentration.topPermitCounty.county} carries ${row.concentration.topPermitCounty.permitCount} permit${row.concentration.topPermitCounty.permitCount === 1 ? "" : "s"} (${formatPercent(row.concentration.topPermitCounty.share)} of this operator's pending lane)`
+      : `${row.countyCount} count${row.countyCount === 1 ? "y" : "ies"} represented in the current permit lane`;
+    const proceduralContext = row.caseCount
+      ? `${row.caseCount} CID case${row.caseCount === 1 ? "" : "s"} · procedural pressure share ${formatPercent(row.concentration.proceduralPressureShareStatewide)}`
+      : "No CID case overlap in the current statewide snapshot";
+
+    return {
+      title: row.operatorName,
+      badge: index === 0 ? "Largest share" : `Top ${index + 1}`,
+      href: `/operators/${row.slug}`,
+      primary,
+      secondary: `${countyLead} · ${proceduralContext}.`,
+    };
+  });
+
+  const leadOperator = operatorRows[0];
+
+  return {
+    operatorConcentrationSummary: `${leadOperator.operatorName} currently carries the largest pending-permit share in Atlas, with ${leadOperator.permitCount} pending permit${leadOperator.permitCount === 1 ? "" : "s"} across ${leadOperator.countyCount} count${leadOperator.countyCount === 1 ? "y" : "ies"}.`,
+    operatorConcentrationLanes: leaders,
+  };
 }
 
 async function readJsonIfPresent<T>(filename: string): Promise<T | null> {
@@ -417,11 +520,12 @@ function buildWhatChangedLane(
 }
 
 export async function loadStatewideAnalyticsViewModel(): Promise<StatewideAnalyticsViewModel> {
-  const [historyArtifact, moversArtifact, scatterArtifact, freshnessArtifact] = await Promise.all([
+  const [historyArtifact, moversArtifact, scatterArtifact, freshnessArtifact, permitData] = await Promise.all([
     readJsonIfPresent<{ historyLength?: number }>("county-history.json"),
     readJsonIfPresent<CountyMoversArtifact>("county-movers.json"),
     readJsonIfPresent<PressureRiskScatterArtifact>("pressure-risk-scatter.json"),
     readJsonIfPresent<SourceFreshnessArtifact>("source-freshness.json"),
+    getTceqPendingPermitsPageData().catch(() => null),
   ]);
 
   const historyLength = historyArtifact?.historyLength ?? 0;
@@ -429,6 +533,13 @@ export async function loadStatewideAnalyticsViewModel(): Promise<StatewideAnalyt
   const points = [...(scatterArtifact?.points ?? [])];
   const sources = [...(freshnessArtifact?.sources ?? [])];
   const whatChangedLane = buildWhatChangedLane(movers, historyLength, moversArtifact);
+  const { cidCases, cidProtests } = synthesizeCidRowsFromSummary(permitData?.cidSummary.cases ?? []);
+  const operatorRows = buildStatewideOperatorSummaryRows({
+    permits: permitData?.permits ?? [],
+    cidCases,
+    cidProtests,
+  });
+  const operatorConcentrationLane = buildOperatorConcentrationLane(operatorRows);
 
   const moversRows = movers.slice(0, 20).map((mover) => ({
     id: mover.county.slug,
@@ -556,6 +667,8 @@ export async function loadStatewideAnalyticsViewModel(): Promise<StatewideAnalyt
     quadrantBars,
     scatterPoints,
     sourceSummary,
+    operatorConcentrationSummary: operatorConcentrationLane.operatorConcentrationSummary,
+    operatorConcentrationLanes: operatorConcentrationLane.operatorConcentrationLanes,
   };
 }
 

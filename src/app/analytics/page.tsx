@@ -121,6 +121,31 @@ export default async function AnalyticsPage() {
         )}
       </section>
 
+      <section className="rounded-3xl border border-white/10 bg-slate-950/80 p-6 shadow-[0_0_0_1px_rgba(255,255,255,0.02)]">
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <div className="text-[11px] font-medium uppercase tracking-[0.22em] text-emerald-300/80">Operator concentration</div>
+            <h2 className="mt-2 text-2xl font-semibold text-white">Who dominates permit pressure statewide</h2>
+            <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-400">{analytics.operatorConcentrationSummary}</p>
+            <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-500">
+              Atlas uses the permit roster plus current CID applicant names when available, and avoids extra operator claims when the dataset is sparse.
+            </p>
+          </div>
+          <div className="rounded-full border border-white/10 px-3 py-1 text-xs text-slate-400">Links open operator pages</div>
+        </div>
+        {analytics.operatorConcentrationLanes.length ? (
+          <div className="mt-5 grid gap-4 lg:grid-cols-2 xl:grid-cols-4">
+            {analytics.operatorConcentrationLanes.map((lane) => (
+              <LaneCard key={`operator-${lane.href}`} {...lane} />
+            ))}
+          </div>
+        ) : (
+          <div className="mt-5 rounded-2xl border border-dashed border-white/10 bg-white/[0.02] px-5 py-8 text-sm leading-6 text-slate-400">
+            Atlas will surface operator concentration here once the permit roster or CID lane exposes enough named operators to compare shares.
+          </div>
+        )}
+      </section>
+
       <section className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
         <MoversTable
           title="County movers"

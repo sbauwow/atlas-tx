@@ -122,6 +122,14 @@ describe("permits page", () => {
     expect(text).toContain("County intelligence");
     expect(text).toContain("Open county pages");
     expect(text).toContain("Filings that need scrutiny");
+    expect(text).toContain("Top permittees and applicants");
+    expect(text).toContain("Concentration lane for who is carrying the most pending-permit volume");
+    expect(text).toContain('href=\"/operators/alpha-water-llc\"');
+    expect(text).toContain("66.7%");
+    expect(text).toContain("Pending permits");
+    expect(text).toContain("CID cases");
+    expect(text).toContain("Travis County holds 2 permits (100% of this operator&#x27;s pending lane).");
+    expect(text).toContain("100% of visible CID cases and 100% of visible procedural pressure.");
     expect(text).toContain("State Office of Administrative Hearings");
     expect(text).toContain("SOAH docket present");
     expect(text).toContain("1 hearing request filed");
