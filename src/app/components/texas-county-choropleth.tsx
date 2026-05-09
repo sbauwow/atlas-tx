@@ -49,7 +49,7 @@ export function TexasCountyChoropleth({ rows }: { rows: PendingPermitCountyMapRo
       const countyFeature = fips ? texasCountyByFips.get(fips) : null;
       const path = countyFeature ? pathGenerator(countyFeature) : null;
       if (!countyFeature || !path) return null;
-      return { row, countyFeature, path };
+      return { row, countyFeature, path, permitsHref: `/permits?county=${row.slug}` };
     })
     .filter((item): item is NonNullable<typeof item> => Boolean(item));
 
@@ -72,12 +72,14 @@ export function TexasCountyChoropleth({ rows }: { rows: PendingPermitCountyMapRo
           return <path key={`base-${String(county.id ?? county.properties?.name ?? "county")}`} d={path} fill="rgba(51,65,85,0.72)" stroke="rgba(148,163,184,0.15)" strokeWidth={0.35} />;
         })}
       </g>
-      {highlightedCounties.map(({ row, path }) => (
-        <g key={row.slug} data-county-map-path={row.slug}>
-          <path d={path} fill={permitMapFill(row.permitCount)} stroke={row.hasProceduralPressure ? "#f8fafc" : "rgba(15,23,42,0.95)"} strokeWidth={row.hasProceduralPressure ? 1.4 : 0.75} />
-          {row.cidCaseCount > 0 ? <path d={path} fill="url(#cidHatch)" opacity={0.8} /> : null}
-          <title>{`${row.county}: ${row.permitCount} pending permit${row.permitCount === 1 ? "" : "s"}, ${row.cidCaseCount} CID case${row.cidCaseCount === 1 ? "" : "s"}`}</title>
-        </g>
+      {highlightedCounties.map(({ row, path, permitsHref }) => (
+        <a key={row.slug} href={permitsHref} aria-label={`Open ${row.county} permit view`}>
+          <g data-county-map-path={row.slug}>
+            <path d={path} fill={permitMapFill(row.permitCount)} stroke={row.hasProceduralPressure ? "#f8fafc" : "rgba(15,23,42,0.95)"} strokeWidth={row.hasProceduralPressure ? 1.4 : 0.75} />
+            {row.cidCaseCount > 0 ? <path d={path} fill="url(#cidHatch)" opacity={0.8} /> : null}
+            <title>{`${row.county}: ${row.permitCount} pending permit${row.permitCount === 1 ? "" : "s"}, ${row.cidCaseCount} CID case${row.cidCaseCount === 1 ? "" : "s"}. Click for filtered permit view.`}</title>
+          </g>
+        </a>
       ))}
       {pathGenerator(texasCountyBorders) ? <path d={pathGenerator(texasCountyBorders) ?? undefined} fill="none" stroke="rgba(226,232,240,0.2)" strokeWidth={0.28} /> : null}
       {pathGenerator(texasCountyOutline) ? <path d={pathGenerator(texasCountyOutline) ?? undefined} fill="none" stroke="rgba(248,250,252,0.55)" strokeWidth={0.9} /> : null}

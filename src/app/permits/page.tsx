@@ -97,6 +97,20 @@ export default async function PermitsPage({
         <div className="relative mt-6 overflow-hidden rounded-xl bg-slate-950 ring-1 ring-white/5">
           <TexasCountyChoropleth rows={countyMapRows} />
         </div>
+        <div className="mt-4 flex flex-wrap items-center justify-between gap-4 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-slate-300">
+          <p>Click a highlighted county to open its filtered permit view.</p>
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-xs font-medium uppercase tracking-[0.18em] text-slate-500">Open county pages</span>
+            {countyMapRows.slice(0, 8).map((county) => (
+              <span key={`links-${county.slug}`} className="inline-flex items-center gap-2 rounded-full border border-white/10 px-3 py-1.5">
+                <span>{county.county}</span>
+                <Link href={`/permits?county=${county.slug}`} className="text-cyan-300 hover:text-cyan-200">Permits</Link>
+                <span className="text-slate-600">·</span>
+                <Link href={`/water/counties/${county.slug}`} className="text-cyan-300 hover:text-cyan-200">Water</Link>
+              </span>
+            ))}
+          </div>
+        </div>
       </section>
 
       <section className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">

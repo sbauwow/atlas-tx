@@ -101,8 +101,12 @@ describe("permits page", () => {
     expect(text).toContain("Fresh");
     expect(text).toContain("border-emerald-400/20 bg-emerald-400/10");
     expect(text).toContain("County permit map");
+    expect(text).toContain("Click a highlighted county to open its filtered permit view.");
     expect(text).toContain("data-county-map-path=\"travis-county\"");
     expect(text).toContain("data-county-map-path=\"hays-county\"");
+    expect(text).toContain("href=\"/permits?county=travis-county\"");
+    expect(text).toContain("href=\"/water/counties/travis-county\"");
+    expect(text).toContain("Open county pages");
     expect(text).not.toContain("data-county-map-tile");
   });
 
