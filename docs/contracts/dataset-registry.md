@@ -1,8 +1,9 @@
 # Contract — Dataset Registry & Scoring
 
-> Contract version: **0.6.0** — bump on any breaking change to types, fetcher signatures, or scoring outputs. Notify `mcp` and `web` workstreams in `STATE.md` when bumping.
+> Contract version: **0.7.0** — bump on any breaking change to types, fetcher signatures, or scoring outputs. Notify `mcp` and `web` workstreams in `STATE.md` when bumping.
 >
 > Changelog:
+> - 0.7.0 (2026-05-09): add `city-open-data` catalog snapshot contract for Austin, Dallas, Houston, and San Antonio portal metadata refreshes. This is additive and supports source discovery / follow-on ingest planning.
 > - 0.6.0 (2026-05-09): add planned weather / hydrologic context contract language for NWS alerts, USGS streamflow, drought status, precipitation totals, and temperature / heat indicators. Clarify these are explanatory context layers for water events, not standalone proof of contamination or infrastructure failure.
 > - 0.5.0 (2026-05-09): add planned mismatch-signal contract language for boil-water notices, E2 disinfectant reporting, and biological integrity / aquatic life context. Clarify that notice, treatment-stress, and biology layers are reporter-lead indicators, not direct proof of contamination or harm.
 > - 0.4.0 (2026-05-08): add `tceq-swq-segments` as a registered external source for surface-water impairment / use-support context. Clarify platform stance: environmental burden is inferred from indicator layers, not directly observed.
@@ -58,6 +59,43 @@ Caching rules:
 - Snapshot under `public/cache/<slug>-tx.json`.
 - Snapshot is committed when small (<5MB). Larger ⇒ `data/<slug>-tx.json` (gitignored) + a script under `scripts/refresh-<slug>.ts`.
 - Fetcher must accept and respect a TX-only filter; we do not fetch national snapshots.
+
+### City open-data catalog snapshot (additive)
+File: `src/lib/datasets/city-open-data.ts`
+Script: `scripts/refresh-city-open-data.ts`
+Snapshot: `public/cache/city-open-data-tx.json`
+
+Purpose:
+- freeze discoverable catalog metadata from the Austin, Dallas, Houston, and San Antonio city open-data portals into one committed Texas-city snapshot;
+- support follow-on source selection and ingestion planning without live portal dependency in demo/research paths.
+
+Normalized row shape:
+```ts
+export type CityOpenDataCatalogRow = {
+  sourceId: "austin" | "dallas" | "houston" | "san-antonio";
+  sourceName: string;
+  sourceType: "socrata" | "ckan";
+  datasetId: string;
+  slug: string;
+  name: string;
+  description: string | null;
+  category: string | null;
+  organization: string | null;
+  assetType: string | null;
+  createdAt: string | null;
+  updatedAt: string | null;
+  tagCount: number;
+  resourceCount: number;
+  formats: string[];
+  pageUrl: string;
+  apiUrl: string | null;
+};
+```
+
+Caveats:
+- this is catalog metadata, not row-level dataset content;
+- Socrata portal counts include non-tabular asset types (for example views, measures, files, and filters) unless downstream consumers explicitly filter them;
+- portal totals can shift between refreshes as publishers add/remove datasets or derived assets.
 
 ## Scoring functions
 

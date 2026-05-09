@@ -13,4 +13,8 @@ describe("package scripts", () => {
   it("exposes a refresh:surface-water-quality script for refreshing TCEQ surface-water-quality cache", () => {
     expect(pkg.scripts["refresh:surface-water-quality"]).toBe("tsx scripts/refresh-surface-water-quality.ts");
   });
+
+  it("exposes a refresh:city-open-data script for refreshing Texas city open-data catalogs", () => {
+    expect(pkg.scripts["refresh:city-open-data"]).toBe("tsx scripts/refresh-city-open-data.ts");
+  });
 });
