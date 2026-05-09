@@ -1,8 +1,9 @@
 # Contract — MCP Tool Surface
 
-> Contract version: **0.3.0** — bump on any breaking change to tool name, params, or response shape. Notify `skill` workstream in `STATE.md` when bumping.
+> Contract version: **0.4.0** — bump on any breaking change to tool name, params, or response shape. Notify `skill` workstream in `STATE.md` when bumping.
 >
 > Changelog:
+> - 0.4.0 (2026-05-10): add `get_pipeline_health` so MCP can read the staged refresh artifact and expose CID fallback/failure state to agents.
 > - 0.3.0 (2026-05-09): add filing-level permit scrutiny tools `list_permit_filing_red_flags` and `build_permit_protest_prep` so MCP matches the new `/permits` filing-detail workflow.
 > - 0.2.0 (2026-05-08): add draft protest/CID tool signatures (`list_protested_permits`, `score_protest_density`) and optional APD folding in `summarize_water_risk_for_county`.
 > - 0.1.0: initial DWRS/EJ tool surface.
@@ -33,7 +34,7 @@ type Source = {
 
 Tools never return naked data. The skill relies on `sources` and `caveats` to satisfy attribution + safety guardrails.
 
-## Tool catalog (v0.3.0)
+## Tool catalog (v0.4.0)
 
 ### `discover_datasets`
 Lists registered datasets with category + use-case + access type.
@@ -205,6 +206,32 @@ data: Array<{
     county_pressure: number;
   };
 }>;
+```
+
+### `get_pipeline_health`
+Returns the latest staged refresh status from `public/cache/pipeline-health.json`.
+
+```ts
+params: {};
+data: {
+  overall_status: "ok" | "degraded" | "failed";
+  last_successful_run_at: string | null;
+  stale_steps: string[];
+  cid: {
+    status: "ok" | "failed" | "skipped" | "missing";
+    browser_fallback_used: boolean;
+    last_error: string | null;
+  };
+  steps: Array<{
+    step_id: string;
+    status: "ok" | "failed" | "skipped";
+    started_at: string;
+    ended_at: string;
+    duration_ms: number;
+    output_path: string | null;
+    notes: string[];
+  }>;
+};
 ```
 
 ## Adding a new tool

@@ -329,4 +329,48 @@ describe("Atlas TX MCP handlers", () => {
     const dispatched = await runAtlasTxTool("build_permit_protest_prep", { tceq_id: "WQ0000447000" }, deps);
     expect(dispatched.data.tceq_id).toBe("WQ0000447000");
   });
+
+  it("returns pipeline health from the staged refresh report artifact", async () => {
+    const deps = {
+      loadPipelineHealthReport: async () => ({
+        generatedAt: "2026-05-10T03:00:00.000Z",
+        overallStatus: "degraded",
+        steps: [
+          {
+            stepId: "refresh-twdb-hydrology",
+            status: "ok",
+            startedAt: "2026-05-10T03:00:00.000Z",
+            endedAt: "2026-05-10T03:00:05.000Z",
+            durationMs: 5000,
+            outputPath: "public/cache/twdb-hydrology.json",
+            notes: ["completed refresh-twdb-hydrology"],
+          },
+          {
+            stepId: "refresh-cid",
+            status: "failed",
+            startedAt: "2026-05-10T03:05:00.000Z",
+            endedAt: "2026-05-10T03:05:10.000Z",
+            durationMs: 10000,
+            outputPath: null,
+            notes: ["CID browser fallback used after Search One error page", "CID Search One returned the upstream error page"],
+          },
+        ],
+      }),
+    };
+    const handlers = createAtlasTxMcpHandlers(deps);
+
+    const result = await handlers.get_pipeline_health();
+
+    expect(result.cache_state).toBe("snapshot");
+    expect(result.generated_at).toBe("2026-05-10T03:00:00.000Z");
+    expect(result.data.overall_status).toBe("degraded");
+    expect(result.data.last_successful_run_at).toBe("2026-05-10T03:00:00.000Z");
+    expect(result.data.cid.browser_fallback_used).toBe(true);
+    expect(result.data.cid.status).toBe("failed");
+    expect(result.data.stale_steps).toEqual(["refresh-cid"]);
+    expect(result.data.steps[1]?.notes).toContain("CID browser fallback used after Search One error page");
+
+    const dispatched = await runAtlasTxTool("get_pipeline_health", {}, deps);
+    expect(dispatched.data.cid.browser_fallback_used).toBe(true);
+  });
 });

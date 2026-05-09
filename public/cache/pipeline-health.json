@@ -1,0 +1,73 @@
+{
+  "generatedAt": "2026-05-10T03:00:00.000Z",
+  "overallStatus": "degraded",
+  "steps": [
+    {
+      "stepId": "refresh-twdb-hydrology",
+      "status": "ok",
+      "startedAt": "2026-05-10T03:00:00.000Z",
+      "endedAt": "2026-05-10T03:00:05.000Z",
+      "durationMs": 5000,
+      "outputPath": "public/cache/twdb-hydrology.json",
+      "notes": [
+        "completed refresh-twdb-hydrology"
+      ]
+    },
+    {
+      "stepId": "refresh-surface-water-quality",
+      "status": "ok",
+      "startedAt": "2026-05-10T03:00:05.000Z",
+      "endedAt": "2026-05-10T03:00:08.000Z",
+      "durationMs": 3000,
+      "outputPath": "public/cache/tceq-surface-water-quality-summary.json",
+      "notes": [
+        "completed refresh-surface-water-quality"
+      ]
+    },
+    {
+      "stepId": "refresh-city-open-data",
+      "status": "ok",
+      "startedAt": "2026-05-10T03:00:08.000Z",
+      "endedAt": "2026-05-10T03:00:12.000Z",
+      "durationMs": 4000,
+      "outputPath": "public/cache/city-open-data-tx.json",
+      "notes": [
+        "completed refresh-city-open-data"
+      ]
+    },
+    {
+      "stepId": "refresh-city-open-data-curated",
+      "status": "ok",
+      "startedAt": "2026-05-10T03:00:12.000Z",
+      "endedAt": "2026-05-10T03:00:15.000Z",
+      "durationMs": 3000,
+      "outputPath": "public/cache/city-open-data-curated-tx.json",
+      "notes": [
+        "completed refresh-city-open-data-curated"
+      ]
+    },
+    {
+      "stepId": "refresh-city-open-data-ranked",
+      "status": "ok",
+      "startedAt": "2026-05-10T03:00:15.000Z",
+      "endedAt": "2026-05-10T03:00:18.000Z",
+      "durationMs": 3000,
+      "outputPath": "public/cache/city-open-data-ranked-tx.json",
+      "notes": [
+        "completed refresh-city-open-data-ranked"
+      ]
+    },
+    {
+      "stepId": "refresh-cid",
+      "status": "failed",
+      "startedAt": "2026-05-10T03:00:18.000Z",
+      "endedAt": "2026-05-10T03:00:28.000Z",
+      "durationMs": 10000,
+      "outputPath": null,
+      "notes": [
+        "CID browser fallback used after Search One error page",
+        "CID Search One returned the upstream error page"
+      ]
+    }
+  ]
+}

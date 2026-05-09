@@ -87,6 +87,7 @@ Run it directly:
 npm run mcp -- discover_datasets
 npm run mcp -- list_permit_filing_red_flags '{"county":"Travis County","limit":5}'
 npm run mcp -- build_permit_protest_prep '{"tceq_id":"WQ0000447000"}'
+npm run mcp -- get_pipeline_health
 ```
 
 Current MCP surface includes:
@@ -97,6 +98,7 @@ Current MCP surface includes:
 - `score_protest_density`
 - `list_permit_filing_red_flags`
 - `build_permit_protest_prep`
+- `get_pipeline_health`
 
 See `docs/contracts/mcp-tools.md` for the contract.
 

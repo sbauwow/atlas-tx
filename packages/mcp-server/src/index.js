@@ -1,3 +1,6 @@
+import { promises as fs } from 'node:fs';
+import path from 'node:path';
+
 import { MVP_DATASETS } from '../../../src/lib/mvp-datasets.ts';
 
 const DATASET_URLS = {
@@ -45,6 +48,12 @@ async function loadPermitHelpers() {
   };
 }
 
+async function loadPipelineHealthReportFromSnapshot() {
+  const reportPath = path.join(process.cwd(), 'public', 'cache', 'pipeline-health.json');
+  const raw = await fs.readFile(reportPath, 'utf8');
+  return JSON.parse(raw);
+}
+
 function source(datasetId, retrievedAt, rowsUsed) {
   const dataset = datasetById(datasetId);
   return {
@@ -76,6 +85,31 @@ function normalizePermitContext(data) {
     cacheState: data.cacheState ?? 'snapshot',
     permits: data.permits,
     cidSummary: data.cidSummary,
+  };
+}
+
+function buildPipelineHealthSummary(report) {
+  const cidStep = report.steps.find((step) => step.stepId === 'refresh-cid') ?? null;
+  const lastSuccessfulRunAt = report.steps.some((step) => step.status === 'ok') ? report.generatedAt : null;
+
+  return {
+    overall_status: report.overallStatus,
+    last_successful_run_at: lastSuccessfulRunAt,
+    stale_steps: report.steps.filter((step) => step.status !== 'ok').map((step) => step.stepId),
+    cid: {
+      status: cidStep?.status ?? 'missing',
+      browser_fallback_used: cidStep?.notes?.some((note) => /browser fallback/i.test(note)) ?? false,
+      last_error: cidStep?.status === 'failed' ? (cidStep.notes?.at(-1) ?? null) : null,
+    },
+    steps: report.steps.map((step) => ({
+      step_id: step.stepId,
+      status: step.status,
+      started_at: step.startedAt,
+      ended_at: step.endedAt,
+      duration_ms: step.durationMs,
+      output_path: step.outputPath,
+      notes: step.notes,
+    })),
   };
 }
 
@@ -139,6 +173,7 @@ export function createAtlasTxMcpHandlers(deps = {}) {
     const helpers = await loadPermitHelpers();
     return normalizePermitContext(await helpers.getTceqPendingPermitsPageData());
   });
+  const loadPipelineHealthReport = deps.loadPipelineHealthReport ?? loadPipelineHealthReportFromSnapshot;
 
   return {
     async discover_datasets(params = {}) {
@@ -325,6 +360,19 @@ export function createAtlasTxMcpHandlers(deps = {}) {
         caveats: [
           'Atlas TX provides drafting support only and does not provide legal advice or submit filings.',
           'No individual commenter names are surfaced; only aggregate filing signals and public-record context.',
+        ],
+      });
+    },
+
+    async get_pipeline_health() {
+      const report = await loadPipelineHealthReport();
+      return envelope(buildPipelineHealthSummary(report), {
+        generatedAt: report.generatedAt,
+        cacheState: 'snapshot',
+        sources: [],
+        caveats: [
+          'Pipeline health reflects the latest staged refresh artifact, not a live check against upstream sources.',
+          'CID remains the most failure-prone source; browser fallback usage is inferred from recorded step notes.',
         ],
       });
     },
