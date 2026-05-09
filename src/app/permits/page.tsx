@@ -146,7 +146,7 @@ export default async function PermitsPage({
               <div key={row.tceqId} className="rounded-xl border border-white/5 bg-white/[0.03] px-4 py-4">
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div>
-                    <div className="text-sm font-medium text-white">{row.applicantName}</div>
+                    <Link href={`/permits/${row.tceqId}`} className="text-sm font-medium text-white transition-colors hover:text-cyan-300">{row.applicantName}</Link>
                     <div className="mt-1 text-xs uppercase tracking-[0.18em] text-slate-500">{row.programArea} · {row.county ?? "Unknown county"} · {row.tceqId}</div>
                   </div>
                   <div className="rounded-full bg-white/5 px-3 py-1 text-sm font-medium text-cyan-300">Score {row.score}</div>

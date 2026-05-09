@@ -7,6 +7,7 @@ import {
   summarizeCidOpenCases,
   summarizePendingPermits,
   formatCidSnapshotAgeBadge,
+  getPermitFilingDetailPageData,
   type TceqPermitStatusCount,
 } from "@/lib/tceq-permits";
 
@@ -175,5 +176,47 @@ describe("tceq permits", () => {
       filingCounts: { comments: 1, hearingRequests: 1, publicMeetingRequests: 0 },
       latestFiledAt: "2026-04-04",
     });
+  });
+
+  it("builds filing detail page data from a CID case plus related permits", () => {
+    const detail = getPermitFilingDetailPageData({
+      tceqId: "WQ0000447000",
+      permits,
+      cidSummary: {
+        available: true,
+        generatedAt: "2026-05-09T00:00:00.000Z",
+        openCaseCount: 2,
+        protestedCaseCount: 1,
+        hearingRequestCount: 1,
+        publicMeetingRequestCount: 0,
+        caveats: ["CID Search One is fragile; treat this lane as best-effort procedural context."],
+        topProgramAreas: [
+          { programArea: "WQ", count: 1 },
+          { programArea: "APO", count: 1 },
+        ],
+        cases: [
+          {
+            tceqId: "WQ0000447000",
+            applicantName: "Alpha Water LLC",
+            county: "Travis County",
+            programArea: "WQ",
+            itemStatus: "open",
+            tceqDocketNumber: "2026-001",
+            soahDocketNumber: "582-26-0001",
+            regulatedEntityNumber: null,
+            customerNumber: null,
+            filingCounts: { comments: 1, hearingRequests: 1, publicMeetingRequests: 0 },
+            latestFiledAt: "2026-04-04",
+          },
+        ],
+      },
+    });
+
+    expect(detail.caseRow.tceqId).toBe("WQ0000447000");
+    expect(detail.relatedPermits).toHaveLength(1);
+    expect(detail.relatedPermits[0]?.permitNumber).toBe("WQ0001");
+    expect(detail.countyPermitCount).toBe(2);
+    expect(detail.redFlagRow?.reasons.map((reason) => reason.text)).toContain("SOAH docket present");
+    expect(detail.redFlagRow?.reasons.map((reason) => reason.text)).toContain("2 pending permits in Travis County");
   });
 });

@@ -1,5 +1,6 @@
 import { normalizeCountyName, sameCounty, countySlug } from "@/lib/counties";
 import type { CidCaseRow, CidProtestRow } from "@/lib/datasets/cid";
+import { scorePermitFilingRedFlags, type PermitFilingRedFlagRow } from "@/lib/scoring/permit_filing_red_flags";
 import { fetchDatasetRows } from "@/lib/texas-open-data";
 
 export type TceqWaterPermitRawRow = {
@@ -43,6 +44,14 @@ export type PendingPermitsPageData = {
   summary: PendingPermitSummary;
   cidSummary: CidOpenCasesSummary;
   permits: TceqWaterPermit[];
+};
+
+export type PermitFilingDetailPageData = {
+  caseRow: CidCaseWithFilings;
+  countyPermitCount: number;
+  relatedPermits: TceqWaterPermit[];
+  redFlagRow: PermitFilingRedFlagRow | null;
+  cidSummary: CidOpenCasesSummary;
 };
 
 export type PendingPermitCountyMapRow = {
@@ -317,6 +326,40 @@ async function loadCidOpenCasesSummary(county?: string | null): Promise<CidOpenC
       ...(protestSnapshot.caveats ?? []),
       "CID Search One remains fragile; treat this lane as best-effort procedural context rather than guaranteed live statewide coverage.",
     ],
+  };
+}
+
+export function getPermitFilingDetailPageData({
+  tceqId,
+  permits,
+  cidSummary,
+}: {
+  tceqId: string;
+  permits: TceqWaterPermit[];
+  cidSummary: CidOpenCasesSummary;
+}): PermitFilingDetailPageData {
+  const caseRow = cidSummary.cases.find((row) => row.tceqId === tceqId);
+  if (!caseRow) {
+    throw new Error(`Permit filing not found: ${tceqId}`);
+  }
+
+  const relatedPermits = permits.filter((permit) => {
+    if (caseRow.county && permit.county && sameCounty(permit.county, caseRow.county)) {
+      return permit.permitteeName === caseRow.applicantName;
+    }
+    return permit.permitteeName === caseRow.applicantName;
+  });
+  const countyPermitCount = caseRow.county
+    ? permits.filter((permit) => permit.county && sameCounty(permit.county, caseRow.county as string)).length
+    : 0;
+  const redFlagRow = scorePermitFilingRedFlags({ permits, cases: cidSummary.cases }).find((row) => row.tceqId === tceqId) ?? null;
+
+  return {
+    caseRow,
+    countyPermitCount,
+    relatedPermits,
+    redFlagRow,
+    cidSummary,
   };
 }
 
