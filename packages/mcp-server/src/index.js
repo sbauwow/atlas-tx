@@ -1,5 +1,4 @@
 import { MVP_DATASETS } from '../../../src/lib/mvp-datasets.ts';
-import { scoreProtestDensity } from '../../../src/lib/scoring/protest_density.ts';
 
 const DATASET_URLS = {
   'tceq-cid-search-one': 'https://www14.tceq.texas.gov/epic/eCID/index.cfm#searchone',
@@ -9,6 +8,16 @@ const DATASET_URLS = {
 
 function datasetById(datasetId) {
   return MVP_DATASETS.find((dataset) => dataset.id === datasetId);
+}
+
+async function loadAcsCountyPopulationFromSnapshot() {
+  const mod = await import('../../../src/lib/datasets/acs.ts');
+  return await mod.loadAcsCountyPopulationFromSnapshot();
+}
+
+async function loadScoreProtestDensity() {
+  const mod = await import('../../../src/lib/scoring/protest_density.ts');
+  return mod.scoreProtestDensity;
 }
 
 function source(datasetId, retrievedAt, rowsUsed) {
@@ -90,9 +99,7 @@ export function createAtlasTxMcpHandlers(deps = {}) {
   const loadCidData = deps.loadCidData ?? (async () => {
     throw new Error('CID data loader not wired yet');
   });
-  const loadCountyPopulation = deps.loadCountyPopulation ?? (async () => {
-    throw new Error('County population loader not wired yet');
-  });
+  const loadCountyPopulation = deps.loadCountyPopulation ?? loadAcsCountyPopulationFromSnapshot;
 
   return {
     async discover_datasets(params = {}) {
@@ -146,6 +153,7 @@ export function createAtlasTxMcpHandlers(deps = {}) {
     async score_protest_density(params = {}) {
       const cid = await loadCidData();
       const countyPopulation = await loadCountyPopulation();
+      const scoreProtestDensity = await loadScoreProtestDensity();
       const data = scoreProtestDensity({
         cases: cid.cases,
         protests: cid.protests,
@@ -183,10 +191,30 @@ export function createAtlasTxMcpHandlers(deps = {}) {
   };
 }
 
-export function main() {
-  console.log('Atlas TX MCP server scaffold');
+export async function runAtlasTxTool(toolName, params = {}, deps = {}) {
+  const handlers = createAtlasTxMcpHandlers(deps);
+  const handler = handlers[toolName];
+  if (typeof handler !== 'function') {
+    throw new Error(`Unknown Atlas TX tool: ${toolName}`);
+  }
+  return await handler(params);
+}
+
+export async function main(argv = process.argv.slice(2)) {
+  const [toolName, rawParams] = argv;
+  if (!toolName) {
+    console.log('Atlas TX MCP server scaffold');
+    return;
+  }
+
+  const params = rawParams ? JSON.parse(rawParams) : {};
+  const result = await runAtlasTxTool(toolName, params);
+  console.log(JSON.stringify(result));
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {
-  main();
+  main().catch((error) => {
+    console.error(error);
+    process.exit(1);
+  });
 }

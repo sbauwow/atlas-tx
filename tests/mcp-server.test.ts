@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { createAtlasTxMcpHandlers } from "../packages/mcp-server/src/index.js";
+import { createAtlasTxMcpHandlers, runAtlasTxTool } from "../packages/mcp-server/src/index.js";
 
 describe("Atlas TX MCP handlers", () => {
   it("lists protested permits with aggregated filing counts and named orgs only", async () => {
@@ -69,7 +69,7 @@ describe("Atlas TX MCP handlers", () => {
   });
 
   it("scores protest density and returns the standard response envelope", async () => {
-    const handlers = createAtlasTxMcpHandlers({
+    const deps = {
       loadCidData: async () => ({
         cases: [
           {
@@ -112,11 +112,8 @@ describe("Atlas TX MCP handlers", () => {
         generatedAt: "2026-05-08T00:00:00.000Z",
         cacheState: "snapshot",
       }),
-      loadCountyPopulation: async () => ({
-        "Brazoria County": 380000,
-        "Comal County": 180000,
-      }),
-    });
+    };
+    const handlers = createAtlasTxMcpHandlers(deps);
 
     const result = await handlers.score_protest_density({ scope: "county", limit: 2 });
 
@@ -130,5 +127,9 @@ describe("Atlas TX MCP handlers", () => {
     expect(result.data).toHaveLength(2);
     expect(result.data[0]?.county).toBe("Brazoria County");
     expect(result.data[0]?.components.soah_case_count).toBe(1);
+
+    const dispatched = await runAtlasTxTool('score_protest_density', { scope: 'county', limit: 1 }, deps);
+    expect(dispatched.data).toHaveLength(1);
+    expect(dispatched.data[0]?.county).toBe('Brazoria County');
   });
 });
