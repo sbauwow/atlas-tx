@@ -4,6 +4,7 @@ import {
   buildDefaultCidRefreshPlan,
   buildCidRefreshSearchTwoParams,
   executeCidRefresh,
+  resolveCidSnapshotTargets,
   summarizeCidRefreshPlan,
   writeCidRefreshSnapshots,
 } from "../scripts/refresh-cid";
@@ -147,26 +148,40 @@ describe("refresh-cid planning", () => {
     });
   });
 
+  it("falls back to data/ targets when snapshots exceed the committed size budget", () => {
+    const targets = resolveCidSnapshotTargets({
+      caseBytes: 6_000_000,
+      protestBytes: 2_000_000,
+      maxCommittedBytes: 5_000_000,
+    });
+
+    expect(targets).toEqual({
+      casePath: "data/cid-cases-tx.json",
+      protestPath: "public/cache/cid-protests-tx.json",
+    });
+  });
+
   it("writes case and protest snapshots to the requested paths", async () => {
     const writes: Array<{ path: string; content: string }> = [];
+    const refreshResult = {
+      caseSnapshot: {
+        generatedAt: "2026-05-09T03:00:00.000Z",
+        source: "search-one",
+        rowCount: 1,
+        rows: [{ tceqId: "APO1" }],
+        caveats: ["case caveat"],
+      },
+      protestSnapshot: {
+        generatedAt: "2026-05-09T03:00:00.000Z",
+        source: "search-two",
+        rowCount: 1,
+        rows: [{ tceqId: "APO1" }],
+        caveats: ["protest caveat"],
+      },
+    };
 
     await writeCidRefreshSnapshots(
-      {
-        caseSnapshot: {
-          generatedAt: "2026-05-09T03:00:00.000Z",
-          source: "search-one",
-          rowCount: 1,
-          rows: [{ tceqId: "APO1" }],
-          caveats: ["case caveat"],
-        },
-        protestSnapshot: {
-          generatedAt: "2026-05-09T03:00:00.000Z",
-          source: "search-two",
-          rowCount: 1,
-          rows: [{ tceqId: "APO1" }],
-          caveats: ["protest caveat"],
-        },
-      },
+      refreshResult,
       {
         casePath: "public/cache/cid-cases-tx.json",
         protestPath: "public/cache/cid-protests-tx.json",
@@ -181,5 +196,42 @@ describe("refresh-cid planning", () => {
     expect(writes[1]?.path).toBe("public/cache/cid-protests-tx.json");
     expect(JSON.parse(writes[0]?.content ?? "{}")).toMatchObject({ rowCount: 1 });
     expect(JSON.parse(writes[1]?.content ?? "{}")).toMatchObject({ rowCount: 1 });
+  });
+
+  it("resolves size-based targets before writing snapshots", async () => {
+    const writes: Array<string> = [];
+    const refreshResult = {
+      caseSnapshot: {
+        generatedAt: "2026-05-09T03:00:00.000Z",
+        source: "search-one",
+        rowCount: 1,
+        rows: [{ big: "x".repeat(6_000_000) }],
+        caveats: [],
+      },
+      protestSnapshot: {
+        generatedAt: "2026-05-09T03:00:00.000Z",
+        source: "search-two",
+        rowCount: 1,
+        rows: [{ small: true }],
+        caveats: [],
+      },
+    };
+    const targets = resolveCidSnapshotTargets({
+      caseBytes: JSON.stringify(refreshResult.caseSnapshot).length,
+      protestBytes: JSON.stringify(refreshResult.protestSnapshot).length,
+      maxCommittedBytes: 5_000_000,
+    });
+
+    await writeCidRefreshSnapshots(refreshResult, {
+      ...targets,
+      writeFile: async (path) => {
+        writes.push(path);
+      },
+    });
+
+    expect(writes).toEqual([
+      "data/cid-cases-tx.json",
+      "public/cache/cid-protests-tx.json",
+    ]);
   });
 });

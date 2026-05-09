@@ -111,6 +111,24 @@ export async function executeCidRefresh(options: RefreshCidCliOptions & {
   };
 }
 
+export function resolveCidSnapshotTargets(options: {
+  caseBytes: number;
+  protestBytes: number;
+  maxCommittedBytes?: number;
+}) {
+  const maxCommittedBytes = options.maxCommittedBytes ?? 5_000_000;
+  return {
+    casePath:
+      options.caseBytes > maxCommittedBytes
+        ? 'data/cid-cases-tx.json'
+        : 'public/cache/cid-cases-tx.json',
+    protestPath:
+      options.protestBytes > maxCommittedBytes
+        ? 'data/cid-protests-tx.json'
+        : 'public/cache/cid-protests-tx.json',
+  };
+}
+
 export async function writeCidRefreshSnapshots(
   refreshResult: {
     caseSnapshot: unknown;
