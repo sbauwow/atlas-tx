@@ -1,4 +1,5 @@
 import { normalizeCountyName, sameCounty } from "@/lib/counties";
+import type { CidCaseRow, CidProtestRow } from "@/lib/datasets/cid";
 import { fetchDatasetRows } from "@/lib/texas-open-data";
 
 export type TceqWaterPermitRawRow = {
@@ -40,7 +41,29 @@ export type PendingPermitsPageData = {
   countyFilter: string | null;
   generatedAt: string;
   summary: PendingPermitSummary;
+  cidSummary: CidOpenCasesSummary;
   permits: TceqWaterPermit[];
+};
+
+export type CidCaseWithFilings = CidCaseRow & {
+  filingCounts: {
+    comments: number;
+    hearingRequests: number;
+    publicMeetingRequests: number;
+  };
+  latestFiledAt: string | null;
+};
+
+export type CidOpenCasesSummary = {
+  available: boolean;
+  generatedAt: string | null;
+  openCaseCount: number;
+  protestedCaseCount: number;
+  hearingRequestCount: number;
+  publicMeetingRequestCount: number;
+  caveats: string[];
+  topProgramAreas: Array<{ programArea: string; count: number }>;
+  cases: CidCaseWithFilings[];
 };
 
 function normalizeOptionalTitle(value?: string | null): string | null {
@@ -104,6 +127,112 @@ export function summarizePendingPermits(
   };
 }
 
+export function summarizeCidOpenCases(cases: CidCaseRow[], protests: CidProtestRow[]): CidOpenCasesSummary {
+  const protestMap = new Map<string, CidProtestRow[]>();
+  for (const protest of protests) {
+    const rows = protestMap.get(protest.tceqId) ?? [];
+    rows.push(protest);
+    protestMap.set(protest.tceqId, rows);
+  }
+
+  const topProgramAreas = new Map<string, number>();
+  const enrichedCases = cases
+    .filter((row) => row.itemStatus === "open")
+    .map((row) => {
+      topProgramAreas.set(row.programArea, (topProgramAreas.get(row.programArea) ?? 0) + 1);
+      const filings = protestMap.get(row.tceqId) ?? [];
+      const filingCounts = {
+        comments: filings.filter((item) => item.filingType === "comment").length,
+        hearingRequests: filings.filter((item) => item.filingType === "hearing_request").length,
+        publicMeetingRequests: filings.filter((item) => item.filingType === "public_meeting_request").length,
+      };
+      return {
+        ...row,
+        filingCounts,
+        latestFiledAt: filings.map((item) => item.filedAt).sort().at(-1) ?? null,
+      } satisfies CidCaseWithFilings;
+    })
+    .sort((left, right) => {
+      const leftPressure = left.filingCounts.hearingRequests + left.filingCounts.publicMeetingRequests + left.filingCounts.comments;
+      const rightPressure = right.filingCounts.hearingRequests + right.filingCounts.publicMeetingRequests + right.filingCounts.comments;
+      return rightPressure - leftPressure || left.tceqId.localeCompare(right.tceqId);
+    });
+
+  return {
+    available: true,
+    generatedAt: null,
+    openCaseCount: enrichedCases.length,
+    protestedCaseCount: enrichedCases.filter((row) => row.latestFiledAt !== null).length,
+    hearingRequestCount: protests.filter((row) => row.filingType === "hearing_request").length,
+    publicMeetingRequestCount: protests.filter((row) => row.filingType === "public_meeting_request").length,
+    caveats: [],
+    topProgramAreas: Array.from(topProgramAreas.entries())
+      .map(([programArea, count]) => ({ programArea, count }))
+      .sort((left, right) => right.count - left.count || left.programArea.localeCompare(right.programArea))
+      .slice(0, 10),
+    cases: enrichedCases,
+  };
+}
+
+async function loadCidCasesSnapshot(): Promise<{ generatedAt?: string; caveats?: string[]; rows?: CidCaseRow[] } | null> {
+  const fs = await import("node:fs/promises");
+  const path = await import("node:path");
+  try {
+    const raw = await fs.readFile(path.join(process.cwd(), "public", "cache", "cid-cases-tx.json"), "utf8");
+    return JSON.parse(raw) as { generatedAt?: string; caveats?: string[]; rows?: CidCaseRow[] };
+  } catch {
+    return null;
+  }
+}
+
+async function loadCidProtestsSnapshot(): Promise<{ generatedAt?: string; caveats?: string[]; rows?: CidProtestRow[] } | null> {
+  const fs = await import("node:fs/promises");
+  const path = await import("node:path");
+  try {
+    const raw = await fs.readFile(path.join(process.cwd(), "public", "cache", "cid-protests-tx.json"), "utf8");
+    return JSON.parse(raw) as { generatedAt?: string; caveats?: string[]; rows?: CidProtestRow[] };
+  } catch {
+    return null;
+  }
+}
+
+async function loadCidOpenCasesSummary(county?: string | null): Promise<CidOpenCasesSummary> {
+  const [caseSnapshot, protestSnapshot] = await Promise.all([
+    loadCidCasesSnapshot(),
+    loadCidProtestsSnapshot(),
+  ]);
+
+  if (!caseSnapshot || !protestSnapshot) {
+    return {
+      available: false,
+      generatedAt: null,
+      openCaseCount: 0,
+      protestedCaseCount: 0,
+      hearingRequestCount: 0,
+      publicMeetingRequestCount: 0,
+      caveats: ["CID open-case snapshot unavailable. Run refresh:cid after stabilizing Search One/browser fallback."],
+      topProgramAreas: [],
+      cases: [],
+    };
+  }
+
+  const filteredCases = county?.trim()
+    ? caseSnapshot.rows?.filter((row) => row.county && sameCounty(row.county, county)) ?? []
+    : caseSnapshot.rows ?? [];
+  const caseIds = new Set(filteredCases.map((row) => row.tceqId));
+  const filteredProtests = (protestSnapshot.rows ?? []).filter((row) => caseIds.has(row.tceqId));
+  const summary = summarizeCidOpenCases(filteredCases, filteredProtests);
+  return {
+    ...summary,
+    generatedAt: caseSnapshot.generatedAt ?? protestSnapshot.generatedAt ?? null,
+    caveats: [
+      ...(caseSnapshot.caveats ?? []),
+      ...(protestSnapshot.caveats ?? []),
+      "CID Search One remains fragile; treat this lane as best-effort procedural context rather than guaranteed live statewide coverage.",
+    ],
+  };
+}
+
 export async function fetchTceqPendingPermits(signal?: AbortSignal): Promise<TceqWaterPermit[]> {
   const rows = await fetchDatasetRows<TceqWaterPermitRawRow>(
     "7fq8-wig2",
@@ -135,15 +264,17 @@ export async function fetchTceqPermitStatusCounts(signal?: AbortSignal): Promise
 }
 
 export async function getTceqPendingPermitsPageData(county?: string | null, signal?: AbortSignal): Promise<PendingPermitsPageData> {
-  const [permits, statusCounts] = await Promise.all([
+  const [permits, statusCounts, cidSummary] = await Promise.all([
     fetchTceqPendingPermits(signal),
     fetchTceqPermitStatusCounts(signal),
+    loadCidOpenCasesSummary(county),
   ]);
   const filteredPermits = filterPendingPermitsByCounty(permits, county);
   return {
     countyFilter: county?.trim() ? county.trim() : null,
     generatedAt: new Date().toISOString(),
     summary: summarizePendingPermits(filteredPermits, statusCounts),
+    cidSummary,
     permits: filteredPermits,
   };
 }

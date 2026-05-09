@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   filterPendingPermitsByCounty,
   normalizeTceqWaterPermits,
+  summarizeCidOpenCases,
   summarizePendingPermits,
   type TceqPermitStatusCount,
 } from "@/lib/tceq-permits";
@@ -70,5 +71,48 @@ describe("tceq permits", () => {
     expect(summary.countyCount).toBe(2);
     expect(summary.authorizationTypeCount).toBe(2);
     expect(summary.topCounties[0]).toEqual({ county: "Travis County", count: 2 });
+  });
+
+  it("summarizes CID open cases and protest pressure", () => {
+    const summary = summarizeCidOpenCases(
+      [
+        {
+          tceqId: "WQ0000447000",
+          applicantName: "Alpha Water LLC",
+          county: "Travis County",
+          programArea: "WQ",
+          itemStatus: "open",
+          tceqDocketNumber: "2026-001",
+          soahDocketNumber: "582-26-0001",
+          regulatedEntityNumber: null,
+          customerNumber: null,
+        },
+        {
+          tceqId: "APO0009876",
+          applicantName: "Beta Materials",
+          county: "Hays County",
+          programArea: "APO",
+          itemStatus: "open",
+          tceqDocketNumber: null,
+          soahDocketNumber: null,
+          regulatedEntityNumber: null,
+          customerNumber: null,
+        },
+      ],
+      [
+        { tceqId: "WQ0000447000", filingType: "hearing_request", filerOrganization: "Public Citizen", filedAt: "2026-04-03" },
+        { tceqId: "WQ0000447000", filingType: "comment", filerOrganization: null, filedAt: "2026-04-04" },
+      ],
+    );
+
+    expect(summary.openCaseCount).toBe(2);
+    expect(summary.protestedCaseCount).toBe(1);
+    expect(summary.hearingRequestCount).toBe(1);
+    expect(summary.topProgramAreas[0]).toEqual({ programArea: "APO", count: 1 });
+    expect(summary.cases[0]).toMatchObject({
+      tceqId: "WQ0000447000",
+      filingCounts: { comments: 1, hearingRequests: 1, publicMeetingRequests: 0 },
+      latestFiledAt: "2026-04-04",
+    });
   });
 });

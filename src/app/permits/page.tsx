@@ -61,6 +61,13 @@ export default async function PermitsPage({
         <StatTile value={String(data.summary.authorizationTypeCount)} label="Authorization types" />
       </section>
 
+      <section className="grid gap-px overflow-hidden rounded-2xl bg-white/5 ring-1 ring-white/10 sm:grid-cols-4">
+        <StatTile value={String(data.cidSummary.openCaseCount)} label="CID open cases" />
+        <StatTile value={String(data.cidSummary.protestedCaseCount)} label="CID protested cases" />
+        <StatTile value={String(data.cidSummary.hearingRequestCount)} label="CID hearing requests" />
+        <StatTile value={String(data.cidSummary.publicMeetingRequestCount)} label="CID public meeting requests" />
+      </section>
+
       <section className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
         <article className="rounded-2xl bg-slate-900/40 p-6 ring-1 ring-white/5">
           <div className="flex items-center justify-between gap-4">
@@ -101,6 +108,54 @@ export default async function PermitsPage({
                     <td className="py-3 pr-4">{permit.authorizationType}</td>
                     <td className="py-3 pr-4">{permit.county ?? "Unknown"}</td>
                     <td className="py-3 pr-4">{permit.nearestCity ?? "Unknown"}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </article>
+      </section>
+
+      <section className="grid gap-6 lg:grid-cols-[0.8fr_1.2fr]">
+        <article className="rounded-2xl bg-slate-900/40 p-6 ring-1 ring-white/5">
+          <h2 className="text-2xl font-semibold text-white">CID open cases</h2>
+          <p className="mt-2 text-sm text-slate-400">Cross-program TCEQ procedural lane layered in alongside the stable water-permit dataset.</p>
+          <div className="mt-5 space-y-3">
+            {data.cidSummary.topProgramAreas.length ? data.cidSummary.topProgramAreas.map((row) => (
+              <div key={row.programArea} className="flex items-center justify-between rounded-xl border border-white/5 bg-white/[0.03] px-4 py-3">
+                <div className="text-sm text-slate-200">{row.programArea}</div>
+                <div className="rounded-full bg-white/5 px-3 py-1 text-sm font-medium text-cyan-300">{row.count}</div>
+              </div>
+            )) : <div className="rounded-xl border border-white/5 bg-white/[0.03] px-4 py-3 text-sm text-slate-400">No CID snapshot rows available.</div>}
+          </div>
+          <ul className="mt-5 space-y-2 text-sm text-slate-400">
+            {data.cidSummary.caveats.map((caveat) => (
+              <li key={caveat}>• {caveat}</li>
+            ))}
+          </ul>
+        </article>
+
+        <article className="rounded-2xl bg-slate-900/40 p-6 ring-1 ring-white/5">
+          <h2 className="text-2xl font-semibold text-white">CID case roster</h2>
+          <div className="mt-5 overflow-x-auto">
+            <table className="min-w-full text-left text-sm text-slate-300">
+              <thead className="text-xs uppercase tracking-[0.18em] text-slate-500">
+                <tr>
+                  <th className="pb-3 pr-4">TCEQ ID</th>
+                  <th className="pb-3 pr-4">Applicant</th>
+                  <th className="pb-3 pr-4">Program</th>
+                  <th className="pb-3 pr-4">County</th>
+                  <th className="pb-3 pr-4">Filings</th>
+                </tr>
+              </thead>
+              <tbody>
+                {data.cidSummary.cases.slice(0, 100).map((row) => (
+                  <tr key={row.tceqId} className="border-t border-white/5 align-top">
+                    <td className="py-3 pr-4 font-mono text-cyan-300">{row.tceqId}</td>
+                    <td className="py-3 pr-4">{row.applicantName}</td>
+                    <td className="py-3 pr-4">{row.programArea}</td>
+                    <td className="py-3 pr-4">{row.county ?? "Unknown"}</td>
+                    <td className="py-3 pr-4">{row.filingCounts.hearingRequests} HR / {row.filingCounts.publicMeetingRequests} PM / {row.filingCounts.comments} C</td>
                   </tr>
                 ))}
               </tbody>

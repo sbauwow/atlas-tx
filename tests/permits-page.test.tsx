@@ -15,6 +15,32 @@ vi.mock("@/lib/tceq-permits", () => ({
         { county: "Hays County", count: 1 },
       ],
     },
+    cidSummary: {
+      available: true,
+      generatedAt: "2026-05-09T00:00:00.000Z",
+      openCaseCount: 2,
+      protestedCaseCount: 1,
+      hearingRequestCount: 1,
+      publicMeetingRequestCount: 0,
+      caveats: ["CID Search One is fragile; treat this lane as best-effort procedural context."],
+      topProgramAreas: [
+        { programArea: "WQ", count: 1 },
+        { programArea: "APO", count: 1 },
+      ],
+      cases: [
+        {
+          tceqId: "WQ0000447000",
+          applicantName: "Alpha Water LLC",
+          county: "Travis County",
+          programArea: "WQ",
+          itemStatus: "open",
+          tceqDocketNumber: "2026-001",
+          soahDocketNumber: "582-26-0001",
+          filingCounts: { comments: 1, hearingRequests: 1, publicMeetingRequests: 0 },
+          latestFiledAt: "2026-04-04",
+        },
+      ],
+    },
     permits: [
       {
         permitNumber: "WQ0001",
@@ -41,6 +67,8 @@ describe("permits page", () => {
     expect(text).toContain("Travis County");
     expect(text).toContain("WQ0001");
     expect(text).toContain("Alpha Water LLC");
+    expect(text).toContain("CID open cases");
+    expect(text).toContain("WQ0000447000");
   });
 
   it("renders the selected county filter when present", async () => {
