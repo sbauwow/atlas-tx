@@ -101,8 +101,9 @@ describe("permits page", () => {
     expect(text).toContain("Fresh");
     expect(text).toContain("border-emerald-400/20 bg-emerald-400/10");
     expect(text).toContain("County permit map");
-    expect(text).toContain("data-county-map-tile=\"travis-county\"");
-    expect(text).toContain("data-county-map-tile=\"hays-county\"");
+    expect(text).toContain("data-county-map-path=\"travis-county\"");
+    expect(text).toContain("data-county-map-path=\"hays-county\"");
+    expect(text).not.toContain("data-county-map-tile");
   });
 
   it("renders the selected county filter when present", async () => {

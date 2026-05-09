@@ -1,37 +1,12 @@
 import Link from "next/link";
-import { TEXAS_COUNTY_CENTROIDS } from "@/lib/texas-county-centroids";
+
+import { TexasCountyChoropleth } from "@/app/components/texas-county-choropleth";
 import {
   buildPendingPermitCountyMapRows,
   formatCidSnapshotAgeBadge,
   getTceqPendingPermitsPageData,
   type CidSnapshotFreshnessBand,
 } from "@/lib/tceq-permits";
-
-const MAP_WIDTH = 900;
-const MAP_HEIGHT = 520;
-const LAT_MIN = 25;
-const LAT_MAX = 37;
-const LON_MIN = -107;
-const LON_MAX = -93;
-
-function clamp(value: number, min: number, max: number) {
-  return Math.min(Math.max(value, min), max);
-}
-
-function projectPoint(latitude: number, longitude: number) {
-  const x = ((longitude - LON_MIN) / (LON_MAX - LON_MIN)) * MAP_WIDTH;
-  const y = MAP_HEIGHT - ((latitude - LAT_MIN) / (LAT_MAX - LAT_MIN)) * MAP_HEIGHT;
-  return {
-    x: clamp(x, 18, MAP_WIDTH - 18),
-    y: clamp(y, 18, MAP_HEIGHT - 18),
-  };
-}
-
-function permitMapFill(permitCount: number) {
-  if (permitCount >= 3) return "#d946ef";
-  if (permitCount === 2) return "#22d3ee";
-  return "#34d399";
-}
 
 export default async function PermitsPage({
   searchParams,
@@ -43,17 +18,6 @@ export default async function PermitsPage({
   const cidSnapshotBadge = formatCidSnapshotAgeBadge(data.cidSummary.generatedAt);
   const cidSnapshotTone = cidSnapshotBadge ? cidSnapshotBadgeTone(cidSnapshotBadge.freshnessBand) : null;
   const countyMapRows = buildPendingPermitCountyMapRows(data.permits, data.cidSummary.cases);
-  const countyMapPoints = countyMapRows
-    .map((row) => {
-      const centroid = TEXAS_COUNTY_CENTROIDS[row.slug];
-      if (!centroid) return null;
-      return { ...row, point: projectPoint(centroid.lat, centroid.lon) };
-    })
-    .filter((row): row is NonNullable<typeof row> => Boolean(row));
-  const countyBackdropPoints = Object.entries(TEXAS_COUNTY_CENTROIDS).map(([slug, centroid]) => ({
-    slug,
-    point: projectPoint(centroid.lat, centroid.lon),
-  }));
 
   return (
     <main className="relative mx-auto flex w-full max-w-6xl flex-1 flex-col gap-16 px-6 py-16">
@@ -118,7 +82,7 @@ export default async function PermitsPage({
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
             <h2 className="text-2xl font-semibold text-white">County permit map</h2>
-            <p className="mt-2 text-sm text-slate-400">Projected county-centroid view of pending permit pressure, with CID procedural activity hatched over counties carrying open cases.</p>
+            <p className="mt-2 text-sm text-slate-400">True county polygon view of pending permit pressure, with CID procedural activity hatched over counties carrying open cases.</p>
           </div>
           <div className="rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-xs text-slate-300">
             <div className="font-medium uppercase tracking-[0.18em] text-slate-500">Legend</div>
@@ -131,58 +95,7 @@ export default async function PermitsPage({
           </div>
         </div>
         <div className="relative mt-6 overflow-hidden rounded-xl bg-slate-950 ring-1 ring-white/5">
-          <svg viewBox={`0 0 ${MAP_WIDTH} ${MAP_HEIGHT}`} className="h-[420px] w-full" role="img" aria-label="Texas county permit pressure map">
-            <defs>
-              <radialGradient id="permitMapBackdrop" cx="50%" cy="40%" r="60%">
-                <stop offset="0%" stopColor="#0f172a" />
-                <stop offset="100%" stopColor="#020617" />
-              </radialGradient>
-              <pattern id="cidHatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(135)">
-                <line x1="0" y1="0" x2="0" y2="6" stroke="rgba(248,250,252,0.85)" strokeWidth="2" />
-              </pattern>
-            </defs>
-            <rect x="0" y="0" width={MAP_WIDTH} height={MAP_HEIGHT} fill="url(#permitMapBackdrop)" />
-            {countyBackdropPoints.map((county) => (
-              <rect
-                key={`backdrop-${county.slug}`}
-                x={county.point.x - 2}
-                y={county.point.y - 2}
-                width={4}
-                height={4}
-                rx={1}
-                fill="rgba(148,163,184,0.28)"
-              />
-            ))}
-            {countyMapPoints.map((county) => {
-              const tileSize = county.permitCount >= 3 ? 18 : county.permitCount === 2 ? 16 : 14;
-              return (
-                <g key={county.slug} data-county-map-tile={county.slug}>
-                  <rect
-                    x={county.point.x - tileSize / 2}
-                    y={county.point.y - tileSize / 2}
-                    width={tileSize}
-                    height={tileSize}
-                    rx={4}
-                    fill={permitMapFill(county.permitCount)}
-                    stroke={county.hasProceduralPressure ? "#f8fafc" : "#0f172a"}
-                    strokeWidth={county.hasProceduralPressure ? 1.5 : 1}
-                  />
-                  {county.cidCaseCount > 0 ? (
-                    <rect
-                      x={county.point.x - tileSize / 2}
-                      y={county.point.y - tileSize / 2}
-                      width={tileSize}
-                      height={tileSize}
-                      rx={4}
-                      fill="url(#cidHatch)"
-                      opacity={0.8}
-                    />
-                  ) : null}
-                  <title>{`${county.county}: ${county.permitCount} pending permit${county.permitCount === 1 ? "" : "s"}, ${county.cidCaseCount} CID case${county.cidCaseCount === 1 ? "" : "s"}`}</title>
-                </g>
-              );
-            })}
-          </svg>
+          <TexasCountyChoropleth rows={countyMapRows} />
         </div>
       </section>
 
