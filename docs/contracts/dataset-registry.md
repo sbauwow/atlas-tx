@@ -148,7 +148,7 @@ Fetcher contract notes specific to CID:
 - Program Area uses sentinel value `"none"` for "any". County and Region use the blank/`ALL` option rather than `"none"`.
 - Search Two has been live-verified with scripted POST. Search One broad queries are fragile; statewide refresh logic should chunk by county and/or program area instead of issuing one giant query.
 - As of 2026-05-08 live testing in this repo, scripted Search One POSTs still return the upstream "An unexpected error has occurred" page even for county/program chunks. Treat full Search One refresh as a retry/manual-debug path, not a guaranteed unattended scrape yet.
-- `scripts/refresh-cid.ts` now exists as the executable planning/execution scaffold. It builds chunked Search One request plans, builds the broad Search Two query, executes via injected fetch/parse functions, resolves size-based snapshot targets, and can write snapshot payloads.
+- `scripts/refresh-cid.ts` now exists as the executable planning/execution scaffold. It builds chunked Search One request plans, builds the broad Search Two query, executes via injected fetch/parse functions, resolves size-based snapshot targets, can write snapshot payloads, and supports a browser-automation fallback hook for Search One chunks.
 - Snapshot files: `public/cache/cid-cases-tx.json` and `public/cache/cid-protests-tx.json`. If either exceeds 5 MB, redirect to `data/` (gitignored) and keep the same script as the refresh entrypoint.
 - Parser must be pinned to fixture HTML in `tests/fixtures/cid/` and fail loud on schema drift.
 

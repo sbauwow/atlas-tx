@@ -22,6 +22,8 @@ _(empty)_
 
 | workstream | agent | intent | ref |
 |---|---|---|---|
+| docs | hermes | Document browser-fallback hook and current Search One automation limits in README/contracts/plan docs | working tree |
+| data | hermes | Add browser-fallback hook plus fail-loud Search One handling in CID refresh runtime | working tree |
 | docs | hermes | Document `refresh:cid` usage and fail-loud Search One behavior in README/contracts/plan docs | working tree |
 | data | hermes | Add CID runtime/env options and fail-loud handling for upstream Search One error pages | working tree |
 | docs | hermes | Document executable CID refresh flow and note live Search One fragility in contracts/plan docs | working tree |
