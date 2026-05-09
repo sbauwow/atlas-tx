@@ -2,11 +2,10 @@ import Link from "next/link";
 import { countySlug } from "@/lib/counties";
 import { TEXAS_COUNTY_CENTROIDS } from "@/lib/texas-county-centroids";
 import { getDefaultAtlasWaterSummaryService } from "@/lib/water/water-summary-service";
+import TexasChoropleth, { type ChoroplethCounty, type ChoroplethGauge } from "@/app/water/components/texas-choropleth";
 import {
-  ACCENT_HEX,
   freshnessFromCacheMeta,
   FRESHNESS_TEXT_CLASS,
-  SEVERITY_HEX,
   SEVERITY_LABEL,
   SEVERITY_TEXT_CLASS,
   severityFromMismatch,
@@ -16,13 +15,6 @@ import {
 import { FRESHNESS_GLYPH, SEVERITY_GLYPH } from "@/app/design/glyphs";
 
 export const dynamic = "force-dynamic";
-
-const MAP_WIDTH = 900;
-const MAP_HEIGHT = 520;
-const LAT_MIN = 25;
-const LAT_MAX = 37;
-const LON_MIN = -107;
-const LON_MAX = -93;
 
 const SEV_DOT_CLASS: Record<SeverityLevel, string> = {
   0: "bg-sev-0",
@@ -35,19 +27,6 @@ const SEV_DOT_CLASS: Record<SeverityLevel, string> = {
 function formatNumber(value: number | undefined) {
   if (value === undefined) return "—";
   return new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 }).format(value);
-}
-
-function clamp(value: number, min: number, max: number) {
-  return Math.min(Math.max(value, min), max);
-}
-
-function projectPoint(latitude: number, longitude: number) {
-  const x = ((longitude - LON_MIN) / (LON_MAX - LON_MIN)) * MAP_WIDTH;
-  const y = MAP_HEIGHT - ((latitude - LAT_MIN) / (LAT_MAX - LAT_MIN)) * MAP_HEIGHT;
-  return {
-    x: clamp(x, 18, MAP_WIDTH - 18),
-    y: clamp(y, 18, MAP_HEIGHT - 18),
-  };
 }
 
 function countyRiskScore(county: {
@@ -97,18 +76,33 @@ export default async function WaterPage({
     : overview.counties[0]?.county.slug;
   const breakdown = selectedSlug ? await service.getCountyWaterBreakdown(selectedSlug) : null;
 
-  const countyMapPoints = overview.counties
-    .map((county) => {
-      const centroid = TEXAS_COUNTY_CENTROIDS[county.county.slug];
-      if (!centroid) return null;
-      const point = projectPoint(centroid.lat, centroid.lon);
-      return { ...county, point, riskScore: countyRiskScore(county) };
-    })
-    .filter((county): county is NonNullable<typeof county> => Boolean(county));
+  const choroplethCounties: ChoroplethCounty[] = overview.counties.map((county) => {
+    const riskScore = countyRiskScore(county);
+    const mismatchScore = county.mismatch?.score ?? 0;
+    const severity = countySeverity(riskScore, county.mismatch?.score, mapMode);
+    return {
+      slug: county.county.slug,
+      name: county.county.name,
+      fips: county.county.fips ?? TEXAS_COUNTY_CENTROIDS[county.county.slug]?.fips,
+      severity,
+      riskScore,
+      mismatchScore,
+      metrics: {
+        floodplainFeatureCount: county.metrics.floodplainFeatureCount,
+        activeWaterAlertCount: county.metrics.activeWaterAlertCount,
+        streamGaugeCount: county.metrics.streamGaugeCount,
+      },
+    };
+  });
 
-  const gaugeMapPoints = (breakdown?.layers.gauges ?? [])
+  const choroplethGauges: ChoroplethGauge[] = (breakdown?.layers.gauges ?? [])
     .filter((gauge) => Number.isFinite(gauge.latitude) && Number.isFinite(gauge.longitude))
-    .map((gauge) => ({ ...gauge, point: projectPoint(gauge.latitude, gauge.longitude) }));
+    .map((gauge) => ({
+      siteNumber: gauge.siteNumber,
+      stationName: gauge.stationName,
+      latitude: gauge.latitude,
+      longitude: gauge.longitude,
+    }));
 
   const topMismatchCounties = [...overview.counties]
     .filter((county) => (county.mismatch?.score ?? 0) > 0)
@@ -244,61 +238,13 @@ export default async function WaterPage({
             </div>
           </div>
 
-          <div className="relative mt-5 overflow-hidden rounded-xl bg-slate-950 ring-1 ring-white/5">
-            <svg viewBox={`0 0 ${MAP_WIDTH} ${MAP_HEIGHT}`} className="h-[420px] w-full" role="img" aria-label="Texas county water risk map">
-              <defs>
-                <radialGradient id="mapVignette" cx="50%" cy="40%" r="60%">
-                  <stop offset="0%" stopColor="#0f172a" />
-                  <stop offset="100%" stopColor="#020617" />
-                </radialGradient>
-              </defs>
-              <rect x="0" y="0" width={MAP_WIDTH} height={MAP_HEIGHT} fill="url(#mapVignette)" />
-              {countyMapPoints.map((county) => {
-                const isSelected = county.county.slug === selectedSlug;
-                const level = countySeverity(county.riskScore, county.mismatch?.score, mapMode);
-                const fill = isSelected ? ACCENT_HEX : SEVERITY_HEX[level];
-                return (
-                  <g key={county.county.slug}>
-                    {isSelected ? (
-                      <circle
-                        cx={county.point.x}
-                        cy={county.point.y}
-                        r={18}
-                        fill="none"
-                        stroke={ACCENT_HEX}
-                        strokeOpacity={0.35}
-                        strokeWidth={1.5}
-                      />
-                    ) : null}
-                    <circle
-                      cx={county.point.x}
-                      cy={county.point.y}
-                      r={isSelected ? 11 : level >= 3 ? 8 : 6}
-                      fill={fill}
-                      stroke={county.metrics.floodplainFeatureCount ? "#f8fafc" : "#0f172a"}
-                      strokeWidth={county.metrics.floodplainFeatureCount ? 1.5 : 1}
-                      data-county-slug={county.county.slug}
-                      data-severity={level}
-                      opacity={level === 0 && !isSelected ? 0.55 : 1}
-                    >
-                      <title>{`${county.county.name}: mismatch ${county.mismatch?.score ?? 0}, NFHL ${county.metrics.floodplainFeatureCount ?? 0}, alerts ${county.metrics.activeWaterAlertCount ?? 0}, gauges ${county.metrics.streamGaugeCount ?? 0}`}</title>
-                    </circle>
-                  </g>
-                );
-              })}
-              {gaugeMapPoints.map((gauge) => (
-                <g key={gauge.siteNumber} data-gauge-site={gauge.siteNumber}>
-                  <circle cx={gauge.point.x} cy={gauge.point.y} r={4} fill="#f8fafc" stroke="#0f172a" strokeWidth={1.5} />
-                  <circle cx={gauge.point.x} cy={gauge.point.y} r={11} fill="none" stroke={ACCENT_HEX} strokeWidth={1.25} strokeDasharray="3 3" opacity={0.7} />
-                  <title>{`${gauge.stationName} — stream gauge`}</title>
-                </g>
-              ))}
-            </svg>
+          <div className="mt-5">
+            <TexasChoropleth counties={choroplethCounties} gauges={choroplethGauges} selectedSlug={selectedSlug ?? null} />
           </div>
 
           <div className="mt-4 grid gap-px overflow-hidden rounded-xl bg-white/5 ring-1 ring-white/10 sm:grid-cols-3">
             <KpiTile label="Counties with NFHL footprint" value={formatNumber(countiesWithFloodplain)} />
-            <KpiTile label="Selected county gauges" value={formatNumber(gaugeMapPoints.length)} />
+            <KpiTile label="Selected county gauges" value={formatNumber(choroplethGauges.length)} />
             <KpiTile label="Selected NFHL footprint" value={formatNumber(breakdown?.county.metrics.floodplainFeatureCount)} />
           </div>
         </div>
