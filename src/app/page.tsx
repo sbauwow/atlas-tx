@@ -2,9 +2,22 @@ import Link from "next/link";
 import TrackedLink from "@/app/components/tracked-link";
 import { CATEGORY_BORDER_CLASS, CATEGORY_TEXT_CLASS, DATASET_CATEGORY_GLYPH, DATASET_CATEGORY_LABEL, DATASET_CATEGORY_TOKEN } from "@/app/design/categories";
 import { surfaceVsGroundwater, texasWaterDiagram, waterPrimerCards } from "@/app/education/content";
+import { getDefaultAtlasCountyExplorerService } from "@/lib/atlas-county-explorer";
 import { MVP_DATASETS } from "@/lib/mvp-datasets";
+import { getTceqPendingPermitsPageData } from "@/lib/tceq-permits";
+import { getDefaultAtlasWaterSummaryService } from "@/lib/water/water-summary-service";
 
-export default function Home() {
+export default async function Home() {
+  const countyService = getDefaultAtlasCountyExplorerService();
+  const waterService = getDefaultAtlasWaterSummaryService();
+  const [countyOverview, waterOverview, permitData] = await Promise.all([
+    countyService.getCountyOverview(),
+    waterService.getWaterOverview(),
+    getTceqPendingPermitsPageData(),
+  ]);
+  const activeAlertCount = waterOverview.counties.reduce((sum, county) => sum + (county.metrics.activeWaterAlertCount ?? 0), 0);
+  const gaugeCount = waterOverview.counties.reduce((sum, county) => sum + (county.metrics.streamGaugeCount ?? 0), 0);
+
   return (
     <main className="relative mx-auto flex w-full max-w-6xl flex-1 flex-col gap-16 px-6 py-16">
       <div
@@ -76,6 +89,7 @@ export default function Home() {
           eyebrow="Entry paths"
           title="Water explorer"
           description="Open statewide water context, alerts, gauges, and public-water governance layers."
+          metric={`${activeAlertCount} active alerts · ${gaugeCount} gauges`}
           href="/water"
           cta="Open water explorer"
         />
@@ -83,6 +97,7 @@ export default function Home() {
           eyebrow="Entry paths"
           title="County workspace overview"
           description="Jump into ranked counties, then branch into county intelligence, permits, or water profiles."
+          metric={`${countyOverview.countyCount} ranked counties`}
           href="/counties"
           cta="Open county workspace"
         />
@@ -90,6 +105,7 @@ export default function Home() {
           eyebrow="Entry paths"
           title="Permit tracker"
           description="Watch pending TCEQ permit pressure and procedural activity by county."
+          metric={`${permitData.summary.pendingPermitCount} pending permits`}
           href="/permits"
           cta="Open permit tracker"
         />
@@ -226,12 +242,14 @@ function EntryPathCard({
   eyebrow,
   title,
   description,
+  metric,
   href,
   cta,
 }: {
   eyebrow: string;
   title: string;
   description: string;
+  metric: string;
   href: string;
   cta: string;
 }) {
@@ -240,6 +258,7 @@ function EntryPathCard({
       <div className="text-xs font-medium uppercase tracking-[0.18em] text-slate-500">{eyebrow}</div>
       <h2 className="mt-3 text-2xl font-semibold text-white">{title}</h2>
       <p className="mt-3 text-sm leading-7 text-slate-400">{description}</p>
+      <div className="mt-4 text-sm font-medium text-cyan-300">{metric}</div>
       <Link href={href} className="mt-5 inline-flex items-center gap-2 text-sm font-medium text-cyan-300 transition-colors hover:text-cyan-200">
         {cta}
         <span aria-hidden="true">→</span>
