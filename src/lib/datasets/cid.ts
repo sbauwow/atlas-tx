@@ -1,4 +1,4 @@
-import { normalizeCountyName } from "@/lib/counties";
+import { normalizeCountyName } from "../counties";
 
 const CID_BASE_URL = "https://www14.tceq.texas.gov/epic/eCID/index.cfm";
 const CID_RESULTS_URL = `${CID_BASE_URL}?fuseaction=main.reportResults`;
