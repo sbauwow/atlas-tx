@@ -107,6 +107,8 @@ export default async function WaterPage({
           <Link href="/api/water/alerts" className="rounded-full border border-slate-700 px-5 py-3 font-medium text-slate-100">Alerts API</Link>
           <Link href="/api/water/gauges" className="rounded-full border border-slate-700 px-5 py-3 font-medium text-slate-100">Gauges API</Link>
           <Link href="/api/water/fema/nfhl/counties" className="rounded-full border border-slate-700 px-5 py-3 font-medium text-slate-100">FEMA counties API</Link>
+          <Link href="/api/water/lcra/hydromet/stage-flow" className="rounded-full border border-slate-700 px-5 py-3 font-medium text-slate-100">LCRA Hydromet stage-flow API</Link>
+          <Link href="/api/water/lcra/arrp/outfalls" className="rounded-full border border-slate-700 px-5 py-3 font-medium text-slate-100">LCRA ARRP outfalls API</Link>
         </div>
       </section>
 
@@ -221,9 +223,17 @@ export default async function WaterPage({
                   <div className="text-sm text-slate-400">Water utilities</div>
                   <div className="mt-2 text-3xl font-semibold text-white">{formatNumber(breakdown.county.metrics.waterUtilityCount)}</div>
                 </div>
+                <div className="rounded-2xl border border-slate-800 bg-slate-950/70 p-4">
+                  <div className="text-sm text-slate-400">LCRA ARRP outfalls</div>
+                  <div className="mt-2 text-3xl font-semibold text-white">{formatNumber(breakdown.county.metrics.lcraArrpOutfallCount)}</div>
+                </div>
+                <div className="rounded-2xl border border-slate-800 bg-slate-950/70 p-4">
+                  <div className="text-sm text-slate-400">LCRA ARRP land permits</div>
+                  <div className="mt-2 text-3xl font-semibold text-white">{formatNumber(breakdown.county.metrics.lcraArrpLandPermitCount)}</div>
+                </div>
               </div>
               <div className="rounded-2xl border border-slate-800 bg-slate-950/70 p-4 text-sm text-slate-300">
-                Governance entities: {breakdown.layers.governance.length} · Alerts: {breakdown.layers.alerts.length} · Gauges: {breakdown.layers.gauges.length} · Sewer overflows: {breakdown.layers.sewerOverflows.length} · Permits: {breakdown.layers.permits.length}
+                Governance entities: {breakdown.layers.governance.length} · Alerts: {breakdown.layers.alerts.length} · Gauges: {breakdown.layers.gauges.length} · Sewer overflows: {breakdown.layers.sewerOverflows.length} · Permits: {breakdown.layers.permits.length} · LCRA outfalls: {breakdown.layers.lcraArrpOutfalls.length} · LCRA land permits: {breakdown.layers.lcraArrpLandPermits.length}
               </div>
               {breakdown.notes.length ? (
                 <div className="rounded-2xl border border-slate-800 bg-slate-950/70 p-4 text-sm text-slate-300">
@@ -251,6 +261,8 @@ export default async function WaterPage({
                   <th className="px-3 py-3 font-medium">General permits</th>
                   <th className="px-3 py-3 font-medium">Water districts</th>
                   <th className="px-3 py-3 font-medium">Water utilities</th>
+                  <th className="px-3 py-3 font-medium">LCRA outfalls</th>
+                  <th className="px-3 py-3 font-medium">LCRA land permits</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-900">
@@ -266,6 +278,8 @@ export default async function WaterPage({
                     <td className="px-3 py-3 text-slate-300">{formatNumber(county.metrics.generalPermitCount)}</td>
                     <td className="px-3 py-3 text-slate-300">{formatNumber(county.metrics.waterDistrictCount)}</td>
                     <td className="px-3 py-3 text-slate-300">{formatNumber(county.metrics.waterUtilityCount)}</td>
+                    <td className="px-3 py-3 text-slate-300">{formatNumber(county.metrics.lcraArrpOutfallCount)}</td>
+                    <td className="px-3 py-3 text-slate-300">{formatNumber(county.metrics.lcraArrpLandPermitCount)}</td>
                   </tr>
                 ))}
               </tbody>

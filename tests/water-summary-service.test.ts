@@ -127,6 +127,8 @@ describe("water summary service", () => {
           },
         ],
       }),
+      fetchLcraArrpOutfalls: async () => [],
+      fetchLcraArrpLandPermits: async () => [],
     });
 
     const overview = await service.getWaterOverview();

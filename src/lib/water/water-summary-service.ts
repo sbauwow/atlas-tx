@@ -2,12 +2,26 @@ import { countySlug } from "@/lib/counties";
 import { loadSurfaceWaterQualityFromSnapshot } from "@/lib/datasets/surface-water-quality";
 import { fetchTexasNfhlCountyCoverage, type NfhlCountyCoverageResponse } from "@/lib/water/fema-nfhl";
 import { buildWaterFreshness } from "@/lib/water/freshness";
+import {
+  fetchLcraArrpLandPermits as fetchLcraArrpLandPermitsDefault,
+  fetchLcraArrpOutfalls as fetchLcraArrpOutfallsDefault,
+} from "@/lib/water/lcra-arrp";
 import { fetchTexasWaterAlerts, filterAlertsForCounty } from "@/lib/water/nws";
 import { fetchGeneralWaterPermits } from "@/lib/water/tceq-general-permits";
 import { fetchRecentSewerOverflows } from "@/lib/water/tceq-sewer-overflows";
-import type { CountyWaterSummary, SewerOverflowEvent, StreamGauge, SurfaceWaterQualitySegment, WaterAlert, WaterGovernanceEntity, WaterPermitRecord } from "@/lib/water/types";
 import { fetchTexasStreamGauges, filterGaugesForCounty } from "@/lib/water/usgs";
 import { fetchWaterGovernance } from "@/lib/water/water-governance";
+import type {
+  CountyWaterSummary,
+  LcraArrpLandPermit,
+  LcraArrpOutfall,
+  SewerOverflowEvent,
+  StreamGauge,
+  SurfaceWaterQualitySegment,
+  WaterAlert,
+  WaterGovernanceEntity,
+  WaterPermitRecord,
+} from "@/lib/water/types";
 import { listWaterSources } from "@/lib/water/water-source-registry";
 
 export type WaterBreakdown = {
@@ -19,6 +33,8 @@ export type WaterBreakdown = {
     permits: WaterPermitRecord[];
     governance: WaterGovernanceEntity[];
     surfaceWaterQuality: SurfaceWaterQualitySegment[];
+    lcraArrpOutfalls: LcraArrpOutfall[];
+    lcraArrpLandPermits: LcraArrpLandPermit[];
   };
   notes: string[];
 };
@@ -43,16 +59,16 @@ export type CreateAtlasWaterSummaryServiceOptions = {
   fetchGovernance?: () => Promise<WaterGovernanceEntity[]>;
   fetchSurfaceWaterQuality?: () => Promise<SurfaceWaterQualitySegment[]>;
   fetchFloodplainCountyCoverage?: () => Promise<NfhlCountyCoverageResponse>;
+  fetchLcraArrpOutfalls?: () => Promise<LcraArrpOutfall[]>;
+  fetchLcraArrpLandPermits?: () => Promise<LcraArrpLandPermit[]>;
 };
 
-function getFloodplainCount(
-  countyName: string,
-  floodplainCoverage?: NfhlCountyCoverageResponse,
-): number {
-  return (
-    floodplainCoverage?.counties.find((coverage) => countySlug(coverage.county.slug) === countySlug(countyName))
-      ?.jurisdictionCount ?? 0
-  );
+function getFloodplainCount(countyName: string, floodplainCoverage?: NfhlCountyCoverageResponse): number {
+  return floodplainCoverage?.counties.find((coverage) => countySlug(coverage.county.slug) === countySlug(countyName))?.jurisdictionCount ?? 0;
+}
+
+function matchesCounty(countyName: string | null | undefined, county: string) {
+  return countySlug(countyName ?? "") === countySlug(county);
 }
 
 function buildMismatch(
@@ -83,11 +99,14 @@ function buildSummary(
   permits: WaterPermitRecord[],
   governance: WaterGovernanceEntity[],
   surfaceWaterQuality: SurfaceWaterQualitySegment[],
-  floodplainCoverage?: NfhlCountyCoverageResponse,
+  floodplainCoverage: NfhlCountyCoverageResponse | undefined,
+  lcraArrpOutfalls: LcraArrpOutfall[],
+  lcraArrpLandPermits: LcraArrpLandPermit[],
 ): CountyWaterSummary {
   const floodplainFeatureCount = getFloodplainCount(countyName, floodplainCoverage);
   const impairedSurfaceWaterSegmentCount = surfaceWaterQuality.filter((row) => row.isImpaired).length;
   const mismatch = buildMismatch(alerts, sewerOverflows, surfaceWaterQuality);
+
   return {
     county: { name: countyName, slug: countySlug(countyName), fips: gauges[0]?.countyFips ?? undefined },
     metrics: {
@@ -101,6 +120,8 @@ function buildSummary(
       waterUtilityCount: governance.filter((entity) => entity.sourceId !== "tceq-water-districts").length,
       surfaceWaterSegmentCount: surfaceWaterQuality.length,
       impairedSurfaceWaterSegmentCount,
+      lcraArrpOutfallCount: lcraArrpOutfalls.length,
+      lcraArrpLandPermitCount: lcraArrpLandPermits.length,
     },
     overlays: {
       hasFloodplainLayer: floodplainFeatureCount > 0,
@@ -112,9 +133,7 @@ function buildSummary(
     mismatch,
     annotations:
       impairedSurfaceWaterSegmentCount > 0
-        ? [
-            "Nearby surface-water impairment context is additive only; it is not a standalone verdict on county-wide harm.",
-          ]
+        ? ["Nearby surface-water impairment context is additive only; it is not a standalone verdict on county-wide harm."]
         : [],
   };
 }
@@ -127,10 +146,12 @@ export function createAtlasWaterSummaryService({
   fetchGovernance = fetchWaterGovernance,
   fetchSurfaceWaterQuality = loadSurfaceWaterQualityFromSnapshot,
   fetchFloodplainCountyCoverage = fetchTexasNfhlCountyCoverage,
+  fetchLcraArrpOutfalls = fetchLcraArrpOutfallsDefault,
+  fetchLcraArrpLandPermits = fetchLcraArrpLandPermitsDefault,
 }: CreateAtlasWaterSummaryServiceOptions = {}): AtlasWaterSummaryService {
   return {
     async getWaterOverview() {
-      const [alerts, gauges, sewerOverflows, permits, governance, surfaceWaterQuality, floodplainCoverage] = await Promise.all([
+      const [alerts, gauges, sewerOverflows, permits, governance, surfaceWaterQuality, floodplainCoverage, lcraArrpOutfalls, lcraArrpLandPermits] = await Promise.all([
         fetchAlerts(),
         fetchGauges(),
         fetchSewerOverflows(),
@@ -138,7 +159,10 @@ export function createAtlasWaterSummaryService({
         fetchGovernance(),
         fetchSurfaceWaterQuality(),
         fetchFloodplainCountyCoverage(),
+        fetchLcraArrpOutfalls(),
+        fetchLcraArrpLandPermits(),
       ]);
+
       const sourceIds = listWaterSources().map((source) => source.sourceId);
       const countyNames = new Set<string>();
       alerts.forEach((alert) => (alert.countyNames ?? []).forEach((county) => countyNames.add(county)));
@@ -148,24 +172,23 @@ export function createAtlasWaterSummaryService({
       governance.forEach((record) => record.countyName && countyNames.add(record.countyName));
       surfaceWaterQuality.forEach((record) => record.countyName && countyNames.add(record.countyName));
       floodplainCoverage.counties.forEach((coverage) => countyNames.add(coverage.county.name));
+      lcraArrpOutfalls.forEach((record) => record.countyName && countyNames.add(record.countyName));
+      lcraArrpLandPermits.forEach((record) => record.countyName && countyNames.add(record.countyName));
 
       const counties = Array.from(countyNames)
         .sort((a, b) => a.localeCompare(b))
-        .map((countyName) => {
-          const countyPermits = permits.filter((record) => countySlug(record.countyName ?? "") === countySlug(countyName));
-          const countyGovernance = governance.filter((record) => countySlug(record.countyName ?? "") === countySlug(countyName));
-          const countySurfaceWaterQuality = surfaceWaterQuality.filter((record) => countySlug(record.countyName ?? "") === countySlug(countyName));
-          return buildSummary(
-            countyName,
-            filterAlertsForCounty(alerts, countyName),
-            filterGaugesForCounty(gauges, countyName),
-            sewerOverflows.filter((event) => countySlug(event.countyName ?? "") === countySlug(countyName)),
-            countyPermits,
-            countyGovernance,
-            countySurfaceWaterQuality,
-            floodplainCoverage,
-          );
-        });
+        .map((countyName) => buildSummary(
+          countyName,
+          filterAlertsForCounty(alerts, countyName),
+          filterGaugesForCounty(gauges, countyName),
+          sewerOverflows.filter((event) => matchesCounty(event.countyName, countyName)),
+          permits.filter((record) => matchesCounty(record.countyName, countyName)),
+          governance.filter((record) => matchesCounty(record.countyName, countyName)),
+          surfaceWaterQuality.filter((record) => matchesCounty(record.countyName, countyName)),
+          floodplainCoverage,
+          lcraArrpOutfalls.filter((record) => matchesCounty(record.countyName, countyName)),
+          lcraArrpLandPermits.filter((record) => matchesCounty(record.countyName, countyName)),
+        ));
 
       return {
         generatedAt: new Date().toISOString(),
@@ -176,7 +199,7 @@ export function createAtlasWaterSummaryService({
     },
 
     async getCountyWaterBreakdown(county) {
-      const [alerts, gauges, sewerOverflows, permits, governance, surfaceWaterQuality, floodplainCoverage] = await Promise.all([
+      const [alerts, gauges, sewerOverflows, permits, governance, surfaceWaterQuality, floodplainCoverage, lcraArrpOutfalls, lcraArrpLandPermits] = await Promise.all([
         fetchAlerts(),
         fetchGauges(),
         fetchSewerOverflows(),
@@ -184,13 +207,18 @@ export function createAtlasWaterSummaryService({
         fetchGovernance(),
         fetchSurfaceWaterQuality(),
         fetchFloodplainCountyCoverage(),
+        fetchLcraArrpOutfalls(),
+        fetchLcraArrpLandPermits(),
       ]);
+
       const filteredAlerts = filterAlertsForCounty(alerts, county);
       const filteredGauges = filterGaugesForCounty(gauges, county);
-      const filteredOverflows = sewerOverflows.filter((event) => countySlug(event.countyName ?? "") === countySlug(county));
-      const filteredPermits = permits.filter((record) => countySlug(record.countyName ?? "") === countySlug(county));
-      const filteredGovernance = governance.filter((record) => countySlug(record.countyName ?? "") === countySlug(county));
-      const filteredSurfaceWaterQuality = surfaceWaterQuality.filter((record) => countySlug(record.countyName ?? "") === countySlug(county));
+      const filteredOverflows = sewerOverflows.filter((event) => matchesCounty(event.countyName, county));
+      const filteredPermits = permits.filter((record) => matchesCounty(record.countyName, county));
+      const filteredGovernance = governance.filter((record) => matchesCounty(record.countyName, county));
+      const filteredSurfaceWaterQuality = surfaceWaterQuality.filter((record) => matchesCounty(record.countyName, county));
+      const filteredLcraOutfalls = lcraArrpOutfalls.filter((record) => matchesCounty(record.countyName, county));
+      const filteredLcraLandPermits = lcraArrpLandPermits.filter((record) => matchesCounty(record.countyName, county));
       const floodplainCounty = floodplainCoverage.counties.find((coverage) => countySlug(coverage.county.slug) === countySlug(county));
       const countyName =
         filteredAlerts[0]?.countyNames?.[0] ??
@@ -199,10 +227,22 @@ export function createAtlasWaterSummaryService({
         filteredPermits[0]?.countyName ??
         filteredGovernance[0]?.countyName ??
         filteredSurfaceWaterQuality[0]?.countyName ??
+        filteredLcraOutfalls[0]?.countyName ??
+        filteredLcraLandPermits[0]?.countyName ??
         floodplainCounty?.county.name;
+
       if (!countyName) {
         throw new Error(`County not found: ${county}`);
       }
+
+      const notes: string[] = [];
+      if (floodplainCounty) notes.push(`NFHL political jurisdictions mapped: ${floodplainCounty.jurisdictionCount}`);
+      if (filteredSurfaceWaterQuality.length > 0) {
+        notes.push(`Surface-water segments: ${filteredSurfaceWaterQuality.length} (${filteredSurfaceWaterQuality.filter((row) => row.isImpaired).length} impaired)`);
+      }
+      if (filteredLcraOutfalls.length) notes.push(`LCRA ARRP outfalls: ${filteredLcraOutfalls.length}`);
+      if (filteredLcraLandPermits.length) notes.push(`LCRA ARRP land permits: ${filteredLcraLandPermits.length}`);
+
       return {
         county: buildSummary(
           countyName,
@@ -213,6 +253,8 @@ export function createAtlasWaterSummaryService({
           filteredGovernance,
           filteredSurfaceWaterQuality,
           floodplainCoverage,
+          filteredLcraOutfalls,
+          filteredLcraLandPermits,
         ),
         layers: {
           alerts: filteredAlerts,
@@ -221,8 +263,10 @@ export function createAtlasWaterSummaryService({
           permits: filteredPermits,
           governance: filteredGovernance,
           surfaceWaterQuality: filteredSurfaceWaterQuality,
+          lcraArrpOutfalls: filteredLcraOutfalls,
+          lcraArrpLandPermits: filteredLcraLandPermits,
         },
-        notes: floodplainCounty ? [`NFHL political jurisdictions mapped: ${floodplainCounty.jurisdictionCount}`] : [],
+        notes,
       };
     },
   };

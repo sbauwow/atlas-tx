@@ -30,6 +30,9 @@ describe("water summary service governance integration", () => {
           raw: {},
         },
       ],
+      fetchFloodplainCountyCoverage: async () => ({ sourceId: "fema-nfhl", layerId: 22, layerName: "Political Jurisdictions", countyCount: 0, counties: [] }),
+      fetchLcraArrpOutfalls: async () => [],
+      fetchLcraArrpLandPermits: async () => [],
     });
 
     const overview = await service.getWaterOverview();

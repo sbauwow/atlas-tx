@@ -62,6 +62,8 @@ vi.mock("@/lib/water/water-summary-service", () => ({
         sewerOverflows: [],
         permits: [],
         governance: [],
+        lcraArrpOutfalls: [],
+        lcraArrpLandPermits: [],
       },
       notes: ["NFHL political jurisdictions mapped: 2"],
     }),

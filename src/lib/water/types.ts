@@ -169,6 +169,8 @@ export type CountyWaterSummary = {
     waterUtilityCount?: number;
     surfaceWaterSegmentCount?: number;
     impairedSurfaceWaterSegmentCount?: number;
+    lcraArrpOutfallCount?: number;
+    lcraArrpLandPermitCount?: number;
   };
   overlays: {
     hasFloodplainLayer: boolean;
