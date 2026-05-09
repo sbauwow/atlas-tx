@@ -1,5 +1,7 @@
 import { renderToStaticMarkup } from "react-dom/server";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+
+let cidSnapshotGeneratedAt = "2026-05-09T00:00:00.000Z";
 
 vi.mock("@/lib/tceq-permits", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/tceq-permits")>();
@@ -7,7 +9,7 @@ vi.mock("@/lib/tceq-permits", async (importOriginal) => {
     ...actual,
     getTceqPendingPermitsPageData: vi.fn(async (county?: string) => ({
       countyFilter: county ?? null,
-      generatedAt: "2026-05-09T00:00:00.000Z",
+      generatedAt: cidSnapshotGeneratedAt,
       summary: {
         pendingPermitCount: 3,
         activePermitCount: 9,
@@ -20,7 +22,7 @@ vi.mock("@/lib/tceq-permits", async (importOriginal) => {
       },
       cidSummary: {
         available: true,
-        generatedAt: "2026-05-09T00:00:00.000Z",
+        generatedAt: cidSnapshotGeneratedAt,
         openCaseCount: 2,
         protestedCaseCount: 1,
         hearingRequestCount: 1,
@@ -61,6 +63,10 @@ vi.mock("@/lib/tceq-permits", async (importOriginal) => {
 });
 
 describe("permits page", () => {
+  beforeEach(() => {
+    cidSnapshotGeneratedAt = "2026-05-09T00:00:00.000Z";
+  });
+
   afterEach(() => {
     vi.useRealTimers();
   });
@@ -82,6 +88,8 @@ describe("permits page", () => {
     expect(text).toContain("WQ0000447000");
     expect(text).toContain("CID snapshot age");
     expect(text).toContain("1d old");
+    expect(text).toContain("Fresh");
+    expect(text).toContain("border-emerald-400/20 bg-emerald-400/10");
   });
 
   it("renders the selected county filter when present", async () => {
@@ -91,5 +99,19 @@ describe("permits page", () => {
 
     expect(text).toContain("County filter");
     expect(text).toContain("travis-county");
+  });
+
+  it("renders an aging badge when the CID snapshot is several days old", async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-05-10T12:00:00.000Z"));
+    cidSnapshotGeneratedAt = "2026-05-05T00:00:00.000Z";
+
+    const pageModule = await import("@/app/permits/page");
+    const page = await pageModule.default({ searchParams: Promise.resolve({}) });
+    const text = renderToStaticMarkup(page);
+
+    expect(text).toContain("5d old");
+    expect(text).toContain("Aging");
+    expect(text).toContain("border-amber-400/20 bg-amber-400/10");
   });
 });

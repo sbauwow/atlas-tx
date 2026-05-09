@@ -66,7 +66,12 @@ export type CidOpenCasesSummary = {
   cases: CidCaseWithFilings[];
 };
 
-export function formatCidSnapshotAgeBadge(generatedAt: string | null, now = new Date()): { ageLabel: string; refreshedLabel: string } | null {
+export type CidSnapshotFreshnessBand = "fresh" | "aging" | "stale";
+
+export function formatCidSnapshotAgeBadge(
+  generatedAt: string | null,
+  now = new Date(),
+): { ageLabel: string; refreshedLabel: string; freshnessBand: CidSnapshotFreshnessBand } | null {
   if (!generatedAt) return null;
   const snapshotAt = new Date(generatedAt);
   if (Number.isNaN(snapshotAt.getTime())) return null;
@@ -81,6 +86,7 @@ export function formatCidSnapshotAgeBadge(generatedAt: string | null, now = new 
   return {
     ageLabel: `${ageDays}d old`,
     refreshedLabel,
+    freshnessBand: ageDays <= 1 ? "fresh" : ageDays <= 7 ? "aging" : "stale",
   };
 }
 

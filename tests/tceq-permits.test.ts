@@ -74,10 +74,24 @@ describe("tceq permits", () => {
     expect(summary.topCounties[0]).toEqual({ county: "Travis County", count: 2 });
   });
 
-  it("formats CID snapshot age badges", () => {
+  it("formats fresh CID snapshot age badges", () => {
     expect(formatCidSnapshotAgeBadge("2026-05-09T00:00:00.000Z", new Date("2026-05-10T12:00:00.000Z"))).toEqual({
       ageLabel: "1d old",
       refreshedLabel: "Refreshed May 9, 2026",
+      freshnessBand: "fresh",
+    });
+  });
+
+  it("formats aging and stale CID snapshot age badges", () => {
+    expect(formatCidSnapshotAgeBadge("2026-05-05T00:00:00.000Z", new Date("2026-05-10T12:00:00.000Z"))).toEqual({
+      ageLabel: "5d old",
+      refreshedLabel: "Refreshed May 5, 2026",
+      freshnessBand: "aging",
+    });
+    expect(formatCidSnapshotAgeBadge("2026-05-01T00:00:00.000Z", new Date("2026-05-10T12:00:00.000Z"))).toEqual({
+      ageLabel: "9d old",
+      refreshedLabel: "Refreshed May 1, 2026",
+      freshnessBand: "stale",
     });
     expect(formatCidSnapshotAgeBadge(null, new Date("2026-05-10T12:00:00.000Z"))).toEqual(null);
   });

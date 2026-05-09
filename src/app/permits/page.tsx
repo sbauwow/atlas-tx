@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { formatCidSnapshotAgeBadge, getTceqPendingPermitsPageData } from "@/lib/tceq-permits";
+import { formatCidSnapshotAgeBadge, getTceqPendingPermitsPageData, type CidSnapshotFreshnessBand } from "@/lib/tceq-permits";
 
 export default async function PermitsPage({
   searchParams,
@@ -9,6 +9,7 @@ export default async function PermitsPage({
   const params = await searchParams;
   const data = await getTceqPendingPermitsPageData(params.county);
   const cidSnapshotBadge = formatCidSnapshotAgeBadge(data.cidSummary.generatedAt);
+  const cidSnapshotTone = cidSnapshotBadge ? cidSnapshotBadgeTone(cidSnapshotBadge.freshnessBand) : null;
 
   return (
     <main className="relative mx-auto flex w-full max-w-6xl flex-1 flex-col gap-16 px-6 py-16">
@@ -124,10 +125,10 @@ export default async function PermitsPage({
               <h2 className="text-2xl font-semibold text-white">CID open cases</h2>
               <p className="mt-2 text-sm text-slate-400">Cross-program TCEQ procedural lane layered in alongside the stable water-permit dataset.</p>
             </div>
-            <div className="rounded-full border border-cyan-400/20 bg-cyan-400/10 px-3 py-1.5 text-right text-xs font-medium uppercase tracking-[0.18em] text-cyan-200">
+            <div className={`rounded-full border px-3 py-1.5 text-right text-xs font-medium uppercase tracking-[0.18em] ${cidSnapshotTone?.containerClass ?? "border-white/10 bg-white/5 text-slate-300"}`}>
               <div>CID snapshot age</div>
-              <div className="mt-1 text-[11px] text-cyan-100/90">
-                {cidSnapshotBadge ? `${cidSnapshotBadge.ageLabel} · ${cidSnapshotBadge.refreshedLabel}` : "Unavailable"}
+              <div className={`mt-1 text-[11px] ${cidSnapshotTone?.detailClass ?? "text-slate-400"}`}>
+                {cidSnapshotBadge ? `${cidSnapshotTone?.label ?? "Unavailable"} · ${cidSnapshotBadge.ageLabel} · ${cidSnapshotBadge.refreshedLabel}` : "Unavailable"}
               </div>
             </div>
           </div>
@@ -185,4 +186,27 @@ function StatTile({ value, label }: { value: string; label: string }) {
       <div className="mt-2 text-sm leading-6 text-slate-400">{label}</div>
     </div>
   );
+}
+
+function cidSnapshotBadgeTone(freshnessBand: CidSnapshotFreshnessBand) {
+  switch (freshnessBand) {
+    case "fresh":
+      return {
+        label: "Fresh",
+        containerClass: "border-emerald-400/20 bg-emerald-400/10 text-emerald-200",
+        detailClass: "text-emerald-100/90",
+      };
+    case "aging":
+      return {
+        label: "Aging",
+        containerClass: "border-amber-400/20 bg-amber-400/10 text-amber-200",
+        detailClass: "text-amber-100/90",
+      };
+    case "stale":
+      return {
+        label: "Stale",
+        containerClass: "border-rose-400/20 bg-rose-400/10 text-rose-200",
+        detailClass: "text-rose-100/90",
+      };
+  }
 }
