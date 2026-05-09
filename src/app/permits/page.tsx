@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { getTceqPendingPermitsPageData } from "@/lib/tceq-permits";
+import { formatCidSnapshotAgeBadge, getTceqPendingPermitsPageData } from "@/lib/tceq-permits";
 
 export default async function PermitsPage({
   searchParams,
@@ -8,6 +8,7 @@ export default async function PermitsPage({
 }) {
   const params = await searchParams;
   const data = await getTceqPendingPermitsPageData(params.county);
+  const cidSnapshotBadge = formatCidSnapshotAgeBadge(data.cidSummary.generatedAt);
 
   return (
     <main className="relative mx-auto flex w-full max-w-6xl flex-1 flex-col gap-16 px-6 py-16">
@@ -118,8 +119,18 @@ export default async function PermitsPage({
 
       <section className="grid gap-6 lg:grid-cols-[0.8fr_1.2fr]">
         <article className="rounded-2xl bg-slate-900/40 p-6 ring-1 ring-white/5">
-          <h2 className="text-2xl font-semibold text-white">CID open cases</h2>
-          <p className="mt-2 text-sm text-slate-400">Cross-program TCEQ procedural lane layered in alongside the stable water-permit dataset.</p>
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            <div>
+              <h2 className="text-2xl font-semibold text-white">CID open cases</h2>
+              <p className="mt-2 text-sm text-slate-400">Cross-program TCEQ procedural lane layered in alongside the stable water-permit dataset.</p>
+            </div>
+            <div className="rounded-full border border-cyan-400/20 bg-cyan-400/10 px-3 py-1.5 text-right text-xs font-medium uppercase tracking-[0.18em] text-cyan-200">
+              <div>CID snapshot age</div>
+              <div className="mt-1 text-[11px] text-cyan-100/90">
+                {cidSnapshotBadge ? `${cidSnapshotBadge.ageLabel} · ${cidSnapshotBadge.refreshedLabel}` : "Unavailable"}
+              </div>
+            </div>
+          </div>
           <div className="mt-5 space-y-3">
             {data.cidSummary.topProgramAreas.length ? data.cidSummary.topProgramAreas.map((row) => (
               <div key={row.programArea} className="flex items-center justify-between rounded-xl border border-white/5 bg-white/[0.03] px-4 py-3">

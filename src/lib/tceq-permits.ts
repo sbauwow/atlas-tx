@@ -66,6 +66,24 @@ export type CidOpenCasesSummary = {
   cases: CidCaseWithFilings[];
 };
 
+export function formatCidSnapshotAgeBadge(generatedAt: string | null, now = new Date()): { ageLabel: string; refreshedLabel: string } | null {
+  if (!generatedAt) return null;
+  const snapshotAt = new Date(generatedAt);
+  if (Number.isNaN(snapshotAt.getTime())) return null;
+  const ageMs = Math.max(0, now.getTime() - snapshotAt.getTime());
+  const ageDays = Math.floor(ageMs / (1000 * 60 * 60 * 24));
+  const refreshedLabel = `Refreshed ${new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    timeZone: "UTC",
+  }).format(snapshotAt)}`;
+  return {
+    ageLabel: `${ageDays}d old`,
+    refreshedLabel,
+  };
+}
+
 function normalizeOptionalTitle(value?: string | null): string | null {
   if (!value?.trim()) return null;
   return value
