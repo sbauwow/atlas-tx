@@ -15,6 +15,7 @@ describe("county normalization", () => {
   it("builds stable county slugs", () => {
     expect(countySlug("DeWitt County")).toBe("dewitt-county");
     expect(countySlug("La Salle")).toBe("la-salle-county");
+    expect(normalizeCountyName("travis-county")).toBe("Travis County");
   });
 
   it("compares county aliases as the same county", () => {
