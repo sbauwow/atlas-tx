@@ -9,6 +9,7 @@ describe("water summary service LCRA integration", () => {
       fetchSewerOverflows: async () => [],
       fetchPermits: async () => [],
       fetchGovernance: async () => [],
+      fetchSurfaceWaterQuality: async () => [],
       fetchFloodplainCountyCoverage: async () => ({ sourceId: "fema-nfhl", layerId: 22, layerName: "Political Jurisdictions", countyCount: 0, counties: [] }),
       fetchLcraArrpOutfalls: async () => [
         {
@@ -46,7 +47,8 @@ describe("water summary service LCRA integration", () => {
     });
 
     const overview = await service.getWaterOverview();
-    expect(overview.counties[0]).toMatchObject({
+    const travis = overview.counties.find((county) => county.county.slug === "travis-county");
+    expect(travis).toMatchObject({
       county: { name: "Travis County", slug: "travis-county" },
       metrics: {
         lcraArrpOutfallCount: 1,
