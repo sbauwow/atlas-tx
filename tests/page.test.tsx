@@ -1,5 +1,11 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
+
+vi.mock("@/app/components/tracked-link", () => ({
+  default: ({ event, eventTarget, href, children, className }: { event: string; eventTarget?: string; href: string; children: React.ReactNode; className?: string }) => (
+    <a href={href} data-event={event} data-event-target={eventTarget} className={className}>{children}</a>
+  ),
+}));
 
 import Home from "@/app/page";
 
@@ -21,5 +27,13 @@ describe("Home landing page", () => {
     expect(html).toContain("Primary user: Texas county-newsroom journalists");
     expect(html).toContain("Headline signals: DWRS, EJ overlap, protest density");
     expect(html).toContain("Atlas TX dataset registry");
+  });
+
+  it("tags the homepage GitHub CTA for outbound telemetry", () => {
+    const html = renderToStaticMarkup(<Home />);
+
+    expect(html).toContain('href="https://github.com/sbauwow/atlas-tx"');
+    expect(html).toContain('data-event="outbound"');
+    expect(html).toContain('data-event-target="repo:github.com/sbauwow/atlas-tx@home"');
   });
 });
