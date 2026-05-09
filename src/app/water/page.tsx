@@ -1,4 +1,5 @@
 import Link from "next/link";
+import GlossaryTooltip, { GlossaryInlineList } from "@/app/components/glossary-tooltip";
 import { countySlug } from "@/lib/counties";
 import { TEXAS_COUNTY_CENTROIDS } from "@/lib/texas-county-centroids";
 import { getDefaultAtlasWaterSummaryService } from "@/lib/water/water-summary-service";
@@ -128,7 +129,7 @@ export default async function WaterPage({
           Water stress, flood operations, and county hydrology.
         </h1>
         <p className="max-w-3xl text-pretty text-base leading-7 text-slate-400 sm:text-lg sm:leading-8">
-          First-pass water lane for Atlas Texas: active flood alerts, stream gauge coverage, sewer overflow pressure, permit counts, governance structure, and FEMA NFHL coverage by county.
+          First-pass water lane for Atlas Texas: active flood alerts, stream gauge coverage, sewer overflow pressure, permit counts, governance structure, and <GlossaryTooltip term="FEMA" expand /> <GlossaryTooltip term="NFHL" expand /> coverage by county.
         </p>
         <div className="flex flex-wrap gap-2 text-xs">
           <ApiPill href="/api/water/overview" label="Overview API" />
@@ -143,6 +144,8 @@ export default async function WaterPage({
           <ApiPill href="/api/water/gbra/quality/sites" label="GBRA quality sites API" />
         </div>
       </section>
+
+      <GlossaryInlineList label="Common water terms" terms={["NFHL", "LCRA", "GBRA", "TWDB", "PWS"]} />
 
       <section className="rounded-2xl bg-white/[0.02] p-5 ring-1 ring-white/5 sm:p-6">
         <div className="flex flex-wrap items-end justify-between gap-3">

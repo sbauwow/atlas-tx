@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import GlossaryTooltip, { GlossaryInlineList } from "@/app/components/glossary-tooltip";
 import { CountyWorkspaceHeader } from "@/app/components/county-workspace-header";
 import { TexasCountyChoropleth } from "@/app/components/texas-county-choropleth";
 import { getAdjacentCountyRefs, getCountyBySlugOrName } from "@/lib/water/county-lookup";
@@ -36,7 +37,7 @@ export default async function PermitsPage({
         <div className="space-y-7">
           <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-medium uppercase tracking-[0.18em] text-slate-300 backdrop-blur">
             <span aria-hidden="true" className="size-1.5 rounded-full bg-accent" />
-            TCEQ permits · Texas tracker
+            <GlossaryTooltip term="TCEQ" /> permits · Texas tracker
           </span>
           <div className="space-y-5">
             <h1 className="max-w-4xl text-balance text-5xl font-semibold leading-[1.05] tracking-tight text-white sm:text-6xl">
@@ -46,7 +47,7 @@ export default async function PermitsPage({
               Pending permit tracker for Texas
             </p>
             <p className="max-w-3xl text-pretty text-lg leading-8 text-slate-400">
-              Live view of pending TCEQ water-quality individual permits across Texas, with county concentration and permit roster context for newsroom, civic-tech, and policy workflows.
+              Live view of pending <GlossaryTooltip term="TCEQ" expand /> water-quality individual permits across Texas, with county concentration and permit roster context for newsroom, civic-tech, and policy workflows.
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-3 text-sm">
@@ -63,12 +64,14 @@ export default async function PermitsPage({
         <aside className="rounded-2xl bg-gradient-to-b from-white/[0.06] to-white/[0.02] p-6 ring-1 ring-white/10 backdrop-blur">
           <div className="text-xs font-medium uppercase tracking-[0.18em] text-slate-400">Tracking stance</div>
           <ul className="mt-4 space-y-3.5 text-sm leading-7 text-slate-300">
-            <li className="flex gap-3"><span aria-hidden="true" className="mt-2.5 size-1 shrink-0 rounded-full bg-cat-3" />This page tracks pending water-quality individual permits, not every TCEQ program workflow.</li>
+            <li className="flex gap-3"><span aria-hidden="true" className="mt-2.5 size-1 shrink-0 rounded-full bg-cat-3" />This page tracks pending water-quality individual permits, not every <GlossaryTooltip term="TCEQ" /> program workflow.</li>
             <li className="flex gap-3"><span aria-hidden="true" className="mt-2.5 size-1 shrink-0 rounded-full bg-cat-2" />County clustering helps show where permit pressure is concentrating.</li>
             <li className="flex gap-3"><span aria-hidden="true" className="mt-2.5 size-1 shrink-0 rounded-full bg-cat-4" />Pending status is procedural context, not proof of harm or permit outcome.</li>
           </ul>
         </aside>
       </section>
+
+      <GlossaryInlineList label="Common permit terms" terms={["TCEQ", "CID", "SOAH", "APO"]} />
 
       {countyWorkspace && adjacentCounties ? (
         <CountyWorkspaceHeader
@@ -220,9 +223,9 @@ export default async function PermitsPage({
         <article className="rounded-2xl bg-slate-900/40 p-6 ring-1 ring-white/5">
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div>
-              <h2 className="text-2xl font-semibold text-white">CID open cases</h2>
-              <p className="mt-2 text-sm text-slate-400">Cross-program TCEQ procedural lane layered in alongside the stable water-permit dataset.</p>
-            </div>
+            <h2 className="text-2xl font-semibold text-white"><GlossaryTooltip term="CID" /> open cases</h2>
+            <p className="mt-2 text-sm text-slate-400">Cross-program <GlossaryTooltip term="TCEQ" /> procedural lane layered in alongside the stable water-permit dataset.</p>
+</div>
             <div className={`rounded-full border px-3 py-1.5 text-right text-xs font-medium uppercase tracking-[0.18em] ${cidSnapshotTone?.containerClass ?? "border-white/10 bg-white/5 text-slate-300"}`}>
               <div>CID snapshot age</div>
               <div className={`mt-1 text-[11px] ${cidSnapshotTone?.detailClass ?? "text-slate-400"}`}>

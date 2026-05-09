@@ -40,13 +40,15 @@ describe("Home landing page", () => {
 
     expect(html).toContain("Atlas TX · Texas water risk explorer");
     expect(html).toContain("Surface Texas drinking-water risk and environmental-justice burden.");
-    expect(html).toContain("Atlas TX joins Texas permit and water-system context with federal SDWIS, EJScreen, and ACS data");
+    expect(html).toContain("Atlas TX joins Texas permit and water-system context with federal");
+    expect(html).toContain("Safe Drinking Water Information System");
+    expect(html).toContain("American Community Survey");
     expect(html).toContain("Journalists, policy analysts, and civic-tech teams");
-    expect(html).toContain('href="/counties"');
+    expect(html).toContain('href=\"/counties\"');
     expect(html).toContain("County workspace overview");
     expect(html).toContain("Entry paths");
     expect(html).toContain("Permit tracker");
-    expect(html).toContain('href="/permits"');
+    expect(html).toContain('href=\"/permits\"');
   });
 
   it("surfaces live workflow counts on the homepage entry cards", async () => {
@@ -72,10 +74,11 @@ describe("Home landing page", () => {
     const html = renderToStaticMarkup(await Home());
 
     expect(html).toContain("Water-risk thesis");
-    expect(html).toContain("Start with DWRS + EJ overlap + cited permit context.");
-    expect(html).toContain("Primary user: Texas county-newsroom journalists");
-    expect(html).toContain("Headline signals: DWRS, EJ overlap, protest density");
+    expect(html).toContain("Drinking Water Risk Score");
+    expect(html).toContain("environmental-justice overlap");
+    expect(html).toContain("Headline signals");
     expect(html).toContain("Atlas TX dataset registry");
+    expect(html).toContain("title=\"Texas Commission on Environmental Quality\"");
   });
 
   it("tags the homepage GitHub CTA for outbound telemetry", async () => {

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import TrackedLink from "@/app/components/tracked-link";
+import GlossaryTooltip, { GlossaryInlineList } from "@/app/components/glossary-tooltip";
 import { CATEGORY_BORDER_CLASS, CATEGORY_TEXT_CLASS, DATASET_CATEGORY_GLYPH, DATASET_CATEGORY_LABEL, DATASET_CATEGORY_TOKEN } from "@/app/design/categories";
 import { surfaceVsGroundwater, texasWaterDiagram, waterPrimerCards } from "@/app/education/content";
 import { getDefaultAtlasCountyExplorerService } from "@/lib/atlas-county-explorer";
@@ -39,7 +40,7 @@ export default async function Home() {
               Surface Texas drinking-water risk and environmental-justice burden.
             </p>
             <p className="max-w-3xl text-pretty text-lg leading-8 text-slate-400">
-              Atlas TX joins Texas permit and water-system context with federal SDWIS, EJScreen, and ACS data. Journalists, policy analysts, and civic-tech teams can use this governed decision-support surface to start with where water comes from, who manages it, and why some counties carry more water stress than others.
+              Atlas TX joins Texas permit and water-system context with federal <GlossaryTooltip term="SDWIS" expand />, <GlossaryTooltip term="EJScreen" expand />, and <GlossaryTooltip term="ACS" expand /> data. Journalists, policy analysts, and civic-tech teams can use this governed decision-support surface to start with where water comes from, who manages it, and why some counties carry more water stress than others.
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-3 text-sm">
@@ -76,13 +77,15 @@ export default async function Home() {
         <aside className="rounded-2xl bg-gradient-to-b from-white/[0.06] to-white/[0.02] p-6 ring-1 ring-white/10 backdrop-blur">
           <div className="text-xs font-medium uppercase tracking-[0.18em] text-slate-400">Water-risk thesis</div>
           <ul className="mt-4 space-y-3.5 text-sm leading-7 text-slate-300">
-            <li className="flex gap-3"><span aria-hidden="true" className="mt-2.5 size-1 shrink-0 rounded-full bg-cat-1" />Start with DWRS + EJ overlap + cited permit context.</li>
+            <li className="flex gap-3"><span aria-hidden="true" className="mt-2.5 size-1 shrink-0 rounded-full bg-cat-1" />Start with <GlossaryTooltip term="DWRS" expand /> + environmental-justice overlap (<GlossaryTooltip term="EJ" />) + cited permit context.</li>
             <li className="flex gap-3"><span aria-hidden="true" className="mt-2.5 size-1 shrink-0 rounded-full bg-cat-2" />Primary user: Texas county-newsroom journalists.</li>
             <li className="flex gap-3"><span aria-hidden="true" className="mt-2.5 size-1 shrink-0 rounded-full bg-cat-4" />Environmental burden, fiscal/infrastructure capacity, and governance explain uneven county risk.</li>
             <li className="flex gap-3"><span aria-hidden="true" className="mt-2.5 size-1 shrink-0 rounded-full bg-cat-6" />Atlas taxonomy keeps source systems, burden, capacity, and community context legible.</li>
           </ul>
         </aside>
       </section>
+
+      <GlossaryInlineList label="Common terms" terms={["TCEQ", "DWRS", "EJ", "SDWIS", "ACS"]} />
 
       <section className="grid gap-4 lg:grid-cols-3">
         <EntryPathCard
@@ -119,7 +122,7 @@ export default async function Home() {
 
       <section className="grid gap-px overflow-hidden rounded-2xl bg-white/5 ring-1 ring-white/10 sm:grid-cols-3">
         <StatTile value="2" label="Primary Texas water sources: surface water and groundwater" />
-        <StatTile value="4" label="Headline signals: DWRS, EJ overlap, protest density" />
+        <StatTile value="4" label="Headline signals: Drinking Water Risk Score (DWRS), environmental-justice (EJ) overlap, protest density" />
         <StatTile value={`${MVP_DATASETS.length}`} label="Atlas TX dataset registry" />
       </section>
 

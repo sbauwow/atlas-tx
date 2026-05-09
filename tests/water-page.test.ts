@@ -52,8 +52,12 @@ describe("water page", () => {
     const text = renderToStaticMarkup(page);
 
     expect(text).toContain("Texas water explorer");
+    expect(text).toContain("National Flood Hazard Layer");
+    expect(text).toContain("Lower Colorado River Authority");
+    expect(text).toContain("Guadalupe-Blanco River Authority");
     expect(text).toContain("Travis County");
     expect(text).toContain("General permits");
     expect(text).toContain("Pending permits");
+    expect(text).toContain("title=\"National Flood Hazard Layer\"");
   });
 });

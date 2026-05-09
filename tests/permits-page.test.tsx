@@ -99,11 +99,13 @@ describe("permits page", () => {
     const page = await pageModule.default({ searchParams: Promise.resolve({}) });
     const text = renderToStaticMarkup(page);
 
+    expect(text).toContain("Texas Commission on Environmental Quality");
     expect(text).toContain("TCEQ pending permits");
     expect(text).toContain("Pending permit tracker for Texas");
     expect(text).toContain("Travis County");
     expect(text).toContain("WQ0001");
     expect(text).toContain("Alpha Water LLC");
+    expect(text).toContain("Commissioners’ Integrated Database");
     expect(text).toContain("CID open cases");
     expect(text).toContain("WQ0000447000");
     expect(text).toContain("CID snapshot age");
@@ -120,9 +122,11 @@ describe("permits page", () => {
     expect(text).toContain("County intelligence");
     expect(text).toContain("Open county pages");
     expect(text).toContain("Filings that need scrutiny");
+    expect(text).toContain("State Office of Administrative Hearings");
     expect(text).toContain("SOAH docket present");
     expect(text).toContain("1 hearing request filed");
     expect(text).toContain("2 pending permits in Travis County");
+    expect(text).toContain("title=\"Commissioners’ Integrated Database\"");
     expect(text).not.toContain("data-county-map-tile");
   });
 
