@@ -4,6 +4,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import {
+  buildCidSearchOneRefreshPlan,
   fetchCidSearchOneHtml,
   fetchCidSearchTwoHtml,
   parseCidCasesHtml,
@@ -77,6 +78,50 @@ describe("parseCidProtestsHtml", () => {
         filingType: "comment",
         filerOrganization: null,
         filedAt: "2026-04-12",
+      },
+    ]);
+  });
+});
+
+describe("CID refresh planning", () => {
+  it("builds chunked Search One refresh requests by county and program area", () => {
+    const plan = buildCidSearchOneRefreshPlan({
+      counties: ["111111111111156", "111111111111211"],
+      programAreas: [
+        "APO;Aggregate Production Operation Registration;NO_PARENT",
+        "WQ;Water Quality;PARENT",
+      ],
+      resultsPerPage: 25,
+    });
+
+    expect(plan).toEqual([
+      {
+        actions: "open",
+        sort: "county",
+        county: "111111111111156",
+        programArea: "APO;Aggregate Production Operation Registration;NO_PARENT",
+        resultsPerPage: 25,
+      },
+      {
+        actions: "open",
+        sort: "county",
+        county: "111111111111156",
+        programArea: "WQ;Water Quality;PARENT",
+        resultsPerPage: 25,
+      },
+      {
+        actions: "open",
+        sort: "county",
+        county: "111111111111211",
+        programArea: "APO;Aggregate Production Operation Registration;NO_PARENT",
+        resultsPerPage: 25,
+      },
+      {
+        actions: "open",
+        sort: "county",
+        county: "111111111111211",
+        programArea: "WQ;Water Quality;PARENT",
+        resultsPerPage: 25,
       },
     ]);
   });

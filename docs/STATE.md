@@ -22,7 +22,8 @@ _(empty)_
 
 | workstream | agent | intent | ref |
 |---|---|---|---|
-| mcp | hermes | Wire protest MCP handlers and add handler tests for `list_protested_permits` + `score_protest_density` | working tree |
+| mcp | hermes | Make the MCP scaffold directly callable via tool dispatch (`runAtlasTxTool` / CLI JSON args) and wire protest handlers | working tree |
+| data | hermes | Add ACS county population loader snapshot and wire it into protest-density flows | working tree |
 | data | hermes | Implement `src/lib/scoring/protest_density.ts` and pin APD behavior with scorer tests | working tree |
 | data | hermes | Implement `src/lib/datasets/cid.ts` parsers + live POST helpers and pin them to fixture tests | working tree |
 | docs | hermes | Tune APD formula and draft protest/CID MCP tool signatures | working tree |
@@ -49,7 +50,7 @@ Listed in the order the refocus plan (`docs/plans/2026-05-08-water-risk-refocus.
 |---|---|---|
 | data | Add federal-source dataset entries to `mvp-datasets.ts` | EJScreen, ECHO, SDWIS, ACS — `accessType: "external"`. May already be partially done in this PR; verify before claiming. |
 | data | `src/lib/datasets/ejscreen.ts` fetcher | EPA EJScreen by block group + buffer query around lat/long; spike geocoding first |
-| data | `src/lib/datasets/acs.ts` fetcher | Census ACS 5-year, county + block-group population/demographics |
+| data | Expand `src/lib/datasets/acs.ts` beyond county population snapshot | Current loader only covers county-level `B01003_001E` from committed snapshot for APD. Extend to live fetch + block-group demographics for EJ work. |
 | data | `src/lib/scoring/dwrs.ts` Drinking Water Risk Score | Per `docs/contracts/dataset-registry.md`. Consume `loadSdwis()` rows; weight `populationServed × recency × violation severity tier`. |
 | data | `src/lib/scoring/ej_overlap.ts` EJ Burden Overlap | Per `docs/contracts/dataset-registry.md` |
 | data | (follow-on) Wider SDWIS analysis snapshot in `data/sdwis-tx-full.json` | Current `public/cache/sdwis-tx.json` is filtered to health-based ≥ 2023-04-01 to fit the 5 MB committed budget. For a longer recency window (DWRS sensitivity analysis, demo "what we found" research), call `fetchSdwis({since: undefined})` and write to gitignored `data/`. |
@@ -60,7 +61,7 @@ Listed in the order the refocus plan (`docs/plans/2026-05-08-water-risk-refocus.
 | workstream | task | notes |
 |---|---|---|
 | data | CID statewide refresh strategy + snapshots | Search Two live POST is verified. Search One broad queries are fragile; add chunked refresh logic (county/program batches) before freezing `public/cache/cid-*.json`. |
-| mcp | Replace scaffold dispatcher with actual MCP transport/tool registry | `packages/mcp-server/src/index.js` now exports tested handlers, but the server is still a lightweight scaffold rather than a full MCP transport. |
+| mcp | Replace CLI/tool-dispatch scaffold with actual MCP transport/tool registry | `packages/mcp-server/src/index.js` now supports JSON tool dispatch, but it is still not a full MCP transport/server implementation. |
 | mcp | Implement `summarize_water_risk_for_county` protest-density folding | Contract supports `include_protest_density`; wire it once county summary tools exist. |
 
 ### Milestone 2 — MCP tools

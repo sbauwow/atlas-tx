@@ -48,6 +48,12 @@ export type CidSearchTwoParams = {
   resultsPerPage?: 5 | 10 | 15 | 20 | 25;
 };
 
+export type CidRefreshPlanParams = {
+  counties: string[];
+  programAreas: string[];
+  resultsPerPage?: 5 | 10 | 15 | 20 | 25;
+};
+
 function decodeHtml(value: string): string {
   return value
     .replace(/&#x([0-9a-f]+);/gi, (_, hex) =>
@@ -189,6 +195,24 @@ async function warmCidSession(): Promise<string | undefined> {
   });
   await assertOk(res, CID_BASE_URL);
   return cookieHeaderFromSetCookie(getSetCookieHeaders(res));
+}
+
+export function buildCidSearchOneRefreshPlan(
+  params: CidRefreshPlanParams,
+): CidSearchOneParams[] {
+  const plan: CidSearchOneParams[] = [];
+  for (const county of params.counties) {
+    for (const programArea of params.programAreas) {
+      plan.push({
+        actions: 'open',
+        sort: 'county',
+        county,
+        programArea,
+        resultsPerPage: params.resultsPerPage ?? 25,
+      });
+    }
+  }
+  return plan;
 }
 
 function buildSearchOneBody(params: CidSearchOneParams = {}): string {
