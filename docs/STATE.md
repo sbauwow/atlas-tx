@@ -8,9 +8,7 @@ Schema for every row: `workstream | agent | branch | intent | started | ref`
 
 ## In-progress
 
-| workstream | agent | branch | intent | started |
-|---|---|---|---|---|
-| docs | hermes | `data/sdwis-fetcher` | Live-verify AKVO/WaterScope/Hach references and Texas community-monitoring programs for smartphone colorimetry memo | 2026-05-08T21:03:03-05:00 |
+_(empty)_
 
 ---
 
@@ -24,6 +22,8 @@ _(empty)_
 
 | workstream | agent | intent | ref |
 |---|---|---|---|
+| docs | hermes | Permit-protests extension plan + dataset-registry contract bump 0.1.0→0.2.0 (CID Search One/Two + Active Protest Density). Uncommitted; needs `docs/protests-extension` branch. | working tree |
+| docs | hermes | Live-verify AKVO/WaterScope/Hach references and Texas Stream Team / AgriLife program claims; update smartphone docs accordingly | working tree |
 | data | hermes | SDWIS fetcher + normalizer + cached snapshot (4.5 MB, 11,686 rows, TX health-based since 2023-04-01) | branch `data/sdwis-fetcher` |
 | docs | hermes | Tighten smartphone colorimetry memo with explicit honest gaps, Texas program research caveats, and pre-plan open questions | working tree |
 | docs | hermes | Add smartphone colorimetry research note + target-state architecture for non-regulatory community screening | working tree |
@@ -51,6 +51,15 @@ Listed in the order the refocus plan (`docs/plans/2026-05-08-water-risk-refocus.
 | data | (follow-on) Wider SDWIS analysis snapshot in `data/sdwis-tx-full.json` | Current `public/cache/sdwis-tx.json` is filtered to health-based ≥ 2023-04-01 to fit the 5 MB committed budget. For a longer recency window (DWRS sensitivity analysis, demo "what we found" research), call `fetchSdwis({since: undefined})` and write to gitignored `data/`. |
 | data | (follow-on) Add `pws_name` + `county` to `mvp-datasets.ts` SDWIS keyFields | Currently lists raw API columns only; the normalized loader exposes joined `pwsName` + `county` from WATER_SYSTEM and GEOGRAPHIC_AREA — keyFields should reflect what consumers actually see. |
 
+### Milestone 1.5 — protest data layer (additive — see `docs/plans/2026-05-08-protests-extension.md`)
+
+| workstream | task | notes |
+|---|---|---|
+| data | `src/lib/datasets/cid.ts` fetcher | TCEQ CID Search One + Search Two scraper. ColdFusion form, POST `https://www14.tceq.texas.gov/epic/eCID/index.cfm?fuseaction=main.reportResults`. Warm session cookie via GET first. Sentinel value `"none"` for ProgramArea/County/Region "any". |
+| data | CID parser + fixtures | Pin parser to fixture HTML in `tests/fixtures/cid/`. Fail loud on schema drift. |
+| data | Snapshot to `public/cache/cid-cases-tx.json` + `cid-protests-tx.json` | If >5 MB redirect to gitignored `data/` + add `scripts/refresh-cid.ts`. |
+| data | `src/lib/scoring/protest_density.ts` Active Protest Density | Per `docs/contracts/dataset-registry.md` v0.2.0. Inputs: CID rows + ACS county pop. Emit raw + per-capita; do not surface per-capita alone. |
+
 ### Milestone 2 — MCP tools
 
 | workstream | task | notes |
@@ -61,6 +70,14 @@ Listed in the order the refocus plan (`docs/plans/2026-05-08-water-risk-refocus.
 | mcp | Implement `overlay_ej_burden` | Wraps `src/lib/scoring/ej_overlap.ts` |
 | mcp | Implement `summarize_water_risk_for_county` | Composite output, structured envelope |
 
+### Milestone 2.5 — protest MCP tools (additive)
+
+| workstream | task | notes |
+|---|---|---|
+| mcp | Implement `list_protested_permits` | Filters: county, programArea, minHearingRequests. Wraps cid.ts + Search Two. PII guardrail: never surface individual filer names. |
+| mcp | Implement `score_protest_density` | Wraps `src/lib/scoring/protest_density.ts`. County scope. |
+| mcp | (optional) extend `summarize_water_risk_for_county` | Add APD as a third axis alongside DWRS + EJ overlay. |
+
 ### Milestone 3 — skill
 
 | workstream | task | notes |
@@ -68,6 +85,7 @@ Listed in the order the refocus plan (`docs/plans/2026-05-08-water-risk-refocus.
 | skill | Refocus `SKILL.md` around water-risk + EJ workflow | EJ guardrails: burden/exposure language, not harm |
 | skill | Add references section linking SDWIS, EJScreen, TCEQ docs | Stable URLs only |
 | skill | End-to-end example invocation that runs against the MCP server | Must be reproducible |
+| skill | Add protests example invocation | "What permits are being protested in Comal County right now?" Add commenter-PII guardrail block: aggregate counts + named filing orgs only, never individual filer names. |
 
 ### Milestone 4 — web (only after M1-M3 green)
 
