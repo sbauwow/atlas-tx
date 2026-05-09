@@ -64,12 +64,28 @@ describe("water summary service", () => {
         },
       ],
       fetchGovernance: async () => [],
+      fetchFloodplainCountyCoverage: async () => ({
+        sourceId: "fema-nfhl",
+        layerId: 22,
+        layerName: "Political Jurisdictions",
+        countyCount: 1,
+        counties: [
+          {
+            county: { name: "Travis County", slug: "travis-county", fips: "48453" },
+            jurisdictionCount: 2,
+            jurisdictionNames: ["CITY OF AUSTIN", "CITY OF WEST LAKE HILLS"],
+            dfirmIds: ["48453C"],
+            communityIds: ["480624", "481876"],
+          },
+        ],
+      }),
     });
 
     const overview = await service.getWaterOverview();
     expect(overview.counties[0]).toMatchObject({
       county: { name: "Travis County", slug: "travis-county" },
       metrics: {
+        floodplainFeatureCount: 2,
         streamGaugeCount: 1,
         activeWaterAlertCount: 1,
         sewerOverflowCount30d: 1,
@@ -77,6 +93,7 @@ describe("water summary service", () => {
         generalPermitCount: 2,
       },
       overlays: {
+        hasFloodplainLayer: true,
         hasGaugeLayer: true,
         hasAlertLayer: true,
         hasSewerOverflowLayer: true,
@@ -84,6 +101,8 @@ describe("water summary service", () => {
     });
 
     const detail = await service.getCountyWaterBreakdown("travis");
+    expect(detail.county.metrics.floodplainFeatureCount).toBe(2);
+    expect(detail.county.overlays.hasFloodplainLayer).toBe(true);
     expect(detail.layers.alerts).toHaveLength(1);
     expect(detail.layers.gauges).toHaveLength(1);
     expect(detail.layers.sewerOverflows).toHaveLength(1);

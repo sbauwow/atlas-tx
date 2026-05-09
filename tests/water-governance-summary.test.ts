@@ -33,8 +33,9 @@ describe("water summary service governance integration", () => {
     });
 
     const overview = await service.getWaterOverview();
-    expect(overview.counties[0]?.metrics.waterDistrictCount).toBe(1);
-    expect(overview.counties[0]?.metrics.waterUtilityCount).toBe(1);
+    const travis = overview.counties.find((county) => county.county.slug === "travis-county");
+    expect(travis?.metrics.waterDistrictCount).toBe(1);
+    expect(travis?.metrics.waterUtilityCount).toBe(1);
 
     const detail = await service.getCountyWaterBreakdown("travis");
     expect(detail.layers.governance).toHaveLength(2);

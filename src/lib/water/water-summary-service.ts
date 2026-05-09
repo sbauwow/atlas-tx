@@ -1,4 +1,5 @@
 import { countySlug } from "@/lib/counties";
+import { fetchTexasNfhlCountyCoverage, type NfhlCountyCoverageResponse } from "@/lib/water/fema-nfhl";
 import { fetchTexasWaterAlerts, filterAlertsForCounty } from "@/lib/water/nws";
 import { fetchGeneralWaterPermits } from "@/lib/water/tceq-general-permits";
 import { fetchRecentSewerOverflows } from "@/lib/water/tceq-sewer-overflows";
@@ -30,7 +31,18 @@ export type CreateAtlasWaterSummaryServiceOptions = {
   fetchSewerOverflows?: () => Promise<SewerOverflowEvent[]>;
   fetchPermits?: () => Promise<WaterPermitRecord[]>;
   fetchGovernance?: () => Promise<WaterGovernanceEntity[]>;
+  fetchFloodplainCountyCoverage?: () => Promise<NfhlCountyCoverageResponse>;
 };
+
+function getFloodplainCount(
+  countyName: string,
+  floodplainCoverage?: NfhlCountyCoverageResponse,
+): number {
+  return (
+    floodplainCoverage?.counties.find((coverage) => countySlug(coverage.county.slug) === countySlug(countyName))
+      ?.jurisdictionCount ?? 0
+  );
+}
 
 function buildSummary(
   countyName: string,
@@ -39,10 +51,13 @@ function buildSummary(
   sewerOverflows: SewerOverflowEvent[],
   permits: WaterPermitRecord[],
   governance: WaterGovernanceEntity[],
+  floodplainCoverage?: NfhlCountyCoverageResponse,
 ): CountyWaterSummary {
+  const floodplainFeatureCount = getFloodplainCount(countyName, floodplainCoverage);
   return {
     county: { name: countyName, slug: countySlug(countyName), fips: gauges[0]?.countyFips ?? undefined },
     metrics: {
+      floodplainFeatureCount,
       streamGaugeCount: gauges.length,
       activeWaterAlertCount: alerts.length,
       sewerOverflowCount30d: sewerOverflows.length,
@@ -52,7 +67,7 @@ function buildSummary(
       waterUtilityCount: governance.filter((entity) => entity.sourceId !== "tceq-water-districts").length,
     },
     overlays: {
-      hasFloodplainLayer: false,
+      hasFloodplainLayer: floodplainFeatureCount > 0,
       hasGaugeLayer: gauges.length > 0,
       hasAlertLayer: alerts.length > 0,
       hasSewerOverflowLayer: sewerOverflows.length > 0,
@@ -67,15 +82,17 @@ export function createAtlasWaterSummaryService({
   fetchSewerOverflows = () => fetchRecentSewerOverflows(30),
   fetchPermits = fetchGeneralWaterPermits,
   fetchGovernance = fetchWaterGovernance,
+  fetchFloodplainCountyCoverage = fetchTexasNfhlCountyCoverage,
 }: CreateAtlasWaterSummaryServiceOptions = {}): AtlasWaterSummaryService {
   return {
     async getWaterOverview() {
-      const [alerts, gauges, sewerOverflows, permits, governance] = await Promise.all([
+      const [alerts, gauges, sewerOverflows, permits, governance, floodplainCoverage] = await Promise.all([
         fetchAlerts(),
         fetchGauges(),
         fetchSewerOverflows(),
         fetchPermits(),
         fetchGovernance(),
+        fetchFloodplainCountyCoverage(),
       ]);
       const countyNames = new Set<string>();
       alerts.forEach((alert) => (alert.countyNames ?? []).forEach((county) => countyNames.add(county)));
@@ -83,6 +100,7 @@ export function createAtlasWaterSummaryService({
       sewerOverflows.forEach((event) => event.countyName && countyNames.add(event.countyName));
       permits.forEach((record) => record.countyName && countyNames.add(record.countyName));
       governance.forEach((record) => record.countyName && countyNames.add(record.countyName));
+      floodplainCoverage.counties.forEach((coverage) => countyNames.add(coverage.county.name));
 
       const counties = Array.from(countyNames)
         .sort((a, b) => a.localeCompare(b))
@@ -96,6 +114,7 @@ export function createAtlasWaterSummaryService({
             sewerOverflows.filter((event) => countySlug(event.countyName ?? "") === countySlug(countyName)),
             countyPermits,
             countyGovernance,
+            floodplainCoverage,
           );
         });
 
@@ -107,24 +126,40 @@ export function createAtlasWaterSummaryService({
     },
 
     async getCountyWaterBreakdown(county) {
-      const [alerts, gauges, sewerOverflows, permits, governance] = await Promise.all([
+      const [alerts, gauges, sewerOverflows, permits, governance, floodplainCoverage] = await Promise.all([
         fetchAlerts(),
         fetchGauges(),
         fetchSewerOverflows(),
         fetchPermits(),
         fetchGovernance(),
+        fetchFloodplainCountyCoverage(),
       ]);
       const filteredAlerts = filterAlertsForCounty(alerts, county);
       const filteredGauges = filterGaugesForCounty(gauges, county);
       const filteredOverflows = sewerOverflows.filter((event) => countySlug(event.countyName ?? "") === countySlug(county));
       const filteredPermits = permits.filter((record) => countySlug(record.countyName ?? "") === countySlug(county));
       const filteredGovernance = governance.filter((record) => countySlug(record.countyName ?? "") === countySlug(county));
-      const countyName = filteredAlerts[0]?.countyNames?.[0] ?? filteredGauges[0]?.countyName ?? filteredOverflows[0]?.countyName ?? filteredPermits[0]?.countyName ?? filteredGovernance[0]?.countyName;
+      const floodplainCounty = floodplainCoverage.counties.find((coverage) => countySlug(coverage.county.slug) === countySlug(county));
+      const countyName =
+        filteredAlerts[0]?.countyNames?.[0] ??
+        filteredGauges[0]?.countyName ??
+        filteredOverflows[0]?.countyName ??
+        filteredPermits[0]?.countyName ??
+        filteredGovernance[0]?.countyName ??
+        floodplainCounty?.county.name;
       if (!countyName) {
         throw new Error(`County not found: ${county}`);
       }
       return {
-        county: buildSummary(countyName, filteredAlerts, filteredGauges, filteredOverflows, filteredPermits, filteredGovernance),
+        county: buildSummary(
+          countyName,
+          filteredAlerts,
+          filteredGauges,
+          filteredOverflows,
+          filteredPermits,
+          filteredGovernance,
+          floodplainCoverage,
+        ),
         layers: {
           alerts: filteredAlerts,
           gauges: filteredGauges,
@@ -132,7 +167,7 @@ export function createAtlasWaterSummaryService({
           permits: filteredPermits,
           governance: filteredGovernance,
         },
-        notes: [],
+        notes: floodplainCounty ? [`NFHL political jurisdictions mapped: ${floodplainCounty.jurisdictionCount}`] : [],
       };
     },
   };
