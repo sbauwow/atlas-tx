@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   buildDefaultCidRefreshPlan,
+  buildCidRefreshRuntimeOptions,
   buildCidRefreshSearchTwoParams,
   executeCidRefresh,
   resolveCidSnapshotTargets,
@@ -33,14 +34,37 @@ describe("refresh-cid planning", () => {
     });
   });
 
-  it("builds the broad Search Two params used for statewide protest refreshes", () => {
-    expect(buildCidRefreshSearchTwoParams()).toEqual({
+  it("requires an organization or name seed for Search Two refreshes", () => {
+    expect(buildCidRefreshSearchTwoParams({ organizationName: "Sierra" })).toEqual({
       itemStatus: "open",
-      organizationName: "",
+      organizationName: "Sierra",
       permitNumber: "",
       firstName: "",
       lastName: "",
       resultsPerPage: 25,
+    });
+  });
+
+  it("builds runtime options from env-style input", () => {
+    expect(
+      buildCidRefreshRuntimeOptions({
+        CID_COUNTIES: "111111111111156,111111111111211",
+        CID_PROGRAM_AREAS: "APO;Aggregate Production Operation Registration;NO_PARENT|WQ;Water Quality;PARENT",
+        CID_SEARCH_TWO_ORG_NAME: "Sierra",
+      }),
+    ).toEqual({
+      counties: ["111111111111156", "111111111111211"],
+      programAreas: [
+        "APO;Aggregate Production Operation Registration;NO_PARENT",
+        "WQ;Water Quality;PARENT",
+      ],
+      searchTwoOptions: {
+        organizationName: "Sierra",
+        firstName: "",
+        lastName: "",
+        permitNumber: "",
+        resultsPerPage: 25,
+      },
     });
   });
 
@@ -63,6 +87,33 @@ describe("refresh-cid planning", () => {
       uniqueProgramAreas: 2,
       searchTwoResultsPerPage: 25,
     });
+  });
+
+  it("requires a Search Two seed for live refreshes unless a custom fetcher is injected", async () => {
+    await expect(
+      executeCidRefresh({
+        counties: ["111111111111156"],
+        programAreas: ["APO;Aggregate Production Operation Registration;NO_PARENT"],
+        resultsPerPage: 25,
+        fetchSearchOneHtml: async () => "<html></html>",
+        parseSearchOneHtml: () => [],
+      }),
+    ).rejects.toThrow("Search Two refresh requires an organization, permit number, or person-name seed");
+  });
+
+  it("fails loud when Search One returns the upstream error page", async () => {
+    await expect(
+      executeCidRefresh({
+        counties: ["111111111111156"],
+        programAreas: ["APO;Aggregate Production Operation Registration;NO_PARENT"],
+        resultsPerPage: 25,
+        searchTwoOptions: { organizationName: "Sierra" },
+        fetchSearchOneHtml: async () => "<html>An unexpected error has occurred</html>",
+        fetchSearchTwoHtml: async () => "<html>search-two</html>",
+        parseSearchOneHtml: () => [],
+        parseSearchTwoHtml: () => [],
+      }),
+    ).rejects.toThrow("CID Search One returned the upstream error page");
   });
 
   it("executes the refresh plan, dedupes rows, and builds snapshot payloads", async () => {

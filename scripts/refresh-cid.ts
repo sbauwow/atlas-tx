@@ -12,6 +12,29 @@ export type RefreshCidCliOptions = {
   resultsPerPage?: 5 | 10 | 15 | 20 | 25;
 };
 
+export function buildCidRefreshRuntimeOptions(env: Record<string, string | undefined>) {
+  const counties = (env.CID_COUNTIES ?? '')
+    .split(',')
+    .map((value) => value.trim())
+    .filter(Boolean);
+  const programAreas = (env.CID_PROGRAM_AREAS ?? '')
+    .split('|')
+    .map((value) => value.trim())
+    .filter(Boolean);
+
+  return {
+    counties,
+    programAreas,
+    searchTwoOptions: {
+      organizationName: env.CID_SEARCH_TWO_ORG_NAME ?? '',
+      firstName: env.CID_SEARCH_TWO_FIRST_NAME ?? '',
+      lastName: env.CID_SEARCH_TWO_LAST_NAME ?? '',
+      permitNumber: env.CID_SEARCH_TWO_PERMIT_NUMBER ?? '',
+      resultsPerPage: 25 as const,
+    },
+  };
+}
+
 export function buildDefaultCidRefreshPlan(
   options: RefreshCidCliOptions,
 ) {
@@ -22,14 +45,20 @@ export function buildDefaultCidRefreshPlan(
   });
 }
 
-export function buildCidRefreshSearchTwoParams() {
+export function buildCidRefreshSearchTwoParams(options?: {
+  organizationName?: string;
+  firstName?: string;
+  lastName?: string;
+  permitNumber?: string;
+  resultsPerPage?: 5 | 10 | 15 | 20 | 25;
+}) {
   return {
     itemStatus: 'open' as const,
-    organizationName: '',
-    permitNumber: '',
-    firstName: '',
-    lastName: '',
-    resultsPerPage: 25 as const,
+    organizationName: options?.organizationName ?? '',
+    permitNumber: options?.permitNumber ?? '',
+    firstName: options?.firstName ?? '',
+    lastName: options?.lastName ?? '',
+    resultsPerPage: options?.resultsPerPage ?? 25 as const,
   };
 }
 
@@ -57,25 +86,48 @@ function dedupeByJson<T>(rows: T[]): T[] {
   return out;
 }
 
+function assertSearchOneHtmlIsUsable(html: string) {
+  if (/An unexpected error has occurred/i.test(html)) {
+    throw new Error('CID Search One returned the upstream error page');
+  }
+}
+
 export async function executeCidRefresh(options: RefreshCidCliOptions & {
   generatedAt?: string;
+  searchTwoOptions?: Parameters<typeof buildCidRefreshSearchTwoParams>[0];
   fetchSearchOneHtml?: typeof fetchCidSearchOneHtml;
   fetchSearchTwoHtml?: typeof fetchCidSearchTwoHtml;
   parseSearchOneHtml?: typeof parseCidCasesHtml;
   parseSearchTwoHtml?: typeof parseCidProtestsHtml;
 }) {
   const searchOnePlan = buildDefaultCidRefreshPlan(options);
-  const searchTwoParams = buildCidRefreshSearchTwoParams();
+  const searchTwoParams = buildCidRefreshSearchTwoParams(options.searchTwoOptions);
   const fetchOne = options.fetchSearchOneHtml ?? fetchCidSearchOneHtml;
   const fetchTwo = options.fetchSearchTwoHtml ?? fetchCidSearchTwoHtml;
   const parseOne = options.parseSearchOneHtml ?? parseCidCasesHtml;
   const parseTwo = options.parseSearchTwoHtml ?? parseCidProtestsHtml;
   const generatedAt = options.generatedAt ?? new Date().toISOString();
 
+  const hasSearchTwoSeed = Boolean(
+    searchTwoParams.organizationName ||
+      searchTwoParams.permitNumber ||
+      searchTwoParams.firstName ||
+      searchTwoParams.lastName,
+  );
+  if (!options.fetchSearchTwoHtml && !hasSearchTwoSeed) {
+    throw new Error(
+      'Search Two refresh requires an organization, permit number, or person-name seed',
+    );
+  }
+
   const caseRows = dedupeByJson(
     (
       await Promise.all(
-        searchOnePlan.map(async (params) => parseOne(await fetchOne(params))),
+        searchOnePlan.map(async (params) => {
+          const html = await fetchOne(params);
+          assertSearchOneHtmlIsUsable(html);
+          return parseOne(html);
+        }),
       )
     ).flat(),
   );
@@ -153,10 +205,12 @@ export async function writeCidRefreshSnapshots(
 }
 
 export async function main() {
+  const runtime = buildCidRefreshRuntimeOptions(process.env as Record<string, string | undefined>);
   const refreshResult = await executeCidRefresh({
-    counties: [],
-    programAreas: [],
+    counties: runtime.counties,
+    programAreas: runtime.programAreas,
     resultsPerPage: 25,
+    searchTwoOptions: runtime.searchTwoOptions,
   });
 
   console.log(
