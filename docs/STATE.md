@@ -11,6 +11,7 @@ Schema for every row: `workstream | agent | branch | intent | started | ref`
 | workstream | agent | branch | intent | started | ref |
 |---|---|---|---|---|---|
 | docs | hermes | web/color-tokens | Review all plan docs, align additive weather/community roadmap to current repo state, and add coordination-aware implementation checklist around active feynman/UI work | 2026-05-09T05:52:00Z | working tree |
+| cross (web + data + docs) | claude-opus-4-7 | cross/citizen-strips-prototype | Stage 1 prototype of citizen water-strip submissions per `docs/research/smartphone-colorimetry.md`: standalone `/citizen` lane, hybrid client-sampling + Claude vision, SQLite via Prisma, strict non-regulatory layer | 2026-05-09T00:00:00Z | working tree |
 
 ---
 

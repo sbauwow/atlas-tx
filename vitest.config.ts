@@ -8,6 +8,8 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": resolve(rootDir, "src"),
+      // `server-only` throws outside Next.js's bundler — stub it for vitest.
+      "server-only": resolve(rootDir, "tests/stubs/server-only.ts"),
     },
   },
   test: {

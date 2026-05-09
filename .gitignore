@@ -32,6 +32,7 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+!.env.example
 
 # vercel
 .vercel
@@ -42,3 +43,8 @@ next-env.d.ts
 
 # atlas-tx — raw downloads / scratch (committed snapshots live in public/cache/)
 /data/
+
+# atlas-tx — citizen-observation prototype local DB + uploaded images
+/prisma/dev.db
+/prisma/dev.db-journal
+/prisma/migrations/dev.db*

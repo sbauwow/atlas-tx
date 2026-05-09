@@ -12,12 +12,20 @@
     "refresh:twdb-hydrology": "tsx scripts/refresh-twdb-hydrology.ts",
     "refresh:surface-water-quality": "tsx scripts/refresh-surface-water-quality.ts",
     "refresh:city-open-data": "tsx scripts/refresh-city-open-data.ts",
-    "refresh:city-open-data-curated": "tsx scripts/refresh-city-open-data-curated.ts"
+    "refresh:city-open-data-curated": "tsx scripts/refresh-city-open-data-curated.ts",
+    "postinstall": "prisma generate",
+    "db:migrate": "prisma migrate dev"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.95.1",
+    "@prisma/adapter-better-sqlite3": "^7.8.0",
+    "@prisma/client": "^7.8.0",
+    "better-sqlite3": "^12.9.0",
     "next": "16.2.6",
     "react": "19.2.4",
-    "react-dom": "19.2.4"
+    "react-dom": "19.2.4",
+    "server-only": "^0.0.1",
+    "sharp": "^0.34.5"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
@@ -26,6 +34,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.2.6",
+    "prisma": "^7.8.0",
     "tailwindcss": "^4",
     "tsx": "^4.20.6",
     "typescript": "^5",
