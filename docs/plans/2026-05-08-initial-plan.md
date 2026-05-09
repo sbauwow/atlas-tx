@@ -1,5 +1,8 @@
 # Atlas TX Initial Implementation Plan
 
+> ⚠️ **SUPERSEDED 2026-05-08** by [`2026-05-08-water-risk-refocus.md`](./2026-05-08-water-risk-refocus.md).
+> Kept for history. Do not use this doc as a basis for new work — the project narrowed to a drinking-water-risk + environmental-justice angle for one named persona instead of a 6-dataset compare-counties shell.
+
 > For Hermes: use this as the working scaffold plan for the first weekend build.
 
 Goal: create a public, open-source base for Atlas TX with a visible product shell, a canonical MVP dataset registry, and scaffolding for both an MCP server and an agent skill.

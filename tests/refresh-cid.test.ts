@@ -1,0 +1,318 @@
+import { describe, expect, it } from "vitest";
+
+import {
+  buildDefaultCidRefreshPlan,
+  buildCidRefreshRuntimeOptions,
+  buildCidRefreshSearchTwoParams,
+  executeCidRefresh,
+  resolveCidSnapshotTargets,
+  summarizeCidRefreshPlan,
+  writeCidRefreshSnapshots,
+} from "../scripts/refresh-cid";
+
+describe("refresh-cid planning", () => {
+  it("builds a default statewide Search One chunk plan across counties and program areas", () => {
+    const plan = buildDefaultCidRefreshPlan({
+      counties: ["111111111111156", "111111111111211"],
+      programAreas: [
+        "APO;Aggregate Production Operation Registration;NO_PARENT",
+        "WQ;Water Quality;PARENT",
+      ],
+      resultsPerPage: 25,
+    });
+
+    expect(plan).toHaveLength(4);
+    expect(plan[0]).toMatchObject({
+      county: "111111111111156",
+      programArea: "APO;Aggregate Production Operation Registration;NO_PARENT",
+      resultsPerPage: 25,
+    });
+    expect(plan[3]).toMatchObject({
+      county: "111111111111211",
+      programArea: "WQ;Water Quality;PARENT",
+      resultsPerPage: 25,
+    });
+  });
+
+  it("requires an organization or name seed for Search Two refreshes", () => {
+    expect(buildCidRefreshSearchTwoParams({ organizationName: "Sierra" })).toEqual({
+      itemStatus: "open",
+      organizationName: "Sierra",
+      permitNumber: "",
+      firstName: "",
+      lastName: "",
+      resultsPerPage: 25,
+    });
+  });
+
+  it("builds runtime options from env-style input", () => {
+    expect(
+      buildCidRefreshRuntimeOptions({
+        CID_COUNTIES: "111111111111156,111111111111211",
+        CID_PROGRAM_AREAS: "APO;Aggregate Production Operation Registration;NO_PARENT|WQ;Water Quality;PARENT",
+        CID_SEARCH_TWO_ORG_NAME: "Sierra",
+      }),
+    ).toEqual({
+      counties: ["111111111111156", "111111111111211"],
+      programAreas: [
+        "APO;Aggregate Production Operation Registration;NO_PARENT",
+        "WQ;Water Quality;PARENT",
+      ],
+      searchTwoOptions: {
+        organizationName: "Sierra",
+        firstName: "",
+        lastName: "",
+        permitNumber: "",
+        resultsPerPage: 25,
+      },
+    });
+  });
+
+  it("summarizes the refresh plan for operator visibility", () => {
+    const summary = summarizeCidRefreshPlan({
+      searchOnePlan: buildDefaultCidRefreshPlan({
+        counties: ["111111111111156", "111111111111211"],
+        programAreas: [
+          "APO;Aggregate Production Operation Registration;NO_PARENT",
+          "WQ;Water Quality;PARENT",
+        ],
+        resultsPerPage: 25,
+      }),
+      searchTwoParams: buildCidRefreshSearchTwoParams(),
+    });
+
+    expect(summary).toEqual({
+      searchOneRequests: 4,
+      uniqueCounties: 2,
+      uniqueProgramAreas: 2,
+      searchTwoResultsPerPage: 25,
+    });
+  });
+
+  it("requires a Search Two seed for live refreshes unless a custom fetcher is injected", async () => {
+    await expect(
+      executeCidRefresh({
+        counties: ["111111111111156"],
+        programAreas: ["APO;Aggregate Production Operation Registration;NO_PARENT"],
+        resultsPerPage: 25,
+        fetchSearchOneHtml: async () => "<html></html>",
+        parseSearchOneHtml: () => [],
+      }),
+    ).rejects.toThrow("Search Two refresh requires an organization, permit number, or person-name seed");
+  });
+
+  it("falls back to browser automation when Search One returns the upstream error page", async () => {
+    const result = await executeCidRefresh({
+      counties: ["111111111111156"],
+      programAreas: ["APO;Aggregate Production Operation Registration;NO_PARENT"],
+      resultsPerPage: 25,
+      searchTwoOptions: { organizationName: "Sierra" },
+      fetchSearchOneHtml: async () => "<html>An unexpected error has occurred</html>",
+      fetchSearchOneHtmlBrowser: async () => "<html>browser-search-one</html>",
+      fetchSearchTwoHtml: async () => "<html>search-two</html>",
+      parseSearchOneHtml: (html) => html.includes("browser-search-one") ? [{
+        tceqId: "APO0009876",
+        applicantName: "BIG ROCK LLC",
+        county: "Comal County",
+        programArea: "APO",
+        itemStatus: "open",
+        tceqDocketNumber: null,
+        soahDocketNumber: null,
+        regulatedEntityNumber: null,
+        customerNumber: null,
+      }] : [],
+      parseSearchTwoHtml: () => [],
+    });
+
+    expect(result.caseRows).toHaveLength(1);
+    expect(result.caseRows[0]?.tceqId).toBe("APO0009876");
+    expect(result.caseSnapshot.caveats).toContain(
+      "Browser automation fallback was used for at least one Search One chunk.",
+    );
+  });
+
+  it("fails loud when Search One returns the upstream error page and no browser fallback is available", async () => {
+    await expect(
+      executeCidRefresh({
+        counties: ["111111111111156"],
+        programAreas: ["APO;Aggregate Production Operation Registration;NO_PARENT"],
+        resultsPerPage: 25,
+        searchTwoOptions: { organizationName: "Sierra" },
+        fetchSearchOneHtml: async () => "<html>An unexpected error has occurred</html>",
+        fetchSearchTwoHtml: async () => "<html>search-two</html>",
+        parseSearchOneHtml: () => [],
+        parseSearchTwoHtml: () => [],
+      }),
+    ).rejects.toThrow("CID Search One returned the upstream error page");
+  });
+
+  it("executes the refresh plan, dedupes rows, and builds snapshot payloads", async () => {
+    const result = await executeCidRefresh({
+      counties: ["111111111111156", "111111111111211"],
+      programAreas: [
+        "APO;Aggregate Production Operation Registration;NO_PARENT",
+        "WQ;Water Quality;PARENT",
+      ],
+      resultsPerPage: 25,
+      generatedAt: "2026-05-09T03:00:00.000Z",
+      fetchSearchOneHtml: async (params) =>
+        params.county === "111111111111156"
+          ? "<html>search-one-comal</html>"
+          : "<html>search-one-harris</html>",
+      fetchSearchTwoHtml: async () => "<html>search-two</html>",
+      parseSearchOneHtml: (html) =>
+        html.includes("comal")
+          ? [
+              {
+                tceqId: "APO0009876",
+                applicantName: "BIG ROCK LLC",
+                county: "Comal County",
+                programArea: "APO",
+                itemStatus: "open",
+                tceqDocketNumber: null,
+                soahDocketNumber: null,
+                regulatedEntityNumber: null,
+                customerNumber: null,
+              },
+            ]
+          : [
+              {
+                tceqId: "WQ0000447000",
+                applicantName: "DOW HYDROCARBONS AND RESOURCES LLC",
+                county: "Harris County",
+                programArea: "WQ",
+                itemStatus: "open",
+                tceqDocketNumber: "2026-001234-WQ",
+                soahDocketNumber: "582-26-1234",
+                regulatedEntityNumber: null,
+                customerNumber: null,
+              },
+              {
+                tceqId: "WQ0000447000",
+                applicantName: "DOW HYDROCARBONS AND RESOURCES LLC",
+                county: "Harris County",
+                programArea: "WQ",
+                itemStatus: "open",
+                tceqDocketNumber: "2026-001234-WQ",
+                soahDocketNumber: "582-26-1234",
+                regulatedEntityNumber: null,
+                customerNumber: null,
+              },
+            ],
+      parseSearchTwoHtml: () => [
+        {
+          tceqId: "WQ0000447000",
+          filingType: "hearing_request",
+          filerOrganization: "Public Citizen",
+          filedAt: "2026-04-03",
+        },
+        {
+          tceqId: "WQ0000447000",
+          filingType: "hearing_request",
+          filerOrganization: "Public Citizen",
+          filedAt: "2026-04-03",
+        },
+      ],
+    });
+
+    expect(result.caseRows).toHaveLength(2);
+    expect(result.protestRows).toHaveLength(1);
+    expect(result.caseSnapshot.rowCount).toBe(2);
+    expect(result.protestSnapshot.rowCount).toBe(1);
+    expect(result.caseSnapshot.rows[0]?.tceqId).toBe("APO0009876");
+    expect(result.protestSnapshot.rows[0]?.tceqId).toBe("WQ0000447000");
+    expect(result.summary).toEqual({
+      searchOneRequests: 4,
+      uniqueCounties: 2,
+      uniqueProgramAreas: 2,
+      searchTwoResultsPerPage: 25,
+    });
+  });
+
+  it("falls back to data/ targets when snapshots exceed the committed size budget", () => {
+    const targets = resolveCidSnapshotTargets({
+      caseBytes: 6_000_000,
+      protestBytes: 2_000_000,
+      maxCommittedBytes: 5_000_000,
+    });
+
+    expect(targets).toEqual({
+      casePath: "data/cid-cases-tx.json",
+      protestPath: "public/cache/cid-protests-tx.json",
+    });
+  });
+
+  it("writes case and protest snapshots to the requested paths", async () => {
+    const writes: Array<{ path: string; content: string }> = [];
+    const refreshResult = {
+      caseSnapshot: {
+        generatedAt: "2026-05-09T03:00:00.000Z",
+        source: "search-one",
+        rowCount: 1,
+        rows: [{ tceqId: "APO1" }],
+        caveats: ["case caveat"],
+      },
+      protestSnapshot: {
+        generatedAt: "2026-05-09T03:00:00.000Z",
+        source: "search-two",
+        rowCount: 1,
+        rows: [{ tceqId: "APO1" }],
+        caveats: ["protest caveat"],
+      },
+    };
+
+    await writeCidRefreshSnapshots(
+      refreshResult,
+      {
+        casePath: "public/cache/cid-cases-tx.json",
+        protestPath: "public/cache/cid-protests-tx.json",
+        writeFile: async (path, content) => {
+          writes.push({ path, content });
+        },
+      },
+    );
+
+    expect(writes).toHaveLength(2);
+    expect(writes[0]?.path).toBe("public/cache/cid-cases-tx.json");
+    expect(writes[1]?.path).toBe("public/cache/cid-protests-tx.json");
+    expect(JSON.parse(writes[0]?.content ?? "{}")).toMatchObject({ rowCount: 1 });
+    expect(JSON.parse(writes[1]?.content ?? "{}")).toMatchObject({ rowCount: 1 });
+  });
+
+  it("resolves size-based targets before writing snapshots", async () => {
+    const writes: Array<string> = [];
+    const refreshResult = {
+      caseSnapshot: {
+        generatedAt: "2026-05-09T03:00:00.000Z",
+        source: "search-one",
+        rowCount: 1,
+        rows: [{ big: "x".repeat(6_000_000) }],
+        caveats: [],
+      },
+      protestSnapshot: {
+        generatedAt: "2026-05-09T03:00:00.000Z",
+        source: "search-two",
+        rowCount: 1,
+        rows: [{ small: true }],
+        caveats: [],
+      },
+    };
+    const targets = resolveCidSnapshotTargets({
+      caseBytes: JSON.stringify(refreshResult.caseSnapshot).length,
+      protestBytes: JSON.stringify(refreshResult.protestSnapshot).length,
+      maxCommittedBytes: 5_000_000,
+    });
+
+    await writeCidRefreshSnapshots(refreshResult, {
+      ...targets,
+      writeFile: async (path) => {
+        writes.push(path);
+      },
+    });
+
+    expect(writes).toEqual([
+      "data/cid-cases-tx.json",
+      "public/cache/cid-protests-tx.json",
+    ]);
+  });
+});

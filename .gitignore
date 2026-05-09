@@ -39,3 +39,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# atlas-tx — raw downloads / scratch (committed snapshots live in public/cache/)
+/data/
