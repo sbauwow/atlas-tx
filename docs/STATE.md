@@ -22,6 +22,8 @@ _(empty)_
 
 | workstream | agent | intent | ref |
 |---|---|---|---|
+| mcp | hermes | Wire protest MCP handlers and add handler tests for `list_protested_permits` + `score_protest_density` | working tree |
+| data | hermes | Implement `src/lib/scoring/protest_density.ts` and pin APD behavior with scorer tests | working tree |
 | data | hermes | Implement `src/lib/datasets/cid.ts` parsers + live POST helpers and pin them to fixture tests | working tree |
 | docs | hermes | Tune APD formula and draft protest/CID MCP tool signatures | working tree |
 | web | hermes | Refocus landing page copy around Texas water risk + EJ and add regression tests for the new messaging | working tree |
@@ -57,9 +59,9 @@ Listed in the order the refocus plan (`docs/plans/2026-05-08-water-risk-refocus.
 
 | workstream | task | notes |
 |---|---|---|
-| data | `src/lib/scoring/protest_density.ts` APD score | Consume `cid.ts` rows + ACS county population. Search Two filing counts now distinguish comments, hearing requests, and public meeting requests; see tuned formula in `docs/contracts/dataset-registry.md`. |
 | data | CID statewide refresh strategy + snapshots | Search Two live POST is verified. Search One broad queries are fragile; add chunked refresh logic (county/program batches) before freezing `public/cache/cid-*.json`. |
-| mcp | Implement `list_protested_permits` + `score_protest_density` | Signatures are now drafted in `docs/contracts/mcp-tools.md`; wire tools after APD scorer lands. |
+| mcp | Replace scaffold dispatcher with actual MCP transport/tool registry | `packages/mcp-server/src/index.js` now exports tested handlers, but the server is still a lightweight scaffold rather than a full MCP transport. |
+| mcp | Implement `summarize_water_risk_for_county` protest-density folding | Contract supports `include_protest_density`; wire it once county summary tools exist. |
 
 ### Milestone 2 — MCP tools
 
