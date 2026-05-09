@@ -18,6 +18,7 @@ describe("TopNav", () => {
     expect(html).toContain('href="/water"');
     expect(html).toContain('href="/counties"');
     expect(html).toContain('href="/education"');
+    expect(html).toContain('href="/glossary"');
     expect(html).toContain('href="/api/health"');
   });
 

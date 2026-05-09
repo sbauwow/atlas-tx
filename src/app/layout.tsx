@@ -34,6 +34,15 @@ export default function RootLayout({
       <body className="min-h-full bg-slate-950 text-slate-50 flex flex-col">
         <TopNav />
         {children}
+        <footer className="mt-12 border-t border-white/5 px-6 py-6 text-sm text-slate-400">
+          <div className="mx-auto flex w-full max-w-7xl flex-wrap items-center justify-between gap-3">
+            <div>Atlas TX public-interest county intelligence</div>
+            <div className="flex flex-wrap items-center gap-4">
+              <a href="/glossary" className="transition-colors hover:text-white">Glossary</a>
+              <a href="/education" className="transition-colors hover:text-white">Education</a>
+            </div>
+          </div>
+        </footer>
         <Suspense fallback={null}>
           <PageViewBeacon />
         </Suspense>

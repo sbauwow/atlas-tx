@@ -6,6 +6,7 @@ const NAV_LINKS: Array<{ label: string; href: string }> = [
   { label: "Water", href: "/water" },
   { label: "Counties", href: "/counties" },
   { label: "Education", href: "/education" },
+  { label: "Glossary", href: "/glossary" },
   { label: "API health", href: "/api/health" },
 ];
 
