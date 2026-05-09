@@ -14,6 +14,17 @@ Schema for entries:
 
 ---
 
+## 2026-05-09 — water / env / weather expansion
+
+- agent: claude-opus-4-7
+- action: created, updated, crystallized
+- pages touched:
+  - **DWQ (5)**: `datasets/epa-echo-violations.md`, `concepts/sdwa-violation-types.md`, `concepts/mcl.md`, `concepts/pwsid.md`, `comparisons/sdwis-vs-echo.md`
+  - **Env (4)**: `agencies/usgs.md`, `datasets/epa-tri-tx.md`, `concepts/ej-index.md`, `concepts/burden-vs-harm.md`
+  - **Weather (5)**: `agencies/noaa.md`, `agencies/fema.md`, `datasets/fema-nfhl.md`, `datasets/noaa-storm-events.md`, `datasets/usdm-drought-monitor.md`
+  - **Housekeeping**: `index.md`, `log.md`, `graph.md`, `lint-report.md`, `overview.md`, `episodes/2026-05-09-water-env-weather.md`
+- notes: Repo-grounded only (no live WebFetch); confidence cap 0.7. Five new dataset pages have `registry_id: null` because the underlying sources are not yet registered (NFHL, TRI, NOAA Storm Events, USDM Drought, USGS NHD). Burden-vs-harm promoted to `confidence: 0.8` because it's mirrored in `AGENTS.md` § 5 and the dataset-registry contract. No contracts touched. PR #2 grows.
+
 ## 2026-05-08 — wiki init
 
 - agent: claude-opus-4-7
