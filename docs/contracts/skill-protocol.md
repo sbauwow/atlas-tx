@@ -25,7 +25,7 @@ Every agent response that uses the skill must:
 
 1. **Cite source datasets.** Surface every `Source.dataset_id` + publisher + URL from the MCP tool envelope.
 2. **Surface caveats verbatim.** Pass through every entry in `caveats` without paraphrasing away the qualifier.
-3. **Distinguish indicator from outcome.** Present DWRS as a *risk indicator* derived from violation history, not a measurement of present harm. Present EJ Burden Overlap as *burden / exposure*, not as proof of harm.
+3. **Distinguish indicator from outcome.** Present DWRS as a *risk indicator* derived from violation history, not a measurement of present harm. Present EJ Burden Overlap as *burden / exposure*, not as proof of harm. Treat environmental burden as an inference assembled from indicator layers (for example impaired surface-water segments, permit density, and EJScreen), not a directly observed outcome.
 4. **Stamp the snapshot date.** When `cache_state: "snapshot"` the response must say which snapshot date the data is from.
 5. **Bound numeric claims.** Never extrapolate beyond the rows returned. If asked for a comparison the data does not support, say so.
 

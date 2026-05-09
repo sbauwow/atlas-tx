@@ -64,6 +64,54 @@ describe("water summary service", () => {
         },
       ],
       fetchGovernance: async () => [],
+      fetchSurfaceWaterQuality: async () => [
+        {
+          layerId: 8,
+          layerName: "Stream Segments",
+          countyName: "Travis County",
+          segmentId: "0304",
+          segmentName: "Days Creek",
+          basinName: "Sulphur River Basin",
+          segmentClass: "Classified",
+          segmentType: "Freshwater Stream",
+          size: 5.0175,
+          sizeUnit: "Miles",
+          assessmentYear: 2024,
+          isImpaired: true,
+          impairmentFlags: {
+            aquaticLife: false,
+            contactRecreation: true,
+            generalUse: false,
+            fishConsumption: false,
+            publicWaterSupply: false,
+            oysterWaters: false,
+          },
+          sourceUrl: "https://example.test/swq/8",
+        },
+        {
+          layerId: 7,
+          layerName: "Reservoir Segments",
+          countyName: "Harris County",
+          segmentId: "0102",
+          segmentName: "Lake Example",
+          basinName: "Example Basin",
+          segmentClass: "Classified",
+          segmentType: "Reservoir",
+          size: 10,
+          sizeUnit: "Acres",
+          assessmentYear: 2024,
+          isImpaired: false,
+          impairmentFlags: {
+            aquaticLife: false,
+            contactRecreation: false,
+            generalUse: false,
+            fishConsumption: false,
+            publicWaterSupply: false,
+            oysterWaters: false,
+          },
+          sourceUrl: "https://example.test/swq/7",
+        },
+      ],
       fetchFloodplainCountyCoverage: async () => ({
         sourceId: "fema-nfhl",
         layerId: 22,
@@ -82,7 +130,8 @@ describe("water summary service", () => {
     });
 
     const overview = await service.getWaterOverview();
-    expect(overview.counties[0]).toMatchObject({
+    const travis = overview.counties.find((county) => county.county.slug === "travis-county");
+    expect(travis).toMatchObject({
       county: { name: "Travis County", slug: "travis-county" },
       metrics: {
         floodplainFeatureCount: 2,
@@ -91,18 +140,43 @@ describe("water summary service", () => {
         sewerOverflowCount30d: 1,
         sewerOverflowGallons30d: 200,
         generalPermitCount: 2,
+        surfaceWaterSegmentCount: 1,
+        impairedSurfaceWaterSegmentCount: 1,
       },
       overlays: {
         hasFloodplainLayer: true,
         hasGaugeLayer: true,
         hasAlertLayer: true,
         hasSewerOverflowLayer: true,
+        hasSurfaceWaterImpairmentLayer: true,
+      },
+      mismatch: {
+        score: 75,
+        flags: [
+          "surface-water impairment overlaps recent sewer overflow activity",
+          "surface-water impairment is present with only light active alert coverage",
+        ],
       },
     });
+    expect(travis?.annotations).toContain(
+      "Nearby surface-water impairment context is additive only; it is not a standalone verdict on county-wide harm.",
+    );
 
     const detail = await service.getCountyWaterBreakdown("travis");
     expect(detail.county.metrics.floodplainFeatureCount).toBe(2);
+    expect(detail.county.metrics.impairedSurfaceWaterSegmentCount).toBe(1);
     expect(detail.county.overlays.hasFloodplainLayer).toBe(true);
+    expect(detail.county.overlays.hasSurfaceWaterImpairmentLayer).toBe(true);
+    expect(detail.county.mismatch).toEqual({
+      score: 75,
+      flags: [
+        "surface-water impairment overlaps recent sewer overflow activity",
+        "surface-water impairment is present with only light active alert coverage",
+      ],
+    });
+    expect(detail.county.annotations).toContain(
+      "Nearby surface-water impairment context is additive only; it is not a standalone verdict on county-wide harm.",
+    );
     expect(detail.layers.alerts).toHaveLength(1);
     expect(detail.layers.gauges).toHaveLength(1);
     expect(detail.layers.sewerOverflows).toHaveLength(1);

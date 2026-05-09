@@ -1,8 +1,10 @@
 # Contract — Dataset Registry & Scoring
 
-> Contract version: **0.4.0** — bump on any breaking change to types, fetcher signatures, or scoring outputs. Notify `mcp` and `web` workstreams in `STATE.md` when bumping.
+> Contract version: **0.6.0** — bump on any breaking change to types, fetcher signatures, or scoring outputs. Notify `mcp` and `web` workstreams in `STATE.md` when bumping.
 >
 > Changelog:
+> - 0.6.0 (2026-05-09): add planned weather / hydrologic context contract language for NWS alerts, USGS streamflow, drought status, precipitation totals, and temperature / heat indicators. Clarify these are explanatory context layers for water events, not standalone proof of contamination or infrastructure failure.
+> - 0.5.0 (2026-05-09): add planned mismatch-signal contract language for boil-water notices, E2 disinfectant reporting, and biological integrity / aquatic life context. Clarify that notice, treatment-stress, and biology layers are reporter-lead indicators, not direct proof of contamination or harm.
 > - 0.4.0 (2026-05-08): add `tceq-swq-segments` as a registered external source for surface-water impairment / use-support context. Clarify platform stance: environmental burden is inferred from indicator layers, not directly observed.
 > - 0.3.0 (2026-05-08): add first TWDB hydrology context sources (`twdb-major-aquifers`, `twdb-river-basins`, `twdb-huc8`) plus cached snapshot/normalizer contract in `src/lib/datasets/twdb-hydrology.ts`. Additive only.
 > - 0.2.0 (2026-05-08): add CID protest sources (`tceq-cid-search-one`, `tceq-cid-search-two`) and `Active Protest Density` derived signal. See `docs/plans/2026-05-08-protests-extension.md`. Non-breaking for existing fetchers; new entries are additive. MCP gains optional `list_protested_permits` + `score_protest_density`.
@@ -80,6 +82,10 @@ Rules:
 
 ## Current registered signals
 
+Atlas TX's journalist-facing scoring model should prefer anomaly and contradiction detection over simple correlation ranking whenever the data supports it. Derived signals should be designed so downstream tools can ask both:
+- "what is high?"
+- and "what is weird relative to the rest of the official record?"
+
 ### Drinking Water Risk Score (DWRS)
 File: `src/lib/scoring/dwrs.ts` (TBD).
 Inputs: SDWIS health-based violation rows, ACS population rows.
@@ -102,6 +108,156 @@ Caveats: "Impaired" is a legal-use-support classification for the intended use o
 File: `src/lib/scoring/compliance_gap.ts` (TBD, M2+).
 Inputs: TCEQ permit rows, EPA ECHO violation rows.
 Per-county score: log(permits) × (1 − resolved_violations / total_violations).
+
+### Official-signal mismatch detector (planned)
+File: `src/lib/scoring/official_signal_mismatch.ts` (future).
+Inputs: DWRS rows, surface-water impairment rows, sanitary sewer overflow/public-notice rows, boil-water notices (future), E2 disinfectant reporting rows (future).
+Purpose: rank counties/PWSs where the public-notice footprint and the apparent regulatory / monitoring picture disagree enough to deserve reporter attention.
+Examples:
+- repeated sewer overflows or boil-water notices with weak corresponding burden/compliance indicators
+- elevated DWRS or impaired nearby waters with unusually little notice/public escalation
+- treatment-stress indicators that do not line up with the rest of the official picture
+Caveats: mismatch is a reporter lead, not proof that any one source is wrong.
+
+### Boil-water notice context (planned)
+File: `src/lib/datasets/boil-water-notices.ts` (future).
+Inputs: TCEQ boil-water and related consumer notice rows for Texas public water systems.
+Purpose: identify PWSs and counties with repeated public-notice events and compare them against DWRS, sewer overflows, and treatment-stress indicators.
+Recommended joins: `pws_id` where available; fallback to normalized utility/PWS name + county + notice date window.
+Caveats:
+- public notice issuance practices may vary across systems and incidents;
+- a boil-water notice is a strong service-disruption / precautionary signal, not by itself proof of confirmed contamination;
+- historical completeness may differ from current notices depending on the source path used.
+
+### Biological integrity context (planned)
+File: `src/lib/datasets/ibi.ts` (future).
+Inputs: Index of Biotic Integrity, aquatic-life-use attainment rows, or equivalent biological-condition rows.
+Purpose: let living-system condition disagree with chemistry/compliance summaries and create a stronger burden/outlier narrative.
+Recommended joins: segment ID / assessment unit first; county overlay second; preserve basin/watershed context when available.
+Caveats:
+- biological integrity is still an indicator/proxy layer and should be joined carefully by watershed/segment geography;
+- poor aquatic-life condition is evidence of ecological stress, not a standalone causal statement about human-health outcomes;
+- if multiple biological programs are combined, the row shape must preserve method/source provenance.
+
+### E2 disinfectant reporting context (planned)
+File: `src/lib/datasets/e2-disinfectants.ts` (future).
+Inputs: disinfectant/treatment reporting rows from the E2 Reporting System.
+Purpose: provide an operational water-treatment stress signal that can be compared against notices, DWRS, and impairment context.
+Caveats: operational anomalies do not automatically imply public-health harm.
+
+### Weather / hydrologic context (planned)
+These are explanatory layers for why a notice, overflow, or water-quality signal may have occurred. They should be attached to event windows and county/PWS summaries as context, not presented as standalone evidence of contamination or system failure.
+
+### NWS alert context (planned)
+File: `src/lib/datasets/nws-alerts.ts` (future).
+Inputs: NWS alerts API rows filtered to Texas.
+Recommended normalized row shape:
+```ts
+export type NwsAlertRow = {
+  alertId: string;
+  event: string;                      // e.g. Flood Warning, Flash Flood Warning
+  severity: string | null;
+  certainty: string | null;
+  urgency: string | null;
+  sentAt: string | null;
+  onsetAt: string | null;
+  endsAt: string | null;
+  countyNames: string[];
+  sameAsUrl: string | null;
+  sourceUrl: string;
+};
+```
+Purpose: provide event-window context for floods, flash flooding, and severe storms that may explain notices, overflows, or sudden water-quality deterioration.
+Caveats:
+- alerts are hazard communications, not observed contamination measurements;
+- county targeting may be broad and should not be over-interpreted as parcel- or facility-specific impact.
+
+### USGS streamflow context (planned)
+File: `src/lib/datasets/usgs-streamflow.ts` (future).
+Inputs: Texas USGS current conditions / NWIS streamflow rows.
+Recommended normalized row shape:
+```ts
+export type UsgsStreamflowRow = {
+  siteNumber: string;
+  stationName: string;
+  countyName: string | null;
+  countyFips: string | null;
+  basinCode: string | null;
+  observedAt: string;
+  dischargeCfs: number | null;
+  gageHeightFt: number | null;
+  flowStatus: "low" | "normal" | "high" | "unknown";
+  latitude: number | null;
+  longitude: number | null;
+  sourceUrl: string;
+};
+```
+Purpose: capture dilution / concentration / flood-transport context through high-flow and low-flow conditions.
+Caveats:
+- many counties have multiple gauges or none nearby; county rollups must preserve the chosen aggregation rule;
+- provisional real-time values may later be revised.
+
+### Drought status context (planned)
+File: `src/lib/datasets/drought.ts` (future).
+Inputs: Drought.gov / U.S. Drought Monitor Texas rows.
+Recommended normalized row shape:
+```ts
+export type DroughtStatusRow = {
+  geographyId: string;                // county FIPS or regional ID
+  geographyType: "county" | "region" | "state";
+  geographyName: string;
+  validAt: string;
+  droughtCategory: "none" | "D0" | "D1" | "D2" | "D3" | "D4";
+  impactType: "short" | "long" | "both" | "unknown";
+  sourceUrl: string;
+};
+```
+Purpose: provide chronic hydrologic-stress context that can explain concentration effects, low flows, and repeated infrastructure stress.
+Caveats:
+- drought classes are broad-scale indicators and may not reflect micro-local conditions.
+
+### Precipitation totals context (planned)
+File: `src/lib/datasets/precipitation.ts` (future).
+Inputs: official NOAA/NWS/NCEI precipitation observations or analyses.
+Recommended normalized row shape:
+```ts
+export type PrecipitationRow = {
+  stationId: string;
+  stationName: string | null;
+  countyName: string | null;
+  observedAt: string;
+  precipitationInches: number;
+  accumulationWindow: "1h" | "24h" | "72h" | "7d";
+  latitude: number | null;
+  longitude: number | null;
+  sourceUrl: string;
+};
+```
+Purpose: provide runoff and storm-intensity context for notice spikes, sewer overflows, turbidity surges, and short-lived water-quality events.
+Caveats:
+- precipitation products differ between station observations and gridded/radar estimates; provenance must be preserved in the row/source metadata.
+
+### Temperature / heat context (planned)
+File: `src/lib/datasets/temperature.ts` (future).
+Inputs: official NOAA daily summaries or normals-derived anomaly context.
+Recommended normalized row shape:
+```ts
+export type TemperatureContextRow = {
+  stationId: string;
+  stationName: string | null;
+  countyName: string | null;
+  observedAt: string;
+  maxTempF: number | null;
+  minTempF: number | null;
+  meanTempF: number | null;
+  tempAnomalyF: number | null;
+  heatwaveFlag: boolean;
+  sourceUrl: string;
+};
+```
+Purpose: capture heat-driven stress that can worsen water temperature, lower dissolved oxygen, and increase bloom/treatment stress risk.
+Caveats:
+- air temperature is an explanatory proxy, not the same thing as stream or reservoir temperature.
 
 ### Active Protest Density (APD)
 File: `src/lib/scoring/protest_density.ts` (TBD, see `docs/plans/2026-05-08-protests-extension.md`).

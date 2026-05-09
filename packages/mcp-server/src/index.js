@@ -4,6 +4,7 @@ const DATASET_URLS = {
   'tceq-cid-search-one': 'https://www14.tceq.texas.gov/epic/eCID/index.cfm#searchone',
   'tceq-cid-search-two': 'https://www14.tceq.texas.gov/epic/eCID/index.cfm#searchtwo',
   'census-acs5-2023-county': 'https://www.census.gov/programs-surveys/acs',
+  'epa-sdwis-violations': 'https://data.epa.gov/efservice',
 };
 
 function datasetById(datasetId) {
@@ -18,6 +19,16 @@ async function loadAcsCountyPopulationFromSnapshot() {
 async function loadScoreProtestDensity() {
   const mod = await import('../../../src/lib/scoring/protest_density.ts');
   return mod.scoreProtestDensity;
+}
+
+async function loadSdwisSnapshot() {
+  const mod = await import('../../../src/lib/datasets/sdwis.ts');
+  return await mod.loadSdwisSnapshot();
+}
+
+async function loadScoreDrinkingWaterRisk() {
+  const mod = await import('../../../src/lib/scoring/dwrs.ts');
+  return mod.scoreDrinkingWaterRisk;
 }
 
 function source(datasetId, retrievedAt, rowsUsed) {
@@ -100,6 +111,7 @@ export function createAtlasTxMcpHandlers(deps = {}) {
     throw new Error('CID data loader not wired yet');
   });
   const loadCountyPopulation = deps.loadCountyPopulation ?? loadAcsCountyPopulationFromSnapshot;
+  const loadSdwisData = deps.loadSdwisData ?? loadSdwisSnapshot;
 
   return {
     async discover_datasets(params = {}) {
@@ -126,6 +138,38 @@ export function createAtlasTxMcpHandlers(deps = {}) {
         cacheState: 'snapshot',
         sources: [],
         caveats: [],
+      });
+    },
+
+    async score_pws_drinking_water_risk(params = {}) {
+      const sdwis = await loadSdwisData();
+      const scoreDrinkingWaterRisk = await loadScoreDrinkingWaterRisk();
+      const data = scoreDrinkingWaterRisk({
+        violations: sdwis.rows,
+        county: params.county,
+        minPopulation: params.min_population,
+      }).slice(0, params.limit ?? 25)
+        .map((row) => ({
+          pws_id: row.pwsId,
+          pws_name: row.pwsName,
+          county: row.county,
+          population_served: row.populationServed,
+          score: row.score,
+          components: {
+            violation_severity: row.components.violationSeverity,
+            population_weight: row.components.populationWeight,
+            recency_weight: row.components.recencyWeight,
+          },
+          top_violations: row.topViolations,
+        }));
+      return envelope(data, {
+        generatedAt: sdwis.generatedAt,
+        cacheState: sdwis.cacheState ?? 'snapshot',
+        sources: [source('epa-sdwis-violations', sdwis.generatedAt, sdwis.rows.length)],
+        caveats: [
+          ...(sdwis.caveats ?? []),
+          'DWRS is a risk indicator derived from violation history, not a measurement of present harm.',
+        ],
       });
     },
 

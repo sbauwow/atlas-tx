@@ -18,14 +18,14 @@ Refocus picks one user, one problem, one composite signal, with the agent surfac
 
 - **Primary user (demo persona):** Texas county-newsroom journalist (Texas Tribune / Hearst / community paper investigative desk).
 - **Secondary user (post-hackathon market):** Civic-tech policy analyst, county budget officer, lobbyist.
-- **Problem:** Texas has ~7,000 Public Water Systems and tens of thousands of regulated facilities. Drinking-water violations and disproportionate environmental burden by demographic are knowable from public data but not pre-joined. Reporters and analysts spend days assembling what should be a click.
-- **Headline output:** "Top N Texas counties (or PWSs) by drinking-water risk × environmental burden × demographic exposure, with cited rows and a map."
+- **Problem:** Texas has ~7,000 Public Water Systems and tens of thousands of regulated facilities. Drinking-water violations, public notices, biological conditions, and environmental burden indicators are knowable from public data but not pre-joined. Reporters and analysts spend days assembling what should be a click.
+- **Headline output:** "Top N Texas counties (or PWSs) where drinking-water risk, environmental burden indicators, and official notice signals disagree, with cited rows and a map."
 
 ## Headline metric for judges
 
-> Atlas TX surfaces the *N* Texas Public Water Systems where SDWIS health-based violations are concentrated in census block groups with EJScreen demographic-burden scores above the 80th percentile *and* TCEQ-permitted facility density above the county median — counties/PWSs that don't appear on any single existing ranking.
+> Atlas TX surfaces the *N* Texas Public Water Systems and counties where SDWIS risk, nearby impairment context, notice/overflow activity, and demographic burden indicators do not line up cleanly — official-record outliers that do not appear on any single existing ranking.
 
-That is one sentence. It anchors Impact, names the join, and is measurable.
+That is one sentence. It anchors Impact, names the contradiction hunt, and is measurable.
 
 ## Datasets
 
@@ -44,6 +44,9 @@ That is one sentence. It anchors Impact, names the join, and is measurable.
 | **EPA ECHO** | Compliance/enforcement history for TCEQ-permitted facilities (fed-level enforcement view) |
 | **EPA TRI** | Self-reported pollutant releases by facility |
 | **TWDB drought monitor** | Current-events context layer |
+| **IBI / biological integrity source** | Detect places where ecological condition disagrees with chemistry/compliance summaries |
+| **Boil-water notices** | Compare public notices against DWRS / impairment / overflow indicators |
+| **E2 disinfectant reporting** | Treatment-stress / operational anomaly signal |
 
 ### Out of scope for this plan
 Fiscal/debt datasets (CPI abuse, comptroller returns, sales tax, BRB debt, bond elections). They were in the v1 plan but don't compose with the water-risk story. Keep them in `mvp-datasets.ts` as registered but not surfaced — re-add in a v2 fiscal-stress plan.
@@ -54,7 +57,20 @@ These are the "non-obvious design choices" for Innovation. Spec lives in `docs/c
 
 1. **Drinking Water Risk Score (DWRS)** — per Public Water System. Weighted SDWIS health-based violations × population served × violation recency.
 2. **EJ Burden Overlap** — per block group / PWS service area. Joins EJScreen demographic indicators × TCEQ permit-buffer density.
-3. **Compliance Gap (secondary)** — TCEQ permits × ECHO violations addressed ratio per county.
+3. **Surface Water Impairment Context** — additive layer from TCEQ's Surface Water Quality Segments Viewer; use-support / impairment status helps estimate burden around nearby water bodies without overclaiming direct harm.
+4. **Official-signal mismatch detector** — compares notices/overflows/operational signals against the apparent water-quality and burden picture to rank journalist-worthy contradictions.
+5. **Biological integrity context** — additive IBI-style layer so "what is living in the water" can disagree with chemistry/compliance summaries.
+6. **Compliance Gap (secondary)** — TCEQ permits × ECHO violations addressed ratio per county.
+
+## Product principle: outliers first
+
+For the journalist persona, Atlas TX should prefer outlier detection over generic correlation hunting.
+
+The best leads are often:
+- places where public notices and monitoring/regulatory summaries disagree
+- places where biological integrity looks worse than standard compliance metrics imply
+- places where disinfectant/treatment reporting looks stressed even when the broader official picture appears quiet
+- places where a distributed reporter/community submission points to a mismatch worth checking against the baseline data stack
 
 Score formulas live in code under `src/lib/scoring/` — each gets one TS file, one test file, one section in `docs/contracts/dataset-registry.md` describing inputs/outputs/caveats.
 
@@ -86,9 +102,11 @@ UI is build-after-MCP. If UI runs out of time, the agent demo alone can satisfy 
 - `src/lib/datasets/sdwis.ts` — fetch + normalize SDWIS violations by PWS.
 - `src/lib/datasets/ejscreen.ts` — fetch EJScreen by block group + buffer query around lat/long.
 - `src/lib/datasets/acs.ts` — minimal county/block-group population + demographics.
-- Pre-cache Texas snapshot of all three to `public/cache/` or `data/` so demo never hits live APIs.
+- `src/lib/datasets/surface-water-quality.ts` — fetch + normalize impaired/use-support segment context.
+- Pre-cache Texas snapshots to `public/cache/` or `data/` so demo never hits live APIs.
 - `src/lib/scoring/dwrs.ts` + tests.
 - `src/lib/scoring/ej_overlap.ts` + tests.
+- Spike/queue anomaly inputs: boil-water notices, IBI, E2 disinfectant reporting.
 
 ### M2 — MCP tools
 Per `docs/contracts/mcp-tools.md`, ship at minimum:

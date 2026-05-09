@@ -127,6 +127,35 @@ export type WaterGovernanceEntity = {
   raw: Record<string, unknown>;
 };
 
+export type SurfaceWaterQualitySegment = {
+  layerId: 7 | 8;
+  layerName: string;
+  countyName?: string | null;
+  segmentId: string | null;
+  segmentName: string | null;
+  basinName: string | null;
+  segmentClass: string | null;
+  segmentType: string | null;
+  size: number | null;
+  sizeUnit: string | null;
+  assessmentYear: number | null;
+  isImpaired: boolean;
+  impairmentFlags: {
+    aquaticLife: boolean;
+    contactRecreation: boolean;
+    generalUse: boolean;
+    fishConsumption: boolean;
+    publicWaterSupply: boolean;
+    oysterWaters: boolean;
+  };
+  sourceUrl: string;
+};
+
+export type CountyWaterMismatch = {
+  score: number;
+  flags: string[];
+};
+
 export type CountyWaterSummary = {
   county: { name: string; slug: string; fips?: string };
   metrics: {
@@ -138,12 +167,16 @@ export type CountyWaterSummary = {
     generalPermitCount?: number;
     waterDistrictCount?: number;
     waterUtilityCount?: number;
+    surfaceWaterSegmentCount?: number;
+    impairedSurfaceWaterSegmentCount?: number;
   };
   overlays: {
     hasFloodplainLayer: boolean;
     hasGaugeLayer: boolean;
     hasAlertLayer: boolean;
     hasSewerOverflowLayer: boolean;
+    hasSurfaceWaterImpairmentLayer: boolean;
   };
+  mismatch?: CountyWaterMismatch;
   annotations: string[];
 };

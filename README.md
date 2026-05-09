@@ -2,13 +2,13 @@
 
 Open-source Texas drinking-water-risk and environmental-justice explorer for newsroom investigators and civic-tech analysts.
 
-Atlas TX joins state Texas water permits + water districts with federal SDWIS, EJScreen, and ACS data to surface Public Water Systems and counties where drinking-water risk and demographic burden compound — joins that exist in raw public data but no one ships pre-computed.
+Atlas TX joins state Texas water permits + water districts with federal SDWIS, EJScreen, ACS, and Texas water-quality context to surface Public Water Systems and counties where drinking-water risk, environmental burden indicators, and official signals disagree — outliers and contradictions that exist in raw public data but no one ships pre-computed.
 
 Built for the [Brainforge / Vicinity Texas Open Data Track](docs/plans/2026-05-08-water-risk-refocus.md). MCP server + agent skill are the centerpiece; the web UI exists to make the agent's output legible to humans.
 
 ## Who it's for
 
-- **Texas county-newsroom journalists** — surface overlooked drinking-water-risk stories with cited rows.
+- **Texas county-newsroom journalists** — surface overlooked drinking-water-risk stories, official-data mismatches, and outliers with cited rows.
 - **Civic-tech policy analysts, county budget officers, lobbyists** — county-level briefings on water infrastructure risk + EJ exposure.
 
 ## Datasets
@@ -23,7 +23,12 @@ Built for the [Brainforge / Vicinity Texas Open Data Track](docs/plans/2026-05-0
 - **Census ACS 5-year** — population denominators and demographics
 
 ### Secondary (load if scope allows)
-- EPA ECHO (compliance/enforcement), EPA TRI (toxics releases), TWDB drought monitor
+- EPA ECHO (compliance/enforcement), EPA TRI (toxics releases)
+- TCEQ Surface Water Quality Segments Viewer — surface-water impairment / use-support context for water bodies
+- TCEQ boil-water / public-notice sources — public-facing service disruption context for Public Water Systems
+- TCEQ E2 / disinfectant residual reporting — operational treatment-stress context for drinking-water systems
+- TCEQ aquatic-life / biological integrity sources — ecology signals that can disagree with compliance summaries
+- Weather / hydrologic context sources — NWS alerts, USGS streamflow, drought status, precipitation, and heat indicators for explaining event-driven water anomalies
 
 ### Registered but out-of-scope for v1
 Fiscal/debt datasets (CPI investigations, Comptroller returns, sales tax, BRB debt, bond elections) remain in `src/lib/mvp-datasets.ts` for a future fiscal-stress angle.
@@ -32,7 +37,22 @@ Fiscal/debt datasets (CPI investigations, Comptroller returns, sales tax, BRB de
 
 - **Drinking Water Risk Score (DWRS)** per Public Water System — weighted SDWIS health-based violations × population served × recency.
 - **EJ Burden Overlap** per block group / PWS service area — EJScreen demographic indicators × TCEQ permit-buffer density.
+- **Surface Water Impairment Context** (additive) — TCEQ segment-level use-support / impairment status for nearby water bodies.
+- **Notice / Treatment Stress Context** (planned) — boil-water notices plus disinfectant residual reporting as public-notice and operational-stress indicators.
+- **Weather / Hydrologic Context** (planned) — flood alerts, streamflow, drought, rainfall, and heat indicators that help explain when water events are weather-driven versus structurally unusual.
+- **Official-Signal Mismatch Detector** (planned) — outlier ranking for counties/PWSs where notices, overflows, burden indicators, and water-quality context do not line up cleanly.
 - **Compliance Gap** (secondary) — TCEQ permits × ECHO violations addressed ratio.
+
+## Journalist-first anomaly workflow
+
+Atlas TX should prioritize outliers over generic correlation hunting. The best stories are often places where official indicators do not line up cleanly.
+
+Current anomaly directions to build toward:
+- **Notice mismatch detection** — flag places where sanitary sewer overflows, boil-water notices, or future public-notice streams do not match the apparent water-quality / impairment / compliance picture.
+- **Biological integrity context** — add Index of Biotic Integrity (IBI) style signals so biology can disagree with chemistry/compliance and create a reporter lead.
+- **Treatment-stress indicators** — add E2 disinfectant reporting as an operational water-quality signal.
+- **Weather normalization** — attach rainfall, flood alerts, streamflow, drought, and heat context so Atlas TX can distinguish storm-driven anomalies from chronic governance or infrastructure patterns.
+- **Distributed submission / tip intake** — treat community-reported or reporter-submitted outliers as a first-class workflow, especially when they contradict the baseline data stack.
 
 Spec lives in `docs/contracts/dataset-registry.md`.
 
@@ -81,3 +101,4 @@ Read [`AGENTS.md`](AGENTS.md) before opening a PR. It covers Next.js 16 gotchas,
 - No investor-grade or rating-agency claims about municipal entities.
 - Every score and summary surfaces source datasets, query bounds, and uncertainty.
 - EJ overlay is described as *exposure / burden indicators*, not as harm.
+- Environmental burden is inferred from indicator layers (for example: impaired surface-water segments, DWRS, permit density, EJScreen), not claimed as a directly observed outcome.

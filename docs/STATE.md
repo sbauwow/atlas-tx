@@ -22,6 +22,10 @@ _(empty)_
 
 | workstream | agent | intent | ref |
 |---|---|---|---|
+| docs | feynman | Update README to reflect planned mismatch-signal and weather / hydrologic context layers for Atlas TX | working tree |
+| docs | feynman | Add weather / hydrologic contract language and draft normalized row shapes for NWS alerts, USGS streamflow, drought, precipitation, and temperature context | working tree |
+| docs | feynman | Add Milestone 1.2 weather / hydrologic context planning rows for alerts, streamflow, drought, precipitation, temperature, and county-summary follow-on contract work | working tree |
+| docs | feynman | Add Milestone 1.1 mismatch-signal planning rows and dataset-registry contract language for boil notices, disinfectant residuals, and biological integrity | working tree |
 | data | hermes | Add TWDB hydrology refresh script and wire centroid-based hydrology context into county breakdowns | working tree |
 | data | hermes | Add first TWDB hydrology ingestion slice with tested normalizer, compact cached snapshot, and dataset registry entries | working tree |
 | docs | hermes | Document browser-fallback hook and current Search One automation limits in README/contracts/plan docs | working tree |
@@ -64,8 +68,32 @@ Listed in the order the refocus plan (`docs/plans/2026-05-08-water-risk-refocus.
 | data | `src/lib/scoring/dwrs.ts` Drinking Water Risk Score | Per `docs/contracts/dataset-registry.md`. Consume `loadSdwis()` rows; weight `populationServed × recency × violation severity tier`. |
 | data | `src/lib/scoring/ej_overlap.ts` EJ Burden Overlap | Per `docs/contracts/dataset-registry.md` |
 | data | Discover/normalize `tceq-swq-segments` surface-water impairment context source | Use TCEQ Surface Water Quality Segments Viewer as an additive burden-indicator layer; preserve the guardrail that "impaired" is a legal-use-support status, not a direct harm claim. |
+| data | Build official-signal mismatch / outlier scorer | Core journalist workflow: rank counties/PWSs where notices, overflows, burden indicators, and water-quality signals do not line up. |
+| product | Design distributed submission workflow for outlier tips | Treat reporter/community-submitted anomalies as first-class leads to compare against the baseline official data stack. |
 | data | (follow-on) Wider SDWIS analysis snapshot in `data/sdwis-tx-full.json` | Current `public/cache/sdwis-tx.json` is filtered to health-based ≥ 2023-04-01 to fit the 5 MB committed budget. For a longer recency window (DWRS sensitivity analysis, demo "what we found" research), call `fetchSdwis({since: undefined})` and write to gitignored `data/`. |
 | data | (follow-on) Add `pws_name` + `county` to `mvp-datasets.ts` SDWIS keyFields | Currently lists raw API columns only; the normalized loader exposes joined `pwsName` + `county` from WATER_SYSTEM and GEOGRAPHIC_AREA — keyFields should reflect what consumers actually see. |
+
+### Milestone 1.1 — mismatch / contradiction signals
+
+| workstream | task | notes |
+|---|---|---|
+| data | Add boil-water notice source | Highest-value public-notice signal. Join by `pws_id` when available; fallback to utility/PWS name + county + notice date. Primary use: mismatch detection against DWRS, sewer overflows, and public-notice frequency. |
+| data | Add E2 disinfectant reporting source | Add operational/treatment-stress context for drinking-water systems. Join by `pws_id` + reporting quarter/date. Treat as an additive indicator, not a direct harm signal. |
+| data | Add IBI / biological integrity source | Add segment-level biological/ecological condition context. Join by segment/assessment-unit geography and county overlay to surface places where ecosystem condition disagrees with compliance summaries. |
+| mcp | Design `summarize_water_mismatches` tool contract | Depends on boil notices + disinfectant residuals + surface-water / biological context. Return sourced outlier rows and caveats, not causal claims. |
+| docs | Add contract language for notice / stress / biology signals | Clarify these are indicators and mismatch leads, not proof of contamination or harm. |
+
+### Milestone 1.2 — weather / hydrologic context
+
+| workstream | task | notes |
+|---|---|---|
+| data | Add `nws-alerts` weather-event source | Use NWS alerts API; prioritize flood / flash flood warning context by county and date window. Fastest event-context layer for notice and overflow analysis. |
+| data | Add `usgs-streamflow` source | Join active Texas stream gauges to county / basin and derive low-flow / high-flow anomaly flags. Strongest hydrologic context layer for dilution / concentration analysis. |
+| data | Add drought status source | Use Drought.gov / U.S. Drought Monitor Texas data for county/regional chronic stress context. Track drought category, duration, and hydrologic-stress framing. |
+| data | Add precipitation totals source | Compute 24h / 72h / 7d rain context for notices, overflows, and short-term water-quality events. Prefer official NOAA/NWS or NCEI pathways that can be cached. |
+| data | Add temperature / heat context source | Add air-temperature anomaly and heatwave flags as seasonal water-stress indicators for bloom / oxygen / treatment-stress interpretation. |
+| mcp | Extend county summary contract with weather context | Add event, flow, drought, rainfall, and heat context fields to county summaries and caveats. |
+| docs | Add contract language for weather-derived indicators | Clarify that weather layers are explanatory context for water events, not standalone proof of contamination or infrastructure failure. |
 
 ### Milestone 1.5 — protest data layer (additive — see `docs/plans/2026-05-08-protests-extension.md`)
 

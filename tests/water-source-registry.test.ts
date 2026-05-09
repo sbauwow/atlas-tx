@@ -19,6 +19,7 @@ describe("water source registry", () => {
       "twdb-flood-discovery",
       "twdb-gis-discovery",
       "tceq-gis-discovery",
+      "tceq-surface-water-quality",
       "national-levee-discovery",
     ]);
   });
@@ -28,6 +29,11 @@ describe("water source registry", () => {
       kind: "nws-geojson",
       joinStrategy: "county-name",
       refreshCadence: "hourly",
+    });
+    expect(getWaterSource("tceq-surface-water-quality")).toMatchObject({
+      kind: "arcgis-rest",
+      joinStrategy: "polygon-overlay",
+      refreshCadence: "manual",
     });
     expect(getWaterSource("missing-source")).toBeUndefined();
     expect(listWaterSources()).toHaveLength(16);

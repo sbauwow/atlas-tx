@@ -38,6 +38,7 @@ export const WATER_SOURCE_REGISTRY: WaterSourceDefinition[] = [
   { sourceId: "twdb-flood-discovery", name: "TWDB flood planning discovery", kind: "html-discovery", verifiedUrl: "https://www.twdb.texas.gov/flood/planning/data.asp", joinStrategy: "statewide-only", refreshCadence: "manual" },
   { sourceId: "twdb-gis-discovery", name: "TWDB GIS discovery", kind: "html-discovery", verifiedUrl: "https://www.twdb.texas.gov/mapping/gisdata.asp", joinStrategy: "statewide-only", refreshCadence: "manual" },
   { sourceId: "tceq-gis-discovery", name: "TCEQ GIS data hub discovery", kind: "html-discovery", verifiedUrl: "https://gis-tceq.opendata.arcgis.com/", joinStrategy: "statewide-only", refreshCadence: "manual" },
+  { sourceId: "tceq-surface-water-quality", name: "TCEQ surface water quality segments", kind: "arcgis-rest", verifiedUrl: "https://gisweb.tceq.texas.gov/arcgis/rest/services/Segments/SegmentsViewer_PRD/MapServer?f=pjson", joinStrategy: "polygon-overlay", refreshCadence: "manual", notes: "Segment-level surface-water impairment and use-support context from the TCEQ Surface Water Quality Segments Viewer." },
   { sourceId: "national-levee-discovery", name: "National Levee Database discovery", kind: "html-discovery", verifiedUrl: "https://levees.sec.usace.army.mil/#/", joinStrategy: "statewide-only", refreshCadence: "manual" },
 ];
 

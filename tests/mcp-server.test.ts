@@ -3,6 +3,81 @@ import { describe, expect, it } from "vitest";
 import { createAtlasTxMcpHandlers, runAtlasTxTool } from "../packages/mcp-server/src/index.js";
 
 describe("Atlas TX MCP handlers", () => {
+  it("scores drinking-water risk per PWS and returns the standard response envelope", async () => {
+    const deps = {
+      loadSdwisData: async () => ({
+        rows: [
+          {
+            pwsid: "TX1234567",
+            pwsName: "Alpha Water System",
+            county: "Travis County",
+            populationServed: 10000,
+            violationId: "V1",
+            violationCode: "MCL",
+            violationCategory: "TT",
+            isHealthBased: true,
+            contaminantCode: "1005",
+            complianceStatusCode: "open",
+            complPerBeginDate: "2026-04-01",
+            complPerEndDate: null,
+            pwsTypeCode: "CWS",
+            ruleCode: null,
+            ruleGroupCode: null,
+            publicNotificationTier: 1,
+          },
+          {
+            pwsid: "TX7654321",
+            pwsName: "Beta Rural Water",
+            county: "Comal County",
+            populationServed: 500,
+            violationId: "V2",
+            violationCode: "MON",
+            violationCategory: "MRDL",
+            isHealthBased: true,
+            contaminantCode: "2000",
+            complianceStatusCode: "open",
+            complPerBeginDate: "2026-03-01",
+            complPerEndDate: null,
+            pwsTypeCode: "CWS",
+            ruleCode: null,
+            ruleGroupCode: null,
+            publicNotificationTier: 2,
+          },
+        ],
+        generatedAt: "2026-05-08T00:00:00.000Z",
+        cacheState: "snapshot",
+        caveats: ["Snapshot caveat"],
+      }),
+    };
+    const handlers = createAtlasTxMcpHandlers(deps);
+
+    const result = await handlers.score_pws_drinking_water_risk({ county: "Travis County", limit: 5 });
+
+    expect(result.cache_state).toBe("snapshot");
+    expect(result.generated_at).toBe("2026-05-08T00:00:00.000Z");
+    expect(result.sources.map((s) => s.dataset_id)).toEqual(["epa-sdwis-violations"]);
+    expect(result.data).toEqual([
+      {
+        pws_id: "TX1234567",
+        pws_name: "Alpha Water System",
+        county: "Travis County",
+        population_served: 10000,
+        score: 100,
+        components: {
+          violation_severity: 2,
+          population_weight: 2,
+          recency_weight: 1,
+        },
+        top_violations: [
+          { code: "MCL", date: "2026-04-01" },
+        ],
+      },
+    ]);
+
+    const dispatched = await runAtlasTxTool("score_pws_drinking_water_risk", { county: "Travis County", limit: 5 }, deps);
+    expect(dispatched.data[0]?.pws_id).toBe("TX1234567");
+  });
+
   it("lists protested permits with aggregated filing counts and named orgs only", async () => {
     const handlers = createAtlasTxMcpHandlers({
       loadCidData: async () => ({

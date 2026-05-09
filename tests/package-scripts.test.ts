@@ -9,4 +9,8 @@ describe("package scripts", () => {
   it("exposes a refresh:twdb-hydrology script for refreshing TWDB hydrology cache", () => {
     expect(pkg.scripts["refresh:twdb-hydrology"]).toBe("tsx scripts/refresh-twdb-hydrology.ts");
   });
+
+  it("exposes a refresh:surface-water-quality script for refreshing TCEQ surface-water-quality cache", () => {
+    expect(pkg.scripts["refresh:surface-water-quality"]).toBe("tsx scripts/refresh-surface-water-quality.ts");
+  });
 });
