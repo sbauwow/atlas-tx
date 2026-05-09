@@ -22,7 +22,7 @@ Living synthesis of the data sources Atlas TX touches. Update when the picture s
 
 ## What Atlas TX is, in one paragraph
 
-Atlas TX is a Texas water-risk + environmental-justice intelligence platform. The unit of analysis is the **county**. Counties get **derived signals** — most centrally a Drinking Water Risk Score ([DWRS](concepts/dwrs-score.md)) — composed from federal compliance data ([SDWIS violations](datasets/epa-sdwis-violations.md)), exposure indicators ([EJScreen 2024](datasets/epa-ejscreen-2024.md)), and demographic context ([ACS](datasets/census-acs5-2023-county.md)). State-side context comes from [TCEQ](agencies/tceq.md) (water quality permits, CID, surface-water impairment) and [TWDB](agencies/twdb.md) (hydrology / aquifers / HUCs / planning regions). All of it is **indicator-grade**, not measurement-grade — see [Burden vs Harm](concepts/burden-vs-harm.md), the product stance that constrains every claim the platform makes.
+Atlas TX is a Texas water-risk + environmental-justice intelligence platform. The unit of analysis is the **county**. Counties get **derived signals** — most centrally a Drinking Water Risk Score ([DWRS](concepts/dwrs-score.md)) and an Active Protest Density score ([APD](concepts/apd-score.md)) — composed from federal compliance data ([SDWIS violations](datasets/epa-sdwis-violations.md)), exposure indicators ([EJScreen 2024](datasets/epa-ejscreen-2024.md)), demographic context ([ACS](datasets/census-acs5-2023-county.md)), and state-side regulatory friction ([TCEQ CID Search One](datasets/tceq-cid-search-one.md) / [Two](datasets/tceq-cid-search-two.md)). State-side context comes from [TCEQ](agencies/tceq.md) (water quality permits, CID, surface-water impairment) and [TWDB](agencies/twdb.md) (hydrology / aquifers / HUCs / planning regions). All of it is **indicator-grade**, not measurement-grade — see [Burden vs Harm](concepts/burden-vs-harm.md), the product stance that constrains every claim the platform makes.
 
 ## Source families
 
@@ -40,15 +40,15 @@ Most TX state tabular data flows through [`data.texas.gov`](portals/data-texas-g
 
 ## Current scope vs. future scope
 
-In v1 scope:
-- TCEQ Water Quality Permits (`7fq8-wig2`)
-- Texas Water Districts (`hr84-s96f`)
-- EPA SDWIS Violations
-- EPA EJScreen 2024
-- Census ACS5 2023 (county)
-- EPA ECHO + TCEQ CID (secondary)
-- TWDB hydrology context (aquifers, basins, HUC8)
-- TCEQ surface-water-quality segments (impairment context)
+In v1 scope (every entry has a wiki dataset page as of 2026-05-09):
+- [TCEQ Water Quality Permits](datasets/7fq8-wig2-tceq-water-permits.md) (`7fq8-wig2`)
+- [Texas Water Districts](datasets/hr84-s96f-tx-water-districts.md) (`hr84-s96f`)
+- [EPA SDWIS Violations](datasets/epa-sdwis-violations.md)
+- [EPA EJScreen 2024](datasets/epa-ejscreen-2024.md)
+- [Census ACS5 2023 (county)](datasets/census-acs5-2023-county.md)
+- [EPA ECHO Violations](datasets/epa-echo-violations.md) (secondary) + [TCEQ CID Search One](datasets/tceq-cid-search-one.md) / [Two](datasets/tceq-cid-search-two.md)
+- TWDB hydrology context — [aquifers](datasets/twdb-major-aquifers.md), [basins](datasets/twdb-river-basins.md), [HUC8](datasets/twdb-huc8.md)
+- [TCEQ surface-water-quality segments](datasets/tceq-swq-segments.md) (impairment context)
 
 Out of v1 scope (per `docs/plans/2026-05-08-water-risk-refocus.md`):
 - Fiscal / debt datasets — explicitly deferred
@@ -64,4 +64,4 @@ Three axes consistently cut across the data the wiki covers:
 
 ## Where this overview is wrong
 
-This page is `confidence: 0.6` because it was authored at wiki-init from two sources. It will sharpen as agency / portal / dataset pages get reinforced or contradicted. When a downstream page disagrees, update *here* too.
+This page is `confidence: 0.65` because it was authored at wiki-init from two sources and lightly reinforced as the dataset/concept layer filled in. It will sharpen as agency / portal / dataset pages get further reinforced or contradicted. When a downstream page disagrees, update *here* too.

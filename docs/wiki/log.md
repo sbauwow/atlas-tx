@@ -14,6 +14,17 @@ Schema for entries:
 
 ---
 
+## 2026-05-09 — close registry drift
+
+- agent: claude-opus-4-7
+- action: created, updated, crystallized
+- pages touched:
+  - **TCEQ datasets (5)**: `datasets/7fq8-wig2-tceq-water-permits.md`, `datasets/hr84-s96f-tx-water-districts.md`, `datasets/tceq-cid-search-one.md`, `datasets/tceq-cid-search-two.md`, `datasets/tceq-swq-segments.md`
+  - **TWDB hydrology datasets (3)**: `datasets/twdb-major-aquifers.md`, `datasets/twdb-river-basins.md`, `datasets/twdb-huc8.md`
+  - **Concepts (4)**: `concepts/huc.md`, `concepts/socrata-soql.md`, `concepts/lcr.md`, `concepts/apd-score.md`
+  - **Housekeeping**: `index.md`, `log.md`, `graph.md`, `lint-report.md`, `overview.md`, `episodes/2026-05-09-close-registry-drift.md`
+- notes: All 8 already-registered-but-unwritten dataset IDs from `dataset-registry.md` v0.4.0 now have wiki pages — registry drift goes from 8 to 0. APD score (the second derived signal in the contract) is now wikified alongside DWRS. HUC + SoQL are foundational concept pages that other pages have been pointing at since round 1. Confidence cap 0.7; repo-grounded only.
+
 ## 2026-05-09 — water / env / weather expansion
 
 - agent: claude-opus-4-7

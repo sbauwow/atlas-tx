@@ -39,6 +39,14 @@ _Repeatable atlas-tx workflows. Empty until ≥3 semantic pages share a pattern.
 
 | Page | Registry ID | Publisher |
 |---|---|---|
+| [TCEQ Water Permits](datasets/7fq8-wig2-tceq-water-permits.md) | `7fq8-wig2` | TCEQ |
+| [TX Water Districts](datasets/hr84-s96f-tx-water-districts.md) | `hr84-s96f` | TCEQ |
+| [TCEQ CID Search One](datasets/tceq-cid-search-one.md) | `tceq-cid-search-one` | TCEQ |
+| [TCEQ CID Search Two](datasets/tceq-cid-search-two.md) | `tceq-cid-search-two` | TCEQ |
+| [TCEQ SWQ Segments](datasets/tceq-swq-segments.md) | `tceq-swq-segments` | TCEQ |
+| [TWDB Major Aquifers](datasets/twdb-major-aquifers.md) | `twdb-major-aquifers` | TWDB |
+| [TWDB River Basins](datasets/twdb-river-basins.md) | `twdb-river-basins` | TWDB |
+| [TWDB HUC8 Sub-basins](datasets/twdb-huc8.md) | `twdb-huc8` | TWDB |
 | [SDWIS Violations](datasets/epa-sdwis-violations.md) | `epa-sdwis-violations` | EPA |
 | [ECHO Violations](datasets/epa-echo-violations.md) | `epa-echo-violations` | EPA |
 | [EJScreen 2024](datasets/epa-ejscreen-2024.md) | `epa-ejscreen-2024` | EPA |
@@ -60,9 +68,13 @@ _(none yet — geometry-first pages will land when NFHL or NHD are cached as fea
 | Page | What it is |
 |---|---|
 | [DWRS Score](concepts/dwrs-score.md) | Atlas TX Drinking Water Risk Score — derived signal |
+| [APD Score](concepts/apd-score.md) | Active Protest Density — derived signal from CID Search One+Two |
 | [SDWA Violation Types](concepts/sdwa-violation-types.md) | What gets weighted vs ignored in DWRS, and why |
 | [MCL](concepts/mcl.md) | Maximum Contaminant Level — SDWA enforceable limits |
+| [LCR](concepts/lcr.md) | Lead and Copper Rule — why lead has action levels, not MCLs |
 | [PWSID](concepts/pwsid.md) | Public Water System Identifier — the join key for SDWIS |
+| [HUC](concepts/huc.md) | Hydrologic Unit Code — federal watershed scheme |
+| [Socrata + SoQL](concepts/socrata-soql.md) | Querying data.texas.gov — URL shape, params, pagination, tokens |
 | [EJ Index](concepts/ej-index.md) | EJScreen index methodology, percentile semantics |
 | [Burden vs Harm](concepts/burden-vs-harm.md) | Atlas TX product stance — indicator-grade, never harm claims |
 
@@ -86,6 +98,7 @@ _(none yet — geometry-first pages will land when NFHL or NHD are cached as fea
 |---|---|
 | [2026-05-08 — Wiki init](episodes/2026-05-08-wiki-init.md) | Stand up the wiki, port schema, seed initial pages |
 | [2026-05-09 — Water/env/weather expansion](episodes/2026-05-09-water-env-weather.md) | Add drinking-water-quality, environmental-factors, and weather-impact pages |
+| [2026-05-09 — Close registry drift](episodes/2026-05-09-close-registry-drift.md) | Add 8 dataset pages for already-registered IDs + 4 foundational concept pages |
 
 ---
 
