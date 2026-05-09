@@ -9,6 +9,7 @@
     "lint": "eslint",
     "test": "vitest run",
     "mcp": "node packages/mcp-server/src/index.js",
+    "refresh:all": "tsx scripts/refresh-all.ts",
     "refresh:cid": "tsx scripts/refresh-cid.ts",
     "refresh:twdb-hydrology": "tsx scripts/refresh-twdb-hydrology.ts",
     "refresh:surface-water-quality": "tsx scripts/refresh-surface-water-quality.ts",

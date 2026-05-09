@@ -6,6 +6,10 @@ describe("package scripts", () => {
     expect(pkg.scripts["mcp"]).toBe("node packages/mcp-server/src/index.js");
   });
 
+  it("exposes a refresh:all script for running the staged refresh pipeline", () => {
+    expect(pkg.scripts["refresh:all"]).toBe("tsx scripts/refresh-all.ts");
+  });
+
   it("exposes a refresh:cid script for running the executable CID refresh scaffold", () => {
     expect(pkg.scripts["refresh:cid"]).toBe("tsx scripts/refresh-cid.ts");
   });

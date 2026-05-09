@@ -113,6 +113,14 @@ npm run refresh:cid
 
 Current limitation: Search Two works with a seeded organization / permit / person-name query, but live Search One still often returns the upstream TCEQ error page even for chunked county/program requests. The script now fails loud on that condition instead of silently producing misleading case rows. It also exposes a browser-automation fallback hook for Search One so a future browser-driven retriever can be swapped in without changing the refresh pipeline.
 
+Run the staged refresh pipeline:
+
+```bash
+npm run refresh:all
+```
+
+That command executes the refresh stack in dependency order and writes `public/cache/pipeline-health.json` with per-step status, timing, and overall health.
+
 Automation plan: `docs/plans/2026-05-09-mcp-and-pipeline-automation.md`
 
 ## Citizen observation layer (prototype)
