@@ -96,6 +96,7 @@ export async function executeCidRefresh(options: RefreshCidCliOptions & {
   generatedAt?: string;
   searchTwoOptions?: Parameters<typeof buildCidRefreshSearchTwoParams>[0];
   fetchSearchOneHtml?: typeof fetchCidSearchOneHtml;
+  fetchSearchOneHtmlBrowser?: typeof fetchCidSearchOneHtml;
   fetchSearchTwoHtml?: typeof fetchCidSearchTwoHtml;
   parseSearchOneHtml?: typeof parseCidCasesHtml;
   parseSearchTwoHtml?: typeof parseCidProtestsHtml;
@@ -103,6 +104,7 @@ export async function executeCidRefresh(options: RefreshCidCliOptions & {
   const searchOnePlan = buildDefaultCidRefreshPlan(options);
   const searchTwoParams = buildCidRefreshSearchTwoParams(options.searchTwoOptions);
   const fetchOne = options.fetchSearchOneHtml ?? fetchCidSearchOneHtml;
+  const fetchOneBrowser = options.fetchSearchOneHtmlBrowser;
   const fetchTwo = options.fetchSearchTwoHtml ?? fetchCidSearchTwoHtml;
   const parseOne = options.parseSearchOneHtml ?? parseCidCasesHtml;
   const parseTwo = options.parseSearchTwoHtml ?? parseCidProtestsHtml;
@@ -120,13 +122,23 @@ export async function executeCidRefresh(options: RefreshCidCliOptions & {
     );
   }
 
+  let usedBrowserFallback = false;
+
   const caseRows = dedupeByJson(
     (
       await Promise.all(
         searchOnePlan.map(async (params) => {
           const html = await fetchOne(params);
-          assertSearchOneHtmlIsUsable(html);
-          return parseOne(html);
+          try {
+            assertSearchOneHtmlIsUsable(html);
+            return parseOne(html);
+          } catch (error) {
+            if (!fetchOneBrowser) throw error;
+            const browserHtml = await fetchOneBrowser(params);
+            assertSearchOneHtmlIsUsable(browserHtml);
+            usedBrowserFallback = true;
+            return parseOne(browserHtml);
+          }
         }),
       )
     ).flat(),
@@ -148,6 +160,9 @@ export async function executeCidRefresh(options: RefreshCidCliOptions & {
       rows: caseRows,
       caveats: [
         'Chunked Search One refresh by county and program area to avoid broad-query fragility.',
+        ...(usedBrowserFallback
+          ? ['Browser automation fallback was used for at least one Search One chunk.']
+          : []),
       ],
     },
     protestSnapshot: {

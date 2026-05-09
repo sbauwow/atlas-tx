@@ -101,7 +101,37 @@ describe("refresh-cid planning", () => {
     ).rejects.toThrow("Search Two refresh requires an organization, permit number, or person-name seed");
   });
 
-  it("fails loud when Search One returns the upstream error page", async () => {
+  it("falls back to browser automation when Search One returns the upstream error page", async () => {
+    const result = await executeCidRefresh({
+      counties: ["111111111111156"],
+      programAreas: ["APO;Aggregate Production Operation Registration;NO_PARENT"],
+      resultsPerPage: 25,
+      searchTwoOptions: { organizationName: "Sierra" },
+      fetchSearchOneHtml: async () => "<html>An unexpected error has occurred</html>",
+      fetchSearchOneHtmlBrowser: async () => "<html>browser-search-one</html>",
+      fetchSearchTwoHtml: async () => "<html>search-two</html>",
+      parseSearchOneHtml: (html) => html.includes("browser-search-one") ? [{
+        tceqId: "APO0009876",
+        applicantName: "BIG ROCK LLC",
+        county: "Comal County",
+        programArea: "APO",
+        itemStatus: "open",
+        tceqDocketNumber: null,
+        soahDocketNumber: null,
+        regulatedEntityNumber: null,
+        customerNumber: null,
+      }] : [],
+      parseSearchTwoHtml: () => [],
+    });
+
+    expect(result.caseRows).toHaveLength(1);
+    expect(result.caseRows[0]?.tceqId).toBe("APO0009876");
+    expect(result.caseSnapshot.caveats).toContain(
+      "Browser automation fallback was used for at least one Search One chunk.",
+    );
+  });
+
+  it("fails loud when Search One returns the upstream error page and no browser fallback is available", async () => {
     await expect(
       executeCidRefresh({
         counties: ["111111111111156"],
