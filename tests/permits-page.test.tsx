@@ -106,6 +106,8 @@ describe("permits page", () => {
     expect(text).toContain("data-county-map-path=\"hays-county\"");
     expect(text).toContain("href=\"/permits?county=travis-county\"");
     expect(text).toContain("href=\"/water/counties/travis-county\"");
+    expect(text).toContain("href=\"/counties/travis-county\"");
+    expect(text).toContain("County intelligence");
     expect(text).toContain("Open county pages");
     expect(text).not.toContain("data-county-map-tile");
   });

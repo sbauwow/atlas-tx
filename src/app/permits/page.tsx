@@ -122,6 +122,8 @@ export default async function PermitsPage({
                 <Link href={`/permits?county=${county.slug}`} className="text-cyan-300 hover:text-cyan-200">Permits</Link>
                 <span className="text-slate-600">·</span>
                 <Link href={`/water/counties/${county.slug}`} className="text-cyan-300 hover:text-cyan-200">Water</Link>
+                <span className="text-slate-600">·</span>
+                <Link href={`/counties/${county.slug}`} className="text-cyan-300 hover:text-cyan-200">County intelligence</Link>
               </span>
             ))}
           </div>
@@ -141,7 +143,12 @@ export default async function PermitsPage({
             {data.summary.topCounties.map((row) => (
               <div key={row.county} className="flex items-center justify-between rounded-xl border border-white/5 bg-white/[0.03] px-4 py-3">
                 <div className="text-sm text-slate-200">{row.county}</div>
-                <div className="rounded-full bg-white/5 px-3 py-1 text-sm font-medium text-cyan-300">{row.count}</div>
+                <div className="flex items-center gap-3">
+                  <Link href={`/counties/${row.county.toLowerCase().replace(/\s+/g, "-")}`} className="text-xs font-medium uppercase tracking-[0.18em] text-slate-400 transition-colors hover:text-cyan-300">
+                    County intelligence
+                  </Link>
+                  <div className="rounded-full bg-white/5 px-3 py-1 text-sm font-medium text-cyan-300">{row.count}</div>
+                </div>
               </div>
             ))}
           </div>
