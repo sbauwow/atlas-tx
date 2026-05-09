@@ -1,0 +1,122 @@
+import Link from "next/link";
+import { getTceqPendingPermitsPageData } from "@/lib/tceq-permits";
+
+export default async function PermitsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ county?: string }>;
+}) {
+  const params = await searchParams;
+  const data = await getTceqPendingPermitsPageData(params.county);
+
+  return (
+    <main className="relative mx-auto flex w-full max-w-6xl flex-1 flex-col gap-16 px-6 py-16">
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[480px] bg-[radial-gradient(ellipse_60%_50%_at_50%_0%,rgba(34,211,238,0.10),transparent_70%)]"
+      />
+
+      <section className="grid gap-10 lg:grid-cols-[1.35fr_0.95fr] lg:items-end">
+        <div className="space-y-7">
+          <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-medium uppercase tracking-[0.18em] text-slate-300 backdrop-blur">
+            <span aria-hidden="true" className="size-1.5 rounded-full bg-accent" />
+            TCEQ permits · Texas tracker
+          </span>
+          <div className="space-y-5">
+            <h1 className="max-w-4xl text-balance text-5xl font-semibold leading-[1.05] tracking-tight text-white sm:text-6xl">
+              TCEQ pending permits
+            </h1>
+            <p className="text-sm font-medium uppercase tracking-[0.18em] text-cyan-300">
+              Pending permit tracker for Texas
+            </p>
+            <p className="max-w-3xl text-pretty text-lg leading-8 text-slate-400">
+              Live view of pending TCEQ water-quality individual permits across Texas, with county concentration and permit roster context for newsroom, civic-tech, and policy workflows.
+            </p>
+          </div>
+          <div className="flex flex-wrap items-center gap-3 text-sm">
+            <Link href="/water" className="group inline-flex items-center gap-2 rounded-full bg-white px-5 py-2.5 font-medium text-slate-950 transition-colors hover:bg-slate-200">
+              Open water explorer
+              <span aria-hidden="true" className="transition-transform group-hover:translate-x-0.5">→</span>
+            </Link>
+            <Link href="/" className="rounded-full border border-white/10 px-5 py-2.5 font-medium text-slate-200 transition-colors hover:border-white/20 hover:bg-white/5">
+              Back to homepage
+            </Link>
+          </div>
+        </div>
+
+        <aside className="rounded-2xl bg-gradient-to-b from-white/[0.06] to-white/[0.02] p-6 ring-1 ring-white/10 backdrop-blur">
+          <div className="text-xs font-medium uppercase tracking-[0.18em] text-slate-400">Tracking stance</div>
+          <ul className="mt-4 space-y-3.5 text-sm leading-7 text-slate-300">
+            <li className="flex gap-3"><span aria-hidden="true" className="mt-2.5 size-1 shrink-0 rounded-full bg-cat-3" />This page tracks pending water-quality individual permits, not every TCEQ program workflow.</li>
+            <li className="flex gap-3"><span aria-hidden="true" className="mt-2.5 size-1 shrink-0 rounded-full bg-cat-2" />County clustering helps show where permit pressure is concentrating.</li>
+            <li className="flex gap-3"><span aria-hidden="true" className="mt-2.5 size-1 shrink-0 rounded-full bg-cat-4" />Pending status is procedural context, not proof of harm or permit outcome.</li>
+          </ul>
+        </aside>
+      </section>
+
+      <section className="grid gap-px overflow-hidden rounded-2xl bg-white/5 ring-1 ring-white/10 sm:grid-cols-4">
+        <StatTile value={String(data.summary.pendingPermitCount)} label="Pending permits" />
+        <StatTile value={String(data.summary.activePermitCount)} label="Active permits statewide" />
+        <StatTile value={String(data.summary.countyCount)} label="Counties represented" />
+        <StatTile value={String(data.summary.authorizationTypeCount)} label="Authorization types" />
+      </section>
+
+      <section className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
+        <article className="rounded-2xl bg-slate-900/40 p-6 ring-1 ring-white/5">
+          <div className="flex items-center justify-between gap-4">
+            <h2 className="text-2xl font-semibold text-white">Top counties by pending count</h2>
+            {data.countyFilter ? (
+              <div className="text-xs font-medium uppercase tracking-[0.18em] text-cyan-300">County filter</div>
+            ) : null}
+          </div>
+          {data.countyFilter ? <p className="mt-2 text-sm text-slate-400">{data.countyFilter}</p> : null}
+          <div className="mt-5 space-y-3">
+            {data.summary.topCounties.map((row) => (
+              <div key={row.county} className="flex items-center justify-between rounded-xl border border-white/5 bg-white/[0.03] px-4 py-3">
+                <div className="text-sm text-slate-200">{row.county}</div>
+                <div className="rounded-full bg-white/5 px-3 py-1 text-sm font-medium text-cyan-300">{row.count}</div>
+              </div>
+            ))}
+          </div>
+        </article>
+
+        <article className="rounded-2xl bg-slate-900/40 p-6 ring-1 ring-white/5">
+          <h2 className="text-2xl font-semibold text-white">Pending permit roster</h2>
+          <div className="mt-5 overflow-x-auto">
+            <table className="min-w-full text-left text-sm text-slate-300">
+              <thead className="text-xs uppercase tracking-[0.18em] text-slate-500">
+                <tr>
+                  <th className="pb-3 pr-4">Permit</th>
+                  <th className="pb-3 pr-4">Permittee</th>
+                  <th className="pb-3 pr-4">Type</th>
+                  <th className="pb-3 pr-4">County</th>
+                  <th className="pb-3 pr-4">Nearest city</th>
+                </tr>
+              </thead>
+              <tbody>
+                {data.permits.slice(0, 100).map((permit) => (
+                  <tr key={permit.permitNumber} className="border-t border-white/5 align-top">
+                    <td className="py-3 pr-4 font-mono text-cyan-300">{permit.permitNumber}</td>
+                    <td className="py-3 pr-4">{permit.permitteeName}</td>
+                    <td className="py-3 pr-4">{permit.authorizationType}</td>
+                    <td className="py-3 pr-4">{permit.county ?? "Unknown"}</td>
+                    <td className="py-3 pr-4">{permit.nearestCity ?? "Unknown"}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </article>
+      </section>
+    </main>
+  );
+}
+
+function StatTile({ value, label }: { value: string; label: string }) {
+  return (
+    <div className="bg-slate-950/40 p-6">
+      <div className="text-4xl font-semibold tabular-nums tracking-tight text-white">{value}</div>
+      <div className="mt-2 text-sm leading-6 text-slate-400">{label}</div>
+    </div>
+  );
+}

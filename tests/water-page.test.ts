@@ -54,5 +54,6 @@ describe("water page", () => {
     expect(text).toContain("Texas water explorer");
     expect(text).toContain("Travis County");
     expect(text).toContain("General permits");
+    expect(text).toContain("Pending permits");
   });
 });

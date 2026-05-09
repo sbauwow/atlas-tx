@@ -117,6 +117,7 @@ export default async function WaterPage({
           <Link href="/api/water/overview" className="rounded-full bg-cyan-400 px-5 py-3 font-medium text-slate-950">Overview API</Link>
           <Link href="/api/water/alerts" className="rounded-full border border-slate-700 px-5 py-3 font-medium text-slate-100">Alerts API</Link>
           <Link href="/api/water/gauges" className="rounded-full border border-slate-700 px-5 py-3 font-medium text-slate-100">Gauges API</Link>
+          <Link href="/permits" className="rounded-full border border-slate-700 px-5 py-3 font-medium text-slate-100">Pending permits</Link>
           <Link href="/api/water/fema/nfhl/counties" className="rounded-full border border-slate-700 px-5 py-3 font-medium text-slate-100">FEMA counties API</Link>
           <Link href="/api/water/lcra/hydromet/stage-flow" className="rounded-full border border-slate-700 px-5 py-3 font-medium text-slate-100">LCRA Hydromet stage-flow API</Link>
           <Link href="/api/water/lcra/arrp/outfalls" className="rounded-full border border-slate-700 px-5 py-3 font-medium text-slate-100">LCRA ARRP outfalls API</Link>
