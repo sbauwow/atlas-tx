@@ -90,6 +90,8 @@ export default async function Home() {
           title="Water explorer"
           description="Open statewide water context, alerts, gauges, and public-water governance layers."
           metric={`${activeAlertCount} active alerts · ${gaugeCount} gauges`}
+          statusHref="/water?mode=mismatch"
+          statusLabel="View live status"
           href="/water"
           cta="Open water explorer"
         />
@@ -98,6 +100,8 @@ export default async function Home() {
           title="County workspace overview"
           description="Jump into ranked counties, then branch into county intelligence, permits, or water profiles."
           metric={`${countyOverview.countyCount} ranked counties`}
+          statusHref="/counties#top-counties"
+          statusLabel="View top counties"
           href="/counties"
           cta="Open county workspace"
         />
@@ -106,6 +110,8 @@ export default async function Home() {
           title="Permit tracker"
           description="Watch pending TCEQ permit pressure and procedural activity by county."
           metric={`${permitData.summary.pendingPermitCount} pending permits`}
+          statusHref="/permits#top-counties"
+          statusLabel="View permit hotspots"
           href="/permits"
           cta="Open permit tracker"
         />
@@ -243,6 +249,8 @@ function EntryPathCard({
   title,
   description,
   metric,
+  statusHref,
+  statusLabel,
   href,
   cta,
 }: {
@@ -250,6 +258,8 @@ function EntryPathCard({
   title: string;
   description: string;
   metric: string;
+  statusHref: string;
+  statusLabel: string;
   href: string;
   cta: string;
 }) {
@@ -258,7 +268,12 @@ function EntryPathCard({
       <div className="text-xs font-medium uppercase tracking-[0.18em] text-slate-500">{eyebrow}</div>
       <h2 className="mt-3 text-2xl font-semibold text-white">{title}</h2>
       <p className="mt-3 text-sm leading-7 text-slate-400">{description}</p>
-      <div className="mt-4 text-sm font-medium text-cyan-300">{metric}</div>
+      <div className="mt-4 flex flex-wrap items-center gap-3 text-sm">
+        <div className="font-medium text-cyan-300">{metric}</div>
+        <Link href={statusHref} className="text-xs font-medium uppercase tracking-[0.16em] text-slate-400 transition-colors hover:text-cyan-300">
+          {statusLabel}
+        </Link>
+      </div>
       <Link href={href} className="mt-5 inline-flex items-center gap-2 text-sm font-medium text-cyan-300 transition-colors hover:text-cyan-200">
         {cta}
         <span aria-hidden="true">→</span>

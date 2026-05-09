@@ -57,6 +57,17 @@ describe("Home landing page", () => {
     expect(html).toContain("5 active alerts · 13 gauges");
   });
 
+  it("turns workflow counts into clickable status links", async () => {
+    const html = renderToStaticMarkup(await Home());
+
+    expect(html).toContain('href="/water?mode=mismatch"');
+    expect(html).toContain("View live status");
+    expect(html).toContain('href="/counties#top-counties"');
+    expect(html).toContain("View top counties");
+    expect(html).toContain('href="/permits#top-counties"');
+    expect(html).toContain("View permit hotspots");
+  });
+
   it("describes the refocused product thesis and signals", async () => {
     const html = renderToStaticMarkup(await Home());
 

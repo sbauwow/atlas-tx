@@ -130,7 +130,7 @@ export default async function PermitsPage({
         </div>
       </section>
 
-      <section className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
+      <section id="top-counties" className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
         <article className="rounded-2xl bg-slate-900/40 p-6 ring-1 ring-white/5">
           <div className="flex items-center justify-between gap-4">
             <h2 className="text-2xl font-semibold text-white">Top counties by pending count</h2>

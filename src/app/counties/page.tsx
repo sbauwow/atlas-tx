@@ -27,7 +27,7 @@ export default async function CountiesOverviewPage() {
         <StatTile value={new Date(overview.generatedAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" })} label="Generated" />
       </section>
 
-      <section className="rounded-2xl bg-slate-900/40 p-6 ring-1 ring-white/5">
+      <section id="top-counties" className="rounded-2xl bg-slate-900/40 p-6 ring-1 ring-white/5">
         <div className="flex items-center justify-between gap-4">
           <h2 className="text-2xl font-semibold text-white">Top counties</h2>
           <div className="text-xs font-medium uppercase tracking-[0.18em] text-slate-500">Composite score</div>
