@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { CATEGORY_BORDER_CLASS, CATEGORY_TEXT_CLASS } from "@/app/design/categories";
-import { countyRiskSignals, governanceLayers, texasWaterFlow, waterPrimerCards } from "@/app/education/content";
+import { countyRiskSignals, governanceLayers, surfaceVsGroundwater, texasWaterFlow, waterPrimerCards } from "@/app/education/content";
 
 export default function EducationPage() {
   return (
@@ -73,6 +73,48 @@ export default function EducationPage() {
             </article>
           ))}
         </div>
+      </section>
+
+      <section className="grid gap-6 lg:grid-cols-2">
+        {([surfaceVsGroundwater.surfaceWater, surfaceVsGroundwater.groundwater] as const).map((source) => (
+          <article key={source.title} className="rounded-2xl bg-slate-900/40 p-6 ring-1 ring-white/5">
+            <div className="flex items-center gap-3">
+              <div className="flex size-10 items-center justify-center rounded-full border border-white/10 bg-white/[0.03] text-lg text-cyan-300">
+                {source.glyph}
+              </div>
+              <div>
+                <h2 className="text-2xl font-semibold text-white">{source.title}</h2>
+                <p className="mt-1 text-sm leading-6 text-slate-400">{source.body}</p>
+              </div>
+            </div>
+            <div className="mt-5 grid gap-4 md:grid-cols-3">
+              <div>
+                <div className="text-xs font-medium uppercase tracking-[0.18em] text-slate-500">Examples</div>
+                <ul className="mt-3 space-y-2 text-sm leading-6 text-slate-300">
+                  {source.examples.map((item) => (
+                    <li key={item}>• {item}</li>
+                  ))}
+                </ul>
+              </div>
+              <div>
+                <div className="text-xs font-medium uppercase tracking-[0.18em] text-slate-500">Strengths</div>
+                <ul className="mt-3 space-y-2 text-sm leading-6 text-slate-300">
+                  {source.strengths.map((item) => (
+                    <li key={item}>• {item}</li>
+                  ))}
+                </ul>
+              </div>
+              <div>
+                <div className="text-xs font-medium uppercase tracking-[0.18em] text-slate-500">Watchouts</div>
+                <ul className="mt-3 space-y-2 text-sm leading-6 text-slate-300">
+                  {source.watchouts.map((item) => (
+                    <li key={item}>• {item}</li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          </article>
+        ))}
       </section>
 
       <section className="grid gap-6 lg:grid-cols-[1fr_0.9fr]">

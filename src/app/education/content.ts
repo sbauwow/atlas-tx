@@ -55,6 +55,43 @@ export const governanceLayers = [
   },
 ] as const;
 
+export const surfaceVsGroundwater = {
+  surfaceWater: {
+    title: "Surface water",
+    glyph: "≈",
+    body:
+      "Water stored or flowing above ground in rivers, lakes, reservoirs, and streams. This is the backbone for many larger Texas cities and regional systems.",
+    examples: ["rivers", "reservoirs", "lakes", "stream intakes"],
+    strengths: [
+      "can serve large populations through regional treatment plants",
+      "easier to visualize in basin and reservoir maps",
+      "often tied to major inter-county infrastructure",
+    ],
+    watchouts: [
+      "drought lowers inflows and storage",
+      "floods can disrupt intakes and treatment operations",
+      "upstream withdrawals and discharges matter",
+    ],
+  },
+  groundwater: {
+    title: "Groundwater",
+    glyph: "◌",
+    body:
+      "Water pumped from underground aquifers such as the Edwards, Trinity, Carrizo-Wilcox, Gulf Coast, and Ogallala. It is critical for rural systems, wells, and fast-growing edge communities.",
+    examples: ["municipal wells", "private wells", "aquifer pumping", "spring-linked systems"],
+    strengths: [
+      "can support smaller local systems without major reservoirs",
+      "often buffers short-term surface drought shocks",
+      "important for rural and dispersed communities",
+    ],
+    watchouts: [
+      "declining aquifer levels can raise long-term risk",
+      "recharge can lag behind demand growth",
+      "well reliability and local geology vary sharply by county",
+    ],
+  },
+} as const;
+
 export const countyRiskSignals = [
   "surface-water dependence vs aquifer dependence",
   "reservoir storage and drought exposure",
