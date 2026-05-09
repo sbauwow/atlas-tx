@@ -117,6 +117,10 @@ describe("permits page", () => {
 
     expect(text).toContain("County filter");
     expect(text).toContain("travis-county");
+    expect(text).toContain("County workspace");
+    expect(text).toContain("href=\"/water/counties/travis-county\"");
+    expect(text).toContain("href=\"/permits?county=tom-green-county\"");
+    expect(text).toContain("href=\"/permits?county=trinity-county\"");
   });
 
   it("renders an aging badge when the CID snapshot is several days old", async () => {

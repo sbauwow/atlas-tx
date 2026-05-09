@@ -45,7 +45,10 @@ describe("water county page", () => {
     const text = renderToStaticMarkup(page);
 
     expect(text).toContain("Travis County water profile");
+    expect(text).toContain("County workspace");
     expect(text).toContain("href=\"/permits?county=travis-county\"");
+    expect(text).toContain("href=\"/water/counties/tom-green-county\"");
+    expect(text).toContain("href=\"/water/counties/trinity-county\"");
     expect(text).toContain("Flood Warning");
     expect(text).toContain("Colorado River");
     expect(text).toContain("surface-water impairment overlaps recent sewer overflow activity");

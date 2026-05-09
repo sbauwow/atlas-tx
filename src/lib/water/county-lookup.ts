@@ -12,6 +12,22 @@ const COUNTY_REFS: CountyRef[] = Object.entries(TEXAS_COUNTY_CENTROIDS).map(([sl
 const COUNTY_BY_SLUG = new Map(COUNTY_REFS.map((county) => [county.slug, county]));
 const COUNTY_BY_FIPS = new Map(COUNTY_REFS.flatMap((county) => county.fips ? [[county.fips, county] as const] : []));
 
+export function listCountyRefs(): CountyRef[] {
+  return COUNTY_REFS;
+}
+
+export function getAdjacentCountyRefs(input: string): { previous: CountyRef | null; next: CountyRef | null } {
+  const slug = countySlug(input);
+  const index = COUNTY_REFS.findIndex((county) => county.slug === slug);
+  if (index === -1) {
+    return { previous: null, next: null };
+  }
+  return {
+    previous: COUNTY_REFS[index - 1] ?? null,
+    next: COUNTY_REFS[index + 1] ?? null,
+  };
+}
+
 export function getCountyBySlugOrName(input: string): CountyRef | undefined {
   const slug = countySlug(input);
   return COUNTY_BY_SLUG.get(slug);

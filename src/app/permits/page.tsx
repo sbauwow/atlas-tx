@@ -1,6 +1,8 @@
 import Link from "next/link";
 
+import { CountyWorkspaceHeader } from "@/app/components/county-workspace-header";
 import { TexasCountyChoropleth } from "@/app/components/texas-county-choropleth";
+import { getAdjacentCountyRefs, getCountyBySlugOrName } from "@/lib/water/county-lookup";
 import {
   buildPendingPermitCountyMapRows,
   formatCidSnapshotAgeBadge,
@@ -18,6 +20,8 @@ export default async function PermitsPage({
   const cidSnapshotBadge = formatCidSnapshotAgeBadge(data.cidSummary.generatedAt);
   const cidSnapshotTone = cidSnapshotBadge ? cidSnapshotBadgeTone(cidSnapshotBadge.freshnessBand) : null;
   const countyMapRows = buildPendingPermitCountyMapRows(data.permits, data.cidSummary.cases);
+  const countyWorkspace = data.countyFilter ? getCountyBySlugOrName(data.countyFilter) : null;
+  const adjacentCounties = countyWorkspace ? getAdjacentCountyRefs(countyWorkspace.slug) : null;
 
   return (
     <main className="relative mx-auto flex w-full max-w-6xl flex-1 flex-col gap-16 px-6 py-16">
@@ -63,6 +67,17 @@ export default async function PermitsPage({
           </ul>
         </aside>
       </section>
+
+      {countyWorkspace && adjacentCounties ? (
+        <CountyWorkspaceHeader
+          countyName={countyWorkspace.name}
+          countySlug={countyWorkspace.slug}
+          permitsHref={`/permits?county=${countyWorkspace.slug}`}
+          waterHref={`/water/counties/${countyWorkspace.slug}`}
+          previousCounty={adjacentCounties.previous ? { ...adjacentCounties.previous, href: `/permits?county=${adjacentCounties.previous.slug}` } : null}
+          nextCounty={adjacentCounties.next ? { ...adjacentCounties.next, href: `/permits?county=${adjacentCounties.next.slug}` } : null}
+        />
+      ) : null}
 
       <section className="grid gap-px overflow-hidden rounded-2xl bg-white/5 ring-1 ring-white/10 sm:grid-cols-4">
         <StatTile value={String(data.summary.pendingPermitCount)} label="Pending permits" />

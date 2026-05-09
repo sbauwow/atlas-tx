@@ -1,5 +1,7 @@
 import Link from "next/link";
 
+import { CountyWorkspaceHeader } from "@/app/components/county-workspace-header";
+import { getAdjacentCountyRefs } from "@/lib/water/county-lookup";
 import { getDefaultAtlasWaterSummaryService } from "@/lib/water/water-summary-service";
 
 function statValue(value: number | undefined) {
@@ -11,9 +13,19 @@ export default async function WaterCountyPage({ params }: { params: Promise<{ sl
   const service = getDefaultAtlasWaterSummaryService();
   const breakdown = await service.getCountyWaterBreakdown(slug);
   const county = breakdown.county;
+  const adjacent = getAdjacentCountyRefs(county.county.slug);
 
   return (
     <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-10 px-6 py-16">
+      <CountyWorkspaceHeader
+        countyName={county.county.name}
+        countySlug={county.county.slug}
+        permitsHref={`/permits?county=${county.county.slug}`}
+        waterHref={`/water/counties/${county.county.slug}`}
+        previousCounty={adjacent.previous ? { ...adjacent.previous, href: `/water/counties/${adjacent.previous.slug}` } : null}
+        nextCounty={adjacent.next ? { ...adjacent.next, href: `/water/counties/${adjacent.next.slug}` } : null}
+      />
+
       <section className="space-y-5">
         <div className="flex flex-wrap items-center gap-3 text-sm">
           <Link href="/water" className="rounded-full border border-white/10 px-4 py-2 text-slate-200 transition-colors hover:border-white/20 hover:bg-white/5">
