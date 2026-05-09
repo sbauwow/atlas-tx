@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import GlossaryTooltip, { GlossaryInlineList } from "@/app/components/glossary-tooltip";
 import { CountyWorkspaceHeader } from "@/app/components/county-workspace-header";
 import { getDefaultAtlasCountyExplorerService } from "@/lib/atlas-county-explorer";
 import { getAdjacentCountyRefs } from "@/lib/water/county-lookup";
@@ -37,6 +38,8 @@ export default async function CountyIntelligencePage({ params }: { params: Promi
         </div>
       </section>
 
+      <GlossaryInlineList label="Common county terms" terms={["TWDB", "HUC", "PWS"]} />
+
       <section className="grid gap-px overflow-hidden rounded-2xl bg-white/5 ring-1 ring-white/10 sm:grid-cols-3">
         <StatTile value={String(breakdown.overview.compositeScore)} label="Composite score" />
         <StatTile value={String(breakdown.overview.ranks.composite ?? "-")} label="Composite rank" />
@@ -59,6 +62,7 @@ export default async function CountyIntelligencePage({ params }: { params: Promi
         <article className="rounded-2xl bg-slate-900/40 p-6 ring-1 ring-white/5">
           <h2 className="text-2xl font-semibold text-white">Hydrology context</h2>
           <div className="mt-4 space-y-3 text-sm text-slate-300">
+            <p className="text-slate-400">Built from <GlossaryTooltip term="TWDB" expand /> hydrology layers and <GlossaryTooltip term="HUC" expand /> geography.</p>
             {breakdown.hydrologyContext.matches.map((item) => (
               <div key={`${item.layerId}-${item.primaryCode ?? item.name ?? 'match'}`} className="rounded-xl border border-white/5 bg-white/[0.03] px-4 py-3">
                 <div className="font-medium text-white">{item.name ?? item.layerName}</div>

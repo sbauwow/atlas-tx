@@ -49,10 +49,14 @@ describe("county intelligence page", () => {
 
     expect(text).toContain("County workspace");
     expect(text).toContain("Travis County county intelligence");
-    expect(text).toContain("href=\"/permits?county=travis-county\"");
-    expect(text).toContain("href=\"/water/counties/travis-county\"");
-    expect(text).toContain("href=\"/counties/tom-green-county\"");
-    expect(text).toContain("href=\"/counties/trinity-county\"");
+    expect(text).toContain("Texas Water Development Board");
+    expect(text).toContain("Hydrologic Unit Code");
+    expect(text).toContain('title="Texas Water Development Board"');
+    expect(text).toContain('title="Hydrologic Unit Code"');
+    expect(text).toContain('href=\"/permits?county=travis-county\"');
+    expect(text).toContain('href=\"/water/counties/travis-county\"');
+    expect(text).toContain('href=\"/counties/tom-green-county\"');
+    expect(text).toContain('href=\"/counties/trinity-county\"');
     expect(text).toContain("Composite score");
     expect(text).toContain("91.2");
     expect(text).toContain("Colorado");

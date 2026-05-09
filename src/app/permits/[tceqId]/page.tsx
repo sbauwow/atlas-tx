@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import GlossaryTooltip, { GlossaryInlineList } from "@/app/components/glossary-tooltip";
 import { CountyWorkspaceHeader } from "@/app/components/county-workspace-header";
 import { buildPermitProtestPrep, getPermitFilingDetailPageData, getTceqPendingPermitsPageData } from "@/lib/tceq-permits";
 import { getAdjacentCountyRefs, getCountyBySlugOrName } from "@/lib/water/county-lookup";
@@ -53,10 +54,12 @@ export default async function PermitFilingDetailPage({
         <div>
           <h1 className="text-4xl font-semibold tracking-tight text-white">{detail.caseRow.applicantName}</h1>
           <p className="mt-2 max-w-3xl text-slate-400">
-            Filing detail workspace for {detail.caseRow.tceqId}. Use this page as procedural context and triage, not a final legal determination.
+            Filing detail workspace for <GlossaryTooltip term="TCEQ" /> ID {detail.caseRow.tceqId}. Use this page as procedural context and triage, not a final legal determination.
           </p>
         </div>
       </section>
+
+      <GlossaryInlineList label="Common filing terms" terms={["TCEQ", "CID", "SOAH"]} />
 
       <section className="grid gap-px overflow-hidden rounded-2xl bg-white/5 ring-1 ring-white/10 sm:grid-cols-4">
         <StatTile value={detail.caseRow.programArea} label="Program area" />
@@ -72,7 +75,7 @@ export default async function PermitFilingDetailPage({
             <DetailRow label="TCEQ ID" value={detail.caseRow.tceqId} mono />
             <DetailRow label="County" value={detail.caseRow.county ?? "Unknown"} />
             <DetailRow label="TCEQ docket" value={detail.caseRow.tceqDocketNumber ?? "None listed"} mono />
-            <DetailRow label="SOAH docket" value={detail.caseRow.soahDocketNumber ?? "None listed"} mono />
+            <DetailRow label="SOAH docket" value={detail.caseRow.soahDocketNumber ?? "None listed"} mono tooltip="State Office of Administrative Hearings" />
             <DetailRow label="Latest filing" value={detail.caseRow.latestFiledAt ?? "No protest filings yet"} />
             <DetailRow
               label="Filings"
@@ -189,10 +192,10 @@ function StatTile({ value, label }: { value: string; label: string }) {
   );
 }
 
-function DetailRow({ label, value, mono = false }: { label: string; value: string; mono?: boolean }) {
+function DetailRow({ label, value, mono = false, tooltip }: { label: string; value: string; mono?: boolean; tooltip?: string }) {
   return (
     <div className="flex flex-col gap-1 rounded-xl border border-white/5 bg-white/[0.03] px-4 py-3">
-      <dt className="text-xs font-medium uppercase tracking-[0.18em] text-slate-500">{label}</dt>
+      <dt className="text-xs font-medium uppercase tracking-[0.18em] text-slate-500" title={tooltip}>{label}</dt>
       <dd className={mono ? "font-mono text-cyan-300" : "text-slate-200"}>{value}</dd>
     </div>
   );

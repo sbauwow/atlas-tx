@@ -1,4 +1,5 @@
 import Link from "next/link";
+import GlossaryTooltip, { GlossaryInlineList } from "@/app/components/glossary-tooltip";
 import { CATEGORY_BORDER_CLASS, CATEGORY_TEXT_CLASS } from "@/app/design/categories";
 import { countyRiskSignals, governanceLayers, surfaceVsGroundwater, texasWaterDiagram, texasWaterFlow, waterPrimerCards } from "@/app/education/content";
 
@@ -21,7 +22,7 @@ export default function EducationPage() {
               Texas water system guide.
             </h1>
             <p className="max-w-3xl text-pretty text-lg leading-8 text-slate-400">
-              A grounded primer on where Texas water comes from, how it moves, who governs it, and why county-level water risk is uneven. This page stays aligned with Atlas TX taxonomy: source systems, environmental burden, infrastructure/fiscal capacity, and community context.
+              A grounded primer on where Texas water comes from, how it moves, who governs it, and why county-level water risk is uneven. This page stays aligned with Atlas TX taxonomy: source systems, environmental burden, infrastructure/fiscal capacity, and community context. It also introduces key agencies like <GlossaryTooltip term="TCEQ" expand /> and <GlossaryTooltip term="TWDB" expand /> plus system terms like <GlossaryTooltip term="PWS" expand />.
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-3 text-sm">
@@ -51,6 +52,8 @@ export default function EducationPage() {
           </ul>
         </aside>
       </section>
+
+      <GlossaryInlineList label="Common education terms" terms={["TCEQ", "TWDB", "PWS", "NFHL", "HUC"]} />
 
       <section className="space-y-6">
         <div className="space-y-2">

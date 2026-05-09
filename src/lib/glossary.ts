@@ -35,6 +35,10 @@ export const GLOSSARY = {
     short: "GBRA",
     long: "Guadalupe-Blanco River Authority",
   },
+  HUC: {
+    short: "HUC",
+    long: "Hydrologic Unit Code",
+  },
   LCRA: {
     short: "LCRA",
     long: "Lower Colorado River Authority",

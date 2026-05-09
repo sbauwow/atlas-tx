@@ -81,6 +81,8 @@ describe("permit filing detail page", () => {
     expect(text).toContain("County workspace");
     expect(text).toContain("Alpha Water LLC");
     expect(text).toContain("WQ0000447000");
+    expect(text).toContain("State Office of Administrative Hearings");
+    expect(text).toContain("Commissioners’ Integrated Database");
     expect(text).toContain("SOAH docket present");
     expect(text).toContain("1 hearing request filed");
     expect(text).toContain("2 pending permits in Travis County");
@@ -94,6 +96,8 @@ describe("permit filing detail page", () => {
     expect(text).toContain("Request a contested case hearing");
     expect(text).toContain("Describe how the filing affects Travis County or nearby neighborhoods.");
     expect(text).toContain("I am submitting this comment regarding TCEQ ID WQ0000447000");
+    expect(text).toContain('title="State Office of Administrative Hearings"');
+    expect(text).toContain('title="Commissioners’ Integrated Database"');
     expect(text).toContain('href="/permits?county=travis-county"');
     expect(text).toContain('href="/water/counties/travis-county"');
   });
