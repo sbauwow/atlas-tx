@@ -12,6 +12,7 @@ function titleCaseSegment(value: string): string {
 function normalizeBaseCountyName(input: string): string {
   return input
     .trim()
+    .replace(/-/g, " ")
     .replace(/\./g, "")
     .replace(/\bst\b/gi, "saint")
     .replace(/\s+/g, " ")
