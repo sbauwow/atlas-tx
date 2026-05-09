@@ -75,6 +75,50 @@ export type LcraArrpLandPermit = {
   raw: Record<string, unknown>;
 };
 
+export type LcraWaterQualitySite = {
+  sourceId: "lcra-water-quality-sites";
+  siteId: string;
+  siteName: string;
+  segmentId?: string | null;
+  segmentName?: string | null;
+  rootSegmentId?: string | null;
+  rootSegmentName?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
+  lastObservedAt?: string | null;
+  agency?: string | null;
+  isActive?: boolean | null;
+  impairedSegment?: boolean | null;
+  surfaceDataOverride?: boolean | null;
+  raw: Record<string, unknown>;
+};
+
+export type LcraWaterQualityParameter = {
+  sourceId: "lcra-water-quality-parameters";
+  siteId: string;
+  segmentId?: string | null;
+  storetCode: string;
+  storetName?: string | null;
+  storetCategory?: string | null;
+  hasSurfaceData?: boolean | null;
+  raw: Record<string, unknown>;
+};
+
+export type LcraWaterQualityObservation = {
+  sourceId: "lcra-water-quality-observations";
+  siteId: string;
+  segmentId?: string | null;
+  storetCode: string;
+  storetName?: string | null;
+  storetCategory?: string | null;
+  depth?: string | null;
+  agency?: string | null;
+  symbol?: string | null;
+  value?: number | string | null;
+  observedAt: string;
+  raw: Record<string, unknown>;
+};
+
 export type WaterAlert = {
   sourceId: "nws-alerts";
   alertId: string;

@@ -10,6 +10,8 @@ describe("water source registry", () => {
       "lcra-hydromet-lakelevels",
       "lcra-arrp-outfalls",
       "lcra-arrp-land-permits",
+      "lcra-water-quality-sites",
+      "lcra-water-quality-observations",
       "nws-alerts",
       "tceq-sewer-overflows",
       "tceq-general-water-permits",
@@ -36,6 +38,6 @@ describe("water source registry", () => {
       refreshCadence: "manual",
     });
     expect(getWaterSource("missing-source")).toBeUndefined();
-    expect(listWaterSources()).toHaveLength(17);
+    expect(listWaterSources()).toHaveLength(19);
   });
 });
