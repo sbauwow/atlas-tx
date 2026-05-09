@@ -1,6 +1,10 @@
 # Contract — MCP Tool Surface
 
-> Contract version: **0.1.0** — bump on any breaking change to tool name, params, or response shape. Notify `skill` workstream in `STATE.md` when bumping.
+> Contract version: **0.2.0** — bump on any breaking change to tool name, params, or response shape. Notify `skill` workstream in `STATE.md` when bumping.
+>
+> Changelog:
+> - 0.2.0 (2026-05-08): add draft protest/CID tool signatures (`list_protested_permits`, `score_protest_density`) and optional APD folding in `summarize_water_risk_for_county`.
+> - 0.1.0: initial DWRS/EJ tool surface.
 
 This is the API the **mcp** workstream publishes for the **skill** workstream (and any external agent) to consume. Every tool returns the same envelope.
 
@@ -28,7 +32,7 @@ type Source = {
 
 Tools never return naked data. The skill relies on `sources` and `caveats` to satisfy attribution + safety guardrails.
 
-## Tool catalog (v0.1.0)
+## Tool catalog (v0.2.0)
 
 ### `discover_datasets`
 Lists registered datasets with category + use-case + access type.
@@ -90,14 +94,78 @@ data: Array<{
 Composite county-level summary that pulls DWRS + EJ overlap + permit context. Intended as the "answer panel" the skill returns to the user.
 
 ```ts
-params: { county: string; max_words?: number };  // default 200
+params: {
+  county: string;
+  max_words?: number;               // default 200
+  include_protest_density?: boolean; // default false at v0.2
+};
 data: {
   county: string;
   headline: string;
   narrative: string;          // bounded summary citing source rows
   top_pws: Array<{ pws_id: string; pws_name: string; score: number }>;
   top_block_groups: Array<{ geoid: string; score: number }>;
+  protest_density?: {
+    score: number;
+    raw_pressure: number;
+    per_1k_population: number;
+    open_case_count: number;
+  };
 };
+```
+
+### `list_protested_permits`
+Lists protested/open CID items with filing counts and procedural status. This is the journalist-facing drilldown tool.
+
+```ts
+params: {
+  county?: string;                    // normalized county name
+  program_area?: string;              // e.g. "APO", "AQ", "WQ", "PWS"
+  min_hearing_requests?: number;      // default 0
+  limit?: number;                     // default 25
+  include_closed?: boolean;           // default false
+};
+data: Array<{
+  tceq_id: string;
+  applicant_name: string;
+  county: string | null;
+  program_area: string;
+  item_status: "open" | "closed";
+  tceq_docket_number: string | null;
+  soah_docket_number: string | null;
+  filing_counts: {
+    comments: number;
+    hearing_requests: number;
+    public_meeting_requests: number;
+  };
+  named_filing_orgs: string[];        // organizations only; no individual commenter names
+  latest_filed_at: string | null;     // ISO date
+}>;
+```
+
+### `score_protest_density`
+Computes APD from CID + ACS rows. Initial scope is county only.
+
+```ts
+params: {
+  county?: string;                    // if omitted, statewide ranking
+  scope?: "county";                  // default and only supported value at v0.2
+  limit?: number;                     // default 25
+  min_population?: number;            // default 0
+};
+data: Array<{
+  county: string;
+  score: number;                      // normalized 0-100
+  raw_pressure: number;
+  per_1k_population: number;
+  open_case_count: number;
+  components: {
+    comment_count: number;
+    hearing_request_count: number;
+    public_meeting_request_count: number;
+    soah_case_count: number;
+  };
+}>;
 ```
 
 ## Adding a new tool

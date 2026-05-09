@@ -66,18 +66,22 @@ CID quirks confirmed in pre-flight (2026-05-08):
 Spec land: `docs/contracts/dataset-registry.md` (bumped to **0.2.0**, see PR).
 
 ```
-APD per county = sum over open CID items in county of (
-    1                                           # base: a pending permit exists
-  + 0.5  * comment_count                        # public engaged
-  + 1.0  * hearing_request_count                # community requested formal hearing
-  + 2.0  * (soah_docket_number != null ? 1 : 0) # SOAH-referred → contested-case
-) / county_population_thousands
+filing_pressure_per_item = (
+    1.0                                          # base: a pending permit exists
+  + 0.35 * log1p(comment_count)                  # comments matter, but are flood-prone
+  + 0.75 * public_meeting_request_count          # stronger than comments, weaker than hearing requests
+  + 1.25 * hearing_request_count                 # stronger procedural escalation
+  + 2.5  * (soah_docket_number != null ? 1 : 0) # SOAH-referred → contested-case
+)
+APD_raw = sum(filing_pressure_per_item in county)
+APD_per_1k = APD_raw / county_population_thousands
 ```
 
 Then min-max normalized 0-100 statewide for ranking. `components` in the score envelope retains raw counts for the reporter to cite. Caveats (always emitted):
 
 - Reflects only *currently open* CID items. Historical protests not included.
-- Comment / hearing-request counts come from CID Search Two; CID may aggregate filings made under different name spellings.
+- Filing counts come from CID Search Two and may include duplicate people, repeat submissions, or organization campaigns.
+- `comment_count` is log-damped intentionally so high-volume comment floods do not dominate the score.
 - "Hearing-request" in CID is not the same as "contested case granted." Use SOAH docket # for the latter.
 - Per-capita normalization makes rural counties disproportionately bright. Provide raw and per-capita columns side-by-side; do not make per-capita the only ranking.
 

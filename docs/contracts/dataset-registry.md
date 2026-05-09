@@ -96,16 +96,24 @@ Per-county score: log(permits) × (1 − resolved_violations / total_violations)
 
 ### Active Protest Density (APD)
 File: `src/lib/scoring/protest_density.ts` (TBD, see `docs/plans/2026-05-08-protests-extension.md`).
-Inputs: CID Search One rows (case metadata + SOAH cross-ref), CID Search Two rows (comment + hearing-request counts), county population (ACS).
+Inputs: CID Search One rows (case metadata + SOAH cross-ref), CID Search Two rows (comment / hearing-request / public-meeting-request filings), county population (ACS).
 Per-county score:
 ```
-weight per item = 1 + 0.5*comment_count + 1.0*hearing_request_count + 2.0*has_soah_docket
-APD = (sum of weights in county) / (county_population / 1000)
-APD_normalized = min-max scale to 0..100 statewide
+filing_pressure_per_item = (
+    1.0                                          # base: a pending permit exists
+  + 0.35 * log1p(comment_count)                  # comments matter, but are flood-prone
+  + 0.75 * public_meeting_request_count          # stronger than comments, weaker than hearing requests
+  + 1.25 * hearing_request_count                 # stronger procedural escalation
+  + 2.5  * (soah_docket_number != null ? 1 : 0) # contested-case referral is the hardest signal
+)
+APD_raw = sum(filing_pressure_per_item in county)
+APD_per_1k = APD_raw / (county_population / 1000)
+APD_normalized = min-max scale of APD_per_1k to 0..100 statewide
 ```
 Caveats (always emitted):
 - Reflects only currently-open CID items; historical protests excluded.
-- Comment / hearing-request counts come from CID Search Two; same person filing under different name spellings is double-counted.
+- Filing counts come from CID Search Two and may include duplicate people, repeat submissions, or organization campaigns.
+- `comment_count` is log-damped intentionally so high-volume comment blasts do not dominate the score.
 - Hearing request ≠ contested case granted. SOAH docket # is the harder signal.
 - Per-capita normalization brightens rural counties; emit both raw and per-capita columns, never per-capita alone.
 
@@ -136,8 +144,9 @@ export type CidProtestRow = {     // Search Two
 ```
 
 Fetcher contract notes specific to CID:
-- ColdFusion form, no API. Fetcher must warm a session cookie (GET the form page first), POST with `Content-Type: application/x-www-form-urlencoded` and a `Referer` header.
-- Program area / county / region selects use sentinel value `"none"` for "any".
+- ColdFusion form, no API. Fetcher must warm a session cookie (GET the form page first), then POST with `Content-Type: application/x-www-form-urlencoded` and a `Referer` header.
+- Program Area uses sentinel value `"none"` for "any". County and Region use the blank/`ALL` option rather than `"none"`.
+- Search Two has been live-verified with scripted POST. Search One broad queries are fragile; statewide refresh logic should chunk by county and/or program area instead of issuing one giant query.
 - Snapshot files: `public/cache/cid-cases-tx.json` and `public/cache/cid-protests-tx.json`. If either exceeds 5 MB, redirect to `data/` (gitignored) and add a `scripts/refresh-cid.ts`.
 - Parser must be pinned to fixture HTML in `tests/fixtures/cid/` and fail loud on schema drift.
 

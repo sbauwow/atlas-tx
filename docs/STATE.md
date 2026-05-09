@@ -22,9 +22,10 @@ _(empty)_
 
 | workstream | agent | intent | ref |
 |---|---|---|---|
+| data | hermes | Implement `src/lib/datasets/cid.ts` parsers + live POST helpers and pin them to fixture tests | working tree |
+| docs | hermes | Tune APD formula and draft protest/CID MCP tool signatures | working tree |
 | web | hermes | Refocus landing page copy around Texas water risk + EJ and add regression tests for the new messaging | working tree |
 | docs | hermes | Live-verify AKVO/WaterScope/Hach references and Texas Stream Team / AgriLife program claims; update smartphone docs accordingly | working tree |
-
 | data | hermes | SDWIS fetcher + normalizer + cached snapshot (4.5 MB, 11,686 rows, TX health-based since 2023-04-01) | branch `data/sdwis-fetcher` |
 | docs | hermes | Tighten smartphone colorimetry memo with explicit honest gaps, Texas program research caveats, and pre-plan open questions | working tree |
 | docs | hermes | Add smartphone colorimetry research note + target-state architecture for non-regulatory community screening | working tree |
@@ -56,10 +57,9 @@ Listed in the order the refocus plan (`docs/plans/2026-05-08-water-risk-refocus.
 
 | workstream | task | notes |
 |---|---|---|
-| data | `src/lib/datasets/cid.ts` fetcher | TCEQ CID Search One + Search Two scraper. ColdFusion form, POST `https://www14.tceq.texas.gov/epic/eCID/index.cfm?fuseaction=main.reportResults`. Warm session cookie via GET first. Sentinel value `"none"` for ProgramArea/County/Region "any". |
-| data | CID parser + fixtures | Pin parser to fixture HTML in `tests/fixtures/cid/`. Fail loud on schema drift. |
-| data | Snapshot to `public/cache/cid-cases-tx.json` + `cid-protests-tx.json` | If >5 MB redirect to gitignored `data/` + add `scripts/refresh-cid.ts`. |
-| data | `src/lib/scoring/protest_density.ts` Active Protest Density | Per `docs/contracts/dataset-registry.md` v0.2.0. Inputs: CID rows + ACS county pop. Emit raw + per-capita; do not surface per-capita alone. |
+| data | `src/lib/scoring/protest_density.ts` APD score | Consume `cid.ts` rows + ACS county population. Search Two filing counts now distinguish comments, hearing requests, and public meeting requests; see tuned formula in `docs/contracts/dataset-registry.md`. |
+| data | CID statewide refresh strategy + snapshots | Search Two live POST is verified. Search One broad queries are fragile; add chunked refresh logic (county/program batches) before freezing `public/cache/cid-*.json`. |
+| mcp | Implement `list_protested_permits` + `score_protest_density` | Signatures are now drafted in `docs/contracts/mcp-tools.md`; wire tools after APD scorer lands. |
 
 ### Milestone 2 — MCP tools
 
