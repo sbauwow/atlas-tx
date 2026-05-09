@@ -126,7 +126,8 @@ Add to existing `SKILL.md`:
 ## Risks
 
 - **CID parser fragility.** ColdFusion-rendered tables with no class hooks. Mitigation: pin parser to fixture HTML, fail loud on schema drift, test against a checked-in copy.
-- **Snapshot freshness vs cache size.** Open items across all program areas may exceed 5MB. If so: redirect to `data/cid-tx.json` (gitignored) + a `scripts/refresh-cid.ts`.
+- **Search One live fragility.** As of 2026-05-08 scripted Search One POSTs still return the upstream error page even for county/program chunks. The executable refresh scaffold exists, but unattended statewide case refresh is not yet reliable.
+- **Snapshot freshness vs cache size.** Open items across all program areas may exceed 5MB. If so: redirect to `data/cid-tx.json` (gitignored) + keep `scripts/refresh-cid.ts` as the refresh entrypoint.
 - **Scope creep into eFilings PDF parsing.** Tempting because the actual letters are gold. Holds for v2 — explicit out-of-scope above. If we cave, the demo slips.
 
 ## Open questions

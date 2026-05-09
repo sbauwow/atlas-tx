@@ -22,6 +22,8 @@ _(empty)_
 
 | workstream | agent | intent | ref |
 |---|---|---|---|
+| docs | hermes | Document executable CID refresh flow and note live Search One fragility in contracts/plan docs | working tree |
+| data | hermes | Add executable CID refresh scaffold with snapshot payload writing + size-based fallback rules | working tree |
 | data | hermes | Add chunked CID refresh script scaffold and tests for statewide Search One planning | working tree |
 | mcp | hermes | Make the MCP scaffold directly callable via tool dispatch (`runAtlasTxTool` / CLI JSON args) and wire protest handlers | working tree |
 | data | hermes | Add ACS county population loader snapshot and wire it into protest-density flows | working tree |
@@ -61,7 +63,7 @@ Listed in the order the refocus plan (`docs/plans/2026-05-08-water-risk-refocus.
 
 | workstream | task | notes |
 |---|---|---|
-| data | CID statewide refresh strategy + snapshots | Search Two live POST is verified. Search One broad queries are fragile; add chunked refresh logic (county/program batches) before freezing `public/cache/cid-*.json`. |
+| data | Freeze first real `cid-cases` / `cid-protests` snapshot files | Search Two live POST works; Search One still errors in scripted runs even with chunks. Next step is deciding whether to tolerate partial Search Two-only outputs, add retries/browser automation, or keep manual operator refresh for cases. |
 | mcp | Replace CLI/tool-dispatch scaffold with actual MCP transport/tool registry | `packages/mcp-server/src/index.js` now supports JSON tool dispatch, but it is still not a full MCP transport/server implementation. |
 | mcp | Implement `summarize_water_risk_for_county` protest-density folding | Contract supports `include_protest_density`; wire it once county summary tools exist. |
 
