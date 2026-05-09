@@ -6,6 +6,8 @@ describe("water source registry", () => {
     expect(WATER_SOURCE_REGISTRY.map((source) => source.sourceId)).toEqual([
       "fema-nfhl",
       "usgs-stream-sites",
+      "lcra-hydromet-stageflow",
+      "lcra-hydromet-lakelevels",
       "nws-alerts",
       "tceq-sewer-overflows",
       "tceq-general-water-permits",
@@ -26,6 +28,6 @@ describe("water source registry", () => {
       refreshCadence: "hourly",
     });
     expect(getWaterSource("missing-source")).toBeUndefined();
-    expect(listWaterSources()).toHaveLength(12);
+    expect(listWaterSources()).toHaveLength(14);
   });
 });

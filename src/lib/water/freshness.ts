@@ -3,6 +3,8 @@ import { getGlobalWaterDataCache } from "@/lib/water/cache";
 const CACHE_KEYS: Record<string, string> = {
   "nws-alerts": "nws-alerts",
   "usgs-stream-sites": "usgs-stream-sites",
+  "lcra-hydromet-stageflow": "lcra-hydromet-stageflow",
+  "lcra-hydromet-lakelevels": "lcra-hydromet-lakelevels",
   "tceq-sewer-overflows": "tceq-sewer-overflows:30",
   "tceq-general-water-permits": "tceq-general-water-permits",
   "tceq-water-districts": "tceq-water-districts",

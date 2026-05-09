@@ -23,6 +23,27 @@ export type StreamGauge = {
   raw: Record<string, unknown>;
 };
 
+export type LcraStageFlowReading = {
+  sourceId: "lcra-hydromet-stageflow";
+  siteNumber: string;
+  stationName: string;
+  observedAt: string;
+  stageFeet?: number | null;
+  flowCfs?: number | null;
+  bankfullFeet?: number | null;
+  floodStageFeet?: number | null;
+  raw: Record<string, unknown>;
+};
+
+export type LcraLakeLevelReading = {
+  sourceId: "lcra-hydromet-lakelevels";
+  siteNumber: string;
+  stationName: string;
+  observedAt: string;
+  elevationFeet?: number | null;
+  raw: Record<string, unknown>;
+};
+
 export type WaterAlert = {
   sourceId: "nws-alerts";
   alertId: string;
