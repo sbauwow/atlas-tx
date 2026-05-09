@@ -22,6 +22,7 @@ _(empty)_
 
 | workstream | agent | intent | ref |
 |---|---|---|---|
+| docs | feynman | Add adjacent Texas open-data opportunity map to README so follow-on problem spaces are documented beyond the current water-risk scope | working tree |
 | docs | feynman | Update README to reflect planned mismatch-signal and weather / hydrologic context layers for Atlas TX | working tree |
 | docs | feynman | Add weather / hydrologic contract language and draft normalized row shapes for NWS alerts, USGS streamflow, drought, precipitation, and temperature context | working tree |
 | docs | feynman | Add Milestone 1.2 weather / hydrologic context planning rows for alerts, streamflow, drought, precipitation, temperature, and county-summary follow-on contract work | working tree |

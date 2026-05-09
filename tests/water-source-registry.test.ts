@@ -36,6 +36,6 @@ describe("water source registry", () => {
       refreshCadence: "manual",
     });
     expect(getWaterSource("missing-source")).toBeUndefined();
-    expect(listWaterSources()).toHaveLength(16);
+    expect(listWaterSources()).toHaveLength(17);
   });
 });

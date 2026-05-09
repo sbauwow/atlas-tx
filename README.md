@@ -90,6 +90,48 @@ npm run refresh:cid
 
 Current limitation: Search Two works with a seeded organization / permit / person-name query, but live Search One still often returns the upstream TCEQ error page even for chunked county/program requests. The script now fails loud on that condition instead of silently producing misleading case rows. It also exposes a browser-automation fallback hook for Search One so a future browser-driven retriever can be swapped in without changing the refresh pipeline.
 
+## Adjacent Texas open-data problem spaces
+
+Atlas TX is currently focused on drinking-water risk, burden indicators, and official-signal mismatch detection. But the same investigative/open-data pattern appears in several nearby Texas problem areas worth keeping on the roadmap.
+
+### Highest-potential follow-on problems
+
+1. **Flood-risk governance mismatch**
+   - User: county reporters, floodplain managers, residents
+   - Core question: where do flood exposure, repeated alerts, flood-control context, and growth pressure not line up cleanly?
+   - Likely sources: FEMA NFHL, NWS flood alerts, USGS/NOAA hydrologic context, county growth/housing layers
+   - Why it matters: strong public-service value, easy map story, naturally adjacent to Atlas TX weather/hydrology work
+
+2. **Permit protest / environmental conflict monitor**
+   - User: environmental reporters, advocacy groups, local-government watchers
+   - Core question: where are permits drawing unusually high protest pressure, and which project types escalate most often?
+   - Likely sources: TCEQ CID protest data, permit datasets, ACS demographics, county context layers
+   - Why it matters: Atlas TX already has partial CID/protest momentum, so this is a natural extension
+
+3. **Groundwater dependency watch**
+   - User: rural reporters, water planners, ag policy analysts
+   - Core question: which counties or aquifer areas appear most exposed to groundwater dependence, depletion risk, or reporting gaps?
+   - Likely sources: TWDB Groundwater Database, Submitted Drillers Reports, aquifer layers, drought context
+   - Why it matters: highly Texas-specific, under-covered, and well aligned with the Texas Water Data Hub ecosystem
+
+### Additional promising problem areas
+
+- **Road safety outlier finder** — use TxDOT crash/roadway data to surface counties, corridors, and intersections with worse-than-peer serious crash patterns
+- **Housing-growth vs infrastructure stress** — compare population/development pressure against utility, flood, transportation, and hazard-planning capacity
+- **Reservoir and drought stress dashboard** — track where storage conditions, drought, and growth pressure diverge in ways simple drought labels miss
+- **Regulatory transparency / lag monitor** — detect unusual delays, incomplete records, or inconsistent public-notice behavior across agencies or permit classes
+- **Public-health environment mismatch finder** — screen for places where environmental burden indicators and social vulnerability cluster unusually strongly, while preserving non-causal guardrails
+
+### Product selection rule
+
+A follow-on problem is worth building when Atlas TX can answer all three:
+
+1. **Who urgently needs this?**
+2. **What contradiction or blind spot does the data reveal that a normal dashboard misses?**
+3. **Can a defensible first version be built from official public data without fragile scraping?**
+
+This keeps the project focused on sourced outlier detection instead of generic civic-data dashboards.
+
 ## For collaborating agents
 
 Read [`AGENTS.md`](AGENTS.md) before opening a PR. It covers Next.js 16 gotchas, workstream ownership, and the no-stomp protocol.

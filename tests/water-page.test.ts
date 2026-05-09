@@ -39,7 +39,7 @@ vi.mock("@/lib/water/water-summary-service", () => ({
         overlays: { hasFloodplainLayer: false, hasGaugeLayer: true, hasAlertLayer: true, hasSewerOverflowLayer: true },
         annotations: [],
       },
-      layers: { alerts: [], gauges: [], sewerOverflows: [], permits: [{ permitNumber: "TXG123" }], governance: [] },
+      layers: { alerts: [], gauges: [], sewerOverflows: [], permits: [{ permitNumber: "TXG123" }], governance: [], surfaceWaterQuality: [] },
       notes: [],
     }),
   })),

@@ -19,9 +19,18 @@ vi.mock("@/lib/water/water-summary-service", () => ({
             generalPermitCount: 2,
             waterDistrictCount: 3,
             waterUtilityCount: 4,
+            surfaceWaterSegmentCount: 5,
+            impairedSurfaceWaterSegmentCount: 2,
           },
-          overlays: { hasFloodplainLayer: true, hasGaugeLayer: true, hasAlertLayer: true, hasSewerOverflowLayer: true },
-          annotations: [],
+          overlays: { hasFloodplainLayer: true, hasGaugeLayer: true, hasAlertLayer: true, hasSewerOverflowLayer: true, hasSurfaceWaterImpairmentLayer: true },
+          mismatch: {
+            score: 75,
+            flags: [
+              "surface-water impairment overlaps recent sewer overflow activity",
+              "surface-water impairment is present with only light active alert coverage",
+            ],
+          },
+          annotations: ["Nearby surface-water impairment context is additive only; it is not a standalone verdict on county-wide harm."],
         },
         {
           county: { name: "Bexar County", slug: "bexar-county", fips: "48029" },
@@ -34,8 +43,14 @@ vi.mock("@/lib/water/water-summary-service", () => ({
             generalPermitCount: 0,
             waterDistrictCount: 1,
             waterUtilityCount: 1,
+            surfaceWaterSegmentCount: 1,
+            impairedSurfaceWaterSegmentCount: 1,
           },
-          overlays: { hasFloodplainLayer: false, hasGaugeLayer: false, hasAlertLayer: false, hasSewerOverflowLayer: false },
+          overlays: { hasFloodplainLayer: false, hasGaugeLayer: false, hasAlertLayer: false, hasSewerOverflowLayer: false, hasSurfaceWaterImpairmentLayer: true },
+          mismatch: {
+            score: 50,
+            flags: ["surface-water impairment is present with only light active alert coverage"],
+          },
           annotations: [],
         },
       ],
@@ -52,9 +67,18 @@ vi.mock("@/lib/water/water-summary-service", () => ({
           generalPermitCount: 2,
           waterDistrictCount: 3,
           waterUtilityCount: 4,
+          surfaceWaterSegmentCount: 5,
+          impairedSurfaceWaterSegmentCount: 2,
         },
-        overlays: { hasFloodplainLayer: true, hasGaugeLayer: true, hasAlertLayer: true, hasSewerOverflowLayer: true },
-        annotations: [],
+        overlays: { hasFloodplainLayer: true, hasGaugeLayer: true, hasAlertLayer: true, hasSewerOverflowLayer: true, hasSurfaceWaterImpairmentLayer: true },
+        mismatch: {
+          score: 75,
+          flags: [
+            "surface-water impairment overlaps recent sewer overflow activity",
+            "surface-water impairment is present with only light active alert coverage",
+          ],
+        },
+        annotations: ["Nearby surface-water impairment context is additive only; it is not a standalone verdict on county-wide harm."],
       },
       layers: {
         alerts: [],
@@ -62,6 +86,7 @@ vi.mock("@/lib/water/water-summary-service", () => ({
         sewerOverflows: [],
         permits: [],
         governance: [],
+        surfaceWaterQuality: [],
       },
       notes: ["NFHL political jurisdictions mapped: 2"],
     }),
@@ -69,15 +94,45 @@ vi.mock("@/lib/water/water-summary-service", () => ({
 }));
 
 describe("water page map", () => {
-  it("renders the county risk map with FEMA and gauge signals", async () => {
+  it("renders the county risk map with mismatch and impairment signals in the detail view", async () => {
     const pageModule = await import("@/app/water/page");
     const page = await pageModule.default({ searchParams: Promise.resolve({ county: "travis-county" }) });
     const text = renderToStaticMarkup(page);
 
     expect(text).toContain("County risk map");
+    expect(text).toContain("Operational risk mode");
     expect(text).toContain("NFHL footprint");
     expect(text).toContain("Selected county gauges");
     expect(text).toContain("data-county-slug=\"travis-county\"");
     expect(text).toContain("data-gauge-site=\"08158000\"");
+    expect(text).toContain("Impaired surface-water segments");
+    expect(text).toContain("Mismatch score");
+    expect(text).toContain("75");
+    expect(text).toContain("surface-water impairment overlaps recent sewer overflow activity");
+    expect(text).toContain("Mismatch");
+    expect(text).toContain("mismatch 75");
+    expect(text).toContain("mismatch 50");
+    expect(text).toContain("fill=\"#f97316\"");
+    expect(text).toContain("Top mismatch counties");
+    expect(text).toContain("Travis County");
+    expect(text).toContain("Bexar County");
+  });
+
+  it("supports an explicit mismatch map mode via search params", async () => {
+    const pageModule = await import("@/app/water/page");
+    const page = await pageModule.default({
+      searchParams: Promise.resolve({ county: "travis-county", mode: "mismatch" }),
+    });
+    const text = renderToStaticMarkup(page);
+
+    expect(text).toContain("Map mode");
+    expect(text).toContain("Operational risk");
+    expect(text).toContain("Mismatch severity");
+    expect(text).toContain("Current mode: mismatch severity");
+    expect(text).toContain("Mismatch mode");
+    expect(text).not.toContain("75+ severe contradiction");
+    expect(text).toContain("Counties are colored by contradiction severity rather than operational load.");
+    expect(text).toContain("href=\"/water?county=travis-county&amp;mode=risk\"");
+    expect(text).toContain("href=\"/water?county=travis-county&amp;mode=mismatch\"");
   });
 });
