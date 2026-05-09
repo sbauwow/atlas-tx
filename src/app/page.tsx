@@ -43,6 +43,12 @@ export default function Home() {
             >
               Water system primer
             </Link>
+            <Link
+              href="/counties"
+              className="rounded-full border border-white/10 px-5 py-2.5 font-medium text-slate-200 transition-colors hover:border-white/20 hover:bg-white/5"
+            >
+              County workspace overview
+            </Link>
             <TrackedLink
               event="outbound"
               eventTarget="repo:github.com/sbauwow/atlas-tx@home"

@@ -17,6 +17,8 @@ describe("Home landing page", () => {
     expect(html).toContain("Surface Texas drinking-water risk and environmental-justice burden.");
     expect(html).toContain("Atlas TX joins Texas permit and water-system context with federal SDWIS, EJScreen, and ACS data");
     expect(html).toContain("Journalists, policy analysts, and civic-tech teams");
+    expect(html).toContain('href="/counties"');
+    expect(html).toContain("County workspace overview");
   });
 
   it("describes the refocused product thesis and signals", () => {
