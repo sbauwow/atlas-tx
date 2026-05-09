@@ -71,6 +71,30 @@ export default function Home() {
         </aside>
       </section>
 
+      <section className="grid gap-4 lg:grid-cols-3">
+        <EntryPathCard
+          eyebrow="Entry paths"
+          title="Water explorer"
+          description="Open statewide water context, alerts, gauges, and public-water governance layers."
+          href="/water"
+          cta="Open water explorer"
+        />
+        <EntryPathCard
+          eyebrow="Entry paths"
+          title="County workspace overview"
+          description="Jump into ranked counties, then branch into county intelligence, permits, or water profiles."
+          href="/counties"
+          cta="Open county workspace"
+        />
+        <EntryPathCard
+          eyebrow="Entry paths"
+          title="Permit tracker"
+          description="Watch pending TCEQ permit pressure and procedural activity by county."
+          href="/permits"
+          cta="Open permit tracker"
+        />
+      </section>
+
       <section className="grid gap-px overflow-hidden rounded-2xl bg-white/5 ring-1 ring-white/10 sm:grid-cols-3">
         <StatTile value="2" label="Primary Texas water sources: surface water and groundwater" />
         <StatTile value="4" label="Headline signals: DWRS, EJ overlap, protest density" />
@@ -195,5 +219,31 @@ function StatTile({ value, label }: { value: string; label: string }) {
       <div className="text-4xl font-semibold tabular-nums tracking-tight text-white">{value}</div>
       <div className="mt-2 text-sm leading-6 text-slate-400">{label}</div>
     </div>
+  );
+}
+
+function EntryPathCard({
+  eyebrow,
+  title,
+  description,
+  href,
+  cta,
+}: {
+  eyebrow: string;
+  title: string;
+  description: string;
+  href: string;
+  cta: string;
+}) {
+  return (
+    <article className="rounded-2xl border border-white/10 bg-slate-950/30 p-5 ring-1 ring-white/5">
+      <div className="text-xs font-medium uppercase tracking-[0.18em] text-slate-500">{eyebrow}</div>
+      <h2 className="mt-3 text-2xl font-semibold text-white">{title}</h2>
+      <p className="mt-3 text-sm leading-7 text-slate-400">{description}</p>
+      <Link href={href} className="mt-5 inline-flex items-center gap-2 text-sm font-medium text-cyan-300 transition-colors hover:text-cyan-200">
+        {cta}
+        <span aria-hidden="true">→</span>
+      </Link>
+    </article>
   );
 }

@@ -19,6 +19,9 @@ describe("Home landing page", () => {
     expect(html).toContain("Journalists, policy analysts, and civic-tech teams");
     expect(html).toContain('href="/counties"');
     expect(html).toContain("County workspace overview");
+    expect(html).toContain("Entry paths");
+    expect(html).toContain("Permit tracker");
+    expect(html).toContain('href="/permits"');
   });
 
   it("describes the refocused product thesis and signals", () => {
