@@ -8,10 +8,11 @@ For schema and conventions see [CLAUDE.md](CLAUDE.md). For ops history see [log.
 
 ## Tier 4 — Procedural
 
-_Repeatable atlas-tx workflows. Empty until ≥3 semantic pages share a pattern._
+_Repeatable atlas-tx workflows._
 
 | Page | Topic |
 |---|---|
+| [Refresh a cached snapshot](projects/refresh-cached-snapshot.md) | The atlas-tx pattern for refreshing external-source snapshots — Socrata / federal / ColdFusion / shared-loader variants |
 
 ---
 
@@ -55,6 +56,7 @@ _Repeatable atlas-tx workflows. Empty until ≥3 semantic pages share a pattern.
 | [NFHL — Flood Hazard Layer](datasets/fema-nfhl.md) | _(unregistered)_ | FEMA |
 | [NOAA Storm Events](datasets/noaa-storm-events.md) | _(unregistered)_ | NOAA |
 | [USDM — Drought Monitor](datasets/usdm-drought-monitor.md) | _(unregistered)_ | NOAA / USDA / UNL |
+| [USGS NWIS](datasets/usgs-nwis.md) | _(unregistered)_ | USGS |
 
 ### Layers
 
@@ -74,6 +76,13 @@ _(none yet — geometry-first pages will land when NFHL or NHD are cached as fea
 | [LCR](concepts/lcr.md) | Lead and Copper Rule — why lead has action levels, not MCLs |
 | [PWSID](concepts/pwsid.md) | Public Water System Identifier — the join key for SDWIS |
 | [HUC](concepts/huc.md) | Hydrologic Unit Code — federal watershed scheme |
+| [NHD / NHDPlus](concepts/nhd.md) | National Hydrography Dataset — flowlines, waterbodies, NHDPlus value-add |
+| [SFHA](concepts/sfha.md) | Special Flood Hazard Area — the regulatory 1% floodplain |
+| [FIRM / DFIRM](concepts/firm.md) | Flood Insurance Rate Map — FEMA's regulatory flood map |
+| [NRI](concepts/nri.md) | FEMA National Risk Index — composite county-level natural-hazard score |
+| [PFAS / UCMR5](concepts/pfas.md) | Forever chemicals — 2024 MCLs, regulatory transition, UCMR5 baseline |
+| [FRS-ID](concepts/frs-id.md) | EPA Facility Registry Service identifier — cross-program join key |
+| [LSLI](concepts/lsli.md) | Lead Service Line Inventory — LCRR/LCRI federal mandate |
 | [Socrata + SoQL](concepts/socrata-soql.md) | Querying data.texas.gov — URL shape, params, pagination, tokens |
 | [EJ Index](concepts/ej-index.md) | EJScreen index methodology, percentile semantics |
 | [Burden vs Harm](concepts/burden-vs-harm.md) | Atlas TX product stance — indicator-grade, never harm claims |
@@ -83,6 +92,8 @@ _(none yet — geometry-first pages will land when NFHL or NHD are cached as fea
 | Page | Subject |
 |---|---|
 | [SDWIS vs ECHO](comparisons/sdwis-vs-echo.md) | When to use which — drinking-water-only PWS view vs cross-program facility view |
+| [TWDB HUC8 vs USGS WBD](comparisons/twdb-huc8-vs-usgs-wbd.md) | Same codes, different attribution — when to prefer each |
+| [TWDB river basins vs HUC](comparisons/twdb-river-basins-vs-huc.md) | Different things named "basin" — TX state planning vs federal drainage |
 
 ### Sources
 
@@ -99,6 +110,7 @@ _(none yet — geometry-first pages will land when NFHL or NHD are cached as fea
 | [2026-05-08 — Wiki init](episodes/2026-05-08-wiki-init.md) | Stand up the wiki, port schema, seed initial pages |
 | [2026-05-09 — Water/env/weather expansion](episodes/2026-05-09-water-env-weather.md) | Add drinking-water-quality, environmental-factors, and weather-impact pages |
 | [2026-05-09 — Close registry drift](episodes/2026-05-09-close-registry-drift.md) | Add 8 dataset pages for already-registered IDs + 4 foundational concept pages |
+| [2026-05-09 — Concepts + first procedural](episodes/2026-05-09-concepts-and-procedural.md) | 7 concepts (SFHA, FIRM, NHD, PFAS, FRS-ID, LSLI, NRI), 2 watershed-unit comparisons, USGS NWIS dataset, first procedural page |
 
 ---
 

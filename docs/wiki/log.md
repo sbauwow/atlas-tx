@@ -14,6 +14,18 @@ Schema for entries:
 
 ---
 
+## 2026-05-09 — concepts + first procedural
+
+- agent: claude-opus-4-7
+- action: created, updated, crystallized
+- pages touched:
+  - **Concepts (7)**: `concepts/sfha.md`, `concepts/firm.md`, `concepts/nhd.md`, `concepts/pfas.md`, `concepts/frs-id.md`, `concepts/lsli.md`, `concepts/nri.md`
+  - **Comparisons (2)**: `comparisons/twdb-huc8-vs-usgs-wbd.md`, `comparisons/twdb-river-basins-vs-huc.md`
+  - **Datasets (1)**: `datasets/usgs-nwis.md` (unregistered; first measurement-grade source page)
+  - **Procedural (1, first)**: `projects/refresh-cached-snapshot.md` — distilled pattern across SDWIS / CID / TWDB hydrology refreshes
+  - **Housekeeping**: `index.md`, `log.md`, `graph.md`, `lint-report.md`, `overview.md`, `episodes/2026-05-09-concepts-and-procedural.md`
+- notes: All 7 concepts close inbound `references` from prior pages — `lint-report.md` § Missing concepts shrinks substantially. PFAS page documents the 2024-rule transition (UCMR5 → MCLs); LSLI page anticipates a future TX dataset. NWIS is the first measurement-grade dataset in the wiki — pairs with USDM and TWDB aquifers to close the climatic-stress → physical-response loop. First procedural page (tier 4) lands; promotion bar met (≥3 semantic pages share the refresh pattern). Confidence cap 0.7 (project page sits at 0.75 because it distills from already-shipped code). No contracts touched.
+
 ## 2026-05-09 — close registry drift
 
 - agent: claude-opus-4-7
