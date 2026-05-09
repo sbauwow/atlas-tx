@@ -67,6 +67,16 @@ vi.mock("@/lib/tceq-permits", async (importOriginal) => {
           latitude: 30.08,
           longitude: -97.84,
         },
+        {
+          permitNumber: "WQ0003",
+          authorizationType: "IND WW",
+          authorizationStatus: "PENDING",
+          permitteeName: "Alpha Water LLC",
+          county: "Travis County",
+          nearestCity: "Austin",
+          latitude: 30.29,
+          longitude: -97.75,
+        },
       ],
     })),
   };
@@ -109,6 +119,10 @@ describe("permits page", () => {
     expect(text).toContain("href=\"/counties/travis-county\"");
     expect(text).toContain("County intelligence");
     expect(text).toContain("Open county pages");
+    expect(text).toContain("Filings that need scrutiny");
+    expect(text).toContain("SOAH docket present");
+    expect(text).toContain("1 hearing request filed");
+    expect(text).toContain("2 pending permits in Travis County");
     expect(text).not.toContain("data-county-map-tile");
   });
 

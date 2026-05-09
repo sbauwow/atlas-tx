@@ -9,6 +9,7 @@ import {
   getTceqPendingPermitsPageData,
   type CidSnapshotFreshnessBand,
 } from "@/lib/tceq-permits";
+import { scorePermitFilingRedFlags } from "@/lib/scoring/permit_filing_red_flags";
 
 export default async function PermitsPage({
   searchParams,
@@ -20,6 +21,7 @@ export default async function PermitsPage({
   const cidSnapshotBadge = formatCidSnapshotAgeBadge(data.cidSummary.generatedAt);
   const cidSnapshotTone = cidSnapshotBadge ? cidSnapshotBadgeTone(cidSnapshotBadge.freshnessBand) : null;
   const countyMapRows = buildPendingPermitCountyMapRows(data.permits, data.cidSummary.cases);
+  const redFlagRows = scorePermitFilingRedFlags({ permits: data.permits, cases: data.cidSummary.cases }).slice(0, 5);
   const countyWorkspace = data.countyFilter ? getCountyBySlugOrName(data.countyFilter) : null;
   const adjacentCounties = countyWorkspace ? getAdjacentCountyRefs(countyWorkspace.slug) : null;
 
@@ -130,7 +132,38 @@ export default async function PermitsPage({
         </div>
       </section>
 
-      <section id="top-counties" className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
+      <section className="grid gap-6 lg:grid-cols-[1.05fr_0.95fr]">
+        <article className="rounded-2xl bg-slate-900/40 p-6 ring-1 ring-white/5">
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <h2 className="text-2xl font-semibold text-white">Filings that need scrutiny</h2>
+              <p className="mt-2 text-sm text-slate-400">Best-effort filing-level red flags derived from CID procedural pressure plus county permit concentration.</p>
+            </div>
+            <div className="text-xs font-medium uppercase tracking-[0.18em] text-slate-500">Public-record leads</div>
+          </div>
+          <div className="mt-5 space-y-3">
+            {redFlagRows.length ? redFlagRows.map((row) => (
+              <div key={row.tceqId} className="rounded-xl border border-white/5 bg-white/[0.03] px-4 py-4">
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <div>
+                    <div className="text-sm font-medium text-white">{row.applicantName}</div>
+                    <div className="mt-1 text-xs uppercase tracking-[0.18em] text-slate-500">{row.programArea} · {row.county ?? "Unknown county"} · {row.tceqId}</div>
+                  </div>
+                  <div className="rounded-full bg-white/5 px-3 py-1 text-sm font-medium text-cyan-300">Score {row.score}</div>
+                </div>
+                <ul className="mt-4 space-y-2 text-sm text-slate-300">
+                  {row.reasons.map((reason) => (
+                    <li key={`${row.tceqId}-${reason.text}`} className="flex gap-2">
+                      <span aria-hidden="true" className="text-cyan-300">•</span>
+                      <span>{reason.text}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )) : <div className="rounded-xl border border-white/5 bg-white/[0.03] px-4 py-3 text-sm text-slate-400">No filing-level red flags yet.</div>}
+          </div>
+        </article>
+
         <article className="rounded-2xl bg-slate-900/40 p-6 ring-1 ring-white/5">
           <div className="flex items-center justify-between gap-4">
             <h2 className="text-2xl font-semibold text-white">Top counties by pending count</h2>
@@ -153,7 +186,9 @@ export default async function PermitsPage({
             ))}
           </div>
         </article>
+      </section>
 
+      <section id="top-counties" className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
         <article className="rounded-2xl bg-slate-900/40 p-6 ring-1 ring-white/5">
           <h2 className="text-2xl font-semibold text-white">Pending permit roster</h2>
           <div className="mt-5 overflow-x-auto">
@@ -181,9 +216,7 @@ export default async function PermitsPage({
             </table>
           </div>
         </article>
-      </section>
 
-      <section className="grid gap-6 lg:grid-cols-[0.8fr_1.2fr]">
         <article className="rounded-2xl bg-slate-900/40 p-6 ring-1 ring-white/5">
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div>
@@ -211,7 +244,9 @@ export default async function PermitsPage({
             ))}
           </ul>
         </article>
+      </section>
 
+      <section className="grid gap-6 lg:grid-cols-[0.8fr_1.2fr]">
         <article className="rounded-2xl bg-slate-900/40 p-6 ring-1 ring-white/5">
           <h2 className="text-2xl font-semibold text-white">CID case roster</h2>
           <div className="mt-5 overflow-x-auto">
