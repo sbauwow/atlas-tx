@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 import { CountyWorkspaceHeader } from "@/app/components/county-workspace-header";
-import { getPermitFilingDetailPageData, getTceqPendingPermitsPageData } from "@/lib/tceq-permits";
+import { buildPermitProtestPrep, getPermitFilingDetailPageData, getTceqPendingPermitsPageData } from "@/lib/tceq-permits";
 import { getAdjacentCountyRefs, getCountyBySlugOrName } from "@/lib/water/county-lookup";
 
 export default async function PermitFilingDetailPage({
@@ -19,6 +19,12 @@ export default async function PermitFilingDetailPage({
 
   const countyRef = detail.caseRow.county ? getCountyBySlugOrName(detail.caseRow.county) : null;
   const adjacent = countyRef ? getAdjacentCountyRefs(countyRef.slug) : { previous: null, next: null };
+  const protestPrep = buildPermitProtestPrep({
+    caseRow: detail.caseRow,
+    countyPermitCount: detail.countyPermitCount,
+    redFlagReasons: detail.redFlagRow?.reasons.map((reason) => reason.text) ?? [],
+    relatedPermitNumbers: detail.relatedPermits.map((permit) => permit.permitNumber),
+  });
 
   return (
     <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-10 px-6 py-16">
@@ -123,6 +129,52 @@ export default async function PermitFilingDetailPage({
             ))}
           </ul>
         </article>
+      </section>
+
+      <section className="rounded-2xl bg-slate-900/40 p-6 ring-1 ring-white/5">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <h2 className="text-2xl font-semibold text-white">Protest prep panel</h2>
+            <p className="mt-2 max-w-3xl text-sm text-slate-400">Drafting support only. Atlas TX surfaces public-record context but does not provide legal advice or auto-submit anything.</p>
+          </div>
+          <div className="text-xs font-medium uppercase tracking-[0.18em] text-slate-500">Editable prep</div>
+        </div>
+
+        <div className="mt-6 grid gap-6 lg:grid-cols-2">
+          <article className="rounded-xl border border-white/5 bg-white/[0.03] p-4">
+            <h3 className="text-lg font-semibold text-white">Participation status</h3>
+            <ul className="mt-4 space-y-2 text-sm text-slate-300">
+              {protestPrep.participationStatus.map((item) => (
+                <li key={item}>• {item}</li>
+              ))}
+            </ul>
+          </article>
+
+          <article className="rounded-xl border border-white/5 bg-white/[0.03] p-4">
+            <h3 className="text-lg font-semibold text-white">Evidence checklist</h3>
+            <ul className="mt-4 space-y-2 text-sm text-slate-300">
+              {protestPrep.evidenceChecklist.map((item) => (
+                <li key={item}>• {item}</li>
+              ))}
+            </ul>
+          </article>
+        </div>
+
+        <div className="mt-6 grid gap-6 lg:grid-cols-2">
+          <article className="rounded-xl border border-white/5 bg-white/[0.03] p-4">
+            <h3 className="text-lg font-semibold text-white">Draft from facts</h3>
+            <div className="mt-4 whitespace-pre-wrap rounded-xl bg-slate-950/60 p-4 font-mono text-sm leading-7 text-slate-200">
+              {protestPrep.draftText}
+            </div>
+          </article>
+
+          <article className="rounded-xl border border-white/5 bg-white/[0.03] p-4">
+            <h3 className="text-lg font-semibold text-white">Submission pack</h3>
+            <div className="mt-4 whitespace-pre-wrap rounded-xl bg-slate-950/60 p-4 font-mono text-sm leading-7 text-slate-200">
+              {protestPrep.exportText}
+            </div>
+          </article>
+        </div>
       </section>
     </main>
   );

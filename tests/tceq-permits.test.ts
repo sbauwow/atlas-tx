@@ -8,6 +8,7 @@ import {
   summarizePendingPermits,
   formatCidSnapshotAgeBadge,
   getPermitFilingDetailPageData,
+  buildPermitProtestPrep,
   type TceqPermitStatusCount,
 } from "@/lib/tceq-permits";
 
@@ -218,5 +219,32 @@ describe("tceq permits", () => {
     expect(detail.countyPermitCount).toBe(2);
     expect(detail.redFlagRow?.reasons.map((reason) => reason.text)).toContain("SOAH docket present");
     expect(detail.redFlagRow?.reasons.map((reason) => reason.text)).toContain("2 pending permits in Travis County");
+  });
+
+  it("builds a protest-prep pack with participation status, checklist, and editable draft", () => {
+    const prep = buildPermitProtestPrep({
+      caseRow: {
+        tceqId: "WQ0000447000",
+        applicantName: "Alpha Water LLC",
+        county: "Travis County",
+        programArea: "WQ",
+        itemStatus: "open",
+        tceqDocketNumber: "2026-001",
+        soahDocketNumber: "582-26-0001",
+        regulatedEntityNumber: null,
+        customerNumber: null,
+        filingCounts: { comments: 1, hearingRequests: 1, publicMeetingRequests: 0 },
+        latestFiledAt: "2026-04-04",
+      },
+      countyPermitCount: 2,
+      redFlagReasons: ["SOAH docket present", "2 pending permits in Travis County"],
+      relatedPermitNumbers: ["WQ0001"],
+    });
+
+    expect(prep.participationStatus).toContain("Request a contested case hearing");
+    expect(prep.evidenceChecklist).toContain("Describe how the filing affects Travis County or nearby neighborhoods.");
+    expect(prep.draftText).toContain("I am submitting this comment regarding TCEQ ID WQ0000447000");
+    expect(prep.exportText).toContain("Top visible red flags:");
+    expect(prep.exportText).toContain("SOAH docket present");
   });
 });

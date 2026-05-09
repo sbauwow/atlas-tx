@@ -86,6 +86,14 @@ describe("permit filing detail page", () => {
     expect(text).toContain("2 pending permits in Travis County");
     expect(text).toContain("Related county permits");
     expect(text).toContain("WQ0001");
+    expect(text).toContain("Protest prep panel");
+    expect(text).toContain("Participation status");
+    expect(text).toContain("Evidence checklist");
+    expect(text).toContain("Draft from facts");
+    expect(text).toContain("Submission pack");
+    expect(text).toContain("Request a contested case hearing");
+    expect(text).toContain("Describe how the filing affects Travis County or nearby neighborhoods.");
+    expect(text).toContain("I am submitting this comment regarding TCEQ ID WQ0000447000");
     expect(text).toContain('href="/permits?county=travis-county"');
     expect(text).toContain('href="/water/counties/travis-county"');
   });

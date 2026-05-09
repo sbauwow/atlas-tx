@@ -54,6 +54,13 @@ export type PermitFilingDetailPageData = {
   cidSummary: CidOpenCasesSummary;
 };
 
+export type PermitProtestPrep = {
+  participationStatus: string[];
+  evidenceChecklist: string[];
+  draftText: string;
+  exportText: string;
+};
+
 export type PendingPermitCountyMapRow = {
   county: string;
   slug: string;
@@ -360,6 +367,55 @@ export function getPermitFilingDetailPageData({
     relatedPermits,
     redFlagRow,
     cidSummary,
+  };
+}
+
+export function buildPermitProtestPrep({
+  caseRow,
+  countyPermitCount,
+  redFlagReasons,
+  relatedPermitNumbers,
+}: {
+  caseRow: CidCaseWithFilings;
+  countyPermitCount: number;
+  redFlagReasons: string[];
+  relatedPermitNumbers: string[];
+}): PermitProtestPrep {
+  const participationStatus = [
+    caseRow.filingCounts.hearingRequests > 0 ? "Request a contested case hearing" : "Submit a public comment",
+    caseRow.filingCounts.publicMeetingRequests > 0 ? "Public meeting requests already appear in the record" : "Consider whether a public meeting request is warranted",
+    caseRow.soahDocketNumber ? `SOAH referral visible: ${caseRow.soahDocketNumber}` : "No SOAH referral visible yet",
+  ];
+
+  const evidenceChecklist = [
+    `Describe how the filing affects ${caseRow.county ?? "the host county"} or nearby neighborhoods.`,
+    `Check whether ${countyPermitCount} pending permits in the county create cumulative burden.`,
+    caseRow.latestFiledAt ? `Review the most recent filing activity from ${caseRow.latestFiledAt}.` : "Review the latest procedural activity before drafting.",
+    relatedPermitNumbers.length ? `Compare against related permit IDs: ${relatedPermitNumbers.join(", ")}.` : "Check for related permits by the same applicant.",
+  ];
+
+  const draftText = [
+    `I am submitting this comment regarding TCEQ ID ${caseRow.tceqId} filed by ${caseRow.applicantName}.`,
+    `This filing concerns ${caseRow.programArea} activity in ${caseRow.county ?? "the relevant county"}.`,
+    `The current record shows ${caseRow.filingCounts.hearingRequests} hearing request(s), ${caseRow.filingCounts.publicMeetingRequests} public meeting request(s), and ${caseRow.filingCounts.comments} public comment(s).`,
+    redFlagReasons.length ? `Top visible red flags include: ${redFlagReasons.join("; ")}.` : "Atlas did not identify extra filing-level red flags beyond the base record.",
+    "I request that TCEQ address these concerns clearly in the public record and explain the project-specific basis for moving forward.",
+  ].join(" ");
+
+  const exportText = [
+    `Participation status: ${participationStatus.join(" | ")}`,
+    `Evidence checklist: ${evidenceChecklist.join(" | ")}`,
+    "Top visible red flags:",
+    ...(redFlagReasons.length ? redFlagReasons.map((reason) => `- ${reason}`) : ["- No additional red flags listed"]),
+    "",
+    draftText,
+  ].join("\n");
+
+  return {
+    participationStatus,
+    evidenceChecklist,
+    draftText,
+    exportText,
   };
 }
 
