@@ -57,6 +57,19 @@ npm run dev
 
 Open `http://localhost:3000`.
 
+## CID refresh utility
+
+The repo now includes a CID refresh scaffold runnable with:
+
+```bash
+CID_COUNTIES=111111111111156 \
+CID_PROGRAM_AREAS='APO;Aggregate Production Operation Registration;NO_PARENT' \
+CID_SEARCH_TWO_ORG_NAME='Sierra' \
+npm run refresh:cid
+```
+
+Current limitation: Search Two works with a seeded organization / permit / person-name query, but live Search One still often returns the upstream TCEQ error page even for chunked county/program requests. The script now fails loud on that condition instead of silently producing misleading case rows.
+
 ## For collaborating agents
 
 Read [`AGENTS.md`](AGENTS.md) before opening a PR. It covers Next.js 16 gotchas, workstream ownership, and the no-stomp protocol.
