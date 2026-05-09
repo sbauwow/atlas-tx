@@ -3,6 +3,7 @@ import Link from "next/link";
 import GlossaryTooltip, { GlossaryInlineList } from "@/app/components/glossary-tooltip";
 import { CountyWorkspaceHeader } from "@/app/components/county-workspace-header";
 import { buildPermitProtestPrep, getPermitFilingDetailPageData, getTceqPendingPermitsPageData } from "@/lib/tceq-permits";
+import { buildPermitProceduralLane } from "@/lib/permits/procedural-timeline";
 import { getAdjacentCountyRefs, getCountyBySlugOrName } from "@/lib/water/county-lookup";
 
 export default async function PermitFilingDetailPage({
@@ -25,6 +26,11 @@ export default async function PermitFilingDetailPage({
     countyPermitCount: detail.countyPermitCount,
     redFlagReasons: detail.redFlagRow?.reasons.map((reason) => reason.text) ?? [],
     relatedPermitNumbers: detail.relatedPermits.map((permit) => permit.permitNumber),
+  });
+  const proceduralLane = buildPermitProceduralLane({
+    caseRow: detail.caseRow,
+    countyPermitCount: detail.countyPermitCount,
+    generatedAt: detail.cidSummary.generatedAt,
   });
 
   return (
@@ -85,16 +91,60 @@ export default async function PermitFilingDetailPage({
         </article>
 
         <article className="rounded-2xl bg-slate-900/40 p-6 ring-1 ring-white/5">
-          <h2 className="text-2xl font-semibold text-white">Red-flag breakdown</h2>
-          <div className="mt-5 space-y-3 text-sm text-slate-300">
-            {detail.redFlagRow ? detail.redFlagRow.reasons.map((reason) => (
-              <div key={reason.text} className="rounded-xl border border-white/5 bg-white/[0.03] px-4 py-3">
-                <div className="font-medium text-white">{reason.text}</div>
-                <div className="mt-1 text-slate-500">{reason.category} · {reason.severity}</div>
+          <h2 className="text-2xl font-semibold text-white">Procedural pressure summary</h2>
+          <div className="mt-5 rounded-xl border border-cyan-400/20 bg-cyan-400/10 px-4 py-3 text-cyan-100">
+            <div className="text-xs font-medium uppercase tracking-[0.18em] text-cyan-200/80">{proceduralLane.pressure.label}</div>
+            <p className="mt-2 text-base font-medium text-white">{proceduralLane.pressure.headline}</p>
+          </div>
+          <ul className="mt-4 space-y-2 text-sm text-slate-300">
+            {proceduralLane.pressure.interpretation.map((item) => (
+              <li key={item}>• {item}</li>
+            ))}
+          </ul>
+          <p className="mt-4 text-sm text-slate-400">{proceduralLane.pressure.caveat}</p>
+        </article>
+      </section>
+
+      <section className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
+        <article className="rounded-2xl bg-slate-900/40 p-6 ring-1 ring-white/5">
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <h2 className="text-2xl font-semibold text-white">Permit timeline</h2>
+              <p className="mt-2 max-w-3xl text-sm text-slate-400">Chronology comes from fields already visible in the permit and CID snapshots. Missing dates stay visible as undated procedural signals.</p>
+            </div>
+            <div className="text-xs font-medium uppercase tracking-[0.18em] text-slate-500">Time-first lane</div>
+          </div>
+          <div className="mt-6 space-y-4">
+            {proceduralLane.timeline.length > 0 ? proceduralLane.timeline.map((event) => (
+              <TimelineEventCard key={event.key} dateLabel={event.dateLabel} title={event.title} detail={event.detail} tone={event.tone} />
+            )) : (
+              <div className="rounded-xl border border-dashed border-white/10 bg-white/[0.02] px-4 py-4 text-sm text-slate-400">
+                No dated filing milestones are visible yet in the current snapshot.
               </div>
-            )) : <div className="rounded-xl border border-white/5 bg-white/[0.03] px-4 py-3 text-slate-400">No filing-level red flags yet.</div>}
+            )}
           </div>
         </article>
+
+        <article className="rounded-2xl bg-slate-900/40 p-6 ring-1 ring-white/5">
+          <h2 className="text-2xl font-semibold text-white">Undated procedural signals</h2>
+          <ul className="mt-5 space-y-3 text-sm text-slate-300">
+            {proceduralLane.undatedSignals.map((item) => (
+              <li key={item} className="rounded-xl border border-white/5 bg-white/[0.03] px-4 py-3">{item}</li>
+            ))}
+          </ul>
+        </article>
+      </section>
+
+      <section className="rounded-2xl bg-slate-900/40 p-6 ring-1 ring-white/5">
+        <h2 className="text-2xl font-semibold text-white">Red-flag breakdown</h2>
+        <div className="mt-5 space-y-3 text-sm text-slate-300">
+          {detail.redFlagRow ? detail.redFlagRow.reasons.map((reason) => (
+            <div key={reason.text} className="rounded-xl border border-white/5 bg-white/[0.03] px-4 py-3">
+              <div className="font-medium text-white">{reason.text}</div>
+              <div className="mt-1 text-slate-500">{reason.category} · {reason.severity}</div>
+            </div>
+          )) : <div className="rounded-xl border border-white/5 bg-white/[0.03] px-4 py-3 text-slate-400">No filing-level red flags yet.</div>}
+        </div>
       </section>
 
       <section className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
@@ -180,6 +230,32 @@ export default async function PermitFilingDetailPage({
         </div>
       </section>
     </main>
+  );
+}
+
+function TimelineEventCard({
+  dateLabel,
+  title,
+  detail,
+  tone,
+}: {
+  dateLabel: string;
+  title: string;
+  detail: string;
+  tone: "info" | "attention" | "watch";
+}) {
+  const toneClass = tone === "attention"
+    ? "border-amber-400/25 bg-amber-400/10"
+    : tone === "watch"
+      ? "border-cyan-400/20 bg-cyan-400/10"
+      : "border-white/5 bg-white/[0.03]";
+
+  return (
+    <div className={`rounded-xl border px-4 py-4 ${toneClass}`}>
+      <div className="text-xs font-medium uppercase tracking-[0.18em] text-slate-400">{dateLabel}</div>
+      <div className="mt-2 text-base font-medium text-white">{title}</div>
+      <p className="mt-2 text-sm leading-6 text-slate-300">{detail}</p>
+    </div>
   );
 }
 
