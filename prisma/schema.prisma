@@ -1,0 +1,42 @@
+// Citizen water-observation prototype — see docs/research/smartphone-colorimetry.md.
+// Strictly non-regulatory; isolated from any DWRS / regulatory scoring surfaces.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// Prisma 7: connection lives in prisma.config.ts via the adapter pattern.
+datasource db {
+  provider = "sqlite"
+}
+
+model WaterObservation {
+  id            String   @id @default(cuid())
+  createdAt     DateTime @default(now())
+
+  // Discriminator. v1 ships only "strip"; the column lets future kinds
+  // ("tds", "tap-photo", "plumbing-form") land without a migration.
+  kind          String
+
+  countySlug    String?
+  imagePath     String?
+  imageHash     String?  @unique
+
+  stripBrand    String?
+
+  // JSON-as-text — SQLite has no native JSON/array column.
+  // Schemas defined in src/lib/observations/types.ts.
+  clientReading String
+  llmReading    String?
+  llmModel      String?
+
+  agreement     Float?
+  qaFlags       String?
+
+  status        String   @default("pending")
+  caveatsShown  Boolean  @default(false)
+
+  @@index([createdAt])
+  @@index([kind])
+  @@index([countySlug])
+}

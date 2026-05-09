@@ -90,6 +90,24 @@ npm run refresh:cid
 
 Current limitation: Search Two works with a seeded organization / permit / person-name query, but live Search One still often returns the upstream TCEQ error page even for chunked county/program requests. The script now fails loud on that condition instead of silently producing misleading case rows. It also exposes a browser-automation fallback hook for Search One so a future browser-driven retriever can be swapped in without changing the refresh pipeline.
 
+## Citizen observation layer (prototype)
+
+A separate, **non-regulatory** lane at [`/citizen`](src/app/citizen/page.tsx)
+where users can submit a photograph of a freshwater test strip laid next to
+its bottle's color chart. A hybrid pipeline (browser pixel-sampling + Claude
+Opus vision sanity-check) produces per-analyte band labels — never numeric
+measurements. Results are stored in a local SQLite DB via Prisma.
+
+Strict isolation: this layer does **not** feed DWRS, EJ Burden Overlap, the
+mismatch detector, or any other scorer. See
+[`docs/contracts/dataset-registry.md`](docs/contracts/dataset-registry.md) §0.7.0
+and [`docs/research/smartphone-colorimetry.md`](docs/research/smartphone-colorimetry.md) §17
+for the constraints that govern this lane.
+
+It is a UX/architecture prototype, not a validated measurement system. Bands
+depend on lighting, strip brand, incubation timing, and the user's in-frame
+chart. Treat outputs as approximate, never as compliance or diagnosis.
+
 ## For collaborating agents
 
 Read [`AGENTS.md`](AGENTS.md) before opening a PR. It covers Next.js 16 gotchas, workstream ownership, and the no-stomp protocol.

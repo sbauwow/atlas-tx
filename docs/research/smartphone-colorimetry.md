@@ -544,3 +544,56 @@ Before any trained-field-tech / community-sensing angle becomes an actual Atlas 
 - Would this become a separate pilot product rather than a native Atlas TX feature?
 
 Until these questions are answered, Angle B should remain research-only.
+
+---
+
+## 17. v1 prototype (2026-05-09)
+
+Despite the v1 recommendation in §12, a **Stage 1 prototype** has been built on
+branch `cross/citizen-strips-prototype`. Lives entirely behind `/citizen` and
+is strictly isolated from the regulatory data stack per
+`docs/contracts/dataset-registry.md` (contract 0.7.0).
+
+What this prototype does satisfy from the §5 non-negotiables:
+- **Layer separation (§5.7)**: own page, own DB table (`WaterObservation`), no
+  contribution to DWRS / EJ / APD / mismatch scorers. Contract enforces this.
+- **Threshold-first outputs**: per-analyte band labels, never numeric units.
+- **Automated QA rejection**: server-side blur / low-light / saturation-clip
+  via sharp, plus LLM `no-chart-detected` flag. Decision logic in
+  `src/lib/observations/status.ts` always lands in one of accepted /
+  accepted_warn / review / rejected.
+- **In-frame reference chart guidance (§6.3)**: capture UX requires the user
+  to lay the strip beside its bottle's chart in the photo. Server vision pass
+  grades against the in-frame chart, not absolute color memory.
+- **Hybrid analysis (§7)**: classical CIE Lab ΔE76 client reading first;
+  Claude Opus vision is the second-pass sanity check. Disagreement marks the
+  observation `review` rather than auto-accepting.
+- **Explicit non-regulatory labeling**: every result card and the page banner
+  carry the disclaimer.
+
+What this prototype intentionally does NOT satisfy yet:
+- **Constrained capture hardware (§5.1)**: freehand smartphone capture only.
+  No clip-on cradle / dark box. Lighting variance is the dominant accuracy
+  risk.
+- **Calibration curves with vendor citations (§5.4)**: the bundled
+  `generic-9pad-v0` chart uses uncalibrated visual approximations. Marked
+  `version: 0` so any uplift to a citable kit datasheet is a visible bump.
+- **Device-family correction tables (§5.4)**: none.
+- **Lab-confirmation escalation (§5.5)**: not wired. Users see bands and a
+  caveat; there is no mail-in or partner-lab loop.
+- **Operational rate-limits / abuse moderation**: anon uploads are accepted
+  with a sha256 dedupe and a size cap; no per-IP rate limit or moderation
+  queue. Acceptable for a single-dev box; not acceptable for a public deploy.
+- **Validation studies (§8)**: none. Treat the prototype as a UX/architecture
+  fixture, not a data source for any external claim.
+
+The prototype's purpose is to make the *architecture* concrete (DB schema,
+hybrid analysis pipeline, status decision logic, isolation contract) so that
+when the project decides whether to invest in the real Stage 1 deliverables
+(constrained hardware, calibrated chart, validation) those investments land on
+existing scaffolding instead of greenfield.
+
+Removal path: `cross/citizen-strips-prototype` is the only branch in scope.
+Reverting it removes `/citizen`, the `WaterObservation` table, the Anthropic
+SDK dependency, and the contract's 0.7.0 entry, leaving the regulatory stack
+untouched.

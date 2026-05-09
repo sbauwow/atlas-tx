@@ -1,8 +1,9 @@
 # Contract — Dataset Registry & Scoring
 
-> Contract version: **0.8.0** — bump on any breaking change to types, fetcher signatures, or scoring outputs. Notify `mcp` and `web` workstreams in `STATE.md` when bumping.
+> Contract version: **0.9.0** — bump on any breaking change to types, fetcher signatures, or scoring outputs. Notify `mcp` and `web` workstreams in `STATE.md` when bumping.
 >
 > Changelog:
+> - 0.9.0 (2026-05-09): add `citizen-strips` as a separate, **non-regulatory** community-observation source under a strict isolation contract — does NOT feed DWRS, EJ Overlap, or any regulatory scorer. Lives behind `/citizen` and the new `WaterObservation` Prisma model. See "Citizen observation layer" section below.
 > - 0.8.0 (2026-05-09): add curated `city-open-data` snapshot contract for water / permits / infrastructure source triage (`public/cache/city-open-data-curated-tx.json`) plus theme-match metadata and counts.
 > - 0.7.0 (2026-05-09): add `city-open-data` catalog snapshot contract for Austin, Dallas, Houston, and San Antonio portal metadata refreshes. This is additive and supports source discovery / follow-on ingest planning.
 > - 0.6.0 (2026-05-09): add planned weather / hydrologic context contract language for NWS alerts, USGS streamflow, drought status, precipitation totals, and temperature / heat indicators. Clarify these are explanatory context layers for water events, not standalone proof of contamination or infrastructure failure.
@@ -420,6 +421,60 @@ Caching notes:
 - Current slice is intentionally a compact statewide extent snapshot (layer metadata + per-feature bounding boxes), not a full polygon-geometry cache.
 - County summary wiring currently uses county centroid overlap against cached feature bounding boxes as an approximate hydrology-context signal, not full polygon intersection.
 - Follow-on work can add fuller geometry export once Atlas TX needs map rendering or spatial joins beyond extents.
+
+## Citizen observation layer (added 0.7.0)
+
+A separate, prototype community-observation lane. Strictly **isolated** from
+the regulatory data above and from every scorer (`dwrs.ts`, `ej_overlap.ts`,
+`apd.ts`, the planned mismatch detector). The colorimetry research memo
+(`docs/research/smartphone-colorimetry.md`) sets the non-negotiables; this
+contract enforces the data-side ones.
+
+**Source id:** `citizen-strips`
+**Access type:** local DB (Prisma + SQLite at `prisma/dev.db`)
+**Owner workstream:** web (UI + route handlers); persistence shared in `src/lib/observations/`.
+
+**Schema:** `WaterObservation` (`prisma/schema.prisma`). Discriminator column
+`kind` so future modes (`tds`, `tap-photo`, `plumbing-form`) drop in without
+migration churn. JSON-as-text columns parsed at the boundary in
+`src/lib/observations/persistence.ts`.
+
+**Pipeline (per submission):**
+1. Browser samples median CIELab per pad against a bundled reference chart
+   (`src/lib/observations/strips/reference-chart-9pad.ts`) and emits a
+   `ClientReading`.
+2. Server runs sharp-based QA (`src/lib/observations/qa.ts`) — blur,
+   low-light, saturation-clip flags.
+3. Server calls Claude Opus vision (`src/lib/observations/vision.ts`) for an
+   independent per-analyte band reading. Returns `null` if `ANTHROPIC_API_KEY`
+   is unset → falls back to `review` status.
+4. `decideStatus` in `src/lib/observations/status.ts` merges QA flags + client
+   ↔ LLM agreement into one of: `accepted` / `accepted_warn` / `review` /
+   `rejected`.
+
+**Hard contract guarantees (do not violate):**
+- `citizen-strips` MUST NOT appear in `MVP_DATASETS` and MUST NOT feed any
+  scorer in `src/lib/scoring/`. Any future need to surface citizen data
+  alongside regulatory data must be a *separate, clearly labeled* layer.
+- All public projections strip server filesystem paths (image bytes never
+  leave the server). See `toPublicView` in
+  `src/app/api/citizen/observations/route.ts`.
+- Outputs are bands, not numeric measurements. Never display a single number
+  with units as if it were a lab reading.
+- The reference chart `version: 0` is uncalibrated. Bumping it requires a
+  cited source per the colorimetry memo §13.
+
+**Routes:**
+- `POST /api/citizen/observations` — multipart upload (image + clientReading)
+- `GET  /api/citizen/observations` — list latest 100 (no image paths)
+- `GET  /api/citizen/observations/[id]` — single
+
+**Reference chart:** `generic-9pad-v0` — 9 analytes (pH, free chlorine, total
+chlorine, total hardness, total alkalinity, nitrate, nitrite, iron, copper).
+Lab values are PROTOTYPE approximations; replace before any public claim.
+
+**MCP exposure:** none in v1. A future MCP tool would need its own contract
+section here and a `mcp-tools.md` entry.
 
 ## Adding a new source or signal
 
