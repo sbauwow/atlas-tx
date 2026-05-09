@@ -8,7 +8,9 @@ Schema for every row: `workstream | agent | branch | intent | started | ref`
 
 ## In-progress
 
-_(empty)_
+| workstream | agent | branch | intent | started | ref |
+|---|---|---|---|---|---|
+| data (cross: web, docs) | feynman | recover/autostash-water-page | Add open-data county weather context with a simple historical-baseline forecast pipeline, cached snapshot refresh script, and water-summary wiring | 2026-05-09T05:30:00Z | working tree |
 
 ---
 
@@ -22,6 +24,7 @@ _(empty)_
 
 | workstream | agent | intent | ref |
 |---|---|---|---|
+| web (cross: docs) | claude-opus-4-7 | PR1 of color-taxonomy refactor: add design tokens (severity / lifecycle / categorical / trend / freshness / accent) under `src/app/globals.css` @theme; add resolvers in `src/app/design/{states,glyphs,categories}.ts`; refactor `/water` map fill + legend + mismatch column and `/` dataset cards to consume tokens + a11y glyphs; add `tests/design-states.test.ts`; document in `docs/design/{color-taxonomy,a11y-check}.md`. Visual diff vs prior /water: severity legend now appears in both modes (was hidden in mismatch); mismatch table cell carries glyph + tone. Updated `tests/water-page-map.test.ts` to assert the new legend behavior. Pre-existing live-Socrata 500 on `/water` (8kc5-95uk sewer-overflows fetcher) is unrelated. | working tree |
 | docs | feynman | Add adjacent Texas open-data opportunity map to README so follow-on problem spaces are documented beyond the current water-risk scope | working tree |
 | docs | feynman | Update README to reflect planned mismatch-signal and weather / hydrologic context layers for Atlas TX | working tree |
 | docs | feynman | Add weather / hydrologic contract language and draft normalized row shapes for NWS alerts, USGS streamflow, drought, precipitation, and temperature context | working tree |

@@ -1,15 +1,12 @@
 import TrackedLink from "@/app/components/tracked-link";
 import { MVP_DATASETS } from "@/lib/mvp-datasets";
-
-const categoryLabels = {
-  environment: "Environment",
-  infrastructure: "Infrastructure",
-  social: "Social strain",
-  fiscal: "Fiscal context",
-  debt: "Debt",
-  demographic: "Demographic",
-  compliance: "Compliance",
-} as const;
+import {
+  CATEGORY_BORDER_CLASS,
+  CATEGORY_TEXT_CLASS,
+  DATASET_CATEGORY_GLYPH,
+  DATASET_CATEGORY_LABEL,
+  DATASET_CATEGORY_TOKEN,
+} from "@/app/design/categories";
 
 export default function Home() {
   return (
@@ -77,31 +74,38 @@ export default function Home() {
           </p>
         </div>
         <div className="grid gap-4 md:grid-cols-2">
-          {MVP_DATASETS.map((dataset) => (
-            <article key={dataset.id} className="rounded-2xl border border-slate-800 bg-slate-900/60 p-5">
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <div className="text-xs uppercase tracking-[0.2em] text-cyan-300">
-                    {categoryLabels[dataset.category]}
+          {MVP_DATASETS.map((dataset) => {
+            const token = DATASET_CATEGORY_TOKEN[dataset.category];
+            return (
+              <article key={dataset.id} className="rounded-2xl border border-slate-800 bg-slate-900/60 p-5">
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <div
+                      className={`inline-flex items-center gap-2 rounded-full border px-2.5 py-1 text-xs uppercase tracking-[0.2em] ${CATEGORY_BORDER_CLASS[token]} ${CATEGORY_TEXT_CLASS[token]}`}
+                      aria-label={`Category: ${DATASET_CATEGORY_LABEL[dataset.category]}`}
+                    >
+                      <span aria-hidden="true">{DATASET_CATEGORY_GLYPH[dataset.category]}</span>
+                      {DATASET_CATEGORY_LABEL[dataset.category]}
+                    </div>
+                    <h3 className="mt-2 text-lg font-semibold text-white">{dataset.name}</h3>
                   </div>
-                  <h3 className="mt-2 text-lg font-semibold text-white">{dataset.name}</h3>
+                  <div className="rounded-full border border-slate-700 px-3 py-1 font-mono text-xs text-slate-300">
+                    {dataset.id}
+                  </div>
                 </div>
-                <div className="rounded-full border border-slate-700 px-3 py-1 font-mono text-xs text-slate-300">
-                  {dataset.id}
+                <p className="mt-3 text-sm leading-7 text-slate-300">{dataset.summary}</p>
+                <div className="mt-4 text-xs text-slate-400">Publisher: {dataset.publisher}</div>
+                <div className="mt-4 text-sm text-slate-200">Use case: {dataset.useCase}</div>
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {dataset.keyFields.slice(0, 4).map((field) => (
+                    <span key={field} className="rounded-full bg-slate-800 px-3 py-1 text-xs text-slate-300">
+                      {field}
+                    </span>
+                  ))}
                 </div>
-              </div>
-              <p className="mt-3 text-sm leading-7 text-slate-300">{dataset.summary}</p>
-              <div className="mt-4 text-xs text-slate-400">Publisher: {dataset.publisher}</div>
-              <div className="mt-4 text-sm text-slate-200">Use case: {dataset.useCase}</div>
-              <div className="mt-4 flex flex-wrap gap-2">
-                {dataset.keyFields.slice(0, 4).map((field) => (
-                  <span key={field} className="rounded-full bg-slate-800 px-3 py-1 text-xs text-slate-300">
-                    {field}
-                  </span>
-                ))}
-              </div>
-            </article>
-          ))}
+              </article>
+            );
+          })}
         </div>
       </section>
     </main>

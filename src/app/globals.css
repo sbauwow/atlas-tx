@@ -1,26 +1,45 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-}
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  /* Severity ramp — ordered, 5 stops. Drives risk score, mismatch, alert severity. */
+  --color-sev-0: #475569;
+  --color-sev-1: #38bdf8;
+  --color-sev-2: #facc15;
+  --color-sev-3: #f97316;
+  --color-sev-4: #ef4444;
+
+  /* Lifecycle status — distinct hue family from severity. */
+  --color-status-active: #34d399;
+  --color-status-pending: #fcd34d;
+  --color-status-expired: #94a3b8;
+  --color-status-inactive: #475569;
+
+  /* Categorical taxonomy — Okabe-Ito CB-safe palette, 7 hues, reused across domains. */
+  --color-cat-1: #56b4e9;
+  --color-cat-2: #009e73;
+  --color-cat-3: #f0e442;
+  --color-cat-4: #e69f00;
+  --color-cat-5: #d55e00;
+  --color-cat-6: #cc79a7;
+  --color-cat-7: #0072b2;
+
+  /* Trend (sparklines, deltas) — green/rose pair distinct from severity red. */
+  --color-trend-up: #34d399;
+  --color-trend-down: #fb7185;
+  --color-trend-flat: #94a3b8;
+
+  /* Freshness (cache, per-metric staleness). */
+  --color-fresh-fresh: #34d399;
+  --color-fresh-stale: #fbbf24;
+  --color-fresh-missing: #64748b;
+
+  /* Selection / primary action. Distinct from severity ramp. */
+  --color-accent: #22d3ee;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
 }

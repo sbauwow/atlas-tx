@@ -2,6 +2,16 @@ import Link from "next/link";
 import { countySlug } from "@/lib/counties";
 import { TEXAS_COUNTY_CENTROIDS } from "@/lib/texas-county-centroids";
 import { getDefaultAtlasWaterSummaryService } from "@/lib/water/water-summary-service";
+import {
+  ACCENT_HEX,
+  SEVERITY_HEX,
+  SEVERITY_LABEL,
+  SEVERITY_TEXT_CLASS,
+  severityFromMismatch,
+  severityFromRiskScore,
+  type SeverityLevel,
+} from "@/app/design/states";
+import { SEVERITY_GLYPH } from "@/app/design/glyphs";
 
 export const dynamic = "force-dynamic";
 
@@ -46,14 +56,19 @@ function countyRiskScore(county: {
   );
 }
 
-function countyFill(score: number, mismatchScore: number | undefined, isSelected: boolean) {
-  if (isSelected) return "#22d3ee";
-  if ((mismatchScore ?? 0) >= 75) return "#ef4444";
-  if ((mismatchScore ?? 0) >= 40) return "#f97316";
-  if (score >= 8) return "#f97316";
-  if (score >= 4) return "#eab308";
-  if (score >= 1) return "#38bdf8";
-  return "#475569";
+function countySeverity(
+  score: number,
+  mismatchScore: number | undefined,
+  mode: "risk" | "mismatch",
+): SeverityLevel {
+  if (mode === "mismatch") return severityFromMismatch(mismatchScore);
+  const riskLevel = severityFromRiskScore(score);
+  const mismatchLevel = severityFromMismatch(mismatchScore);
+  return (mismatchLevel > riskLevel ? mismatchLevel : riskLevel) as SeverityLevel;
+}
+
+function countyFill(level: SeverityLevel, isSelected: boolean) {
+  return isSelected ? ACCENT_HEX : SEVERITY_HEX[level];
 }
 
 function formatFreshnessLabel(expiresAt: string | null) {
@@ -188,44 +203,52 @@ export default async function WaterPage({
               </div>
             </div>
             <div className="rounded-2xl border border-slate-800 bg-slate-950/70 p-4 text-sm text-slate-300">
-              <div className="font-medium text-white">{mapMode === "mismatch" ? "Mode note" : "Mismatch legend"}</div>
-              {mapMode === "mismatch" ? (
-                <div className="mt-3 text-slate-300">
-                  Counties are colored by contradiction severity rather than operational load.
-                </div>
-              ) : (
-                <div className="mt-3 space-y-2">
-                  <div className="flex items-center gap-2"><span className="inline-block h-3 w-3 rounded-full bg-red-500"></span><span>75+ severe contradiction</span></div>
-                  <div className="flex items-center gap-2"><span className="inline-block h-3 w-3 rounded-full bg-orange-500"></span><span>40–74 moderate contradiction</span></div>
-                  <div className="flex items-center gap-2"><span className="inline-block h-3 w-3 rounded-full bg-slate-500"></span><span>0 no mismatch signal</span></div>
-                </div>
-              )}
+              <div className="font-medium text-white">{mapMode === "mismatch" ? "Mismatch legend" : "Severity legend"}</div>
+              <ul className="mt-3 space-y-2">
+                {mapMode === "mismatch" ? (
+                  <>
+                    <li className="flex items-center gap-2"><span aria-hidden="true" className="inline-block h-3 w-3 rounded-full bg-sev-4"></span><span className="text-slate-200">{SEVERITY_GLYPH[4]} 75+ severe contradiction</span></li>
+                    <li className="flex items-center gap-2"><span aria-hidden="true" className="inline-block h-3 w-3 rounded-full bg-sev-3"></span><span className="text-slate-200">{SEVERITY_GLYPH[3]} 40–74 moderate contradiction</span></li>
+                    <li className="flex items-center gap-2"><span aria-hidden="true" className="inline-block h-3 w-3 rounded-full bg-sev-0"></span><span className="text-slate-200">{SEVERITY_GLYPH[0]} 0 no mismatch signal</span></li>
+                  </>
+                ) : (
+                  <>
+                    <li className="flex items-center gap-2"><span aria-hidden="true" className="inline-block h-3 w-3 rounded-full bg-sev-3"></span><span className="text-slate-200">{SEVERITY_GLYPH[3]} 8+ high operational pressure</span></li>
+                    <li className="flex items-center gap-2"><span aria-hidden="true" className="inline-block h-3 w-3 rounded-full bg-sev-2"></span><span className="text-slate-200">{SEVERITY_GLYPH[2]} 4–7 moderate</span></li>
+                    <li className="flex items-center gap-2"><span aria-hidden="true" className="inline-block h-3 w-3 rounded-full bg-sev-1"></span><span className="text-slate-200">{SEVERITY_GLYPH[1]} 1–3 low</span></li>
+                    <li className="flex items-center gap-2"><span aria-hidden="true" className="inline-block h-3 w-3 rounded-full bg-sev-0"></span><span className="text-slate-200">{SEVERITY_GLYPH[0]} 0 no signal</span></li>
+                  </>
+                )}
+              </ul>
             </div>
           </div>
           <div className="mt-6 overflow-hidden rounded-3xl border border-slate-800 bg-slate-950/70 p-3">
             <svg viewBox={`0 0 ${MAP_WIDTH} ${MAP_HEIGHT}`} className="h-[420px] w-full" role="img" aria-label="Texas county water risk map">
               <rect x="0" y="0" width={MAP_WIDTH} height={MAP_HEIGHT} fill="#020617" />
-              {countyMapPoints.map((county) => (
-                <circle
-                  key={county.county.slug}
-                  cx={county.point.x}
-                  cy={county.point.y}
-                  r={county.county.slug === selectedSlug ? 12 : 8}
-                  fill={mapMode === "mismatch"
-                    ? countyFill(0, county.mismatch?.score, county.county.slug === selectedSlug)
-                    : countyFill(county.riskScore, county.mismatch?.score, county.county.slug === selectedSlug)}
-                  stroke={county.metrics.floodplainFeatureCount ? "#f8fafc" : "#0f172a"}
-                  strokeWidth={county.metrics.floodplainFeatureCount ? 2 : 1}
-                  data-county-slug={county.county.slug}
-                >
-                  <title>{`${county.county.name}: mismatch ${county.mismatch?.score ?? 0}, NFHL ${county.metrics.floodplainFeatureCount ?? 0}, alerts ${county.metrics.activeWaterAlertCount ?? 0}, gauges ${county.metrics.streamGaugeCount ?? 0}`}</title>
-                </circle>
-              ))}
+              {countyMapPoints.map((county) => {
+                const isSelected = county.county.slug === selectedSlug;
+                const level = countySeverity(county.riskScore, county.mismatch?.score, mapMode);
+                return (
+                  <circle
+                    key={county.county.slug}
+                    cx={county.point.x}
+                    cy={county.point.y}
+                    r={isSelected ? 12 : 8}
+                    fill={countyFill(level, isSelected)}
+                    stroke={county.metrics.floodplainFeatureCount ? "#f8fafc" : "#0f172a"}
+                    strokeWidth={county.metrics.floodplainFeatureCount ? 2 : 1}
+                    data-county-slug={county.county.slug}
+                    data-severity={level}
+                  >
+                    <title>{`${county.county.name} — ${SEVERITY_LABEL[level]} (${SEVERITY_GLYPH[level]}) · mismatch ${county.mismatch?.score ?? 0}, NFHL ${county.metrics.floodplainFeatureCount ?? 0}, alerts ${county.metrics.activeWaterAlertCount ?? 0}, gauges ${county.metrics.streamGaugeCount ?? 0}`}</title>
+                  </circle>
+                );
+              })}
               {gaugeMapPoints.map((gauge) => (
                 <g key={gauge.siteNumber} data-gauge-site={gauge.siteNumber}>
                   <circle cx={gauge.point.x} cy={gauge.point.y} r={5} fill="#f8fafc" stroke="#0f172a" strokeWidth={2} />
-                  <circle cx={gauge.point.x} cy={gauge.point.y} r={12} fill="none" stroke="#22d3ee" strokeWidth={1.5} strokeDasharray="4 4" />
-                  <title>{gauge.stationName}</title>
+                  <circle cx={gauge.point.x} cy={gauge.point.y} r={12} fill="none" stroke={ACCENT_HEX} strokeWidth={1.5} strokeDasharray="4 4" />
+                  <title>{`${gauge.stationName} — stream gauge`}</title>
                 </g>
               ))}
             </svg>
@@ -334,21 +357,33 @@ export default async function WaterPage({
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-900">
-                {overview.counties.map((county) => (
-                  <tr key={county.county.slug}>
-                    <td className="px-3 py-3 font-medium text-white">
-                      <Link href={`/water?county=${county.county.slug}`} className="hover:text-cyan-200">{county.county.name}</Link>
-                    </td>
-                    <td className="px-3 py-3 text-slate-300">{formatNumber(county.metrics.floodplainFeatureCount)}</td>
-                    <td className="px-3 py-3 text-slate-300">{formatNumber(county.metrics.activeWaterAlertCount)}</td>
-                    <td className="px-3 py-3 text-slate-300">{formatNumber(county.metrics.streamGaugeCount)}</td>
-                    <td className="px-3 py-3 text-slate-300">{formatNumber(county.metrics.sewerOverflowCount30d)}</td>
-                    <td className="px-3 py-3 text-slate-300">{formatNumber(county.metrics.generalPermitCount)}</td>
-                    <td className="px-3 py-3 text-slate-300">{formatNumber(county.metrics.waterDistrictCount)}</td>
-                    <td className="px-3 py-3 text-slate-300">{formatNumber(county.metrics.waterUtilityCount)}</td>
-                    <td className="px-3 py-3 text-slate-300">{formatNumber(county.mismatch?.score)}</td>
-                  </tr>
-                ))}
+                {overview.counties.map((county) => {
+                  const mismatchLevel = severityFromMismatch(county.mismatch?.score);
+                  return (
+                    <tr key={county.county.slug}>
+                      <td className="px-3 py-3 font-medium text-white">
+                        <Link href={`/water?county=${county.county.slug}`} className="hover:text-cyan-200">{county.county.name}</Link>
+                      </td>
+                      <td className="px-3 py-3 text-slate-300">{formatNumber(county.metrics.floodplainFeatureCount)}</td>
+                      <td className="px-3 py-3 text-slate-300">{formatNumber(county.metrics.activeWaterAlertCount)}</td>
+                      <td className="px-3 py-3 text-slate-300">{formatNumber(county.metrics.streamGaugeCount)}</td>
+                      <td className="px-3 py-3 text-slate-300">{formatNumber(county.metrics.sewerOverflowCount30d)}</td>
+                      <td className="px-3 py-3 text-slate-300">{formatNumber(county.metrics.generalPermitCount)}</td>
+                      <td className="px-3 py-3 text-slate-300">{formatNumber(county.metrics.waterDistrictCount)}</td>
+                      <td className="px-3 py-3 text-slate-300">{formatNumber(county.metrics.waterUtilityCount)}</td>
+                      <td className="px-3 py-3 text-slate-300">
+                        <span
+                          className={`inline-flex items-center gap-2 ${mismatchLevel >= 3 ? SEVERITY_TEXT_CLASS[mismatchLevel] : "text-slate-300"}`}
+                          aria-label={`Mismatch ${SEVERITY_LABEL[mismatchLevel]}`}
+                          title={`Mismatch ${SEVERITY_LABEL[mismatchLevel]}`}
+                        >
+                          <span aria-hidden="true">{SEVERITY_GLYPH[mismatchLevel]}</span>
+                          {formatNumber(county.mismatch?.score)}
+                        </span>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>

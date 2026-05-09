@@ -130,7 +130,8 @@ describe("water page map", () => {
     expect(text).toContain("Mismatch severity");
     expect(text).toContain("Current mode: mismatch severity");
     expect(text).toContain("Mismatch mode");
-    expect(text).not.toContain("75+ severe contradiction");
+    expect(text).toContain("75+ severe contradiction");
+    expect(text).toContain("40–74 moderate contradiction");
     expect(text).toContain("Counties are colored by contradiction severity rather than operational load.");
     expect(text).toContain("href=\"/water?county=travis-county&amp;mode=risk\"");
     expect(text).toContain("href=\"/water?county=travis-county&amp;mode=mismatch\"");
