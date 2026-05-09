@@ -1,0 +1,3655 @@
+{
+  "artifact": "pressure-risk-scatter",
+  "artifactVersion": 1,
+  "generatedAt": "2026-05-09T22:08:46.795Z",
+  "axes": {
+    "x": "pressureScore",
+    "y": "countyRiskScore"
+  },
+  "points": [
+    {
+      "county": {
+        "name": "Harris County",
+        "slug": "harris-county"
+      },
+      "x": 100,
+      "y": 100,
+      "population": null,
+      "impairedSegmentCount": 90,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 253,
+      "violationCount": 484,
+      "quadrant": "high-pressure-high-risk"
+    },
+    {
+      "county": {
+        "name": "Travis County",
+        "slug": "travis-county"
+      },
+      "x": 0.43,
+      "y": 9.72,
+      "population": 1300000,
+      "impairedSegmentCount": 5,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 28,
+      "violationCount": 136,
+      "quadrant": "lower-pressure-high-risk"
+    },
+    {
+      "county": {
+        "name": "Webb County",
+        "slug": "webb-county"
+      },
+      "x": 1.11,
+      "y": 8.69,
+      "population": null,
+      "impairedSegmentCount": 1,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 7,
+      "violationCount": 115,
+      "quadrant": "high-pressure-high-risk"
+    },
+    {
+      "county": {
+        "name": "Midland County",
+        "slug": "midland-county"
+      },
+      "x": 0,
+      "y": 8.13,
+      "population": null,
+      "impairedSegmentCount": 0,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 30,
+      "violationCount": 506,
+      "quadrant": "lower-pressure-high-risk"
+    },
+    {
+      "county": {
+        "name": "Hidalgo County",
+        "slug": "hidalgo-county"
+      },
+      "x": 2.22,
+      "y": 7.32,
+      "population": null,
+      "impairedSegmentCount": 2,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 9,
+      "violationCount": 34,
+      "quadrant": "high-pressure-high-risk"
+    },
+    {
+      "county": {
+        "name": "Jefferson County",
+        "slug": "jefferson-county"
+      },
+      "x": 10,
+      "y": 6.88,
+      "population": null,
+      "impairedSegmentCount": 9,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 8,
+      "violationCount": 45,
+      "quadrant": "high-pressure-high-risk"
+    },
+    {
+      "county": {
+        "name": "Tom Green County",
+        "slug": "tom-green-county"
+      },
+      "x": 0,
+      "y": 6.86,
+      "population": null,
+      "impairedSegmentCount": 0,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 13,
+      "violationCount": 56,
+      "quadrant": "lower-pressure-high-risk"
+    },
+    {
+      "county": {
+        "name": "Smith County",
+        "slug": "smith-county"
+      },
+      "x": 6.67,
+      "y": 6.54,
+      "population": null,
+      "impairedSegmentCount": 6,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 16,
+      "violationCount": 167,
+      "quadrant": "high-pressure-high-risk"
+    },
+    {
+      "county": {
+        "name": "Comal County",
+        "slug": "comal-county"
+      },
+      "x": 3.09,
+      "y": 6.07,
+      "population": 180000,
+      "impairedSegmentCount": 5,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 17,
+      "violationCount": 309,
+      "quadrant": "high-pressure-high-risk"
+    },
+    {
+      "county": {
+        "name": "Starr County",
+        "slug": "starr-county"
+      },
+      "x": 1.11,
+      "y": 5.92,
+      "population": null,
+      "impairedSegmentCount": 1,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 8,
+      "violationCount": 57,
+      "quadrant": "high-pressure-high-risk"
+    },
+    {
+      "county": {
+        "name": "Orange County",
+        "slug": "orange-county"
+      },
+      "x": 14.44,
+      "y": 5.2,
+      "population": null,
+      "impairedSegmentCount": 13,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 10,
+      "violationCount": 240,
+      "quadrant": "high-pressure-high-risk"
+    },
+    {
+      "county": {
+        "name": "Howard County",
+        "slug": "howard-county"
+      },
+      "x": 0,
+      "y": 4.39,
+      "population": null,
+      "impairedSegmentCount": 0,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 5,
+      "violationCount": 25,
+      "quadrant": "lower-pressure-high-risk"
+    },
+    {
+      "county": {
+        "name": "Calhoun County",
+        "slug": "calhoun-county"
+      },
+      "x": 5.56,
+      "y": 4.29,
+      "population": null,
+      "impairedSegmentCount": 5,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 11,
+      "violationCount": 128,
+      "quadrant": "high-pressure-high-risk"
+    },
+    {
+      "county": {
+        "name": "Mcculloch County",
+        "slug": "mcculloch-county"
+      },
+      "x": 0,
+      "y": 4.02,
+      "population": null,
+      "impairedSegmentCount": 0,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 6,
+      "violationCount": 188,
+      "quadrant": "lower-pressure-high-risk"
+    },
+    {
+      "county": {
+        "name": "Falls County",
+        "slug": "falls-county"
+      },
+      "x": 2.22,
+      "y": 3.76,
+      "population": null,
+      "impairedSegmentCount": 2,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 6,
+      "violationCount": 85,
+      "quadrant": "high-pressure-high-risk"
+    },
+    {
+      "county": {
+        "name": "Brazoria County",
+        "slug": "brazoria-county"
+      },
+      "x": 6.73,
+      "y": 3.61,
+      "population": 380000,
+      "impairedSegmentCount": 23,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 81,
+      "violationCount": 364,
+      "quadrant": "high-pressure-high-risk"
+    },
+    {
+      "county": {
+        "name": "Callahan County",
+        "slug": "callahan-county"
+      },
+      "x": 0,
+      "y": 3.37,
+      "population": null,
+      "impairedSegmentCount": 0,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 4,
+      "violationCount": 140,
+      "quadrant": "lower-pressure-high-risk"
+    },
+    {
+      "county": {
+        "name": "Anderson County",
+        "slug": "anderson-county"
+      },
+      "x": 2.22,
+      "y": 3.11,
+      "population": null,
+      "impairedSegmentCount": 2,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 7,
+      "violationCount": 22,
+      "quadrant": "high-pressure-high-risk"
+    },
+    {
+      "county": {
+        "name": "Hays County",
+        "slug": "hays-county"
+      },
+      "x": 2.22,
+      "y": 3.04,
+      "population": null,
+      "impairedSegmentCount": 2,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 18,
+      "violationCount": 33,
+      "quadrant": "high-pressure-high-risk"
+    },
+    {
+      "county": {
+        "name": "Guadalupe County",
+        "slug": "guadalupe-county"
+      },
+      "x": 2.22,
+      "y": 2.78,
+      "population": null,
+      "impairedSegmentCount": 2,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 6,
+      "violationCount": 17,
+      "quadrant": "high-pressure-high-risk"
+    },
+    {
+      "county": {
+        "name": "Angelina County",
+        "slug": "angelina-county"
+      },
+      "x": 6.67,
+      "y": 2.68,
+      "population": null,
+      "impairedSegmentCount": 6,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 11,
+      "violationCount": 172,
+      "quadrant": "high-pressure-high-risk"
+    },
+    {
+      "county": {
+        "name": "Bee County",
+        "slug": "bee-county"
+      },
+      "x": 2.22,
+      "y": 2.66,
+      "population": null,
+      "impairedSegmentCount": 2,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 5,
+      "violationCount": 39,
+      "quadrant": "high-pressure-high-risk"
+    },
+    {
+      "county": {
+        "name": "Duval County",
+        "slug": "duval-county"
+      },
+      "x": 0,
+      "y": 2.58,
+      "population": null,
+      "impairedSegmentCount": 0,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 6,
+      "violationCount": 151,
+      "quadrant": "lower-pressure-high-risk"
+    },
+    {
+      "county": {
+        "name": "Kerr County",
+        "slug": "kerr-county"
+      },
+      "x": 5.56,
+      "y": 2.46,
+      "population": null,
+      "impairedSegmentCount": 5,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 26,
+      "violationCount": 100,
+      "quadrant": "high-pressure-high-risk"
+    },
+    {
+      "county": {
+        "name": "Polk County",
+        "slug": "polk-county"
+      },
+      "x": 0,
+      "y": 2.35,
+      "population": null,
+      "impairedSegmentCount": 0,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 20,
+      "violationCount": 190,
+      "quadrant": "lower-pressure-high-risk"
+    },
+    {
+      "county": {
+        "name": "Mclennan County",
+        "slug": "mclennan-county"
+      },
+      "x": 3.33,
+      "y": 2.28,
+      "population": null,
+      "impairedSegmentCount": 3,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 12,
+      "violationCount": 213,
+      "quadrant": "high-pressure-high-risk"
+    },
+    {
+      "county": {
+        "name": "Cherokee County",
+        "slug": "cherokee-county"
+      },
+      "x": 2.22,
+      "y": 2.26,
+      "population": null,
+      "impairedSegmentCount": 2,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 14,
+      "violationCount": 166,
+      "quadrant": "high-pressure-high-risk"
+    },
+    {
+      "county": {
+        "name": "Concho County",
+        "slug": "concho-county"
+      },
+      "x": 1.11,
+      "y": 2.2,
+      "population": null,
+      "impairedSegmentCount": 1,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 3,
+      "violationCount": 124,
+      "quadrant": "high-pressure-high-risk"
+    },
+    {
+      "county": {
+        "name": "Matagorda County",
+        "slug": "matagorda-county"
+      },
+      "x": 7.78,
+      "y": 2.17,
+      "population": null,
+      "impairedSegmentCount": 7,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 10,
+      "violationCount": 170,
+      "quadrant": "high-pressure-high-risk"
+    },
+    {
+      "county": {
+        "name": "Bastrop County",
+        "slug": "bastrop-county"
+      },
+      "x": 1.11,
+      "y": 2.13,
+      "population": null,
+      "impairedSegmentCount": 1,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 4,
+      "violationCount": 26,
+      "quadrant": "high-pressure-high-risk"
+    },
+    {
+      "county": {
+        "name": "Henderson County",
+        "slug": "henderson-county"
+      },
+      "x": 7.78,
+      "y": 1.97,
+      "population": null,
+      "impairedSegmentCount": 7,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 26,
+      "violationCount": 122,
+      "quadrant": "high-pressure-high-risk"
+    },
+    {
+      "county": {
+        "name": "Jasper County",
+        "slug": "jasper-county"
+      },
+      "x": 5.56,
+      "y": 1.92,
+      "population": null,
+      "impairedSegmentCount": 5,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 9,
+      "violationCount": 77,
+      "quadrant": "high-pressure-high-risk"
+    },
+    {
+      "county": {
+        "name": "Caldwell County",
+        "slug": "caldwell-county"
+      },
+      "x": 1.11,
+      "y": 1.87,
+      "population": null,
+      "impairedSegmentCount": 1,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 1,
+      "violationCount": 32,
+      "quadrant": "high-pressure-high-risk"
+    },
+    {
+      "county": {
+        "name": "Galveston County",
+        "slug": "galveston-county"
+      },
+      "x": 38.89,
+      "y": 1.79,
+      "population": null,
+      "impairedSegmentCount": 35,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 11,
+      "violationCount": 33,
+      "quadrant": "high-pressure-high-risk"
+    },
+    {
+      "county": {
+        "name": "Nueces County",
+        "slug": "nueces-county"
+      },
+      "x": 5.56,
+      "y": 1.69,
+      "population": null,
+      "impairedSegmentCount": 5,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 7,
+      "violationCount": 21,
+      "quadrant": "high-pressure-high-risk"
+    },
+    {
+      "county": {
+        "name": "Hood County",
+        "slug": "hood-county"
+      },
+      "x": 0,
+      "y": 1.67,
+      "population": null,
+      "impairedSegmentCount": 0,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 4,
+      "violationCount": 37,
+      "quadrant": "lower-pressure-high-risk"
+    },
+    {
+      "county": {
+        "name": "Jim Hogg County",
+        "slug": "jim-hogg-county"
+      },
+      "x": 0,
+      "y": 1.66,
+      "population": null,
+      "impairedSegmentCount": 0,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 1,
+      "violationCount": 41,
+      "quadrant": "lower-pressure-high-risk"
+    },
+    {
+      "county": {
+        "name": "Limestone County",
+        "slug": "limestone-county"
+      },
+      "x": 1.11,
+      "y": 1.6,
+      "population": null,
+      "impairedSegmentCount": 1,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 13,
+      "violationCount": 115,
+      "quadrant": "high-pressure-high-risk"
+    },
+    {
+      "county": {
+        "name": "Comanche County",
+        "slug": "comanche-county"
+      },
+      "x": 8.89,
+      "y": 1.59,
+      "population": null,
+      "impairedSegmentCount": 8,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 6,
+      "violationCount": 100,
+      "quadrant": "high-pressure-high-risk"
+    },
+    {
+      "county": {
+        "name": "Kendall County",
+        "slug": "kendall-county"
+      },
+      "x": 0,
+      "y": 1.59,
+      "population": null,
+      "impairedSegmentCount": 0,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 16,
+      "violationCount": 37,
+      "quadrant": "lower-pressure-high-risk"
+    },
+    {
+      "county": {
+        "name": "Lubbock County",
+        "slug": "lubbock-county"
+      },
+      "x": 1.11,
+      "y": 1.52,
+      "population": null,
+      "impairedSegmentCount": 1,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 41,
+      "violationCount": 1007,
+      "quadrant": "high-pressure-high-risk"
+    },
+    {
+      "county": {
+        "name": "Burnet County",
+        "slug": "burnet-county"
+      },
+      "x": 2.22,
+      "y": 1.39,
+      "population": null,
+      "impairedSegmentCount": 2,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 20,
+      "violationCount": 358,
+      "quadrant": "high-pressure-high-risk"
+    },
+    {
+      "county": {
+        "name": "Rusk County",
+        "slug": "rusk-county"
+      },
+      "x": 1.11,
+      "y": 1.39,
+      "population": null,
+      "impairedSegmentCount": 1,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 20,
+      "violationCount": 111,
+      "quadrant": "high-pressure-high-risk"
+    },
+    {
+      "county": {
+        "name": "Shelby County",
+        "slug": "shelby-county"
+      },
+      "x": 1.11,
+      "y": 1.38,
+      "population": null,
+      "impairedSegmentCount": 1,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 13,
+      "violationCount": 132,
+      "quadrant": "high-pressure-high-risk"
+    },
+    {
+      "county": {
+        "name": "Lampasas County",
+        "slug": "lampasas-county"
+      },
+      "x": 0,
+      "y": 1.36,
+      "population": null,
+      "impairedSegmentCount": 0,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 3,
+      "violationCount": 43,
+      "quadrant": "lower-pressure-high-risk"
+    },
+    {
+      "county": {
+        "name": "Palo Pinto County",
+        "slug": "palo-pinto-county"
+      },
+      "x": 0,
+      "y": 1.3,
+      "population": null,
+      "impairedSegmentCount": 0,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 13,
+      "violationCount": 109,
+      "quadrant": "lower-pressure-high-risk"
+    },
+    {
+      "county": {
+        "name": "Gregg County",
+        "slug": "gregg-county"
+      },
+      "x": 1.11,
+      "y": 1.26,
+      "population": null,
+      "impairedSegmentCount": 1,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 5,
+      "violationCount": 37,
+      "quadrant": "high-pressure-high-risk"
+    },
+    {
+      "county": {
+        "name": "Rains County",
+        "slug": "rains-county"
+      },
+      "x": 0,
+      "y": 1.17,
+      "population": null,
+      "impairedSegmentCount": 0,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 5,
+      "violationCount": 39,
+      "quadrant": "lower-pressure-high-risk"
+    },
+    {
+      "county": {
+        "name": "Panola County",
+        "slug": "panola-county"
+      },
+      "x": 3.33,
+      "y": 1.15,
+      "population": null,
+      "impairedSegmentCount": 3,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 13,
+      "violationCount": 84,
+      "quadrant": "high-pressure-high-risk"
+    },
+    {
+      "county": {
+        "name": "Gaines County",
+        "slug": "gaines-county"
+      },
+      "x": 0,
+      "y": 1.11,
+      "population": null,
+      "impairedSegmentCount": 0,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 3,
+      "violationCount": 76,
+      "quadrant": "lower-pressure-high-risk"
+    },
+    {
+      "county": {
+        "name": "Montgomery County",
+        "slug": "montgomery-county"
+      },
+      "x": 10,
+      "y": 1.09,
+      "population": null,
+      "impairedSegmentCount": 9,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 84,
+      "violationCount": 140,
+      "quadrant": "high-pressure-high-risk"
+    },
+    {
+      "county": {
+        "name": "Andrews County",
+        "slug": "andrews-county"
+      },
+      "x": 0,
+      "y": 1.09,
+      "population": null,
+      "impairedSegmentCount": 0,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 3,
+      "violationCount": 14,
+      "quadrant": "lower-pressure-high-risk"
+    },
+    {
+      "county": {
+        "name": "Somervell County",
+        "slug": "somervell-county"
+      },
+      "x": 0,
+      "y": 1.04,
+      "population": null,
+      "impairedSegmentCount": 0,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 2,
+      "violationCount": 35,
+      "quadrant": "lower-pressure-high-risk"
+    },
+    {
+      "county": {
+        "name": "Coryell County",
+        "slug": "coryell-county"
+      },
+      "x": 3.33,
+      "y": 0.99,
+      "population": null,
+      "impairedSegmentCount": 3,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 6,
+      "violationCount": 40,
+      "quadrant": "high-pressure-high-risk"
+    },
+    {
+      "county": {
+        "name": "Houston County",
+        "slug": "houston-county"
+      },
+      "x": 1.11,
+      "y": 0.92,
+      "population": null,
+      "impairedSegmentCount": 1,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 5,
+      "violationCount": 86,
+      "quadrant": "high-pressure-high-risk"
+    },
+    {
+      "county": {
+        "name": "Trinity County",
+        "slug": "trinity-county"
+      },
+      "x": 0,
+      "y": 0.91,
+      "population": null,
+      "impairedSegmentCount": 0,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 9,
+      "violationCount": 105,
+      "quadrant": "lower-pressure-high-risk"
+    },
+    {
+      "county": {
+        "name": "Milam County",
+        "slug": "milam-county"
+      },
+      "x": 3.33,
+      "y": 0.86,
+      "population": null,
+      "impairedSegmentCount": 3,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 6,
+      "violationCount": 33,
+      "quadrant": "high-pressure-high-risk"
+    },
+    {
+      "county": {
+        "name": "Cass County",
+        "slug": "cass-county"
+      },
+      "x": 3.33,
+      "y": 0.84,
+      "population": null,
+      "impairedSegmentCount": 3,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 10,
+      "violationCount": 54,
+      "quadrant": "high-pressure-high-risk"
+    },
+    {
+      "county": {
+        "name": "Wise County",
+        "slug": "wise-county"
+      },
+      "x": 4.44,
+      "y": 0.81,
+      "population": null,
+      "impairedSegmentCount": 4,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 8,
+      "violationCount": 71,
+      "quadrant": "high-pressure-high-risk"
+    },
+    {
+      "county": {
+        "name": "Harrison County",
+        "slug": "harrison-county"
+      },
+      "x": 3.33,
+      "y": 0.81,
+      "population": null,
+      "impairedSegmentCount": 3,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 14,
+      "violationCount": 74,
+      "quadrant": "high-pressure-high-risk"
+    },
+    {
+      "county": {
+        "name": "Grimes County",
+        "slug": "grimes-county"
+      },
+      "x": 3.33,
+      "y": 0.73,
+      "population": null,
+      "impairedSegmentCount": 3,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 10,
+      "violationCount": 64,
+      "quadrant": "high-pressure-high-risk"
+    },
+    {
+      "county": {
+        "name": "Erath County",
+        "slug": "erath-county"
+      },
+      "x": 8.89,
+      "y": 0.68,
+      "population": null,
+      "impairedSegmentCount": 8,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 10,
+      "violationCount": 53,
+      "quadrant": "high-pressure-high-risk"
+    },
+    {
+      "county": {
+        "name": "Chambers County",
+        "slug": "chambers-county"
+      },
+      "x": 11.11,
+      "y": 0.66,
+      "population": null,
+      "impairedSegmentCount": 10,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 11,
+      "violationCount": 59,
+      "quadrant": "high-pressure-high-risk"
+    },
+    {
+      "county": {
+        "name": "Parker County",
+        "slug": "parker-county"
+      },
+      "x": 2.22,
+      "y": 0.65,
+      "population": null,
+      "impairedSegmentCount": 2,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 21,
+      "violationCount": 100,
+      "quadrant": "high-pressure-high-risk"
+    },
+    {
+      "county": {
+        "name": "San Augustine County",
+        "slug": "san-augustine-county"
+      },
+      "x": 3.33,
+      "y": 0.63,
+      "population": null,
+      "impairedSegmentCount": 3,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 9,
+      "violationCount": 268,
+      "quadrant": "high-pressure-high-risk"
+    },
+    {
+      "county": {
+        "name": "Runnels County",
+        "slug": "runnels-county"
+      },
+      "x": 1.11,
+      "y": 0.59,
+      "population": null,
+      "impairedSegmentCount": 1,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 4,
+      "violationCount": 56,
+      "quadrant": "high-pressure-high-risk"
+    },
+    {
+      "county": {
+        "name": "Karnes County",
+        "slug": "karnes-county"
+      },
+      "x": 3.33,
+      "y": 0.57,
+      "population": null,
+      "impairedSegmentCount": 3,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 5,
+      "violationCount": 14,
+      "quadrant": "high-pressure-high-risk"
+    },
+    {
+      "county": {
+        "name": "San Patricio County",
+        "slug": "san-patricio-county"
+      },
+      "x": 5.56,
+      "y": 0.56,
+      "population": null,
+      "impairedSegmentCount": 5,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 7,
+      "violationCount": 15,
+      "quadrant": "high-pressure-high-risk"
+    },
+    {
+      "county": {
+        "name": "Bexar County",
+        "slug": "bexar-county"
+      },
+      "x": 14.44,
+      "y": 0.55,
+      "population": null,
+      "impairedSegmentCount": 13,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 24,
+      "violationCount": 136,
+      "quadrant": "high-pressure-high-risk"
+    },
+    {
+      "county": {
+        "name": "Kimble County",
+        "slug": "kimble-county"
+      },
+      "x": 0,
+      "y": 0.55,
+      "population": null,
+      "impairedSegmentCount": 0,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 1,
+      "violationCount": 28,
+      "quadrant": "lower-pressure-high-risk"
+    },
+    {
+      "county": {
+        "name": "Hamilton County",
+        "slug": "hamilton-county"
+      },
+      "x": 2.22,
+      "y": 0.54,
+      "population": null,
+      "impairedSegmentCount": 2,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 1,
+      "violationCount": 27,
+      "quadrant": "high-pressure-high-risk"
+    },
+    {
+      "county": {
+        "name": "Hockley County",
+        "slug": "hockley-county"
+      },
+      "x": 0,
+      "y": 0.53,
+      "population": null,
+      "impairedSegmentCount": 0,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 7,
+      "violationCount": 177,
+      "quadrant": "lower-pressure-high-risk"
+    },
+    {
+      "county": {
+        "name": "Zapata County",
+        "slug": "zapata-county"
+      },
+      "x": 0,
+      "y": 0.53,
+      "population": null,
+      "impairedSegmentCount": 0,
+      "hydrologyLayerHitCount": 2,
+      "systemCount": 3,
+      "violationCount": 12,
+      "quadrant": "lower-pressure-high-risk"
+    },
+    {
+      "county": {
+        "name": "Dallas County",
+        "slug": "dallas-county"
+      },
+      "x": 11.11,
+      "y": 0.51,
+      "population": null,
+      "impairedSegmentCount": 10,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 6,
+      "violationCount": 7,
+      "quadrant": "high-pressure-high-risk"
+    },
+    {
+      "county": {
+        "name": "Walker County",
+        "slug": "walker-county"
+      },
+      "x": 1.11,
+      "y": 0.47,
+      "population": null,
+      "impairedSegmentCount": 1,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 11,
+      "violationCount": 50,
+      "quadrant": "high-pressure-high-risk"
+    },
+    {
+      "county": {
+        "name": "Grayson County",
+        "slug": "grayson-county"
+      },
+      "x": 5.56,
+      "y": 0.46,
+      "population": null,
+      "impairedSegmentCount": 5,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 11,
+      "violationCount": 35,
+      "quadrant": "high-pressure-high-risk"
+    },
+    {
+      "county": {
+        "name": "Shackelford County",
+        "slug": "shackelford-county"
+      },
+      "x": 0,
+      "y": 0.46,
+      "population": null,
+      "impairedSegmentCount": 0,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 2,
+      "violationCount": 27,
+      "quadrant": "lower-pressure-high-risk"
+    },
+    {
+      "county": {
+        "name": "Jim Wells County",
+        "slug": "jim-wells-county"
+      },
+      "x": 0,
+      "y": 0.45,
+      "population": null,
+      "impairedSegmentCount": 0,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 6,
+      "violationCount": 39,
+      "quadrant": "lower-pressure-high-risk"
+    },
+    {
+      "county": {
+        "name": "Cameron County",
+        "slug": "cameron-county"
+      },
+      "x": 6.67,
+      "y": 0.44,
+      "population": null,
+      "impairedSegmentCount": 6,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 6,
+      "violationCount": 54,
+      "quadrant": "high-pressure-high-risk"
+    },
+    {
+      "county": {
+        "name": "Collin County",
+        "slug": "collin-county"
+      },
+      "x": 4.44,
+      "y": 0.43,
+      "population": null,
+      "impairedSegmentCount": 4,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 6,
+      "violationCount": 8,
+      "quadrant": "high-pressure-high-risk"
+    },
+    {
+      "county": {
+        "name": "El Paso County",
+        "slug": "el-paso-county"
+      },
+      "x": 2.22,
+      "y": 0.43,
+      "population": null,
+      "impairedSegmentCount": 2,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 7,
+      "violationCount": 40,
+      "quadrant": "high-pressure-high-risk"
+    },
+    {
+      "county": {
+        "name": "Childress County",
+        "slug": "childress-county"
+      },
+      "x": 1.11,
+      "y": 0.41,
+      "population": null,
+      "impairedSegmentCount": 1,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 4,
+      "violationCount": 14,
+      "quadrant": "high-pressure-high-risk"
+    },
+    {
+      "county": {
+        "name": "Kaufman County",
+        "slug": "kaufman-county"
+      },
+      "x": 3.33,
+      "y": 0.4,
+      "population": null,
+      "impairedSegmentCount": 3,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 9,
+      "violationCount": 16,
+      "quadrant": "high-pressure-high-risk"
+    },
+    {
+      "county": {
+        "name": "Blanco County",
+        "slug": "blanco-county"
+      },
+      "x": 0,
+      "y": 0.4,
+      "population": null,
+      "impairedSegmentCount": 0,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 2,
+      "violationCount": 16,
+      "quadrant": "lower-pressure-high-risk"
+    },
+    {
+      "county": {
+        "name": "Navarro County",
+        "slug": "navarro-county"
+      },
+      "x": 7.78,
+      "y": 0.39,
+      "population": null,
+      "impairedSegmentCount": 7,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 8,
+      "violationCount": 59,
+      "quadrant": "high-pressure-high-risk"
+    },
+    {
+      "county": {
+        "name": "Foard County",
+        "slug": "foard-county"
+      },
+      "x": 0,
+      "y": 0.39,
+      "population": null,
+      "impairedSegmentCount": 0,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 3,
+      "violationCount": 99,
+      "quadrant": "lower-pressure-high-risk"
+    },
+    {
+      "county": {
+        "name": "Randall County",
+        "slug": "randall-county"
+      },
+      "x": 0,
+      "y": 0.39,
+      "population": null,
+      "impairedSegmentCount": 0,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 13,
+      "violationCount": 30,
+      "quadrant": "lower-pressure-high-risk"
+    },
+    {
+      "county": {
+        "name": "Garza County",
+        "slug": "garza-county"
+      },
+      "x": 1.11,
+      "y": 0.37,
+      "population": null,
+      "impairedSegmentCount": 1,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 5,
+      "violationCount": 94,
+      "quadrant": "high-pressure-high-risk"
+    },
+    {
+      "county": {
+        "name": "Fisher County",
+        "slug": "fisher-county"
+      },
+      "x": 0,
+      "y": 0.37,
+      "population": null,
+      "impairedSegmentCount": 0,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 4,
+      "violationCount": 39,
+      "quadrant": "lower-pressure-high-risk"
+    },
+    {
+      "county": {
+        "name": "Sabine County",
+        "slug": "sabine-county"
+      },
+      "x": 0,
+      "y": 0.37,
+      "population": null,
+      "impairedSegmentCount": 0,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 6,
+      "violationCount": 72,
+      "quadrant": "lower-pressure-high-risk"
+    },
+    {
+      "county": {
+        "name": "Camp County",
+        "slug": "camp-county"
+      },
+      "x": 4.44,
+      "y": 0.36,
+      "population": null,
+      "impairedSegmentCount": 4,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 3,
+      "violationCount": 6,
+      "quadrant": "high-pressure-high-risk"
+    },
+    {
+      "county": {
+        "name": "Victoria County",
+        "slug": "victoria-county"
+      },
+      "x": 4.44,
+      "y": 0.34,
+      "population": null,
+      "impairedSegmentCount": 4,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 13,
+      "violationCount": 78,
+      "quadrant": "high-pressure-high-risk"
+    },
+    {
+      "county": {
+        "name": "Washington County",
+        "slug": "washington-county"
+      },
+      "x": 1.11,
+      "y": 0.34,
+      "population": null,
+      "impairedSegmentCount": 1,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 5,
+      "violationCount": 22,
+      "quadrant": "high-pressure-high-risk"
+    },
+    {
+      "county": {
+        "name": "Eastland County",
+        "slug": "eastland-county"
+      },
+      "x": 0,
+      "y": 0.34,
+      "population": null,
+      "impairedSegmentCount": 0,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 8,
+      "violationCount": 50,
+      "quadrant": "lower-pressure-high-risk"
+    },
+    {
+      "county": {
+        "name": "Pecos County",
+        "slug": "pecos-county"
+      },
+      "x": 0,
+      "y": 0.34,
+      "population": null,
+      "impairedSegmentCount": 0,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 4,
+      "violationCount": 38,
+      "quadrant": "lower-pressure-high-risk"
+    },
+    {
+      "county": {
+        "name": "Yoakum County",
+        "slug": "yoakum-county"
+      },
+      "x": 0,
+      "y": 0.32,
+      "population": null,
+      "impairedSegmentCount": 0,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 1,
+      "violationCount": 30,
+      "quadrant": "lower-pressure-high-risk"
+    },
+    {
+      "county": {
+        "name": "San Jacinto County",
+        "slug": "san-jacinto-county"
+      },
+      "x": 1.11,
+      "y": 0.3,
+      "population": null,
+      "impairedSegmentCount": 1,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 10,
+      "violationCount": 36,
+      "quadrant": "high-pressure-high-risk"
+    },
+    {
+      "county": {
+        "name": "Llano County",
+        "slug": "llano-county"
+      },
+      "x": 0,
+      "y": 0.29,
+      "population": null,
+      "impairedSegmentCount": 0,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 6,
+      "violationCount": 22,
+      "quadrant": "lower-pressure-high-risk"
+    },
+    {
+      "county": {
+        "name": "Lynn County",
+        "slug": "lynn-county"
+      },
+      "x": 0,
+      "y": 0.29,
+      "population": null,
+      "impairedSegmentCount": 0,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 3,
+      "violationCount": 113,
+      "quadrant": "lower-pressure-high-risk"
+    },
+    {
+      "county": {
+        "name": "Real County",
+        "slug": "real-county"
+      },
+      "x": 0,
+      "y": 0.29,
+      "population": null,
+      "impairedSegmentCount": 0,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 3,
+      "violationCount": 53,
+      "quadrant": "lower-pressure-high-risk"
+    },
+    {
+      "county": {
+        "name": "Bell County",
+        "slug": "bell-county"
+      },
+      "x": 5.56,
+      "y": 0.28,
+      "population": null,
+      "impairedSegmentCount": 5,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 9,
+      "violationCount": 23,
+      "quadrant": "high-pressure-high-risk"
+    },
+    {
+      "county": {
+        "name": "Hardeman County",
+        "slug": "hardeman-county"
+      },
+      "x": 1.11,
+      "y": 0.28,
+      "population": null,
+      "impairedSegmentCount": 1,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 3,
+      "violationCount": 38,
+      "quadrant": "high-pressure-high-risk"
+    },
+    {
+      "county": {
+        "name": "Williamson County",
+        "slug": "williamson-county"
+      },
+      "x": 4.44,
+      "y": 0.27,
+      "population": null,
+      "impairedSegmentCount": 4,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 4,
+      "violationCount": 17,
+      "quadrant": "high-pressure-high-risk"
+    },
+    {
+      "county": {
+        "name": "Briscoe County",
+        "slug": "briscoe-county"
+      },
+      "x": 1.11,
+      "y": 0.24,
+      "population": null,
+      "impairedSegmentCount": 1,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 5,
+      "violationCount": 60,
+      "quadrant": "high-pressure-high-risk"
+    },
+    {
+      "county": {
+        "name": "Coleman County",
+        "slug": "coleman-county"
+      },
+      "x": 1.11,
+      "y": 0.22,
+      "population": null,
+      "impairedSegmentCount": 1,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 2,
+      "violationCount": 6,
+      "quadrant": "high-pressure-high-risk"
+    },
+    {
+      "county": {
+        "name": "Frio County",
+        "slug": "frio-county"
+      },
+      "x": 2.22,
+      "y": 0.21,
+      "population": null,
+      "impairedSegmentCount": 2,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 4,
+      "violationCount": 14,
+      "quadrant": "high-pressure-high-risk"
+    },
+    {
+      "county": {
+        "name": "Medina County",
+        "slug": "medina-county"
+      },
+      "x": 0,
+      "y": 0.21,
+      "population": null,
+      "impairedSegmentCount": 0,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 9,
+      "violationCount": 14,
+      "quadrant": "lower-pressure-high-risk"
+    },
+    {
+      "county": {
+        "name": "Marion County",
+        "slug": "marion-county"
+      },
+      "x": 5.56,
+      "y": 0.2,
+      "population": null,
+      "impairedSegmentCount": 5,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 4,
+      "violationCount": 16,
+      "quadrant": "high-pressure-high-risk"
+    },
+    {
+      "county": {
+        "name": "Freestone County",
+        "slug": "freestone-county"
+      },
+      "x": 2.22,
+      "y": 0.2,
+      "population": null,
+      "impairedSegmentCount": 2,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 4,
+      "violationCount": 10,
+      "quadrant": "high-pressure-high-risk"
+    },
+    {
+      "county": {
+        "name": "Wilbarger County",
+        "slug": "wilbarger-county"
+      },
+      "x": 1.11,
+      "y": 0.2,
+      "population": null,
+      "impairedSegmentCount": 1,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 6,
+      "violationCount": 64,
+      "quadrant": "high-pressure-high-risk"
+    },
+    {
+      "county": {
+        "name": "Tarrant County",
+        "slug": "tarrant-county"
+      },
+      "x": 23.33,
+      "y": 0.19,
+      "population": null,
+      "impairedSegmentCount": 21,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 19,
+      "violationCount": 40,
+      "quadrant": "high-pressure-high-risk"
+    },
+    {
+      "county": {
+        "name": "Donley County",
+        "slug": "donley-county"
+      },
+      "x": 1.11,
+      "y": 0.19,
+      "population": null,
+      "impairedSegmentCount": 1,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 2,
+      "violationCount": 4,
+      "quadrant": "high-pressure-high-risk"
+    },
+    {
+      "county": {
+        "name": "Brooks County",
+        "slug": "brooks-county"
+      },
+      "x": 0,
+      "y": 0.19,
+      "population": null,
+      "impairedSegmentCount": 0,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 2,
+      "violationCount": 7,
+      "quadrant": "lower-pressure-high-risk"
+    },
+    {
+      "county": {
+        "name": "Rockwall County",
+        "slug": "rockwall-county"
+      },
+      "x": 1.11,
+      "y": 0.18,
+      "population": null,
+      "impairedSegmentCount": 1,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 3,
+      "violationCount": 3,
+      "quadrant": "high-pressure-high-risk"
+    },
+    {
+      "county": {
+        "name": "Edwards County",
+        "slug": "edwards-county"
+      },
+      "x": 0,
+      "y": 0.18,
+      "population": null,
+      "impairedSegmentCount": 0,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 1,
+      "violationCount": 85,
+      "quadrant": "lower-pressure-high-risk"
+    },
+    {
+      "county": {
+        "name": "Hunt County",
+        "slug": "hunt-county"
+      },
+      "x": 0,
+      "y": 0.18,
+      "population": null,
+      "impairedSegmentCount": 0,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 8,
+      "violationCount": 17,
+      "quadrant": "lower-pressure-high-risk"
+    },
+    {
+      "county": {
+        "name": "Refugio County",
+        "slug": "refugio-county"
+      },
+      "x": 3.33,
+      "y": 0.17,
+      "population": null,
+      "impairedSegmentCount": 3,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 2,
+      "violationCount": 20,
+      "quadrant": "high-pressure-high-risk"
+    },
+    {
+      "county": {
+        "name": "Coke County",
+        "slug": "coke-county"
+      },
+      "x": 2.22,
+      "y": 0.14,
+      "population": null,
+      "impairedSegmentCount": 2,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 3,
+      "violationCount": 52,
+      "quadrant": "high-pressure-high-risk"
+    },
+    {
+      "county": {
+        "name": "Hill County",
+        "slug": "hill-county"
+      },
+      "x": 2.22,
+      "y": 0.14,
+      "population": null,
+      "impairedSegmentCount": 2,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 16,
+      "violationCount": 19,
+      "quadrant": "high-pressure-high-risk"
+    },
+    {
+      "county": {
+        "name": "Austin County",
+        "slug": "austin-county"
+      },
+      "x": 1.11,
+      "y": 0.14,
+      "population": null,
+      "impairedSegmentCount": 1,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 7,
+      "violationCount": 9,
+      "quadrant": "high-pressure-high-risk"
+    },
+    {
+      "county": {
+        "name": "Atascosa County",
+        "slug": "atascosa-county"
+      },
+      "x": 2.22,
+      "y": 0.13,
+      "population": null,
+      "impairedSegmentCount": 2,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 3,
+      "violationCount": 4,
+      "quadrant": "high-pressure-high-risk"
+    },
+    {
+      "county": {
+        "name": "Fort Bend County",
+        "slug": "fort-bend-county"
+      },
+      "x": 10,
+      "y": 0.12,
+      "population": null,
+      "impairedSegmentCount": 9,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 19,
+      "violationCount": 27,
+      "quadrant": "high-pressure-high-risk"
+    },
+    {
+      "county": {
+        "name": "Leon County",
+        "slug": "leon-county"
+      },
+      "x": 2.22,
+      "y": 0.12,
+      "population": null,
+      "impairedSegmentCount": 2,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 10,
+      "violationCount": 10,
+      "quadrant": "high-pressure-high-risk"
+    },
+    {
+      "county": {
+        "name": "Burleson County",
+        "slug": "burleson-county"
+      },
+      "x": 0,
+      "y": 0.12,
+      "population": null,
+      "impairedSegmentCount": 0,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 10,
+      "violationCount": 51,
+      "quadrant": "lower-pressure-high-risk"
+    },
+    {
+      "county": {
+        "name": "Deaf Smith County",
+        "slug": "deaf-smith-county"
+      },
+      "x": 0,
+      "y": 0.12,
+      "population": null,
+      "impairedSegmentCount": 0,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 4,
+      "violationCount": 6,
+      "quadrant": "lower-pressure-high-risk"
+    },
+    {
+      "county": {
+        "name": "Fayette County",
+        "slug": "fayette-county"
+      },
+      "x": 0,
+      "y": 0.12,
+      "population": null,
+      "impairedSegmentCount": 0,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 3,
+      "violationCount": 32,
+      "quadrant": "lower-pressure-high-risk"
+    },
+    {
+      "county": {
+        "name": "Hall County",
+        "slug": "hall-county"
+      },
+      "x": 0,
+      "y": 0.12,
+      "population": null,
+      "impairedSegmentCount": 0,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 3,
+      "violationCount": 40,
+      "quadrant": "lower-pressure-high-risk"
+    },
+    {
+      "county": {
+        "name": "Tyler County",
+        "slug": "tyler-county"
+      },
+      "x": 3.33,
+      "y": 0.11,
+      "population": null,
+      "impairedSegmentCount": 3,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 8,
+      "violationCount": 19,
+      "quadrant": "high-pressure-high-risk"
+    },
+    {
+      "county": {
+        "name": "Dawson County",
+        "slug": "dawson-county"
+      },
+      "x": 0,
+      "y": 0.11,
+      "population": null,
+      "impairedSegmentCount": 0,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 2,
+      "violationCount": 42,
+      "quadrant": "lower-pressure-high-risk"
+    },
+    {
+      "county": {
+        "name": "Ector County",
+        "slug": "ector-county"
+      },
+      "x": 0,
+      "y": 0.11,
+      "population": null,
+      "impairedSegmentCount": 0,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 10,
+      "violationCount": 94,
+      "quadrant": "lower-pressure-high-risk"
+    },
+    {
+      "county": {
+        "name": "Knox County",
+        "slug": "knox-county"
+      },
+      "x": 1.11,
+      "y": 0.1,
+      "population": null,
+      "impairedSegmentCount": 1,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 3,
+      "violationCount": 34,
+      "quadrant": "high-pressure-lower-risk"
+    },
+    {
+      "county": {
+        "name": "Kleberg County",
+        "slug": "kleberg-county"
+      },
+      "x": 3.33,
+      "y": 0.09,
+      "population": null,
+      "impairedSegmentCount": 3,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 3,
+      "violationCount": 8,
+      "quadrant": "high-pressure-lower-risk"
+    },
+    {
+      "county": {
+        "name": "Young County",
+        "slug": "young-county"
+      },
+      "x": 3.33,
+      "y": 0.09,
+      "population": null,
+      "impairedSegmentCount": 3,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 4,
+      "violationCount": 4,
+      "quadrant": "high-pressure-lower-risk"
+    },
+    {
+      "county": {
+        "name": "Clay County",
+        "slug": "clay-county"
+      },
+      "x": 2.22,
+      "y": 0.09,
+      "population": null,
+      "impairedSegmentCount": 2,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 5,
+      "violationCount": 22,
+      "quadrant": "high-pressure-lower-risk"
+    },
+    {
+      "county": {
+        "name": "Lee County",
+        "slug": "lee-county"
+      },
+      "x": 2.22,
+      "y": 0.09,
+      "population": null,
+      "impairedSegmentCount": 2,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 4,
+      "violationCount": 6,
+      "quadrant": "high-pressure-lower-risk"
+    },
+    {
+      "county": {
+        "name": "Stonewall County",
+        "slug": "stonewall-county"
+      },
+      "x": 2.22,
+      "y": 0.09,
+      "population": null,
+      "impairedSegmentCount": 2,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 3,
+      "violationCount": 32,
+      "quadrant": "high-pressure-lower-risk"
+    },
+    {
+      "county": {
+        "name": "Uvalde County",
+        "slug": "uvalde-county"
+      },
+      "x": 2.22,
+      "y": 0.09,
+      "population": null,
+      "impairedSegmentCount": 2,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 5,
+      "violationCount": 13,
+      "quadrant": "high-pressure-lower-risk"
+    },
+    {
+      "county": {
+        "name": "Wilson County",
+        "slug": "wilson-county"
+      },
+      "x": 2.22,
+      "y": 0.09,
+      "population": null,
+      "impairedSegmentCount": 2,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 4,
+      "violationCount": 5,
+      "quadrant": "high-pressure-lower-risk"
+    },
+    {
+      "county": {
+        "name": "Borden County",
+        "slug": "borden-county"
+      },
+      "x": 0,
+      "y": 0.09,
+      "population": null,
+      "impairedSegmentCount": 0,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 2,
+      "violationCount": 44,
+      "quadrant": "lower-pressure-lower-risk"
+    },
+    {
+      "county": {
+        "name": "Castro County",
+        "slug": "castro-county"
+      },
+      "x": 0,
+      "y": 0.09,
+      "population": null,
+      "impairedSegmentCount": 0,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 3,
+      "violationCount": 15,
+      "quadrant": "lower-pressure-lower-risk"
+    },
+    {
+      "county": {
+        "name": "Bowie County",
+        "slug": "bowie-county"
+      },
+      "x": 6.67,
+      "y": 0.08,
+      "population": null,
+      "impairedSegmentCount": 6,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 5,
+      "violationCount": 5,
+      "quadrant": "high-pressure-lower-risk"
+    },
+    {
+      "county": {
+        "name": "Upshur County",
+        "slug": "upshur-county"
+      },
+      "x": 2.22,
+      "y": 0.08,
+      "population": null,
+      "impairedSegmentCount": 2,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 4,
+      "violationCount": 4,
+      "quadrant": "high-pressure-lower-risk"
+    },
+    {
+      "county": {
+        "name": "Presidio County",
+        "slug": "presidio-county"
+      },
+      "x": 1.11,
+      "y": 0.08,
+      "population": null,
+      "impairedSegmentCount": 1,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 4,
+      "violationCount": 47,
+      "quadrant": "high-pressure-lower-risk"
+    },
+    {
+      "county": {
+        "name": "Waller County",
+        "slug": "waller-county"
+      },
+      "x": 1.11,
+      "y": 0.08,
+      "population": null,
+      "impairedSegmentCount": 1,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 16,
+      "violationCount": 17,
+      "quadrant": "high-pressure-lower-risk"
+    },
+    {
+      "county": {
+        "name": "Hopkins County",
+        "slug": "hopkins-county"
+      },
+      "x": 4.44,
+      "y": 0.07,
+      "population": null,
+      "impairedSegmentCount": 4,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 3,
+      "violationCount": 5,
+      "quadrant": "high-pressure-lower-risk"
+    },
+    {
+      "county": {
+        "name": "Nacogdoches County",
+        "slug": "nacogdoches-county"
+      },
+      "x": 4.44,
+      "y": 0.07,
+      "population": null,
+      "impairedSegmentCount": 4,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 7,
+      "violationCount": 9,
+      "quadrant": "high-pressure-lower-risk"
+    },
+    {
+      "county": {
+        "name": "Dallam County",
+        "slug": "dallam-county"
+      },
+      "x": 0,
+      "y": 0.07,
+      "population": null,
+      "impairedSegmentCount": 0,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 1,
+      "violationCount": 24,
+      "quadrant": "lower-pressure-lower-risk"
+    },
+    {
+      "county": {
+        "name": "Jones County",
+        "slug": "jones-county"
+      },
+      "x": 0,
+      "y": 0.07,
+      "population": null,
+      "impairedSegmentCount": 0,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 3,
+      "violationCount": 25,
+      "quadrant": "lower-pressure-lower-risk"
+    },
+    {
+      "county": {
+        "name": "Scurry County",
+        "slug": "scurry-county"
+      },
+      "x": 0,
+      "y": 0.07,
+      "population": null,
+      "impairedSegmentCount": 0,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 1,
+      "violationCount": 15,
+      "quadrant": "lower-pressure-lower-risk"
+    },
+    {
+      "county": {
+        "name": "Newton County",
+        "slug": "newton-county"
+      },
+      "x": 3.33,
+      "y": 0.06,
+      "population": null,
+      "impairedSegmentCount": 3,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 4,
+      "violationCount": 5,
+      "quadrant": "high-pressure-lower-risk"
+    },
+    {
+      "county": {
+        "name": "Haskell County",
+        "slug": "haskell-county"
+      },
+      "x": 1.11,
+      "y": 0.06,
+      "population": null,
+      "impairedSegmentCount": 1,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 6,
+      "violationCount": 15,
+      "quadrant": "high-pressure-lower-risk"
+    },
+    {
+      "county": {
+        "name": "Nolan County",
+        "slug": "nolan-county"
+      },
+      "x": 1.11,
+      "y": 0.06,
+      "population": null,
+      "impairedSegmentCount": 1,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 2,
+      "violationCount": 6,
+      "quadrant": "high-pressure-lower-risk"
+    },
+    {
+      "county": {
+        "name": "Hale County",
+        "slug": "hale-county"
+      },
+      "x": 0,
+      "y": 0.06,
+      "population": null,
+      "impairedSegmentCount": 0,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 10,
+      "violationCount": 42,
+      "quadrant": "lower-pressure-lower-risk"
+    },
+    {
+      "county": {
+        "name": "Wheeler County",
+        "slug": "wheeler-county"
+      },
+      "x": 0,
+      "y": 0.06,
+      "population": null,
+      "impairedSegmentCount": 0,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 2,
+      "violationCount": 6,
+      "quadrant": "lower-pressure-lower-risk"
+    },
+    {
+      "county": {
+        "name": "Winkler County",
+        "slug": "winkler-county"
+      },
+      "x": 0,
+      "y": 0.06,
+      "population": null,
+      "impairedSegmentCount": 0,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 5,
+      "violationCount": 6,
+      "quadrant": "lower-pressure-lower-risk"
+    },
+    {
+      "county": {
+        "name": "Aransas County",
+        "slug": "aransas-county"
+      },
+      "x": 7.78,
+      "y": 0.05,
+      "population": null,
+      "impairedSegmentCount": 7,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 3,
+      "violationCount": 31,
+      "quadrant": "high-pressure-lower-risk"
+    },
+    {
+      "county": {
+        "name": "Lamar County",
+        "slug": "lamar-county"
+      },
+      "x": 6.67,
+      "y": 0.05,
+      "population": null,
+      "impairedSegmentCount": 6,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 4,
+      "violationCount": 4,
+      "quadrant": "high-pressure-lower-risk"
+    },
+    {
+      "county": {
+        "name": "Red River County",
+        "slug": "red-river-county"
+      },
+      "x": 3.33,
+      "y": 0.05,
+      "population": null,
+      "impairedSegmentCount": 3,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 3,
+      "violationCount": 3,
+      "quadrant": "high-pressure-lower-risk"
+    },
+    {
+      "county": {
+        "name": "Cooke County",
+        "slug": "cooke-county"
+      },
+      "x": 2.22,
+      "y": 0.05,
+      "population": null,
+      "impairedSegmentCount": 2,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 8,
+      "violationCount": 9,
+      "quadrant": "high-pressure-lower-risk"
+    },
+    {
+      "county": {
+        "name": "Madison County",
+        "slug": "madison-county"
+      },
+      "x": 2.22,
+      "y": 0.05,
+      "population": null,
+      "impairedSegmentCount": 2,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 2,
+      "violationCount": 7,
+      "quadrant": "high-pressure-lower-risk"
+    },
+    {
+      "county": {
+        "name": "Willacy County",
+        "slug": "willacy-county"
+      },
+      "x": 1.11,
+      "y": 0.05,
+      "population": null,
+      "impairedSegmentCount": 1,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 2,
+      "violationCount": 7,
+      "quadrant": "high-pressure-lower-risk"
+    },
+    {
+      "county": {
+        "name": "Delta County",
+        "slug": "delta-county"
+      },
+      "x": 0,
+      "y": 0.05,
+      "population": null,
+      "impairedSegmentCount": 0,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 1,
+      "violationCount": 3,
+      "quadrant": "lower-pressure-lower-risk"
+    },
+    {
+      "county": {
+        "name": "Ellis County",
+        "slug": "ellis-county"
+      },
+      "x": 0,
+      "y": 0.05,
+      "population": null,
+      "impairedSegmentCount": 0,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 6,
+      "violationCount": 7,
+      "quadrant": "lower-pressure-lower-risk"
+    },
+    {
+      "county": {
+        "name": "Mills County",
+        "slug": "mills-county"
+      },
+      "x": 0,
+      "y": 0.05,
+      "population": null,
+      "impairedSegmentCount": 0,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 2,
+      "violationCount": 14,
+      "quadrant": "lower-pressure-lower-risk"
+    },
+    {
+      "county": {
+        "name": "Parmer County",
+        "slug": "parmer-county"
+      },
+      "x": 0,
+      "y": 0.05,
+      "population": null,
+      "impairedSegmentCount": 0,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 3,
+      "violationCount": 3,
+      "quadrant": "lower-pressure-lower-risk"
+    },
+    {
+      "county": {
+        "name": "Brazos County",
+        "slug": "brazos-county"
+      },
+      "x": 10,
+      "y": 0.04,
+      "population": null,
+      "impairedSegmentCount": 9,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 5,
+      "violationCount": 18,
+      "quadrant": "high-pressure-lower-risk"
+    },
+    {
+      "county": {
+        "name": "Hardin County",
+        "slug": "hardin-county"
+      },
+      "x": 7.78,
+      "y": 0.04,
+      "population": null,
+      "impairedSegmentCount": 7,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 6,
+      "violationCount": 11,
+      "quadrant": "high-pressure-lower-risk"
+    },
+    {
+      "county": {
+        "name": "Mcmullen County",
+        "slug": "mcmullen-county"
+      },
+      "x": 3.33,
+      "y": 0.04,
+      "population": null,
+      "impairedSegmentCount": 3,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 3,
+      "violationCount": 8,
+      "quadrant": "high-pressure-lower-risk"
+    },
+    {
+      "county": {
+        "name": "Johnson County",
+        "slug": "johnson-county"
+      },
+      "x": 2.22,
+      "y": 0.04,
+      "population": null,
+      "impairedSegmentCount": 2,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 16,
+      "violationCount": 17,
+      "quadrant": "high-pressure-lower-risk"
+    },
+    {
+      "county": {
+        "name": "San Saba County",
+        "slug": "san-saba-county"
+      },
+      "x": 2.22,
+      "y": 0.04,
+      "population": null,
+      "impairedSegmentCount": 2,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 2,
+      "violationCount": 3,
+      "quadrant": "high-pressure-lower-risk"
+    },
+    {
+      "county": {
+        "name": "La Salle County",
+        "slug": "la-salle-county"
+      },
+      "x": 0,
+      "y": 0.04,
+      "population": null,
+      "impairedSegmentCount": 0,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 4,
+      "violationCount": 6,
+      "quadrant": "lower-pressure-lower-risk"
+    },
+    {
+      "county": {
+        "name": "Maverick County",
+        "slug": "maverick-county"
+      },
+      "x": 0,
+      "y": 0.04,
+      "population": null,
+      "impairedSegmentCount": 0,
+      "hydrologyLayerHitCount": 2,
+      "systemCount": 1,
+      "violationCount": 3,
+      "quadrant": "lower-pressure-lower-risk"
+    },
+    {
+      "county": {
+        "name": "Stephens County",
+        "slug": "stephens-county"
+      },
+      "x": 0,
+      "y": 0.04,
+      "population": null,
+      "impairedSegmentCount": 0,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 2,
+      "violationCount": 2,
+      "quadrant": "lower-pressure-lower-risk"
+    },
+    {
+      "county": {
+        "name": "Jack County",
+        "slug": "jack-county"
+      },
+      "x": 3.33,
+      "y": 0.03,
+      "population": null,
+      "impairedSegmentCount": 3,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 2,
+      "violationCount": 8,
+      "quadrant": "high-pressure-lower-risk"
+    },
+    {
+      "county": {
+        "name": "Val Verde County",
+        "slug": "val-verde-county"
+      },
+      "x": 3.33,
+      "y": 0.03,
+      "population": null,
+      "impairedSegmentCount": 3,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 6,
+      "violationCount": 27,
+      "quadrant": "high-pressure-lower-risk"
+    },
+    {
+      "county": {
+        "name": "Liberty County",
+        "slug": "liberty-county"
+      },
+      "x": 2.22,
+      "y": 0.03,
+      "population": null,
+      "impairedSegmentCount": 2,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 9,
+      "violationCount": 12,
+      "quadrant": "high-pressure-lower-risk"
+    },
+    {
+      "county": {
+        "name": "Mitchell County",
+        "slug": "mitchell-county"
+      },
+      "x": 1.11,
+      "y": 0.03,
+      "population": null,
+      "impairedSegmentCount": 1,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 2,
+      "violationCount": 2,
+      "quadrant": "high-pressure-lower-risk"
+    },
+    {
+      "county": {
+        "name": "Potter County",
+        "slug": "potter-county"
+      },
+      "x": 1.11,
+      "y": 0.03,
+      "population": null,
+      "impairedSegmentCount": 1,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 5,
+      "violationCount": 7,
+      "quadrant": "high-pressure-lower-risk"
+    },
+    {
+      "county": {
+        "name": "Bosque County",
+        "slug": "bosque-county"
+      },
+      "x": 0,
+      "y": 0.03,
+      "population": null,
+      "impairedSegmentCount": 0,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 5,
+      "violationCount": 20,
+      "quadrant": "lower-pressure-lower-risk"
+    },
+    {
+      "county": {
+        "name": "Gillespie County",
+        "slug": "gillespie-county"
+      },
+      "x": 0,
+      "y": 0.03,
+      "population": null,
+      "impairedSegmentCount": 0,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 11,
+      "violationCount": 30,
+      "quadrant": "lower-pressure-lower-risk"
+    },
+    {
+      "county": {
+        "name": "Lamb County",
+        "slug": "lamb-county"
+      },
+      "x": 0,
+      "y": 0.03,
+      "population": null,
+      "impairedSegmentCount": 0,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 4,
+      "violationCount": 9,
+      "quadrant": "lower-pressure-lower-risk"
+    },
+    {
+      "county": {
+        "name": "Reeves County",
+        "slug": "reeves-county"
+      },
+      "x": 0,
+      "y": 0.03,
+      "population": null,
+      "impairedSegmentCount": 0,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 4,
+      "violationCount": 17,
+      "quadrant": "lower-pressure-lower-risk"
+    },
+    {
+      "county": {
+        "name": "Taylor County",
+        "slug": "taylor-county"
+      },
+      "x": 0,
+      "y": 0.03,
+      "population": null,
+      "impairedSegmentCount": 0,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 3,
+      "violationCount": 3,
+      "quadrant": "lower-pressure-lower-risk"
+    },
+    {
+      "county": {
+        "name": "Terry County",
+        "slug": "terry-county"
+      },
+      "x": 0,
+      "y": 0.03,
+      "population": null,
+      "impairedSegmentCount": 0,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 2,
+      "violationCount": 11,
+      "quadrant": "lower-pressure-lower-risk"
+    },
+    {
+      "county": {
+        "name": "Jackson County",
+        "slug": "jackson-county"
+      },
+      "x": 4.44,
+      "y": 0.02,
+      "population": null,
+      "impairedSegmentCount": 4,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 3,
+      "violationCount": 4,
+      "quadrant": "high-pressure-lower-risk"
+    },
+    {
+      "county": {
+        "name": "Colorado County",
+        "slug": "colorado-county"
+      },
+      "x": 3.33,
+      "y": 0.02,
+      "population": null,
+      "impairedSegmentCount": 3,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 6,
+      "violationCount": 7,
+      "quadrant": "high-pressure-lower-risk"
+    },
+    {
+      "county": {
+        "name": "Morris County",
+        "slug": "morris-county"
+      },
+      "x": 3.33,
+      "y": 0.02,
+      "population": null,
+      "impairedSegmentCount": 3,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 2,
+      "violationCount": 2,
+      "quadrant": "high-pressure-lower-risk"
+    },
+    {
+      "county": {
+        "name": "Hutchinson County",
+        "slug": "hutchinson-county"
+      },
+      "x": 2.22,
+      "y": 0.02,
+      "population": null,
+      "impairedSegmentCount": 2,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 3,
+      "violationCount": 3,
+      "quadrant": "high-pressure-lower-risk"
+    },
+    {
+      "county": {
+        "name": "Bandera County",
+        "slug": "bandera-county"
+      },
+      "x": 1.11,
+      "y": 0.02,
+      "population": null,
+      "impairedSegmentCount": 1,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 10,
+      "violationCount": 13,
+      "quadrant": "high-pressure-lower-risk"
+    },
+    {
+      "county": {
+        "name": "Crosby County",
+        "slug": "crosby-county"
+      },
+      "x": 1.11,
+      "y": 0.02,
+      "population": null,
+      "impairedSegmentCount": 1,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 2,
+      "violationCount": 2,
+      "quadrant": "high-pressure-lower-risk"
+    },
+    {
+      "county": {
+        "name": "Denton County",
+        "slug": "denton-county"
+      },
+      "x": 1.11,
+      "y": 0.02,
+      "population": null,
+      "impairedSegmentCount": 1,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 16,
+      "violationCount": 18,
+      "quadrant": "high-pressure-lower-risk"
+    },
+    {
+      "county": {
+        "name": "Van Zandt County",
+        "slug": "van-zandt-county"
+      },
+      "x": 1.11,
+      "y": 0.02,
+      "population": null,
+      "impairedSegmentCount": 1,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 2,
+      "violationCount": 2,
+      "quadrant": "high-pressure-lower-risk"
+    },
+    {
+      "county": {
+        "name": "Brown County",
+        "slug": "brown-county"
+      },
+      "x": 0,
+      "y": 0.02,
+      "population": null,
+      "impairedSegmentCount": 0,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 2,
+      "violationCount": 2,
+      "quadrant": "lower-pressure-lower-risk"
+    },
+    {
+      "county": {
+        "name": "Crane County",
+        "slug": "crane-county"
+      },
+      "x": 0,
+      "y": 0.02,
+      "population": null,
+      "impairedSegmentCount": 0,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 1,
+      "violationCount": 1,
+      "quadrant": "lower-pressure-lower-risk"
+    },
+    {
+      "county": {
+        "name": "Montague County",
+        "slug": "montague-county"
+      },
+      "x": 0,
+      "y": 0.02,
+      "population": null,
+      "impairedSegmentCount": 0,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 6,
+      "violationCount": 6,
+      "quadrant": "lower-pressure-lower-risk"
+    },
+    {
+      "county": {
+        "name": "Sutton County",
+        "slug": "sutton-county"
+      },
+      "x": 0,
+      "y": 0.02,
+      "population": null,
+      "impairedSegmentCount": 0,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 1,
+      "violationCount": 1,
+      "quadrant": "lower-pressure-lower-risk"
+    },
+    {
+      "county": {
+        "name": "Throckmorton County",
+        "slug": "throckmorton-county"
+      },
+      "x": 0,
+      "y": 0.02,
+      "population": null,
+      "impairedSegmentCount": 0,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 1,
+      "violationCount": 4,
+      "quadrant": "lower-pressure-lower-risk"
+    },
+    {
+      "county": {
+        "name": "Gonzales County",
+        "slug": "gonzales-county"
+      },
+      "x": 3.33,
+      "y": 0.01,
+      "population": null,
+      "impairedSegmentCount": 3,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 1,
+      "violationCount": 2,
+      "quadrant": "high-pressure-lower-risk"
+    },
+    {
+      "county": {
+        "name": "Wichita County",
+        "slug": "wichita-county"
+      },
+      "x": 3.33,
+      "y": 0.01,
+      "population": null,
+      "impairedSegmentCount": 3,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 1,
+      "violationCount": 1,
+      "quadrant": "high-pressure-lower-risk"
+    },
+    {
+      "county": {
+        "name": "Wood County",
+        "slug": "wood-county"
+      },
+      "x": 3.33,
+      "y": 0.01,
+      "population": null,
+      "impairedSegmentCount": 3,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 2,
+      "violationCount": 2,
+      "quadrant": "high-pressure-lower-risk"
+    },
+    {
+      "county": {
+        "name": "Archer County",
+        "slug": "archer-county"
+      },
+      "x": 1.11,
+      "y": 0.01,
+      "population": null,
+      "impairedSegmentCount": 1,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 1,
+      "violationCount": 1,
+      "quadrant": "high-pressure-lower-risk"
+    },
+    {
+      "county": {
+        "name": "Armstrong County",
+        "slug": "armstrong-county"
+      },
+      "x": 1.11,
+      "y": 0.01,
+      "population": null,
+      "impairedSegmentCount": 1,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 1,
+      "violationCount": 1,
+      "quadrant": "high-pressure-lower-risk"
+    },
+    {
+      "county": {
+        "name": "Cottle County",
+        "slug": "cottle-county"
+      },
+      "x": 1.11,
+      "y": 0.01,
+      "population": null,
+      "impairedSegmentCount": 1,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 2,
+      "violationCount": 2,
+      "quadrant": "high-pressure-lower-risk"
+    },
+    {
+      "county": {
+        "name": "Dewitt County",
+        "slug": "dewitt-county"
+      },
+      "x": 1.11,
+      "y": 0.01,
+      "population": null,
+      "impairedSegmentCount": 1,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 3,
+      "violationCount": 15,
+      "quadrant": "high-pressure-lower-risk"
+    },
+    {
+      "county": {
+        "name": "Fannin County",
+        "slug": "fannin-county"
+      },
+      "x": 1.11,
+      "y": 0.01,
+      "population": null,
+      "impairedSegmentCount": 1,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 4,
+      "violationCount": 4,
+      "quadrant": "high-pressure-lower-risk"
+    },
+    {
+      "county": {
+        "name": "Goliad County",
+        "slug": "goliad-county"
+      },
+      "x": 1.11,
+      "y": 0.01,
+      "population": null,
+      "impairedSegmentCount": 1,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 2,
+      "violationCount": 2,
+      "quadrant": "high-pressure-lower-risk"
+    },
+    {
+      "county": {
+        "name": "Gray County",
+        "slug": "gray-county"
+      },
+      "x": 1.11,
+      "y": 0.01,
+      "population": null,
+      "impairedSegmentCount": 1,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 3,
+      "violationCount": 3,
+      "quadrant": "high-pressure-lower-risk"
+    },
+    {
+      "county": {
+        "name": "Kent County",
+        "slug": "kent-county"
+      },
+      "x": 1.11,
+      "y": 0.01,
+      "population": null,
+      "impairedSegmentCount": 1,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 2,
+      "violationCount": 3,
+      "quadrant": "high-pressure-lower-risk"
+    },
+    {
+      "county": {
+        "name": "Terrell County",
+        "slug": "terrell-county"
+      },
+      "x": 1.11,
+      "y": 0.01,
+      "population": null,
+      "impairedSegmentCount": 1,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 1,
+      "violationCount": 1,
+      "quadrant": "high-pressure-lower-risk"
+    },
+    {
+      "county": {
+        "name": "Carson County",
+        "slug": "carson-county"
+      },
+      "x": 0,
+      "y": 0.01,
+      "population": null,
+      "impairedSegmentCount": 0,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 2,
+      "violationCount": 2,
+      "quadrant": "lower-pressure-lower-risk"
+    },
+    {
+      "county": {
+        "name": "Culberson County",
+        "slug": "culberson-county"
+      },
+      "x": 0,
+      "y": 0.01,
+      "population": null,
+      "impairedSegmentCount": 0,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 1,
+      "violationCount": 1,
+      "quadrant": "lower-pressure-lower-risk"
+    },
+    {
+      "county": {
+        "name": "Dimmit County",
+        "slug": "dimmit-county"
+      },
+      "x": 0,
+      "y": 0.01,
+      "population": null,
+      "impairedSegmentCount": 0,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 5,
+      "violationCount": 5,
+      "quadrant": "lower-pressure-lower-risk"
+    },
+    {
+      "county": {
+        "name": "Floyd County",
+        "slug": "floyd-county"
+      },
+      "x": 0,
+      "y": 0.01,
+      "population": null,
+      "impairedSegmentCount": 0,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 2,
+      "violationCount": 2,
+      "quadrant": "lower-pressure-lower-risk"
+    },
+    {
+      "county": {
+        "name": "Hudspeth County",
+        "slug": "hudspeth-county"
+      },
+      "x": 0,
+      "y": 0.01,
+      "population": null,
+      "impairedSegmentCount": 0,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 3,
+      "violationCount": 3,
+      "quadrant": "lower-pressure-lower-risk"
+    },
+    {
+      "county": {
+        "name": "King County",
+        "slug": "king-county"
+      },
+      "x": 0,
+      "y": 0.01,
+      "population": null,
+      "impairedSegmentCount": 0,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 1,
+      "violationCount": 3,
+      "quadrant": "lower-pressure-lower-risk"
+    },
+    {
+      "county": {
+        "name": "Martin County",
+        "slug": "martin-county"
+      },
+      "x": 0,
+      "y": 0.01,
+      "population": null,
+      "impairedSegmentCount": 0,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 1,
+      "violationCount": 20,
+      "quadrant": "lower-pressure-lower-risk"
+    },
+    {
+      "county": {
+        "name": "Moore County",
+        "slug": "moore-county"
+      },
+      "x": 0,
+      "y": 0.01,
+      "population": null,
+      "impairedSegmentCount": 0,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 2,
+      "violationCount": 2,
+      "quadrant": "lower-pressure-lower-risk"
+    },
+    {
+      "county": {
+        "name": "Swisher County",
+        "slug": "swisher-county"
+      },
+      "x": 0,
+      "y": 0.01,
+      "population": null,
+      "impairedSegmentCount": 0,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 3,
+      "violationCount": 10,
+      "quadrant": "lower-pressure-lower-risk"
+    },
+    {
+      "county": {
+        "name": "Upton County",
+        "slug": "upton-county"
+      },
+      "x": 0,
+      "y": 0.01,
+      "population": null,
+      "impairedSegmentCount": 0,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 3,
+      "violationCount": 3,
+      "quadrant": "lower-pressure-lower-risk"
+    },
+    {
+      "county": {
+        "name": "Ward County",
+        "slug": "ward-county"
+      },
+      "x": 0,
+      "y": 0.01,
+      "population": null,
+      "impairedSegmentCount": 0,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 1,
+      "violationCount": 1,
+      "quadrant": "lower-pressure-lower-risk"
+    },
+    {
+      "county": {
+        "name": "Wharton County",
+        "slug": "wharton-county"
+      },
+      "x": 0,
+      "y": 0.01,
+      "population": null,
+      "impairedSegmentCount": 0,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 8,
+      "violationCount": 10,
+      "quadrant": "lower-pressure-lower-risk"
+    },
+    {
+      "county": {
+        "name": "Zavala County",
+        "slug": "zavala-county"
+      },
+      "x": 0,
+      "y": 0.01,
+      "population": null,
+      "impairedSegmentCount": 0,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 1,
+      "violationCount": 1,
+      "quadrant": "lower-pressure-lower-risk"
+    },
+    {
+      "county": {
+        "name": "Robertson County",
+        "slug": "robertson-county"
+      },
+      "x": 7.78,
+      "y": 0,
+      "population": null,
+      "impairedSegmentCount": 7,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 1,
+      "violationCount": 1,
+      "quadrant": "high-pressure-lower-risk"
+    },
+    {
+      "county": {
+        "name": "Kenedy County",
+        "slug": "kenedy-county"
+      },
+      "x": 3.33,
+      "y": 0,
+      "population": null,
+      "impairedSegmentCount": 3,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 1,
+      "violationCount": 1,
+      "quadrant": "high-pressure-lower-risk"
+    },
+    {
+      "county": {
+        "name": "Titus County",
+        "slug": "titus-county"
+      },
+      "x": 3.33,
+      "y": 0,
+      "population": null,
+      "impairedSegmentCount": 3,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 0,
+      "violationCount": 0,
+      "quadrant": "high-pressure-lower-risk"
+    },
+    {
+      "county": {
+        "name": "Baylor County",
+        "slug": "baylor-county"
+      },
+      "x": 2.22,
+      "y": 0,
+      "population": null,
+      "impairedSegmentCount": 2,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 0,
+      "violationCount": 0,
+      "quadrant": "high-pressure-lower-risk"
+    },
+    {
+      "county": {
+        "name": "Live Oak County",
+        "slug": "live-oak-county"
+      },
+      "x": 2.22,
+      "y": 0,
+      "population": null,
+      "impairedSegmentCount": 2,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 1,
+      "violationCount": 1,
+      "quadrant": "high-pressure-lower-risk"
+    },
+    {
+      "county": {
+        "name": "Cameron Parish County",
+        "slug": "cameron-parish-county"
+      },
+      "x": 1.11,
+      "y": 0,
+      "population": null,
+      "impairedSegmentCount": 1,
+      "hydrologyLayerHitCount": 0,
+      "systemCount": 0,
+      "violationCount": 0,
+      "quadrant": "high-pressure-lower-risk"
+    },
+    {
+      "county": {
+        "name": "Franklin County",
+        "slug": "franklin-county"
+      },
+      "x": 1.11,
+      "y": 0,
+      "population": null,
+      "impairedSegmentCount": 1,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 0,
+      "violationCount": 0,
+      "quadrant": "high-pressure-lower-risk"
+    },
+    {
+      "county": {
+        "name": "From Franklin County",
+        "slug": "from-franklin-county"
+      },
+      "x": 1.11,
+      "y": 0,
+      "population": null,
+      "impairedSegmentCount": 1,
+      "hydrologyLayerHitCount": 0,
+      "systemCount": 0,
+      "violationCount": 0,
+      "quadrant": "high-pressure-lower-risk"
+    },
+    {
+      "county": {
+        "name": "From Houston County",
+        "slug": "from-houston-county"
+      },
+      "x": 1.11,
+      "y": 0,
+      "population": null,
+      "impairedSegmentCount": 1,
+      "hydrologyLayerHitCount": 0,
+      "systemCount": 0,
+      "violationCount": 0,
+      "quadrant": "high-pressure-lower-risk"
+    },
+    {
+      "county": {
+        "name": "Hartley County",
+        "slug": "hartley-county"
+      },
+      "x": 1.11,
+      "y": 0,
+      "population": null,
+      "impairedSegmentCount": 1,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 1,
+      "violationCount": 1,
+      "quadrant": "high-pressure-lower-risk"
+    },
+    {
+      "county": {
+        "name": "Lasalle County",
+        "slug": "lasalle-county"
+      },
+      "x": 1.11,
+      "y": 0,
+      "population": null,
+      "impairedSegmentCount": 1,
+      "hydrologyLayerHitCount": 0,
+      "systemCount": 0,
+      "violationCount": 0,
+      "quadrant": "high-pressure-lower-risk"
+    },
+    {
+      "county": {
+        "name": "Lavaca County",
+        "slug": "lavaca-county"
+      },
+      "x": 1.11,
+      "y": 0,
+      "population": null,
+      "impairedSegmentCount": 1,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 3,
+      "violationCount": 3,
+      "quadrant": "high-pressure-lower-risk"
+    },
+    {
+      "county": {
+        "name": "Bailey County",
+        "slug": "bailey-county"
+      },
+      "x": 0,
+      "y": 0,
+      "population": null,
+      "impairedSegmentCount": 0,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 1,
+      "violationCount": 1,
+      "quadrant": "lower-pressure-lower-risk"
+    },
+    {
+      "county": {
+        "name": "Brewster County",
+        "slug": "brewster-county"
+      },
+      "x": 0,
+      "y": 0,
+      "population": null,
+      "impairedSegmentCount": 0,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 1,
+      "violationCount": 1,
+      "quadrant": "lower-pressure-lower-risk"
+    },
+    {
+      "county": {
+        "name": "Cochran County",
+        "slug": "cochran-county"
+      },
+      "x": 0,
+      "y": 0,
+      "population": null,
+      "impairedSegmentCount": 0,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 1,
+      "violationCount": 2,
+      "quadrant": "lower-pressure-lower-risk"
+    },
+    {
+      "county": {
+        "name": "Collingsworth County",
+        "slug": "collingsworth-county"
+      },
+      "x": 0,
+      "y": 0,
+      "population": null,
+      "impairedSegmentCount": 0,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 1,
+      "violationCount": 1,
+      "quadrant": "lower-pressure-lower-risk"
+    },
+    {
+      "county": {
+        "name": "Curry County",
+        "slug": "curry-county"
+      },
+      "x": 0,
+      "y": 0,
+      "population": null,
+      "impairedSegmentCount": 0,
+      "hydrologyLayerHitCount": 0,
+      "systemCount": 0,
+      "violationCount": 0,
+      "quadrant": "lower-pressure-lower-risk"
+    },
+    {
+      "county": {
+        "name": "Dallas,johnson County",
+        "slug": "dallas-johnson-county"
+      },
+      "x": 0,
+      "y": 0,
+      "population": null,
+      "impairedSegmentCount": 0,
+      "hydrologyLayerHitCount": 0,
+      "systemCount": 1,
+      "violationCount": 1,
+      "quadrant": "lower-pressure-lower-risk"
+    },
+    {
+      "county": {
+        "name": "Dickens County",
+        "slug": "dickens-county"
+      },
+      "x": 0,
+      "y": 0,
+      "population": null,
+      "impairedSegmentCount": 0,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 1,
+      "violationCount": 6,
+      "quadrant": "lower-pressure-lower-risk"
+    },
+    {
+      "county": {
+        "name": "From Titus County",
+        "slug": "from-titus-county"
+      },
+      "x": 0,
+      "y": 0,
+      "population": null,
+      "impairedSegmentCount": 0,
+      "hydrologyLayerHitCount": 0,
+      "systemCount": 0,
+      "violationCount": 0,
+      "quadrant": "lower-pressure-lower-risk"
+    },
+    {
+      "county": {
+        "name": "Glasscock County",
+        "slug": "glasscock-county"
+      },
+      "x": 0,
+      "y": 0,
+      "population": null,
+      "impairedSegmentCount": 0,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 1,
+      "violationCount": 6,
+      "quadrant": "lower-pressure-lower-risk"
+    },
+    {
+      "county": {
+        "name": "Hansford County",
+        "slug": "hansford-county"
+      },
+      "x": 0,
+      "y": 0,
+      "population": null,
+      "impairedSegmentCount": 0,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 1,
+      "violationCount": 1,
+      "quadrant": "lower-pressure-lower-risk"
+    },
+    {
+      "county": {
+        "name": "Hemphill County",
+        "slug": "hemphill-county"
+      },
+      "x": 0,
+      "y": 0,
+      "population": null,
+      "impairedSegmentCount": 0,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 0,
+      "violationCount": 0,
+      "quadrant": "lower-pressure-lower-risk"
+    },
+    {
+      "county": {
+        "name": "Irion County",
+        "slug": "irion-county"
+      },
+      "x": 0,
+      "y": 0,
+      "population": null,
+      "impairedSegmentCount": 0,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 1,
+      "violationCount": 1,
+      "quadrant": "lower-pressure-lower-risk"
+    },
+    {
+      "county": {
+        "name": "Jeff Davis County",
+        "slug": "jeff-davis-county"
+      },
+      "x": 0,
+      "y": 0,
+      "population": null,
+      "impairedSegmentCount": 0,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 2,
+      "violationCount": 2,
+      "quadrant": "lower-pressure-lower-risk"
+    },
+    {
+      "county": {
+        "name": "Kinney County",
+        "slug": "kinney-county"
+      },
+      "x": 0,
+      "y": 0,
+      "population": null,
+      "impairedSegmentCount": 0,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 1,
+      "violationCount": 1,
+      "quadrant": "lower-pressure-lower-risk"
+    },
+    {
+      "county": {
+        "name": "Lipscomb County",
+        "slug": "lipscomb-county"
+      },
+      "x": 0,
+      "y": 0,
+      "population": null,
+      "impairedSegmentCount": 0,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 1,
+      "violationCount": 1,
+      "quadrant": "lower-pressure-lower-risk"
+    },
+    {
+      "county": {
+        "name": "Loving County",
+        "slug": "loving-county"
+      },
+      "x": 0,
+      "y": 0,
+      "population": null,
+      "impairedSegmentCount": 0,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 2,
+      "violationCount": 2,
+      "quadrant": "lower-pressure-lower-risk"
+    },
+    {
+      "county": {
+        "name": "Mason County",
+        "slug": "mason-county"
+      },
+      "x": 0,
+      "y": 0,
+      "population": null,
+      "impairedSegmentCount": 0,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 0,
+      "violationCount": 0,
+      "quadrant": "lower-pressure-lower-risk"
+    },
+    {
+      "county": {
+        "name": "Miller County",
+        "slug": "miller-county"
+      },
+      "x": 0,
+      "y": 0,
+      "population": null,
+      "impairedSegmentCount": 0,
+      "hydrologyLayerHitCount": 0,
+      "systemCount": 0,
+      "violationCount": 0,
+      "quadrant": "lower-pressure-lower-risk"
+    },
+    {
+      "county": {
+        "name": "Motley County",
+        "slug": "motley-county"
+      },
+      "x": 0,
+      "y": 0,
+      "population": null,
+      "impairedSegmentCount": 0,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 1,
+      "violationCount": 1,
+      "quadrant": "lower-pressure-lower-risk"
+    },
+    {
+      "county": {
+        "name": "Ochiltree County",
+        "slug": "ochiltree-county"
+      },
+      "x": 0,
+      "y": 0,
+      "population": null,
+      "impairedSegmentCount": 0,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 2,
+      "violationCount": 2,
+      "quadrant": "lower-pressure-lower-risk"
+    },
+    {
+      "county": {
+        "name": "Oldham County",
+        "slug": "oldham-county"
+      },
+      "x": 0,
+      "y": 0,
+      "population": null,
+      "impairedSegmentCount": 0,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 1,
+      "violationCount": 1,
+      "quadrant": "lower-pressure-lower-risk"
+    },
+    {
+      "county": {
+        "name": "Reagan County",
+        "slug": "reagan-county"
+      },
+      "x": 0,
+      "y": 0,
+      "population": null,
+      "impairedSegmentCount": 0,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 1,
+      "violationCount": 1,
+      "quadrant": "lower-pressure-lower-risk"
+    },
+    {
+      "county": {
+        "name": "Roberts County",
+        "slug": "roberts-county"
+      },
+      "x": 0,
+      "y": 0,
+      "population": null,
+      "impairedSegmentCount": 0,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 1,
+      "violationCount": 1,
+      "quadrant": "lower-pressure-lower-risk"
+    },
+    {
+      "county": {
+        "name": "Schleicher County",
+        "slug": "schleicher-county"
+      },
+      "x": 0,
+      "y": 0,
+      "population": null,
+      "impairedSegmentCount": 0,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 0,
+      "violationCount": 0,
+      "quadrant": "lower-pressure-lower-risk"
+    },
+    {
+      "county": {
+        "name": "Sherman County",
+        "slug": "sherman-county"
+      },
+      "x": 0,
+      "y": 0,
+      "population": null,
+      "impairedSegmentCount": 0,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 1,
+      "violationCount": 1,
+      "quadrant": "lower-pressure-lower-risk"
+    },
+    {
+      "county": {
+        "name": "Sterling County",
+        "slug": "sterling-county"
+      },
+      "x": 0,
+      "y": 0,
+      "population": null,
+      "impairedSegmentCount": 0,
+      "hydrologyLayerHitCount": 3,
+      "systemCount": 1,
+      "violationCount": 1,
+      "quadrant": "lower-pressure-lower-risk"
+    }
+  ],
+  "notes": [
+    "Both axes are normalized to a 0-100 statewide range for stable chart consumption.",
+    "Quadrants use median splits from the newest real county-history snapshot."
+  ]
+}

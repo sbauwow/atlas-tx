@@ -12,6 +12,7 @@ describe("refresh-all pipeline", () => {
       "refresh-city-open-data",
       "refresh-city-open-data-curated",
       "refresh-city-open-data-ranked",
+      "refresh-analytics-history",
       "refresh-cid",
     ]);
     expect(plan.at(-1)?.critical).toBe(true);
@@ -36,7 +37,7 @@ describe("refresh-all pipeline", () => {
 
     expect(report.generatedAt).toBe("2026-05-10T00:00:00.000Z");
     expect(report.overallStatus).toBe("degraded");
-    expect(report.steps).toHaveLength(6);
+    expect(report.steps).toHaveLength(7);
     expect(report.steps.at(-1)?.status).toBe("failed");
     expect(report.steps.at(-1)?.notes).toContain("CID Search One returned the upstream error page");
   });

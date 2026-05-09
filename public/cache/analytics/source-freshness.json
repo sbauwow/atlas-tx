@@ -1,0 +1,62 @@
+{
+  "artifact": "source-freshness",
+  "artifactVersion": 1,
+  "generatedAt": "2026-05-09T22:08:46.795Z",
+  "sources": [
+    {
+      "sourceId": "sdwis",
+      "label": "EPA SDWIS Texas snapshot",
+      "artifactPath": "public/cache/sdwis-tx.json",
+      "source": "https://data.epa.gov/efservice",
+      "generatedAt": "2026-05-09T01:50:21.429Z",
+      "ageDays": 0.85,
+      "status": "fresh",
+      "rowCount": 11686,
+      "notes": [
+        "SDWIS rows are self-reported by primacy agencies; recent quarters lag.",
+        "Snapshot is filtered to TX health-based violations after 2023-04-01; widen via fetchSdwis({since: undefined}) and write to data/ (gitignored) for analysis runs.",
+        "county is sourced from GEOGRAPHIC_AREA (area_type_code=CN); some PWSs are missing this row.",
+        "EJ outputs derived from this should be framed as exposure / burden, not harm."
+      ]
+    },
+    {
+      "sourceId": "acs-county",
+      "label": "ACS county population snapshot",
+      "artifactPath": "public/cache/acs-county-tx.json",
+      "source": "https://api.census.gov/data/2023/acs/acs5",
+      "generatedAt": "2026-05-08T00:00:00.000Z",
+      "ageDays": 1.92,
+      "status": "fresh",
+      "rowCount": 3,
+      "notes": [
+        "Population coverage is limited to the committed ACS county snapshot currently in public/cache/acs-county-tx.json."
+      ]
+    },
+    {
+      "sourceId": "surface-water-quality",
+      "label": "TCEQ surface-water-quality snapshot",
+      "artifactPath": "public/cache/surface-water-quality-tx.json",
+      "source": "https://gisweb.tceq.texas.gov/arcgis/rest/services/Segments/SegmentsViewer_PRD/MapServer",
+      "generatedAt": "2026-05-09T04:56:55.042Z",
+      "ageDays": 0.72,
+      "status": "fresh",
+      "rowCount": 1523,
+      "notes": [
+        "County-level pressure uses impaired segment counts from the cached surface-water snapshot."
+      ]
+    },
+    {
+      "sourceId": "twdb-hydrology",
+      "label": "TWDB hydrology snapshot",
+      "artifactPath": "public/cache/twdb-hydrology-tx.json",
+      "source": "TWDB GIS downloads",
+      "generatedAt": "2026-05-09T04:06:07.779Z",
+      "ageDays": 0.75,
+      "status": "fresh",
+      "rowCount": 370,
+      "notes": [
+        "Hydrology is used here only for centroid/bounding-box context so Wave 2 consumers can add map overlays later."
+      ]
+    }
+  ]
+}

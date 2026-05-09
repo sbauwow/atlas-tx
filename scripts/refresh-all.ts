@@ -12,6 +12,7 @@ export type RefreshAllStep = {
     | "refresh-city-open-data"
     | "refresh-city-open-data-curated"
     | "refresh-city-open-data-ranked"
+    | "refresh-analytics-history"
     | "refresh-cid";
   command: string;
   critical: boolean;
@@ -40,6 +41,7 @@ export function buildRefreshAllPlan(): RefreshAllStep[] {
     { stepId: "refresh-city-open-data", command: "npm run refresh:city-open-data", critical: false },
     { stepId: "refresh-city-open-data-curated", command: "npm run refresh:city-open-data-curated", critical: false },
     { stepId: "refresh-city-open-data-ranked", command: "npm run refresh:city-open-data-ranked", critical: false },
+    { stepId: "refresh-analytics-history", command: "tsx scripts/refresh-analytics-history.ts", critical: false },
     { stepId: "refresh-cid", command: "npm run refresh:cid", critical: true },
   ];
 }

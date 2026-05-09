@@ -34,6 +34,7 @@ _(empty)_
 | web | hermes | Ship Phase 3 protest-prep layer on filing detail pages: participation status, evidence checklist, draft-from-facts text, and export-ready submission pack. | working tree |
 | mcp+docs | hermes | Augment Atlas TX MCP with filing red-flag + protest-prep tools, add root `npm run mcp`, update MCP contract/README, and write the automated pipeline plan. | working tree |
 | data+docs | hermes | Ship the first automation slice with `refresh:all` orchestration and `public/cache/pipeline-health.json` output contract. | working tree |
+| data | hermes-agent | Implement Wave 1 Stream B analytics history/cache artifact generator, emit committed analytics JSON under `public/cache/analytics/`, and wire the step into `refresh-all`. | working tree |
 | mcp+data+docs | hermes | Expose `get_pipeline_health` in MCP, commit the staged refresh artifact shape, and document the operator path. | working tree |
 | mcp+permits | hermes | Expose permit-detail and county pending-fights MCP tools so agents can query the same filing triage lane as the UI. | working tree |
 | data | hermes | Pull Austin, Dallas, Houston, and San Antonio open-data portal catalogs into a committed Texas-city snapshot with `refresh:city-open-data`, tests, and additive dataset-registry contract docs (v0.7.0). Snapshot now covers 5,065 catalog entries across the four portals. | working tree |

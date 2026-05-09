@@ -1,0 +1,387 @@
+{
+  "artifact": "county-movers",
+  "artifactVersion": 1,
+  "generatedAt": "2026-05-09T22:08:46.795Z",
+  "baselineSnapshotAt": "2026-05-09T22:05:56.932Z",
+  "comparisonSnapshotAt": "2026-05-09T22:08:46.795Z",
+  "movers": [
+    {
+      "county": {
+        "name": "Harris County",
+        "slug": "harris-county"
+      },
+      "movement": "steady",
+      "currentRank": 1,
+      "previousRank": 1,
+      "rankDelta": 0,
+      "currentRiskScore": 100,
+      "previousRiskScore": 100,
+      "scoreDelta": 0,
+      "currentPressureScore": 100,
+      "previousPressureScore": 100
+    },
+    {
+      "county": {
+        "name": "Travis County",
+        "slug": "travis-county"
+      },
+      "movement": "steady",
+      "currentRank": 2,
+      "previousRank": 2,
+      "rankDelta": 0,
+      "currentRiskScore": 9.72,
+      "previousRiskScore": 9.72,
+      "scoreDelta": 0,
+      "currentPressureScore": 0.43,
+      "previousPressureScore": 0.43
+    },
+    {
+      "county": {
+        "name": "Webb County",
+        "slug": "webb-county"
+      },
+      "movement": "steady",
+      "currentRank": 3,
+      "previousRank": 3,
+      "rankDelta": 0,
+      "currentRiskScore": 8.69,
+      "previousRiskScore": 8.69,
+      "scoreDelta": 0,
+      "currentPressureScore": 1.11,
+      "previousPressureScore": 1.11
+    },
+    {
+      "county": {
+        "name": "Midland County",
+        "slug": "midland-county"
+      },
+      "movement": "steady",
+      "currentRank": 4,
+      "previousRank": 4,
+      "rankDelta": 0,
+      "currentRiskScore": 8.13,
+      "previousRiskScore": 8.13,
+      "scoreDelta": 0,
+      "currentPressureScore": 0,
+      "previousPressureScore": 0
+    },
+    {
+      "county": {
+        "name": "Hidalgo County",
+        "slug": "hidalgo-county"
+      },
+      "movement": "steady",
+      "currentRank": 5,
+      "previousRank": 5,
+      "rankDelta": 0,
+      "currentRiskScore": 7.32,
+      "previousRiskScore": 7.32,
+      "scoreDelta": 0,
+      "currentPressureScore": 2.22,
+      "previousPressureScore": 2.22
+    },
+    {
+      "county": {
+        "name": "Jefferson County",
+        "slug": "jefferson-county"
+      },
+      "movement": "steady",
+      "currentRank": 6,
+      "previousRank": 6,
+      "rankDelta": 0,
+      "currentRiskScore": 6.88,
+      "previousRiskScore": 6.88,
+      "scoreDelta": 0,
+      "currentPressureScore": 10,
+      "previousPressureScore": 10
+    },
+    {
+      "county": {
+        "name": "Tom Green County",
+        "slug": "tom-green-county"
+      },
+      "movement": "steady",
+      "currentRank": 7,
+      "previousRank": 7,
+      "rankDelta": 0,
+      "currentRiskScore": 6.86,
+      "previousRiskScore": 6.86,
+      "scoreDelta": 0,
+      "currentPressureScore": 0,
+      "previousPressureScore": 0
+    },
+    {
+      "county": {
+        "name": "Smith County",
+        "slug": "smith-county"
+      },
+      "movement": "steady",
+      "currentRank": 8,
+      "previousRank": 8,
+      "rankDelta": 0,
+      "currentRiskScore": 6.54,
+      "previousRiskScore": 6.54,
+      "scoreDelta": 0,
+      "currentPressureScore": 6.67,
+      "previousPressureScore": 6.67
+    },
+    {
+      "county": {
+        "name": "Comal County",
+        "slug": "comal-county"
+      },
+      "movement": "steady",
+      "currentRank": 9,
+      "previousRank": 9,
+      "rankDelta": 0,
+      "currentRiskScore": 6.07,
+      "previousRiskScore": 6.07,
+      "scoreDelta": 0,
+      "currentPressureScore": 3.09,
+      "previousPressureScore": 3.09
+    },
+    {
+      "county": {
+        "name": "Starr County",
+        "slug": "starr-county"
+      },
+      "movement": "steady",
+      "currentRank": 10,
+      "previousRank": 10,
+      "rankDelta": 0,
+      "currentRiskScore": 5.92,
+      "previousRiskScore": 5.92,
+      "scoreDelta": 0,
+      "currentPressureScore": 1.11,
+      "previousPressureScore": 1.11
+    },
+    {
+      "county": {
+        "name": "Orange County",
+        "slug": "orange-county"
+      },
+      "movement": "steady",
+      "currentRank": 11,
+      "previousRank": 11,
+      "rankDelta": 0,
+      "currentRiskScore": 5.2,
+      "previousRiskScore": 5.2,
+      "scoreDelta": 0,
+      "currentPressureScore": 14.44,
+      "previousPressureScore": 14.44
+    },
+    {
+      "county": {
+        "name": "Howard County",
+        "slug": "howard-county"
+      },
+      "movement": "steady",
+      "currentRank": 12,
+      "previousRank": 12,
+      "rankDelta": 0,
+      "currentRiskScore": 4.39,
+      "previousRiskScore": 4.39,
+      "scoreDelta": 0,
+      "currentPressureScore": 0,
+      "previousPressureScore": 0
+    },
+    {
+      "county": {
+        "name": "Calhoun County",
+        "slug": "calhoun-county"
+      },
+      "movement": "steady",
+      "currentRank": 13,
+      "previousRank": 13,
+      "rankDelta": 0,
+      "currentRiskScore": 4.29,
+      "previousRiskScore": 4.29,
+      "scoreDelta": 0,
+      "currentPressureScore": 5.56,
+      "previousPressureScore": 5.56
+    },
+    {
+      "county": {
+        "name": "Mcculloch County",
+        "slug": "mcculloch-county"
+      },
+      "movement": "steady",
+      "currentRank": 14,
+      "previousRank": 14,
+      "rankDelta": 0,
+      "currentRiskScore": 4.02,
+      "previousRiskScore": 4.02,
+      "scoreDelta": 0,
+      "currentPressureScore": 0,
+      "previousPressureScore": 0
+    },
+    {
+      "county": {
+        "name": "Falls County",
+        "slug": "falls-county"
+      },
+      "movement": "steady",
+      "currentRank": 15,
+      "previousRank": 15,
+      "rankDelta": 0,
+      "currentRiskScore": 3.76,
+      "previousRiskScore": 3.76,
+      "scoreDelta": 0,
+      "currentPressureScore": 2.22,
+      "previousPressureScore": 2.22
+    },
+    {
+      "county": {
+        "name": "Brazoria County",
+        "slug": "brazoria-county"
+      },
+      "movement": "steady",
+      "currentRank": 16,
+      "previousRank": 16,
+      "rankDelta": 0,
+      "currentRiskScore": 3.61,
+      "previousRiskScore": 3.61,
+      "scoreDelta": 0,
+      "currentPressureScore": 6.73,
+      "previousPressureScore": 6.73
+    },
+    {
+      "county": {
+        "name": "Callahan County",
+        "slug": "callahan-county"
+      },
+      "movement": "steady",
+      "currentRank": 17,
+      "previousRank": 17,
+      "rankDelta": 0,
+      "currentRiskScore": 3.37,
+      "previousRiskScore": 3.37,
+      "scoreDelta": 0,
+      "currentPressureScore": 0,
+      "previousPressureScore": 0
+    },
+    {
+      "county": {
+        "name": "Anderson County",
+        "slug": "anderson-county"
+      },
+      "movement": "steady",
+      "currentRank": 18,
+      "previousRank": 18,
+      "rankDelta": 0,
+      "currentRiskScore": 3.11,
+      "previousRiskScore": 3.11,
+      "scoreDelta": 0,
+      "currentPressureScore": 2.22,
+      "previousPressureScore": 2.22
+    },
+    {
+      "county": {
+        "name": "Hays County",
+        "slug": "hays-county"
+      },
+      "movement": "steady",
+      "currentRank": 19,
+      "previousRank": 19,
+      "rankDelta": 0,
+      "currentRiskScore": 3.04,
+      "previousRiskScore": 3.04,
+      "scoreDelta": 0,
+      "currentPressureScore": 2.22,
+      "previousPressureScore": 2.22
+    },
+    {
+      "county": {
+        "name": "Guadalupe County",
+        "slug": "guadalupe-county"
+      },
+      "movement": "steady",
+      "currentRank": 20,
+      "previousRank": 20,
+      "rankDelta": 0,
+      "currentRiskScore": 2.78,
+      "previousRiskScore": 2.78,
+      "scoreDelta": 0,
+      "currentPressureScore": 2.22,
+      "previousPressureScore": 2.22
+    },
+    {
+      "county": {
+        "name": "Angelina County",
+        "slug": "angelina-county"
+      },
+      "movement": "steady",
+      "currentRank": 21,
+      "previousRank": 21,
+      "rankDelta": 0,
+      "currentRiskScore": 2.68,
+      "previousRiskScore": 2.68,
+      "scoreDelta": 0,
+      "currentPressureScore": 6.67,
+      "previousPressureScore": 6.67
+    },
+    {
+      "county": {
+        "name": "Bee County",
+        "slug": "bee-county"
+      },
+      "movement": "steady",
+      "currentRank": 22,
+      "previousRank": 22,
+      "rankDelta": 0,
+      "currentRiskScore": 2.66,
+      "previousRiskScore": 2.66,
+      "scoreDelta": 0,
+      "currentPressureScore": 2.22,
+      "previousPressureScore": 2.22
+    },
+    {
+      "county": {
+        "name": "Duval County",
+        "slug": "duval-county"
+      },
+      "movement": "steady",
+      "currentRank": 23,
+      "previousRank": 23,
+      "rankDelta": 0,
+      "currentRiskScore": 2.58,
+      "previousRiskScore": 2.58,
+      "scoreDelta": 0,
+      "currentPressureScore": 0,
+      "previousPressureScore": 0
+    },
+    {
+      "county": {
+        "name": "Kerr County",
+        "slug": "kerr-county"
+      },
+      "movement": "steady",
+      "currentRank": 24,
+      "previousRank": 24,
+      "rankDelta": 0,
+      "currentRiskScore": 2.46,
+      "previousRiskScore": 2.46,
+      "scoreDelta": 0,
+      "currentPressureScore": 5.56,
+      "previousPressureScore": 5.56
+    },
+    {
+      "county": {
+        "name": "Polk County",
+        "slug": "polk-county"
+      },
+      "movement": "steady",
+      "currentRank": 25,
+      "previousRank": 25,
+      "rankDelta": 0,
+      "currentRiskScore": 2.35,
+      "previousRiskScore": 2.35,
+      "scoreDelta": 0,
+      "currentPressureScore": 0,
+      "previousPressureScore": 0
+    }
+  ],
+  "notes": [
+    "Rank deltas compare the newest county-history snapshot against the immediately preceding real snapshot."
+  ]
+}
