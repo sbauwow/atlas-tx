@@ -1,3 +1,4 @@
+import TrackedLink from "@/app/components/tracked-link";
 import { MVP_DATASETS } from "@/lib/mvp-datasets";
 
 const categoryLabels = {
@@ -31,9 +32,14 @@ export default function Home() {
             <a href="/api/health" className="rounded-full bg-cyan-400 px-5 py-3 font-medium text-slate-950 transition hover:bg-cyan-300">
               API health
             </a>
-            <a href="https://github.com/sbauwow/atlas-tx" className="rounded-full border border-slate-700 px-5 py-3 font-medium text-slate-100 transition hover:border-slate-500 hover:bg-slate-900">
+            <TrackedLink
+              event="outbound"
+              eventTarget="repo:github.com/sbauwow/atlas-tx@home"
+              href="https://github.com/sbauwow/atlas-tx"
+              className="rounded-full border border-slate-700 px-5 py-3 font-medium text-slate-100 transition hover:border-slate-500 hover:bg-slate-900"
+            >
               GitHub repo
-            </a>
+            </TrackedLink>
           </div>
         </div>
 

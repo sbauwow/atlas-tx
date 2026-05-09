@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { Geist, Geist_Mono } from "next/font/google";
+import PageViewBeacon from "@/app/components/page-view-beacon";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -30,6 +32,9 @@ export default function RootLayout({
     >
       <body className="min-h-full bg-slate-950 text-slate-50 flex flex-col">
         {children}
+        <Suspense fallback={null}>
+          <PageViewBeacon />
+        </Suspense>
       </body>
     </html>
   );
