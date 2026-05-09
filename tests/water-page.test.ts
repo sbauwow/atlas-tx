@@ -6,6 +6,7 @@ vi.mock("@/lib/water/water-summary-service", () => ({
     getWaterOverview: vi.fn().mockResolvedValue({
       generatedAt: "2026-05-09T00:00:00.000Z",
       sourceIds: ["nws-alerts", "usgs-stream-sites", "tceq-sewer-overflows", "tceq-general-water-permits", "tceq-water-districts", "puct-water-iou"],
+      freshness: { generatedAt: "2026-05-09T00:00:00.000Z", sources: {} },
       counties: [
         {
           county: { name: "Travis County", slug: "travis-county" },

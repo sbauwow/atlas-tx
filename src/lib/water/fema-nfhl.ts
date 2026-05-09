@@ -155,6 +155,21 @@ export type NfhlCountyCoverageResponse = {
   counties: NfhlCountyCoverage[];
 };
 
+export type NfhlCountyLeveeSummary = {
+  county: CountyRef;
+  leveeCount: number;
+  leveeNames: string[];
+  leveeIds: string[];
+};
+
+export type NfhlCountyLeveeSummaryResponse = {
+  sourceId: "fema-nfhl";
+  layerId: 23;
+  layerName: "Levees";
+  countyCount: number;
+  counties: NfhlCountyLeveeSummary[];
+};
+
 function normalizeLayer(layer: NfhlLayer): NormalizedNfhlLayer {
   return {
     id: Number(layer.id ?? -1),
@@ -348,6 +363,34 @@ export function filterNfhlLeveesForCounty(
   };
 }
 
+export function summarizeNfhlLeveesByCounty(
+  levees: NfhlLeveesResponse,
+  countyCoverage: NfhlCountyCoverageResponse,
+): NfhlCountyLeveeSummaryResponse {
+  const counties = countyCoverage.counties
+    .map((coverage) => {
+      const filtered = filterNfhlLeveesForCounty(coverage.county.slug, levees, countyCoverage);
+      const leveeNames = Array.from(new Set(filtered.features.map((feature) => feature.leveeName).filter((value): value is string => Boolean(value)))).sort();
+      const leveeIds = Array.from(new Set(filtered.features.map((feature) => feature.leveeId).filter((value): value is string => Boolean(value)))).sort();
+      return {
+        county: coverage.county,
+        leveeCount: filtered.featureCount,
+        leveeNames,
+        leveeIds,
+      };
+    })
+    .filter((county) => county.leveeCount > 0)
+    .sort((left, right) => right.leveeCount - left.leveeCount || left.county.name.localeCompare(right.county.name));
+
+  return {
+    sourceId: "fema-nfhl",
+    layerId: LEVEES_LAYER_ID,
+    layerName: LEVEES_LAYER_NAME,
+    countyCount: counties.length,
+    counties,
+  };
+}
+
 async function fetchNfhlServiceMetadataUncached(signal?: AbortSignal): Promise<NormalizedNfhlServiceMetadata> {
   const response = await fetch(`${NFHL_SERVICE_URL}?f=pjson`, { signal });
   if (!response.ok) {
@@ -413,6 +456,11 @@ export async function fetchTexasNfhlCountyLevees(
     fetchTexasNfhlCountyCoverage(signal),
   ]);
   return filterNfhlLeveesForCounty(county, levees, countyCoverage);
+}
+
+export async function fetchTexasNfhlLeveesByCounty(signal?: AbortSignal): Promise<NfhlCountyLeveeSummaryResponse> {
+  const [levees, countyCoverage] = await Promise.all([fetchTexasNfhlLevees(undefined, signal), fetchTexasNfhlCountyCoverage(signal)]);
+  return summarizeNfhlLeveesByCounty(levees, countyCoverage);
 }
 
 async function fetchTexasNfhlLeveesUncached(limit?: number, signal?: AbortSignal): Promise<NfhlLeveesResponse> {

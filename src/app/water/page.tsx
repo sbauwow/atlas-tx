@@ -54,6 +54,10 @@ function countyFill(score: number, isSelected: boolean) {
   return "#475569";
 }
 
+function formatFreshnessLabel(expiresAt: string | null) {
+  return expiresAt ? `Cached until ${expiresAt}` : "Cache pending";
+}
+
 export default async function WaterPage({
   searchParams,
 }: {
@@ -103,6 +107,25 @@ export default async function WaterPage({
           <Link href="/api/water/alerts" className="rounded-full border border-slate-700 px-5 py-3 font-medium text-slate-100">Alerts API</Link>
           <Link href="/api/water/gauges" className="rounded-full border border-slate-700 px-5 py-3 font-medium text-slate-100">Gauges API</Link>
           <Link href="/api/water/fema/nfhl/counties" className="rounded-full border border-slate-700 px-5 py-3 font-medium text-slate-100">FEMA counties API</Link>
+        </div>
+      </section>
+
+      <section className="rounded-3xl border border-slate-800 bg-slate-900/60 p-6">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <h2 className="text-2xl font-semibold text-white">Source freshness</h2>
+            <p className="mt-2 text-sm text-slate-400">Current cache windows for live water feeds used by this view.</p>
+          </div>
+          <Link href="/api/water/fema/nfhl/levees-by-county" className="rounded-full border border-slate-700 px-4 py-2 text-sm font-medium text-slate-100">Levees by county API</Link>
+        </div>
+        <div className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          {Object.entries(overview.freshness.sources).map(([sourceId, freshness]) => (
+            <div key={sourceId} className="rounded-2xl border border-slate-800 bg-slate-950/70 p-4 text-sm text-slate-300">
+              <div className="font-medium text-white">{sourceId}</div>
+              <div className="mt-2 text-slate-400">{formatFreshnessLabel(freshness.expiresAt)}</div>
+              <div className="mt-1 text-xs text-slate-500">TTL {formatNumber(freshness.ttlMs ? Math.round(freshness.ttlMs / 60000) : undefined)} min</div>
+            </div>
+          ))}
         </div>
       </section>
 

@@ -5,8 +5,15 @@ vi.mock("@/lib/water/water-summary-service", () => ({
   getDefaultAtlasWaterSummaryService: vi.fn(() => ({
     getWaterOverview: vi.fn().mockResolvedValue({
       generatedAt: "2026-05-09T00:00:00.000Z",
-      sourceIds: ["fema-nfhl", "nws-alerts", "usgs-stream-sites"],
-      freshness: { generatedAt: "2026-05-09T00:00:00.000Z", sources: {} },
+      sourceIds: ["nws-alerts", "usgs-stream-sites", "fema-nfhl"],
+      freshness: {
+        generatedAt: "2026-05-09T00:00:00.000Z",
+        sources: {
+          "nws-alerts": { cached: true, cachedAt: "2026-05-09T00:00:00.000Z", expiresAt: "2026-05-09T00:15:00.000Z", ttlMs: 900000 },
+          "usgs-stream-sites": { cached: true, cachedAt: "2026-05-09T00:00:00.000Z", expiresAt: "2026-05-09T06:00:00.000Z", ttlMs: 21600000 },
+          "fema-nfhl": { cached: true, cachedAt: "2026-05-09T00:00:00.000Z", expiresAt: "2026-05-10T00:00:00.000Z", ttlMs: 86400000 },
+        },
+      },
       counties: [
         {
           county: { name: "Travis County", slug: "travis-county", fips: "48453" },
@@ -21,21 +28,6 @@ vi.mock("@/lib/water/water-summary-service", () => ({
             waterUtilityCount: 4,
           },
           overlays: { hasFloodplainLayer: true, hasGaugeLayer: true, hasAlertLayer: true, hasSewerOverflowLayer: true },
-          annotations: [],
-        },
-        {
-          county: { name: "Bexar County", slug: "bexar-county", fips: "48029" },
-          metrics: {
-            floodplainFeatureCount: 0,
-            streamGaugeCount: 0,
-            activeWaterAlertCount: 0,
-            sewerOverflowCount30d: 0,
-            sewerOverflowGallons30d: 0,
-            generalPermitCount: 0,
-            waterDistrictCount: 1,
-            waterUtilityCount: 1,
-          },
-          overlays: { hasFloodplainLayer: false, hasGaugeLayer: false, hasAlertLayer: false, hasSewerOverflowLayer: false },
           annotations: [],
         },
       ],
@@ -56,28 +48,21 @@ vi.mock("@/lib/water/water-summary-service", () => ({
         overlays: { hasFloodplainLayer: true, hasGaugeLayer: true, hasAlertLayer: true, hasSewerOverflowLayer: true },
         annotations: [],
       },
-      layers: {
-        alerts: [],
-        gauges: [{ siteNumber: "08158000", stationName: "Colorado River at Austin", latitude: 30.25, longitude: -97.75 }],
-        sewerOverflows: [],
-        permits: [],
-        governance: [],
-      },
-      notes: ["NFHL political jurisdictions mapped: 2"],
+      layers: { alerts: [], gauges: [], sewerOverflows: [], permits: [], governance: [] },
+      notes: [],
     }),
   })),
 }));
 
-describe("water page map", () => {
-  it("renders the county risk map with FEMA and gauge signals", async () => {
+describe("water page freshness badges", () => {
+  it("renders freshness badges for live sources", async () => {
     const pageModule = await import("@/app/water/page");
     const page = await pageModule.default({ searchParams: Promise.resolve({ county: "travis-county" }) });
     const text = renderToStaticMarkup(page);
 
-    expect(text).toContain("County risk map");
-    expect(text).toContain("NFHL footprint");
-    expect(text).toContain("Selected county gauges");
-    expect(text).toContain("data-county-slug=\"travis-county\"");
-    expect(text).toContain("data-gauge-site=\"08158000\"");
+    expect(text).toContain("Source freshness");
+    expect(text).toContain("nws-alerts");
+    expect(text).toContain("Cached until");
+    expect(text).toContain("2026-05-09T00:15:00.000Z");
   });
 });
