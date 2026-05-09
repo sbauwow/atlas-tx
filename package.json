@@ -11,7 +11,8 @@
     "refresh:cid": "tsx scripts/refresh-cid.ts",
     "refresh:twdb-hydrology": "tsx scripts/refresh-twdb-hydrology.ts",
     "refresh:surface-water-quality": "tsx scripts/refresh-surface-water-quality.ts",
-    "refresh:city-open-data": "tsx scripts/refresh-city-open-data.ts"
+    "refresh:city-open-data": "tsx scripts/refresh-city-open-data.ts",
+    "refresh:city-open-data-curated": "tsx scripts/refresh-city-open-data-curated.ts"
   },
   "dependencies": {
     "next": "16.2.6",

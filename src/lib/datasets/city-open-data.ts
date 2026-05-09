@@ -49,6 +49,30 @@ export type CityOpenDataSnapshot = {
   sources: Record<CityOpenDataPortalId, CityOpenDataPortalSnapshot>;
 };
 
+export type CityOpenDataTheme = "water" | "permits" | "infrastructure";
+
+export type CuratedCityOpenDataCatalogRow = CityOpenDataCatalogRow & {
+  matchedThemes: CityOpenDataTheme[];
+  matchReasons: string[];
+};
+
+export type CuratedCityOpenDataPortalSnapshot = Omit<CityOpenDataPortalSnapshot, "rows" | "rowCount"> & {
+  rowCount: number;
+  rows: CuratedCityOpenDataCatalogRow[];
+};
+
+export type CuratedCityOpenDataSnapshot = {
+  generatedAt: string;
+  summary: {
+    sourceCount: number;
+    totalDatasetCount: number;
+    totalRowCount: number;
+    totalMatchedRowCount: number;
+    matchedByTheme: Record<CityOpenDataTheme, number>;
+  };
+  sources: Record<CityOpenDataPortalId, CuratedCityOpenDataPortalSnapshot>;
+};
+
 type SocrataSearchRow = {
   view?: {
     id?: string;
@@ -147,6 +171,44 @@ function stringDateToIso(value: string | undefined): string | null {
 
 function datasetSlugFromName(name: string): string {
   return name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+}
+
+const CURATION_THEME_KEYWORDS: Record<CityOpenDataTheme, string[]> = {
+  water: ["water", "wastewater", "stormwater", "sewer", "flood", "drainage", "utility", "utilities"],
+  permits: ["permit", "permits", "inspection", "inspections", "construction permit", "building permit"],
+  infrastructure: ["infrastructure", "capital improvement", "capital project", "road", "roads", "bridge", "bridges", "main break", "repair"],
+};
+
+function collectHaystack(row: CityOpenDataCatalogRow): Array<[string, string]> {
+  return [
+    ["name", row.name],
+    ["description", row.description ?? ""],
+    ["category", row.category ?? ""],
+    ["organization", row.organization ?? ""],
+  ];
+}
+
+function classifyCityDataset(row: CityOpenDataCatalogRow): { matchedThemes: CityOpenDataTheme[]; matchReasons: string[] } {
+  const haystack = collectHaystack(row).map(([field, value]) => [field, value.toLowerCase()] as const);
+  const matchedThemes: CityOpenDataTheme[] = [];
+  const matchReasons: string[] = [];
+
+  for (const [theme, keywords] of Object.entries(CURATION_THEME_KEYWORDS) as Array<[CityOpenDataTheme, string[]]>) {
+    const themeReasons = new Set<string>();
+    for (const keyword of keywords) {
+      for (const [field, value] of haystack) {
+        if (value.includes(keyword)) {
+          themeReasons.add(`${field}:${keyword}`);
+        }
+      }
+    }
+    if (themeReasons.size) {
+      matchedThemes.push(theme);
+      matchReasons.push(...Array.from(themeReasons).sort((left, right) => left.localeCompare(right)));
+    }
+  }
+
+  return { matchedThemes, matchReasons };
 }
 
 export function normalizeSocrataDataset(portal: CityOpenDataPortal, row: SocrataSearchRow): CityOpenDataCatalogRow {
@@ -296,6 +358,47 @@ export async function executeCityOpenDataRefresh(options?: {
       sourceCount: entries.length,
       totalDatasetCount: Object.values(sources).reduce((sum, source) => sum + source.datasetCount, 0),
       totalRowCount: Object.values(sources).reduce((sum, source) => sum + source.rowCount, 0),
+    },
+    sources,
+  };
+}
+
+export function buildCuratedCityOpenDataSnapshot(snapshot: CityOpenDataSnapshot): CuratedCityOpenDataSnapshot {
+  const matchedByTheme: Record<CityOpenDataTheme, number> = {
+    water: 0,
+    permits: 0,
+    infrastructure: 0,
+  };
+
+  const sources = Object.fromEntries(Object.entries(snapshot.sources).map(([portalId, portal]) => {
+    const rows = portal.rows
+      .map((row) => {
+        const match = classifyCityDataset(row);
+        if (!match.matchedThemes.length) return null;
+        match.matchedThemes.forEach((theme) => {
+          matchedByTheme[theme] += 1;
+        });
+        return {
+          ...row,
+          matchedThemes: match.matchedThemes,
+          matchReasons: match.matchReasons,
+        } satisfies CuratedCityOpenDataCatalogRow;
+      })
+      .filter((row): row is CuratedCityOpenDataCatalogRow => Boolean(row));
+
+    return [portalId, {
+      ...portal,
+      rowCount: rows.length,
+      rows,
+    } satisfies CuratedCityOpenDataPortalSnapshot] as const;
+  })) as Record<CityOpenDataPortalId, CuratedCityOpenDataPortalSnapshot>;
+
+  return {
+    generatedAt: snapshot.generatedAt,
+    summary: {
+      ...snapshot.summary,
+      totalMatchedRowCount: Object.values(sources).reduce((sum, source) => sum + source.rowCount, 0),
+      matchedByTheme,
     },
     sources,
   };

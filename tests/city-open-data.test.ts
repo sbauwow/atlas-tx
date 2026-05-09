@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   CITY_OPEN_DATA_PORTALS,
+  buildCuratedCityOpenDataSnapshot,
   executeCityOpenDataRefresh,
   normalizeCkanDataset,
   normalizeSocrataDataset,
@@ -65,6 +66,141 @@ describe("city open data catalogs", () => {
       formats: ["CSV", "XLSX"],
     });
     expect(row.updatedAt).toBe("2026-05-07T15:00:00.000Z");
+  });
+
+  it("builds a curated water permits and infrastructure snapshot", () => {
+    const snapshot = buildCuratedCityOpenDataSnapshot({
+      generatedAt: "2026-05-09T13:40:00.000Z",
+      summary: { sourceCount: 4, totalDatasetCount: 4, totalRowCount: 4 },
+      sources: {
+        austin: {
+          portalId: "austin",
+          portalName: "City of Austin Open Data",
+          portalUrl: "https://data.austintexas.gov/",
+          sourceType: "socrata",
+          datasetCount: 1,
+          rowCount: 1,
+          rows: [
+            {
+              sourceId: "austin",
+              sourceName: "City of Austin Open Data",
+              sourceType: "socrata",
+              datasetId: "austin-water-main-breaks",
+              slug: "austin-water-main-breaks",
+              name: "Water Main Breaks",
+              description: "Austin Water repair and outage events",
+              category: "Utilities and City Services",
+              organization: "Austin Water",
+              assetType: "dataset",
+              createdAt: null,
+              updatedAt: null,
+              tagCount: 2,
+              resourceCount: 1,
+              formats: ["JSON"],
+              pageUrl: "https://data.austintexas.gov/d/austin-water-main-breaks",
+              apiUrl: "https://data.austintexas.gov/resource/austin-water-main-breaks.json",
+            },
+          ],
+        },
+        dallas: {
+          portalId: "dallas",
+          portalName: "City of Dallas OpenData",
+          portalUrl: "https://www.dallasopendata.com/",
+          sourceType: "socrata",
+          datasetCount: 1,
+          rowCount: 1,
+          rows: [
+            {
+              sourceId: "dallas",
+              sourceName: "City of Dallas OpenData",
+              sourceType: "socrata",
+              datasetId: "dallas-building-permits",
+              slug: "dallas-building-permits",
+              name: "Building Permits",
+              description: "Building permits and inspection activity",
+              category: "Development",
+              organization: "Sustainable Development and Construction",
+              assetType: "dataset",
+              createdAt: null,
+              updatedAt: null,
+              tagCount: 1,
+              resourceCount: 1,
+              formats: ["JSON"],
+              pageUrl: "https://www.dallasopendata.com/d/dallas-building-permits",
+              apiUrl: "https://www.dallasopendata.com/resource/dallas-building-permits.json",
+            },
+          ],
+        },
+        houston: {
+          portalId: "houston",
+          portalName: "City of Houston Open Data",
+          portalUrl: "https://data.houstontx.gov/",
+          sourceType: "ckan",
+          datasetCount: 1,
+          rowCount: 1,
+          rows: [
+            {
+              sourceId: "houston",
+              sourceName: "City of Houston Open Data",
+              sourceType: "ckan",
+              datasetId: "residential-building-permits",
+              slug: "residential-building-permits",
+              name: "Residential Building Permits",
+              description: "Monthly residential building permits",
+              category: "Housing, Buildings and Construction",
+              organization: "Houston Permitting Center",
+              assetType: "dataset",
+              createdAt: null,
+              updatedAt: null,
+              tagCount: 1,
+              resourceCount: 1,
+              formats: ["CSV"],
+              pageUrl: "https://data.houstontx.gov/dataset/residential-building-permits",
+              apiUrl: null,
+            },
+          ],
+        },
+        "san-antonio": {
+          portalId: "san-antonio",
+          portalName: "Open Data SA",
+          portalUrl: "https://data.sanantonio.gov/",
+          sourceType: "ckan",
+          datasetCount: 1,
+          rowCount: 1,
+          rows: [
+            {
+              sourceId: "san-antonio",
+              sourceName: "Open Data SA",
+              sourceType: "ckan",
+              datasetId: "median-income",
+              slug: "median-income",
+              name: "Median Income",
+              description: "Income trend table",
+              category: "Business and Economy",
+              organization: "Economic Development",
+              assetType: "dataset",
+              createdAt: null,
+              updatedAt: null,
+              tagCount: 1,
+              resourceCount: 1,
+              formats: ["CSV"],
+              pageUrl: "https://data.sanantonio.gov/dataset/median-income",
+              apiUrl: null,
+            },
+          ],
+        },
+      },
+    });
+
+    expect(snapshot.summary.totalMatchedRowCount).toBe(3);
+    expect(snapshot.summary.matchedByTheme.water).toBe(1);
+    expect(snapshot.summary.matchedByTheme.permits).toBe(2);
+    expect(snapshot.sources.austin.rows[0]).toMatchObject({
+      datasetId: "austin-water-main-breaks",
+      matchedThemes: ["water", "infrastructure"],
+    });
+    expect(snapshot.sources.austin.rows[0]?.matchReasons).toEqual(expect.arrayContaining(["description:water", "name:water"]));
+    expect(snapshot.sources["san-antonio"].rows).toEqual([]);
   });
 
   it("refreshes all four city portals into one snapshot", async () => {

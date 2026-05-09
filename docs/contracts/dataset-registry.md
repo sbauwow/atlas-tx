@@ -1,8 +1,9 @@
 # Contract — Dataset Registry & Scoring
 
-> Contract version: **0.7.0** — bump on any breaking change to types, fetcher signatures, or scoring outputs. Notify `mcp` and `web` workstreams in `STATE.md` when bumping.
+> Contract version: **0.8.0** — bump on any breaking change to types, fetcher signatures, or scoring outputs. Notify `mcp` and `web` workstreams in `STATE.md` when bumping.
 >
 > Changelog:
+> - 0.8.0 (2026-05-09): add curated `city-open-data` snapshot contract for water / permits / infrastructure source triage (`public/cache/city-open-data-curated-tx.json`) plus theme-match metadata and counts.
 > - 0.7.0 (2026-05-09): add `city-open-data` catalog snapshot contract for Austin, Dallas, Houston, and San Antonio portal metadata refreshes. This is additive and supports source discovery / follow-on ingest planning.
 > - 0.6.0 (2026-05-09): add planned weather / hydrologic context contract language for NWS alerts, USGS streamflow, drought status, precipitation totals, and temperature / heat indicators. Clarify these are explanatory context layers for water events, not standalone proof of contamination or infrastructure failure.
 > - 0.5.0 (2026-05-09): add planned mismatch-signal contract language for boil-water notices, E2 disinfectant reporting, and biological integrity / aquatic life context. Clarify that notice, treatment-stress, and biology layers are reporter-lead indicators, not direct proof of contamination or harm.
@@ -64,10 +65,13 @@ Caching rules:
 File: `src/lib/datasets/city-open-data.ts`
 Script: `scripts/refresh-city-open-data.ts`
 Snapshot: `public/cache/city-open-data-tx.json`
+Curated script: `scripts/refresh-city-open-data-curated.ts`
+Curated snapshot: `public/cache/city-open-data-curated-tx.json`
 
 Purpose:
 - freeze discoverable catalog metadata from the Austin, Dallas, Houston, and San Antonio city open-data portals into one committed Texas-city snapshot;
-- support follow-on source selection and ingestion planning without live portal dependency in demo/research paths.
+- support follow-on source selection and ingestion planning without live portal dependency in demo/research paths;
+- produce a second curated snapshot limited to likely water / permits / infrastructure datasets for Atlas TX triage.
 
 Normalized row shape:
 ```ts
@@ -92,10 +96,18 @@ export type CityOpenDataCatalogRow = {
 };
 ```
 
+Curated row shape additions:
+```ts
+export type CuratedCityOpenDataCatalogRow = CityOpenDataCatalogRow & {
+  matchedThemes: Array<"water" | "permits" | "infrastructure">;
+  matchReasons: string[]; // field:keyword pairs that triggered inclusion
+};
+```
+
 Caveats:
 - this is catalog metadata, not row-level dataset content;
 - Socrata portal counts include non-tabular asset types (for example views, measures, files, and filters) unless downstream consumers explicitly filter them;
-- portal totals can shift between refreshes as publishers add/remove datasets or derived assets.
+- curated inclusion is keyword/theme based and is a triage aid, not a guarantee that every matched dataset is in-scope or high-quality.
 
 ## Scoring functions
 
