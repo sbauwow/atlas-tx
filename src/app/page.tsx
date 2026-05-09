@@ -1,44 +1,8 @@
 import Link from "next/link";
 import TrackedLink from "@/app/components/tracked-link";
-import {
-  CATEGORY_BORDER_CLASS,
-  CATEGORY_TEXT_CLASS,
-  DATASET_CATEGORY_GLYPH,
-  DATASET_CATEGORY_LABEL,
-  DATASET_CATEGORY_TOKEN,
-} from "@/app/design/categories";
+import { CATEGORY_BORDER_CLASS, CATEGORY_TEXT_CLASS, DATASET_CATEGORY_GLYPH, DATASET_CATEGORY_LABEL, DATASET_CATEGORY_TOKEN } from "@/app/design/categories";
+import { waterPrimerCards } from "@/app/education/content";
 import { MVP_DATASETS } from "@/lib/mvp-datasets";
-
-const waterPrimerCards = [
-  {
-    title: "Where Texas water comes from",
-    body:
-      "Texas runs on two main sources: surface water from rivers and reservoirs, and groundwater from aquifers like the Edwards, Trinity, Carrizo-Wilcox, Gulf Coast, and Ogallala.",
-    glyph: "◉",
-    token: 1,
-  },
-  {
-    title: "How water moves",
-    body:
-      "Rain refills rivers, lakes, and aquifers. Utilities and districts withdraw, treat, deliver, collect wastewater, then either discharge treated water back to rivers or reuse it.",
-    glyph: "→",
-    token: 2,
-  },
-  {
-    title: "Who manages it",
-    body:
-      "Texas has no single statewide water system. TWDB plans, TCEQ regulates, and river authorities, groundwater districts, utilities, and water districts run the local supply chain.",
-    glyph: "⌘",
-    token: 4,
-  },
-  {
-    title: "Why risk varies by county",
-    body:
-      "Water stress depends on drought, reservoir storage, aquifer levels, flood damage, treatment capacity, infrastructure age, growth, and upstream-downstream dependence — not just whether water is nearby.",
-    glyph: "△",
-    token: 5,
-  },
-] as const;
 
 export default function Home() {
   return (
@@ -74,7 +38,7 @@ export default function Home() {
               <span aria-hidden="true" className="transition-transform group-hover:translate-x-0.5">→</span>
             </Link>
             <Link
-              href="#education-primer"
+              href="/education"
               className="rounded-full border border-white/10 px-5 py-2.5 font-medium text-slate-200 transition-colors hover:border-white/20 hover:bg-white/5"
             >
               Water system primer
@@ -113,6 +77,12 @@ export default function Home() {
           <p className="max-w-3xl text-sm leading-7 text-slate-400">
             Texas gets water from above-ground rivers and reservoirs and below-ground aquifers. The hard part is not just finding water — it is managing treatment, delivery, drought pressure, flood shocks, and county-to-county imbalance.
           </p>
+        </div>
+        <div className="flex items-center justify-between gap-4">
+          <div className="text-xs font-medium uppercase tracking-[0.18em] text-slate-500">Education preview</div>
+          <Link href="/education" className="text-sm font-medium text-cyan-300 transition-colors hover:text-cyan-200">
+            Open full guide →
+          </Link>
         </div>
         <div className="grid gap-4 md:grid-cols-2">
           {waterPrimerCards.map((card) => (
