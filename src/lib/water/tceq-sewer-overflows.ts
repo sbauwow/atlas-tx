@@ -1,6 +1,9 @@
 import { fetchDatasetRows } from "@/lib/texas-open-data";
 import { normalizeCountyName, countySlug } from "@/lib/counties";
+import { getGlobalWaterDataCache } from "@/lib/water/cache";
 import type { SewerOverflowEvent } from "@/lib/water/types";
+
+const SEWER_OVERFLOWS_TTL_MS = 6 * 60 * 60 * 1000;
 
 type SewerOverflowRow = {
   incident_number?: string;
@@ -52,11 +55,18 @@ export function summarizeSewerOverflowsByCounty(events: SewerOverflowEvent[]): M
   return summary;
 }
 
-export async function fetchRecentSewerOverflows(days = 30, signal?: AbortSignal): Promise<SewerOverflowEvent[]> {
+async function fetchRecentSewerOverflowsUncached(days = 30, signal?: AbortSignal): Promise<SewerOverflowEvent[]> {
   const today = new Date();
   const start = new Date(today);
   start.setUTCDate(start.getUTCDate() - days);
   const where = `start_date >= '${start.toISOString()}'`;
   const rows = await fetchDatasetRows<SewerOverflowRow>("8kc5-95uk", { where, limit: 5000, order: "start_date DESC" }, signal);
   return rows.map(normalizeSewerOverflowEvent);
+}
+
+export async function fetchRecentSewerOverflows(days = 30, signal?: AbortSignal): Promise<SewerOverflowEvent[]> {
+  if (signal) {
+    return fetchRecentSewerOverflowsUncached(days, signal);
+  }
+  return getGlobalWaterDataCache().getOrLoad(`tceq-sewer-overflows:${days}`, SEWER_OVERFLOWS_TTL_MS, () => fetchRecentSewerOverflowsUncached(days));
 }

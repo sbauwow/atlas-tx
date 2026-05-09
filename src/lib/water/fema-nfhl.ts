@@ -1,4 +1,5 @@
 import { getCountyByFips, type CountyRef } from "@/lib/water/county-lookup";
+import { getGlobalWaterDataCache } from "@/lib/water/cache";
 
 const NFHL_SERVICE_URL = "https://hazards.fema.gov/arcgis/rest/services/public/NFHL/MapServer";
 const TEXAS_STATE_FIPS = "48";
@@ -6,6 +7,9 @@ const POLITICAL_JURISDICTIONS_LAYER_ID = 22;
 const LEVEES_LAYER_ID = 23;
 const POLITICAL_JURISDICTIONS_LAYER_NAME = "Political Jurisdictions";
 const LEVEES_LAYER_NAME = "Levees";
+const NFHL_METADATA_TTL_MS = 24 * 60 * 60 * 1000;
+const NFHL_POLITICAL_JURISDICTIONS_TTL_MS = 24 * 60 * 60 * 1000;
+const NFHL_LEVEES_TTL_MS = 24 * 60 * 60 * 1000;
 const POLITICAL_JURISDICTIONS_OUT_FIELDS = [
   "OBJECTID",
   "DFIRM_ID",
@@ -326,12 +330,19 @@ export function mapNfhlPoliticalJurisdictionsToAtlasCounties(
   };
 }
 
-export async function fetchNfhlServiceMetadata(signal?: AbortSignal): Promise<NormalizedNfhlServiceMetadata> {
+async function fetchNfhlServiceMetadataUncached(signal?: AbortSignal): Promise<NormalizedNfhlServiceMetadata> {
   const response = await fetch(`${NFHL_SERVICE_URL}?f=pjson`, { signal });
   if (!response.ok) {
     throw new Error(`NFHL metadata request failed: ${response.status}`);
   }
   return normalizeNfhlServiceMetadata((await response.json()) as NfhlServiceMetadata);
+}
+
+export async function fetchNfhlServiceMetadata(signal?: AbortSignal): Promise<NormalizedNfhlServiceMetadata> {
+  if (signal) {
+    return fetchNfhlServiceMetadataUncached(signal);
+  }
+  return getGlobalWaterDataCache().getOrLoad("fema-nfhl:metadata", NFHL_METADATA_TTL_MS, () => fetchNfhlServiceMetadataUncached());
 }
 
 export async function fetchNfhlDiscoveryBundle(signal?: AbortSignal): Promise<{
@@ -345,7 +356,7 @@ export async function fetchNfhlDiscoveryBundle(signal?: AbortSignal): Promise<{
   };
 }
 
-export async function fetchTexasNfhlPoliticalJurisdictions(
+async function fetchTexasNfhlPoliticalJurisdictionsUncached(
   limit?: number,
   signal?: AbortSignal,
 ): Promise<NfhlPoliticalJurisdictionsResponse> {
@@ -356,14 +367,35 @@ export async function fetchTexasNfhlPoliticalJurisdictions(
   return normalizeNfhlPoliticalJurisdictionsResponse((await response.json()) as NfhlLayerQueryResponse);
 }
 
+export async function fetchTexasNfhlPoliticalJurisdictions(
+  limit?: number,
+  signal?: AbortSignal,
+): Promise<NfhlPoliticalJurisdictionsResponse> {
+  if (signal || typeof limit === "number") {
+    return fetchTexasNfhlPoliticalJurisdictionsUncached(limit, signal);
+  }
+  return getGlobalWaterDataCache().getOrLoad(
+    "fema-nfhl:political-jurisdictions",
+    NFHL_POLITICAL_JURISDICTIONS_TTL_MS,
+    () => fetchTexasNfhlPoliticalJurisdictionsUncached(),
+  );
+}
+
 export async function fetchTexasNfhlCountyCoverage(signal?: AbortSignal): Promise<NfhlCountyCoverageResponse> {
   return mapNfhlPoliticalJurisdictionsToAtlasCounties(await fetchTexasNfhlPoliticalJurisdictions(undefined, signal));
 }
 
-export async function fetchTexasNfhlLevees(limit?: number, signal?: AbortSignal): Promise<NfhlLeveesResponse> {
+async function fetchTexasNfhlLeveesUncached(limit?: number, signal?: AbortSignal): Promise<NfhlLeveesResponse> {
   const response = await fetch(buildTexasLeveesQueryUrl(limit), { signal });
   if (!response.ok) {
     throw new Error(`NFHL levees request failed: ${response.status}`);
   }
   return normalizeNfhlLeveesResponse((await response.json()) as NfhlLayerQueryResponse);
+}
+
+export async function fetchTexasNfhlLevees(limit?: number, signal?: AbortSignal): Promise<NfhlLeveesResponse> {
+  if (signal || typeof limit === "number") {
+    return fetchTexasNfhlLeveesUncached(limit, signal);
+  }
+  return getGlobalWaterDataCache().getOrLoad("fema-nfhl:levees", NFHL_LEVEES_TTL_MS, () => fetchTexasNfhlLeveesUncached());
 }

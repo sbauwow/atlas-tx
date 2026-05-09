@@ -1,6 +1,9 @@
 import { fetchDatasetRows } from "@/lib/texas-open-data";
 import { countySlug, normalizeCountyName } from "@/lib/counties";
+import { getGlobalWaterDataCache } from "@/lib/water/cache";
 import type { WaterPermitRecord } from "@/lib/water/types";
+
+const GENERAL_PERMITS_TTL_MS = 12 * 60 * 60 * 1000;
 
 type GeneralPermitRow = {
   permit_no?: string;
@@ -43,7 +46,14 @@ export function summarizeGeneralPermitsByCounty(records: WaterPermitRecord[]): M
   return summary;
 }
 
-export async function fetchGeneralWaterPermits(signal?: AbortSignal): Promise<WaterPermitRecord[]> {
+async function fetchGeneralWaterPermitsUncached(signal?: AbortSignal): Promise<WaterPermitRecord[]> {
   const rows = await fetchDatasetRows<GeneralPermitRow>("6pm5-am5m", { limit: 5000 }, signal);
   return rows.map(normalizeGeneralPermitRecord);
+}
+
+export async function fetchGeneralWaterPermits(signal?: AbortSignal): Promise<WaterPermitRecord[]> {
+  if (signal) {
+    return fetchGeneralWaterPermitsUncached(signal);
+  }
+  return getGlobalWaterDataCache().getOrLoad("tceq-general-water-permits", GENERAL_PERMITS_TTL_MS, () => fetchGeneralWaterPermitsUncached());
 }

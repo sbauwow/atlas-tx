@@ -1,4 +1,5 @@
 import { countySlug, normalizeCountyName } from "@/lib/counties";
+import { getGlobalWaterDataCache } from "@/lib/water/cache";
 import type { WaterAlert } from "@/lib/water/types";
 
 const WATER_EVENTS = new Set([
@@ -10,6 +11,7 @@ const WATER_EVENTS = new Set([
   "Flood Watch",
   "Flash Flood Statement",
 ]);
+const NWS_ALERTS_TTL_MS = 15 * 60 * 1000;
 
 type NwsFeature = {
   id?: string;
@@ -56,7 +58,7 @@ export function filterAlertsForCounty(alerts: WaterAlert[], county: string): Wat
   return alerts.filter((alert) => (alert.countyNames ?? []).some((name) => countySlug(name) === target));
 }
 
-export async function fetchTexasWaterAlerts(signal?: AbortSignal): Promise<WaterAlert[]> {
+async function fetchTexasWaterAlertsUncached(signal?: AbortSignal): Promise<WaterAlert[]> {
   const response = await fetch("https://api.weather.gov/alerts/active?area=TX", {
     headers: { Accept: "application/geo+json" },
     signal,
@@ -66,4 +68,11 @@ export async function fetchTexasWaterAlerts(signal?: AbortSignal): Promise<Water
   }
   const payload = (await response.json()) as { features?: NwsFeature[] };
   return filterTexasWaterAlerts((payload.features ?? []).map(normalizeNwsAlert));
+}
+
+export async function fetchTexasWaterAlerts(signal?: AbortSignal): Promise<WaterAlert[]> {
+  if (signal) {
+    return fetchTexasWaterAlertsUncached(signal);
+  }
+  return getGlobalWaterDataCache().getOrLoad("nws-alerts", NWS_ALERTS_TTL_MS, () => fetchTexasWaterAlertsUncached());
 }

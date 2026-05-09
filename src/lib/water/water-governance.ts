@@ -1,7 +1,10 @@
 import { countySlug, normalizeCountyName } from "@/lib/counties";
+import { getGlobalWaterDataCache } from "@/lib/water/cache";
 import type { WaterGovernanceEntity } from "@/lib/water/types";
 
 const SOCRATA_BASE_URL = "https://data.texas.gov/resource";
+const WATER_DISTRICTS_TTL_MS = 24 * 60 * 60 * 1000;
+const WATER_UTILITIES_TTL_MS = 24 * 60 * 60 * 1000;
 
 type WaterDistrictRow = {
   county?: string;
@@ -67,7 +70,7 @@ export function summarizeGovernanceByCounty(records: WaterGovernanceEntity[]): M
   return summary;
 }
 
-export async function fetchWaterDistricts(signal?: AbortSignal): Promise<WaterGovernanceEntity[]> {
+async function fetchWaterDistrictsUncached(signal?: AbortSignal): Promise<WaterGovernanceEntity[]> {
   const response = await fetch(`${SOCRATA_BASE_URL}/hr84-s96f.json?$limit=5000`, { signal });
   if (!response.ok) {
     throw new Error(`Water districts request failed: ${response.status}`);
@@ -76,7 +79,7 @@ export async function fetchWaterDistricts(signal?: AbortSignal): Promise<WaterGo
   return rows.map(normalizeWaterDistrictRecord);
 }
 
-export async function fetchWaterUtilities(signal?: AbortSignal): Promise<WaterGovernanceEntity[]> {
+async function fetchWaterUtilitiesUncached(signal?: AbortSignal): Promise<WaterGovernanceEntity[]> {
   const [iouResponse, submeterResponse] = await Promise.all([
     fetch(`${SOCRATA_BASE_URL}/auk8-env9.json?$limit=5000`, { signal }),
     fetch(`${SOCRATA_BASE_URL}/iuez-sv34.json?$limit=5000`, { signal }),
@@ -92,6 +95,20 @@ export async function fetchWaterUtilities(signal?: AbortSignal): Promise<WaterGo
     ...ious.map((row) => normalizeWaterUtilityRecord(row, "puct-water-iou")),
     ...submeters.map((row) => normalizeWaterUtilityRecord(row, "puct-water-submeter")),
   ];
+}
+
+export async function fetchWaterDistricts(signal?: AbortSignal): Promise<WaterGovernanceEntity[]> {
+  if (signal) {
+    return fetchWaterDistrictsUncached(signal);
+  }
+  return getGlobalWaterDataCache().getOrLoad("tceq-water-districts", WATER_DISTRICTS_TTL_MS, () => fetchWaterDistrictsUncached());
+}
+
+export async function fetchWaterUtilities(signal?: AbortSignal): Promise<WaterGovernanceEntity[]> {
+  if (signal) {
+    return fetchWaterUtilitiesUncached(signal);
+  }
+  return getGlobalWaterDataCache().getOrLoad("puct-water-utilities", WATER_UTILITIES_TTL_MS, () => fetchWaterUtilitiesUncached());
 }
 
 export async function fetchWaterGovernance(signal?: AbortSignal): Promise<WaterGovernanceEntity[]> {
