@@ -1,36 +1,56 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Atlas TX
 
-## Getting Started
+Atlas TX is an open-source Texas county intelligence platform for exploring environmental burden, social strain, and local fiscal capacity.
 
-First, run the development server:
+Initial MVP focus:
+- county comparison for Texas public datasets
+- environment + social vulnerability signals
+- debt and fiscal-context expansion path
+- agent-safe discovery and bounded query workflows
+
+## MVP datasets
+
+Environment and infrastructure:
+- `7fq8-wig2` — TCEQ Water Quality Individual Permits Active/Pending
+- `hr84-s96f` — Texas Water Districts
+
+Social strain:
+- `waxz-c9q5` — CPI Completed Abuse/Neglect Investigations by County and Region FY2016-FY2025
+
+Fiscal and debt:
+- `u3nh-2phm` — Local Government Debt Report (HB 1378) FY 2023
+- `ctj5-pypw` — County Returns
+- `tmhs-ahbh` — Sales Tax Allocation, Tax Rates
+
+## Planned architecture
+
+- `src/app/` — Next.js frontend and API routes
+- `src/lib/` — dataset registry, county normalization, scoring logic
+- `packages/mcp-server/` — MCP server for discover/query/compare/summarize tools
+- `skills/atlas-tx/` — agent skill documentation for safe use
+- `docs/plans/` — implementation plans and scope docs
+
+## Getting started
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open `http://localhost:3000`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## First milestone
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Ship a county comparison demo showing:
+- environmental permit density
+- water district presence
+- social-strain proxy
+- debt-report coverage
+- fiscal context links and citations
 
-## Learn More
+## Constraints
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Use public data with attribution
+- No scraping behind authentication
+- No investor-grade or medical claims
+- Explicit uncertainty and coverage caveats for every summary

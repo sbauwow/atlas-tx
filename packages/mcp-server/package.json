@@ -1,0 +1,10 @@
+{
+  "name": "@atlas-tx/mcp-server",
+  "version": "0.1.0",
+  "private": true,
+  "description": "MCP server scaffold for Atlas TX county intelligence tools",
+  "type": "module",
+  "scripts": {
+    "dev": "node src/index.js"
+  }
+}
