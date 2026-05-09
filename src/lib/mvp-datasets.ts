@@ -1,7 +1,14 @@
 export type MvpDataset = {
   id: string;
   name: string;
-  category: "environment" | "infrastructure" | "social" | "fiscal" | "debt";
+  category:
+    | "environment"
+    | "infrastructure"
+    | "social"
+    | "fiscal"
+    | "debt"
+    | "demographic"
+    | "compliance";
   publisher: string;
   summary: string;
   keyFields: string[];
@@ -96,6 +103,72 @@ export const MVP_DATASETS: MvpDataset[] = [
       "Local bond election results for issuers including amount, purpose, proposition, votes, and result.",
     keyFields: ["issuer", "bond_amount", "bond_purpose", "result"],
     useCase: "Debt authorization context and civic decision trail.",
+    accessType: "external",
+  },
+  {
+    id: "epa-sdwis-violations",
+    name: "EPA SDWIS Drinking Water Violations",
+    category: "environment",
+    publisher: "U.S. EPA Office of Water",
+    summary:
+      "Public Water System health-based and monitoring violations from the federal Safe Drinking Water Information System.",
+    keyFields: ["pwsid", "violation_id", "violation_code", "is_health_based_ind", "compl_per_begin_date", "population_served_count"],
+    useCase: "Drinking Water Risk Score input — per-PWS violation severity, recency, population served.",
+    accessType: "external",
+  },
+  {
+    id: "epa-ejscreen-2024",
+    name: "EPA EJScreen Environmental Justice Indicators",
+    category: "demographic",
+    publisher: "U.S. EPA",
+    summary:
+      "Block-group-level demographic and environmental burden indicators (percentile rankings, state-relative).",
+    keyFields: ["geoid", "acstotpop", "minorpct", "lowincpct", "p_d2_pm25", "p_d2_o3", "p_d2_lead", "p_d2_water"],
+    useCase: "EJ Burden Overlap input — joins demographic burden percentiles to TCEQ permit-buffer density.",
+    accessType: "external",
+  },
+  {
+    id: "epa-echo-violations",
+    name: "EPA ECHO Enforcement & Compliance History",
+    category: "compliance",
+    publisher: "U.S. EPA Office of Enforcement and Compliance Assurance",
+    summary:
+      "Federal enforcement and compliance history for permitted facilities, joinable to TCEQ permits via FRS ID or lat/long.",
+    keyFields: ["frs_id", "facility_name", "permit_id", "violation_count_3yr", "informal_count_3yr", "formal_count_3yr"],
+    useCase: "Compliance Gap input — pairs with TCEQ permits to surface under-enforced regulated activity.",
+    accessType: "external",
+  },
+  {
+    id: "census-acs5-2023-county",
+    name: "Census ACS 5-year (county + block group)",
+    category: "demographic",
+    publisher: "U.S. Census Bureau",
+    summary:
+      "American Community Survey 5-year estimates for population, race/ethnicity, income, and age by county and block group.",
+    keyFields: ["geoid", "name", "B01003_001E", "B19013_001E", "B02001_002E", "B03002_012E"],
+    useCase: "Population denominators and demographic context for DWRS, EJ overlay, and per-capita normalization.",
+    accessType: "external",
+  },
+  {
+    id: "tceq-cid-search-one",
+    name: "TCEQ Commissioners' Integrated Database — Pending Cases",
+    category: "compliance",
+    publisher: "TCEQ Office of the Chief Clerk",
+    summary:
+      "Pending and recently-closed permit applications across all TCEQ program areas (APO, Air Quality, Water Quality, PWS, IHWHL, MSW, Water Rights, UIC, Water Districts), including SOAH docket cross-reference.",
+    keyFields: ["tceqId", "applicantName", "county", "programArea", "itemStatus", "tceqDocketNumber", "soahDocketNumber", "regulatedEntityNumber"],
+    useCase: "Active Protest Density input — case metadata and SOAH-referral signal per pending permit.",
+    accessType: "external",
+  },
+  {
+    id: "tceq-cid-search-two",
+    name: "TCEQ Commissioners' Integrated Database — Comments & Hearing Requests",
+    category: "compliance",
+    publisher: "TCEQ Office of the Chief Clerk",
+    summary:
+      "Public comments, hearing requests, and public-meeting requests filed against pending TCEQ permit applications.",
+    keyFields: ["tceqId", "filingType", "filerOrganization", "filedAt"],
+    useCase: "Active Protest Density input — counts of community filings per pending permit. PII guardrail: do not surface individual filer names; aggregate counts and named filing orgs only.",
     accessType: "external",
   },
 ];
