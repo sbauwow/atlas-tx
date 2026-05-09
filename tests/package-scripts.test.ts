@@ -21,4 +21,8 @@ describe("package scripts", () => {
   it("exposes a refresh:city-open-data-curated script for refreshing curated Texas city open-data catalogs", () => {
     expect(pkg.scripts["refresh:city-open-data-curated"]).toBe("tsx scripts/refresh-city-open-data-curated.ts");
   });
+
+  it("exposes a refresh:city-open-data-ranked script for refreshing ranked Texas city open-data catalogs", () => {
+    expect(pkg.scripts["refresh:city-open-data-ranked"]).toBe("tsx scripts/refresh-city-open-data-ranked.ts");
+  });
 });

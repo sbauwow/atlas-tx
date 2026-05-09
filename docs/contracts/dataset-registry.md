@@ -3,6 +3,7 @@
 > Contract version: **0.9.0** — bump on any breaking change to types, fetcher signatures, or scoring outputs. Notify `mcp` and `web` workstreams in `STATE.md` when bumping.
 >
 > Changelog:
+> - 0.9.0 (2026-05-09): add ranked `city-open-data` snapshot contract for Atlas ingest prioritization (`public/cache/city-open-data-ranked-tx.json`) with lane, score, reasons, and `priorityTop25` shortlist.
 > - 0.9.0 (2026-05-09): add `citizen-strips` as a separate, **non-regulatory** community-observation source under a strict isolation contract — does NOT feed DWRS, EJ Overlap, or any regulatory scorer. Lives behind `/citizen` and the new `WaterObservation` Prisma model. See "Citizen observation layer" section below.
 > - 0.8.0 (2026-05-09): add curated `city-open-data` snapshot contract for water / permits / infrastructure source triage (`public/cache/city-open-data-curated-tx.json`) plus theme-match metadata and counts.
 > - 0.7.0 (2026-05-09): add `city-open-data` catalog snapshot contract for Austin, Dallas, Houston, and San Antonio portal metadata refreshes. This is additive and supports source discovery / follow-on ingest planning.
@@ -68,11 +69,14 @@ Script: `scripts/refresh-city-open-data.ts`
 Snapshot: `public/cache/city-open-data-tx.json`
 Curated script: `scripts/refresh-city-open-data-curated.ts`
 Curated snapshot: `public/cache/city-open-data-curated-tx.json`
+Ranked script: `scripts/refresh-city-open-data-ranked.ts`
+Ranked snapshot: `public/cache/city-open-data-ranked-tx.json`
 
 Purpose:
 - freeze discoverable catalog metadata from the Austin, Dallas, Houston, and San Antonio city open-data portals into one committed Texas-city snapshot;
 - support follow-on source selection and ingestion planning without live portal dependency in demo/research paths;
-- produce a second curated snapshot limited to likely water / permits / infrastructure datasets for Atlas TX triage.
+- produce a second curated snapshot limited to likely water / permits / infrastructure datasets for Atlas TX triage;
+- produce a ranked snapshot that turns the 897 curated matches into an Atlas ingest shortlist with explicit priority lanes and score reasons.
 
 Normalized row shape:
 ```ts
@@ -105,10 +109,32 @@ export type CuratedCityOpenDataCatalogRow = CityOpenDataCatalogRow & {
 };
 ```
 
+Ranked row shape additions:
+```ts
+export type RankedCityOpenDataCatalogRow = CuratedCityOpenDataCatalogRow & {
+  priorityLane:
+    | "water-utility-ops"
+    | "flood-drainage"
+    | "building-development-permits"
+    | "sewer-wastewater"
+    | "infrastructure-projects"
+    | "deprioritized";
+  priorityScore: number;
+  priorityReasons: string[];
+};
+```
+
+Current ranked summary fields:
+- `priorityLaneCounts`
+- `priorityTop25`
+- `totalRankedRowCount`
+- `topPriorityCount`
+
 Caveats:
 - this is catalog metadata, not row-level dataset content;
 - Socrata portal counts include non-tabular asset types (for example views, measures, files, and filters) unless downstream consumers explicitly filter them;
-- curated inclusion is keyword/theme based and is a triage aid, not a guarantee that every matched dataset is in-scope or high-quality.
+- curated inclusion is keyword/theme based and is a triage aid, not a guarantee that every matched dataset is in-scope or high-quality;
+- ranked scores are heuristic prioritization for Atlas ingestion, not claims about data quality, policy importance, or public harm.
 
 ## Scoring functions
 

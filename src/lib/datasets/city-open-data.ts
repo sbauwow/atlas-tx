@@ -73,6 +73,40 @@ export type CuratedCityOpenDataSnapshot = {
   sources: Record<CityOpenDataPortalId, CuratedCityOpenDataPortalSnapshot>;
 };
 
+export type CityOpenDataPriorityLane =
+  | "water-utility-ops"
+  | "flood-drainage"
+  | "building-development-permits"
+  | "sewer-wastewater"
+  | "infrastructure-projects"
+  | "deprioritized";
+
+export type RankedCityOpenDataCatalogRow = CuratedCityOpenDataCatalogRow & {
+  priorityLane: CityOpenDataPriorityLane;
+  priorityScore: number;
+  priorityReasons: string[];
+};
+
+export type RankedCityOpenDataPortalSnapshot = Omit<CuratedCityOpenDataPortalSnapshot, "rows"> & {
+  rows: RankedCityOpenDataCatalogRow[];
+};
+
+export type RankedCityOpenDataSnapshot = {
+  generatedAt: string;
+  summary: {
+    sourceCount: number;
+    totalDatasetCount: number;
+    totalRowCount: number;
+    totalMatchedRowCount: number;
+    totalRankedRowCount: number;
+    topPriorityCount: number;
+    matchedByTheme: Record<CityOpenDataTheme, number>;
+    priorityLaneCounts: Record<CityOpenDataPriorityLane, number>;
+  };
+  sources: Record<CityOpenDataPortalId, RankedCityOpenDataPortalSnapshot>;
+  priorityTop25: RankedCityOpenDataCatalogRow[];
+};
+
 type SocrataSearchRow = {
   view?: {
     id?: string;
@@ -209,6 +243,73 @@ function classifyCityDataset(row: CityOpenDataCatalogRow): { matchedThemes: City
   }
 
   return { matchedThemes, matchReasons };
+}
+
+function searchableText(row: CuratedCityOpenDataCatalogRow): string {
+  return [row.name, row.description, row.category, row.organization, row.assetType, ...row.matchReasons].filter(Boolean).join(" ").toLowerCase();
+}
+
+function rankCuratedRow(row: CuratedCityOpenDataCatalogRow): { priorityLane: CityOpenDataPriorityLane; priorityScore: number; priorityReasons: string[] } {
+  const text = searchableText(row);
+  const reasons: string[] = [];
+  let lane: CityOpenDataPriorityLane = "deprioritized";
+  let score = 0;
+
+  const has = (term: string) => text.includes(term);
+  const add = (points: number, reason: string) => {
+    score += points;
+    reasons.push(reason);
+  };
+
+  const isOperationalAsset = row.assetType === "dataset" ? 8 : row.assetType === "map" ? 3 : row.assetType === "filter" ? 1 : -6;
+  add(isOperationalAsset, `assetType:${row.assetType ?? "unknown"}`);
+
+  if (has("green building")) add(-18, "downrank:green-building");
+  if (has("measure")) add(-12, "downrank:measure");
+  if (has("rating")) add(-10, "downrank:rating");
+
+  if (has("water main") || has("main break") || has("drinking water") || has("water outage") || has("austin water") || has("utility outage")) {
+    lane = "water-utility-ops";
+    add(55, "lane:water-utility-ops");
+  }
+
+  if (lane === "deprioritized" && (has("stormwater") || has("drainage") || has("flood") || has("outfall") || has("watershed"))) {
+    lane = "flood-drainage";
+    add(48, "lane:flood-drainage");
+  }
+
+  if (lane === "deprioritized" && (has("wastewater") || has("sewer") || has("sanitary sewer") || has("treatment plant"))) {
+    lane = "sewer-wastewater";
+    add(46, "lane:sewer-wastewater");
+  }
+
+  if (lane === "deprioritized" && (has("building permit") || has("building permits") || has("permit and inspection") || has("development permit") || has("construction permit") || has("inspection activity"))) {
+    lane = "building-development-permits";
+    add(44, "lane:building-development-permits");
+  }
+
+  if (lane === "deprioritized" && (has("capital project") || has("capital improvement") || has("public works") || has("bridge") || has("road") || has("infrastructure"))) {
+    lane = "infrastructure-projects";
+    add(40, "lane:infrastructure-projects");
+  }
+
+  if (has("permit")) add(10, "signal:permit");
+  if (has("inspection")) add(8, "signal:inspection");
+  if (has("flood")) add(10, "signal:flood");
+  if (has("drainage")) add(10, "signal:drainage");
+  if (has("stormwater")) add(10, "signal:stormwater");
+  if (has("outfall")) add(8, "signal:outfall");
+  if (has("wastewater") || has("sewer")) add(10, "signal:wastewater-sewer");
+  if (has("public works")) add(8, "signal:public-works");
+  if (has("water")) add(8, "signal:water");
+
+  if (lane === "deprioritized") add(-5, "lane:deprioritized");
+
+  return {
+    priorityLane: lane,
+    priorityScore: score,
+    priorityReasons: Array.from(new Set(reasons)),
+  };
 }
 
 export function normalizeSocrataDataset(portal: CityOpenDataPortal, row: SocrataSearchRow): CityOpenDataCatalogRow {
@@ -401,5 +502,56 @@ export function buildCuratedCityOpenDataSnapshot(snapshot: CityOpenDataSnapshot)
       matchedByTheme,
     },
     sources,
+  };
+}
+
+export function buildRankedCityOpenDataSnapshot(snapshot: CuratedCityOpenDataSnapshot): RankedCityOpenDataSnapshot {
+  const priorityLaneCounts: Record<CityOpenDataPriorityLane, number> = {
+    "water-utility-ops": 0,
+    "flood-drainage": 0,
+    "building-development-permits": 0,
+    "sewer-wastewater": 0,
+    "infrastructure-projects": 0,
+    deprioritized: 0,
+  };
+
+  const sources = Object.fromEntries(Object.entries(snapshot.sources).map(([portalId, portal]) => {
+    const rows = portal.rows
+      .map((row) => {
+        const ranked = {
+          ...row,
+          ...rankCuratedRow(row),
+        } satisfies RankedCityOpenDataCatalogRow;
+        priorityLaneCounts[ranked.priorityLane] += 1;
+        return ranked;
+      })
+      .sort((left, right) => right.priorityScore - left.priorityScore || left.name.localeCompare(right.name));
+
+    return [portalId, {
+      ...portal,
+      rows,
+    } satisfies RankedCityOpenDataPortalSnapshot] as const;
+  })) as Record<CityOpenDataPortalId, RankedCityOpenDataPortalSnapshot>;
+
+  const allRows = Object.values(sources)
+    .flatMap((source) => source.rows)
+    .sort((left, right) => right.priorityScore - left.priorityScore || left.name.localeCompare(right.name));
+
+  const priorityTop25 = allRows.filter((row) => row.priorityLane !== "deprioritized").slice(0, 25);
+
+  return {
+    generatedAt: snapshot.generatedAt,
+    summary: {
+      sourceCount: snapshot.summary.sourceCount,
+      totalDatasetCount: snapshot.summary.totalDatasetCount,
+      totalRowCount: snapshot.summary.totalRowCount,
+      totalMatchedRowCount: snapshot.summary.totalMatchedRowCount,
+      totalRankedRowCount: allRows.length,
+      topPriorityCount: priorityTop25.length,
+      matchedByTheme: snapshot.summary.matchedByTheme,
+      priorityLaneCounts,
+    },
+    sources,
+    priorityTop25,
   };
 }

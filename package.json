@@ -13,6 +13,7 @@
     "refresh:surface-water-quality": "tsx scripts/refresh-surface-water-quality.ts",
     "refresh:city-open-data": "tsx scripts/refresh-city-open-data.ts",
     "refresh:city-open-data-curated": "tsx scripts/refresh-city-open-data-curated.ts",
+    "refresh:city-open-data-ranked": "tsx scripts/refresh-city-open-data-ranked.ts",
     "postinstall": "prisma generate",
     "db:migrate": "prisma migrate dev"
   },

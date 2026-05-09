@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   CITY_OPEN_DATA_PORTALS,
   buildCuratedCityOpenDataSnapshot,
+  buildRankedCityOpenDataSnapshot,
   executeCityOpenDataRefresh,
   normalizeCkanDataset,
   normalizeSocrataDataset,
@@ -201,6 +202,169 @@ describe("city open data catalogs", () => {
     });
     expect(snapshot.sources.austin.rows[0]?.matchReasons).toEqual(expect.arrayContaining(["description:water", "name:water"]));
     expect(snapshot.sources["san-antonio"].rows).toEqual([]);
+  });
+
+  it("ranks curated rows into atlas ingest priorities", () => {
+    const curated = buildCuratedCityOpenDataSnapshot({
+      generatedAt: "2026-05-09T13:40:00.000Z",
+      summary: { sourceCount: 4, totalDatasetCount: 5, totalRowCount: 5 },
+      sources: {
+        austin: {
+          portalId: "austin",
+          portalName: "City of Austin Open Data",
+          portalUrl: "https://data.austintexas.gov/",
+          sourceType: "socrata",
+          datasetCount: 2,
+          rowCount: 2,
+          rows: [
+            {
+              sourceId: "austin",
+              sourceName: "City of Austin Open Data",
+              sourceType: "socrata",
+              datasetId: "water-main-breaks",
+              slug: "water-main-breaks",
+              name: "Water Main Breaks",
+              description: "Austin Water repair outages and emergency response",
+              category: "Utilities and City Services",
+              organization: "Austin Water",
+              assetType: "dataset",
+              createdAt: null,
+              updatedAt: null,
+              tagCount: 0,
+              resourceCount: 1,
+              formats: ["JSON"],
+              pageUrl: "https://data.austintexas.gov/d/water-main-breaks",
+              apiUrl: "https://data.austintexas.gov/resource/water-main-breaks.json",
+            },
+            {
+              sourceId: "austin",
+              sourceName: "City of Austin Open Data",
+              sourceType: "socrata",
+              datasetId: "green-building-measure",
+              slug: "green-building-measure",
+              name: "FY2025 Commercial Sq. Ft. Measure",
+              description: "Austin Energy green building measure",
+              category: "Utilities and City Services",
+              organization: "Austin Energy Green Building",
+              assetType: "measure",
+              createdAt: null,
+              updatedAt: null,
+              tagCount: 0,
+              resourceCount: 1,
+              formats: ["JSON"],
+              pageUrl: "https://data.austintexas.gov/d/green-building-measure",
+              apiUrl: "https://data.austintexas.gov/resource/green-building-measure.json",
+            },
+          ],
+        },
+        dallas: {
+          portalId: "dallas",
+          portalName: "City of Dallas OpenData",
+          portalUrl: "https://www.dallasopendata.com/",
+          sourceType: "socrata",
+          datasetCount: 1,
+          rowCount: 1,
+          rows: [
+            {
+              sourceId: "dallas",
+              sourceName: "City of Dallas OpenData",
+              sourceType: "socrata",
+              datasetId: "building-permits",
+              slug: "building-permits",
+              name: "Building Permits",
+              description: "Permit and inspection activity for development projects",
+              category: "Building and Development",
+              organization: "Sustainable Development and Construction",
+              assetType: "dataset",
+              createdAt: null,
+              updatedAt: null,
+              tagCount: 0,
+              resourceCount: 1,
+              formats: ["JSON"],
+              pageUrl: "https://www.dallasopendata.com/d/building-permits",
+              apiUrl: "https://www.dallasopendata.com/resource/building-permits.json",
+            },
+          ],
+        },
+        houston: {
+          portalId: "houston",
+          portalName: "City of Houston Open Data",
+          portalUrl: "https://data.houstontx.gov/",
+          sourceType: "ckan",
+          datasetCount: 1,
+          rowCount: 1,
+          rows: [
+            {
+              sourceId: "houston",
+              sourceName: "City of Houston Open Data",
+              sourceType: "ckan",
+              datasetId: "drainage-capital-projects",
+              slug: "drainage-capital-projects",
+              name: "Drainage Capital Projects",
+              description: "Storm drainage and flood mitigation capital projects",
+              category: "City Infrastructure",
+              organization: "Houston Public Works",
+              assetType: "dataset",
+              createdAt: null,
+              updatedAt: null,
+              tagCount: 0,
+              resourceCount: 1,
+              formats: ["CSV"],
+              pageUrl: "https://data.houstontx.gov/dataset/drainage-capital-projects",
+              apiUrl: null,
+            },
+          ],
+        },
+        "san-antonio": {
+          portalId: "san-antonio",
+          portalName: "Open Data SA",
+          portalUrl: "https://data.sanantonio.gov/",
+          sourceType: "ckan",
+          datasetCount: 1,
+          rowCount: 1,
+          rows: [
+            {
+              sourceId: "san-antonio",
+              sourceName: "Open Data SA",
+              sourceType: "ckan",
+              datasetId: "stormwater-outfalls",
+              slug: "stormwater-outfalls",
+              name: "Stormwater Outfalls",
+              description: "Stormwater outfall inventory and drainage structures",
+              category: "Transportation and Infrastructure",
+              organization: "Public Works",
+              assetType: "dataset",
+              createdAt: null,
+              updatedAt: null,
+              tagCount: 0,
+              resourceCount: 1,
+              formats: ["CSV"],
+              pageUrl: "https://data.sanantonio.gov/dataset/stormwater-outfalls",
+              apiUrl: null,
+            },
+          ],
+        },
+      },
+    });
+
+    const ranked = buildRankedCityOpenDataSnapshot(curated);
+
+    expect(ranked.summary.totalRankedRowCount).toBe(5);
+    expect(ranked.summary.topPriorityCount).toBe(4);
+    expect(ranked.summary.priorityLaneCounts["water-utility-ops"]).toBe(1);
+    expect(ranked.summary.priorityLaneCounts["building-development-permits"]).toBe(1);
+    expect(ranked.summary.priorityLaneCounts["flood-drainage"]).toBe(2);
+    expect(ranked.priorityTop25.map((row) => row.datasetId)).toEqual(expect.arrayContaining([
+      "water-main-breaks",
+      "building-permits",
+      "drainage-capital-projects",
+      "stormwater-outfalls",
+    ]));
+    expect(ranked.sources.austin.rows[0]?.priorityScore).toBeGreaterThan(ranked.sources.austin.rows[1]?.priorityScore ?? 0);
+    expect(ranked.sources.austin.rows[1]).toMatchObject({
+      datasetId: "green-building-measure",
+      priorityLane: "deprioritized",
+    });
   });
 
   it("refreshes all four city portals into one snapshot", async () => {
