@@ -89,9 +89,10 @@ Then min-max normalized 0-100 statewide for ranking. `components` in the score e
 
 ### M1.5 — protest data layer (new, parallel to refocus M1)
 - `src/lib/datasets/cid.ts` — fetcher hitting CID, parser for Search One + Search Two HTML tables.
-- `public/cache/cid-tx.json` — committed snapshot, all open items across all program areas.
+- `scripts/refresh-cid.ts` — executable refresh scaffold that chunks Search One by county/program area, runs broad Search Two, and emits snapshot payloads.
+- `public/cache/cid-cases-tx.json` + `public/cache/cid-protests-tx.json` — committed snapshots once refresh is stable and small enough.
 - `src/lib/scoring/protest_density.ts` — APD per county.
-- Tests: parser fixtures from a frozen HTML response in `tests/fixtures/cid/`.
+- Tests: parser fixtures from a frozen HTML response in `tests/fixtures/cid/` plus refresh-plan / snapshot-payload tests.
 
 ### M2.5 — MCP additions
 Add to `mcp-tools.md`:

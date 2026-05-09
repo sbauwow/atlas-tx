@@ -41,6 +41,7 @@ Spec lives in `docs/contracts/dataset-registry.md`.
 - `src/app/` — Next.js 16 frontend + API routes (UI is decoration; agent is centerpiece — see [`AGENTS.md`](AGENTS.md))
 - `src/lib/` — dataset registry, fetchers, county normalization, scoring functions
 - `packages/mcp-server/` — MCP server exposing discovery / scoring / summary tools
+- `scripts/refresh-cid.ts` — executable CID refresh scaffold for chunked Search One planning/execution + Search Two snapshot generation
 - `skills/atlas-tx/` — agent skill doc + references for safe use
 - `docs/plans/` — dated implementation plans
 - `docs/contracts/` — cross-workstream API surfaces (dataset registry, MCP tools, skill protocol)
