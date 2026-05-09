@@ -1,7 +1,7 @@
 import Link from "next/link";
 import TrackedLink from "@/app/components/tracked-link";
 import { CATEGORY_BORDER_CLASS, CATEGORY_TEXT_CLASS, DATASET_CATEGORY_GLYPH, DATASET_CATEGORY_LABEL, DATASET_CATEGORY_TOKEN } from "@/app/design/categories";
-import { surfaceVsGroundwater, waterPrimerCards } from "@/app/education/content";
+import { surfaceVsGroundwater, texasWaterDiagram, waterPrimerCards } from "@/app/education/content";
 import { MVP_DATASETS } from "@/lib/mvp-datasets";
 
 export default function Home() {
@@ -109,6 +109,17 @@ export default function Home() {
             <h3 className="mt-2 text-lg font-semibold text-white">Groundwater</h3>
             <p className="mt-3 text-sm leading-7 text-slate-300">{surfaceVsGroundwater.groundwater.body}</p>
           </article>
+        </div>
+        <div className="rounded-2xl border border-white/5 bg-slate-950/30 p-5">
+          <div className="text-xs font-medium uppercase tracking-[0.18em] text-slate-500">System diagram</div>
+          <div className="mt-3 grid gap-3 md:grid-cols-5">
+            {texasWaterDiagram.map((step) => (
+              <div key={step.title} className="rounded-xl border border-white/5 bg-white/[0.03] px-3 py-3 text-sm text-slate-300">
+                <div className="text-cyan-300">{step.glyph}</div>
+                <div className="mt-2 font-medium text-white">{step.title}</div>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 

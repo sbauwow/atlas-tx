@@ -10,6 +10,10 @@ describe("Education page", () => {
     expect(html).toContain("Texas water system guide.");
     expect(html).toContain("where Texas water comes from, how it moves, who governs it");
     expect(html).toContain("The four core questions");
+    expect(html).toContain("Texas water system at a glance");
+    expect(html).toContain("Rain + recharge");
+    expect(html).toContain("Treatment + delivery");
+    expect(html).toContain("Wastewater + reuse");
     expect(html).toContain("Surface water");
     expect(html).toContain("Groundwater");
     expect(html).toContain("How water moves through Texas");
@@ -22,6 +26,7 @@ describe("Education page", () => {
 
     expect(html).toContain('href="/water"');
     expect(html).toContain('href="/"');
+    expect(html).toContain("Texas water system at a glance");
     expect(html).toContain("Surface water");
     expect(html).toContain("Groundwater");
   });

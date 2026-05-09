@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { CATEGORY_BORDER_CLASS, CATEGORY_TEXT_CLASS } from "@/app/design/categories";
-import { countyRiskSignals, governanceLayers, surfaceVsGroundwater, texasWaterFlow, waterPrimerCards } from "@/app/education/content";
+import { countyRiskSignals, governanceLayers, surfaceVsGroundwater, texasWaterDiagram, texasWaterFlow, waterPrimerCards } from "@/app/education/content";
 
 export default function EducationPage() {
   return (
@@ -71,6 +71,32 @@ export default function EducationPage() {
               </div>
               <p className="mt-4 text-sm leading-7 text-slate-300">{card.body}</p>
             </article>
+          ))}
+        </div>
+      </section>
+
+      <section className="rounded-2xl bg-slate-900/40 p-6 ring-1 ring-white/5">
+        <div className="space-y-2">
+          <h2 className="text-2xl font-semibold text-white">Texas water system at a glance</h2>
+          <p className="max-w-3xl text-sm leading-7 text-slate-400">
+            A simple map of the flow: rainfall and recharge feed both surface water and groundwater, utilities treat and deliver that water, and wastewater systems return or reuse it.
+          </p>
+        </div>
+        <div className="mt-5 grid gap-4 lg:grid-cols-[repeat(5,minmax(0,1fr))]">
+          {texasWaterDiagram.map((step, index) => (
+            <div key={step.title} className="relative rounded-2xl border border-white/5 bg-white/[0.03] p-4">
+              <div className="flex items-center gap-3">
+                <div className="flex size-9 items-center justify-center rounded-full border border-white/10 bg-slate-950/60 text-base text-cyan-300">
+                  {step.glyph}
+                </div>
+                <div className="text-xs font-medium uppercase tracking-[0.18em] text-slate-500">Step {index + 1}</div>
+              </div>
+              <h3 className="mt-3 text-sm font-semibold text-white">{step.title}</h3>
+              <p className="mt-2 text-sm leading-6 text-slate-300">{step.body}</p>
+              {index < texasWaterDiagram.length - 1 ? (
+                <div aria-hidden="true" className="mt-4 text-center text-cyan-300/70 lg:absolute lg:-right-3 lg:top-1/2 lg:mt-0 lg:-translate-y-1/2">→</div>
+              ) : null}
+            </div>
           ))}
         </div>
       </section>

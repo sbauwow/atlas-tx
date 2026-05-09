@@ -36,6 +36,34 @@ export const texasWaterFlow = [
   "Wastewater systems collect used water, treat it, then discharge or reuse it.",
 ] as const;
 
+export const texasWaterDiagram = [
+  {
+    title: "Rain + recharge",
+    glyph: "☁",
+    body: "Rainfall feeds rivers, reservoirs, soils, springs, and aquifer recharge zones.",
+  },
+  {
+    title: "Surface water",
+    glyph: "≈",
+    body: "Rivers and reservoirs supply many regional systems through intakes, storage, and treatment plants.",
+  },
+  {
+    title: "Groundwater",
+    glyph: "◌",
+    body: "Aquifers support municipal wells, private wells, and many rural or edge-community systems.",
+  },
+  {
+    title: "Treatment + delivery",
+    glyph: "▣",
+    body: "Utilities treat raw water and move it through tanks, pumps, and pipes to homes and businesses.",
+  },
+  {
+    title: "Wastewater + reuse",
+    glyph: "↺",
+    body: "Used water is collected, treated, and either discharged back to rivers or reused where systems allow.",
+  },
+] as const;
+
 export const governanceLayers = [
   {
     title: "State planning",
