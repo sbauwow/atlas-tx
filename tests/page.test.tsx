@@ -45,6 +45,8 @@ describe("Home landing page", () => {
     expect(html).toContain("American Community Survey");
     expect(html).toContain("Journalists, policy analysts, and civic-tech teams");
     expect(html).toContain('href=\"/counties\"');
+    expect(html).toContain('href=\"/analytics\"');
+    expect(html).toContain("Statewide analytics terminal");
     expect(html).toContain("County workspace overview");
     expect(html).toContain("Entry paths");
     expect(html).toContain("Permit tracker");
@@ -68,6 +70,16 @@ describe("Home landing page", () => {
     expect(html).toContain("View top counties");
     expect(html).toContain('href="/permits#top-counties"');
     expect(html).toContain("View permit hotspots");
+  });
+
+  it("adds a fast homepage callout for the statewide analytics terminal", async () => {
+    const html = renderToStaticMarkup(await Home());
+
+    expect(html).toContain("New statewide screen");
+    expect(html).toContain("Analytics terminal");
+    expect(html).toContain("pressure-versus-risk screening");
+    expect(html).toContain("Open analytics");
+    expect(html).toContain('href="/analytics"');
   });
 
   it("describes the refocused product thesis and signals", async () => {

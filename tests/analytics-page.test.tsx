@@ -8,6 +8,15 @@ vi.mock("fs/promises", () => ({
 }));
 
 function analyticsFile(filename: string) {
+  if (filename.includes("county-history.json")) {
+    return JSON.stringify({
+      artifact: "county-history",
+      artifactVersion: 1,
+      generatedAt: "2026-05-09T22:08:46.795Z",
+      historyLength: 2,
+    });
+  }
+
   if (filename.includes("county-movers.json")) {
     return JSON.stringify({
       artifact: "county-movers",
@@ -165,10 +174,18 @@ describe("statewide analytics page", () => {
 
     expect(text).toContain("Texas statewide analytics terminal");
     expect(text).toContain("County workspace");
+    expect(text).toContain("What changed");
+    expect(text).toContain("Recent movement across committed snapshots");
+    expect(text).toContain("Recent movement across committed snapshots: 1 up, 0 down, 1 new.");
+    expect(text).toContain("Window May 9, 10:05 PM UTC → May 9, 10:08 PM UTC");
+    expect(text).toContain("Risks up: 1");
+    expect(text).toContain("New in lane: 1");
     expect(text).toContain("Screening lanes");
     expect(text).toContain("Counties to open next");
     expect(text).toContain('href="/counties/harris-county"');
     expect(text).toContain('href="/counties/orange-county"');
+    expect(text).toContain("Risk +3.6 · pressure 100 · prior rank 3");
+    expect(text).toContain("Pressure 14.44 · no prior committed rank in this comparison window.");
     expect(text).toContain("County movers");
     expect(text).toContain("Up 2 rank slots");
     expect(text).toContain("Pressure 100");
@@ -194,11 +211,81 @@ describe("statewide analytics page", () => {
     const text = renderToStaticMarkup(page);
 
     expect(text).toContain("Texas statewide analytics terminal");
+    expect(text).toContain("What changed will activate once Atlas has at least two committed statewide snapshots.");
     expect(text).toContain("Wave 1 comparison snapshots are not available yet.");
+    expect(text).toContain("Atlas only shows this lane when committed artifacts support a real comparison window.");
     expect(text).toContain("Wave 1 did not produce enough mover rows for screening lanes yet.");
     expect(text).toContain("Movers unavailable");
     expect(text).toContain("Pressure outlier bars will appear when pressure-risk-scatter.json contains points.");
     expect(text).toContain("The statewide scatter will appear once pressure-risk-scatter.json is committed.");
     expect(text).toContain("No source-freshness artifact was available.");
+  });
+
+  it("falls back to steady counties when the committed comparison window shows no movement", async () => {
+    readFileMock.mockImplementation(async (filename: string) => {
+      if (filename.includes("county-history.json")) {
+        return JSON.stringify({
+          artifact: "county-history",
+          artifactVersion: 1,
+          generatedAt: "2026-05-09T22:08:46.795Z",
+          historyLength: 2,
+        });
+      }
+
+      if (filename.includes("county-movers.json")) {
+        return JSON.stringify({
+          artifact: "county-movers",
+          artifactVersion: 1,
+          generatedAt: "2026-05-09T22:08:46.795Z",
+          baselineSnapshotAt: "2026-05-09T22:05:56.932Z",
+          comparisonSnapshotAt: "2026-05-09T22:08:46.795Z",
+          movers: [
+            {
+              county: { name: "Harris County", slug: "harris-county" },
+              movement: "steady",
+              currentRank: 1,
+              previousRank: 1,
+              rankDelta: 0,
+              currentRiskScore: 100,
+              previousRiskScore: 100,
+              scoreDelta: 0,
+              currentPressureScore: 100,
+              previousPressureScore: 100,
+            },
+            {
+              county: { name: "Travis County", slug: "travis-county" },
+              movement: "steady",
+              currentRank: 2,
+              previousRank: 2,
+              rankDelta: 0,
+              currentRiskScore: 9.72,
+              previousRiskScore: 9.72,
+              scoreDelta: 0,
+              currentPressureScore: 0.43,
+              previousPressureScore: 0.43,
+            },
+          ],
+        });
+      }
+
+      if (filename.includes("pressure-risk-scatter.json")) {
+        return JSON.stringify({ artifact: "pressure-risk-scatter", artifactVersion: 1, generatedAt: "2026-05-09T22:08:46.795Z", points: [] });
+      }
+
+      if (filename.includes("source-freshness.json")) {
+        return JSON.stringify({ artifact: "source-freshness", artifactVersion: 1, generatedAt: "2026-05-09T22:08:46.795Z", sources: [] });
+      }
+
+      throw new Error(`Unexpected file request: ${filename}`);
+    });
+
+    const pageModule = await import("@/app/analytics/page");
+    const page = await pageModule.default();
+    const text = renderToStaticMarkup(page);
+
+    expect(text).toContain("No county movement was recorded across the latest committed comparison window.");
+    expect(text).toContain("Held rank #1 · risk 100");
+    expect(text).toContain("No movement between committed snapshots · pressure 100 · prior risk 100.");
+    expect(text).toContain("Steady: 2");
   });
 });

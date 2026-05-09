@@ -1,8 +1,9 @@
 # Contract — MCP Tool Surface
 
-> Contract version: **0.5.0** — bump on any breaking change to tool name, params, or response shape. Notify `skill` workstream in `STATE.md` when bumping.
+> Contract version: **0.6.0** — bump on any breaking change to tool name, params, or response shape. Notify `skill` workstream in `STATE.md` when bumping.
 >
 > Changelog:
+> - 0.6.0 (2026-05-10): add Wave 3 analytics-spine MCP tools `get_county_analytics_summary`, `list_county_movers`, `get_pressure_risk_scatter`, and `get_county_score_decomposition` over the committed Wave 1/2 analytics artifacts.
 > - 0.5.0 (2026-05-10): add `get_permit_filing_detail` and `list_county_pending_fights` so MCP exposes the permit-detail workspace and county-level pending-fights lane.
 > - 0.4.0 (2026-05-10): add `get_pipeline_health` so MCP can read the staged refresh artifact and expose CID fallback/failure state to agents.
 > - 0.3.0 (2026-05-09): add filing-level permit scrutiny tools `list_permit_filing_red_flags` and `build_permit_protest_prep` so MCP matches the new `/permits` filing-detail workflow.
@@ -113,6 +114,193 @@ data: {
     raw_pressure: number;
     per_1k_population: number;
     open_case_count: number;
+  };
+};
+```
+
+### `get_county_analytics_summary`
+Returns the committed Wave 1/2 analytics-spine summary for one county. This is snapshot-only and does not fetch live upstream rows.
+
+```ts
+params: {
+  county: string;                    // explicit county name, e.g. "Comal County"
+  history_limit?: number;            // default 4; max snapshots to echo from county-history
+};
+data: {
+  county: string;
+  county_slug: string;
+  current_snapshot: {
+    snapshot_at: string;
+    county_risk_score: number;
+    pressure_score: number;
+    risk_rank: number;
+    pressure_rank: number;
+    system_count: number;
+    violation_count: number;
+    impaired_segment_count: number;
+    hydrology_layer_hit_count: number;
+    affected_population: number | null;
+    population: number | null;
+  } | null;
+  previous_snapshot: {
+    snapshot_at: string;
+    county_risk_score: number;
+    pressure_score: number;
+    risk_rank: number;
+    pressure_rank: number;
+  } | null;
+  deltas: {
+    county_risk_score: number | null;
+    pressure_score: number | null;
+    risk_rank: number | null;
+    pressure_rank: number | null;
+  };
+  movement: {
+    movement: "new" | "steady" | "up" | "down";
+    current_rank: number;
+    previous_rank: number | null;
+    rank_delta: number | null;
+    current_risk_score: number;
+    previous_risk_score: number | null;
+    score_delta: number | null;
+    current_pressure_score: number;
+    previous_pressure_score: number | null;
+  } | null;
+  scatter_context: {
+    x: number;
+    y: number;
+    quadrant: string;
+    quadrant_label: string | null;
+    population: number | null;
+    impaired_segment_count: number;
+    hydrology_layer_hit_count: number;
+    system_count: number;
+    violation_count: number;
+  } | null;
+  top_systems: Array<{
+    pwsId: string;
+    pwsName: string;
+    score: number;
+    violationCount: number;
+  }>;
+  history: Array<{
+    snapshot_at: string;
+    county_risk_score: number;
+    pressure_score: number;
+    risk_rank: number;
+    pressure_rank: number;
+    violation_count: number;
+    impaired_segment_count: number;
+  }>;
+  provenance: {
+    method: string | null;
+    notes: string[];
+  };
+};
+```
+
+### `list_county_movers`
+Lists counties from the committed `county-movers.json` artifact, optionally filtered by movement label or county.
+
+```ts
+params: {
+  movement?: "new" | "steady" | "up" | "down"; // explicit movement filter
+  county?: string;                                   // exact county name if caller wants one county row
+  limit?: number;                                    // default 25
+};
+data: {
+  baseline_snapshot_at: string | null;
+  comparison_snapshot_at: string | null;
+  notes: string[];
+  movers: Array<{
+    county: string;
+    county_slug: string;
+    movement: "new" | "steady" | "up" | "down";
+    current_rank: number;
+    previous_rank: number | null;
+    rank_delta: number | null;
+    current_risk_score: number;
+    previous_risk_score: number | null;
+    score_delta: number | null;
+    current_pressure_score: number;
+    previous_pressure_score: number | null;
+  }>;
+};
+```
+
+### `get_pressure_risk_scatter`
+Returns the statewide pressure-vs-risk scatter context from the committed analytics artifact, with optional county/quadrant filtering.
+
+```ts
+params: {
+  county?: string;                                   // exact county name for a single-point lookup
+  quadrant?:
+    | "high-pressure-high-risk"
+    | "high-pressure-lower-risk"
+    | "lower-pressure-high-risk"
+    | "lower-pressure-lower-risk";
+  limit?: number;                                    // default 100 after filtering
+};
+data: {
+  axes: {
+    x: string;
+    y: string;
+  };
+  quadrant_summary: Array<{
+    quadrant: string;
+    label: string;
+    count: number;
+  }>;
+  points: Array<{
+    county: string;
+    county_slug: string;
+    x: number;
+    y: number;
+    population: number | null;
+    impaired_segment_count: number;
+    hydrology_layer_hit_count: number;
+    system_count: number;
+    violation_count: number;
+    quadrant: string;
+    quadrant_label: string | null;
+  }>;
+};
+```
+
+### `get_county_score_decomposition`
+Breaks one county's committed analytics view into the current risk axis, pressure axis, supporting counts, top systems, and scatter position.
+
+```ts
+params: {
+  county: string;                     // explicit county name, e.g. "Travis County"
+};
+data: {
+  county: string;
+  county_slug: string;
+  snapshot_at: string;
+  decomposition: Array<{
+    component_id: "county_risk_score" | "pressure_score";
+    label: string;
+    value: number;
+    rank: number;
+    statewide_county_count: number | null;
+    details: Record<string, number | null>;
+  }>;
+  top_systems: Array<{
+    pws_id: string;
+    pws_name: string;
+    score: number;
+    violation_count: number;
+  }>;
+  scatter_context: {
+    quadrant: string;
+    quadrant_label: string | null;
+    x: number;
+    y: number;
+  } | null;
+  provenance: {
+    method: string | null;
+    notes: string[];
   };
 };
 ```

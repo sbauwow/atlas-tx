@@ -30,6 +30,12 @@ function LaneCard({ title, badge, href, primary, secondary }: { title: string; b
 export default async function AnalyticsPage() {
   const analytics = await loadStatewideAnalyticsViewModel();
 
+  const chipToneClassName: Record<"accent" | "warning" | "neutral", string> = {
+    accent: "border-cyan-400/20 bg-cyan-400/10 text-cyan-100",
+    warning: "border-amber-400/20 bg-amber-400/10 text-amber-100",
+    neutral: "border-white/10 bg-white/[0.03] text-slate-200",
+  };
+
   return (
     <main className="mx-auto flex w-full max-w-7xl flex-1 flex-col gap-8 px-6 py-16">
       <section className="space-y-5">
@@ -57,6 +63,38 @@ export default async function AnalyticsPage() {
         <StatTile label="Scatter counties" value={String(analytics.scatterCount)} detail="Counties currently represented in the pressure versus risk cache." />
         <StatTile label="Fresh sources" value={String(analytics.freshSourceCount)} detail="Committed source snapshots marked fresh in source-freshness.json." />
         <StatTile label="Artifacts" value={analytics.generatedAt ? "Online" : "Partial"} detail="Page degrades to empty-state panels if any artifact is missing." />
+      </section>
+
+      <section className="rounded-3xl border border-white/10 bg-slate-950/80 p-6 shadow-[0_0_0_1px_rgba(255,255,255,0.02)]">
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <div className="text-[11px] font-medium uppercase tracking-[0.22em] text-cyan-300/80">What changed</div>
+            <h2 className="mt-2 text-2xl font-semibold text-white">Recent movement across committed snapshots</h2>
+            <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-400">{analytics.whatChangedHeadline}</p>
+            <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-500">{analytics.whatChangedDetail}</p>
+          </div>
+          <div className="rounded-full border border-white/10 px-3 py-1 text-xs text-slate-400">Window {analytics.whatChangedWindowLabel}</div>
+        </div>
+
+        <div className="mt-5 flex flex-wrap gap-3">
+          {analytics.whatChangedChips.map((chip) => (
+            <div key={chip.label} className={`rounded-full border px-3 py-1.5 text-xs uppercase tracking-[0.18em] ${chipToneClassName[chip.tone]}`}>
+              {chip.label}: {chip.value}
+            </div>
+          ))}
+        </div>
+
+        {analytics.whatChangedLanes.length ? (
+          <div className="mt-5 grid gap-4 lg:grid-cols-4">
+            {analytics.whatChangedLanes.map((lane) => (
+              <LaneCard key={`what-changed-${lane.badge}-${lane.href}`} {...lane} />
+            ))}
+          </div>
+        ) : (
+          <div className="mt-5 rounded-2xl border border-dashed border-white/10 bg-white/[0.02] px-5 py-8 text-sm leading-6 text-slate-400">
+            Atlas only shows this lane when committed artifacts support a real comparison window. When there is a single snapshot or no mover rows, the statewide table and provenance panels below stay grounded to current-state data only.
+          </div>
+        )}
       </section>
 
       <section className="rounded-3xl border border-white/10 bg-slate-900/60 p-6 shadow-[0_0_0_1px_rgba(255,255,255,0.02)]">

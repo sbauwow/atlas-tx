@@ -89,6 +89,12 @@ type ScreeningLane = {
   secondary: string;
 };
 
+type WhatChangedChip = {
+  label: string;
+  value: string;
+  tone: "accent" | "warning" | "neutral";
+};
+
 type QuadrantSummary = {
   id: string;
   label: string;
@@ -100,12 +106,18 @@ type QuadrantSummary = {
 
 export type StatewideAnalyticsViewModel = {
   generatedAt: string | null;
+  historyLength: number;
   moversCount: number;
   scatterCount: number;
   freshSourceCount: number;
   moversGeneratedAt: string | null;
   scatterGeneratedAt: string | null;
   moversComparisonSummary: string;
+  whatChangedHeadline: string;
+  whatChangedDetail: string;
+  whatChangedWindowLabel: string;
+  whatChangedChips: WhatChangedChip[];
+  whatChangedLanes: ScreeningLane[];
   moversNotes: string[];
   scatterNotes: string[];
   moversRows: Array<{
@@ -250,16 +262,173 @@ function buildComparisonSummary(moversArtifact: CountyMoversArtifact | null) {
   return `Comparing ${formatTimestamp(moversArtifact.baselineSnapshotAt)} against ${formatTimestamp(moversArtifact.comparisonSnapshotAt)}.`;
 }
 
+function formatSignedNumber(value: number, digits = 2) {
+  if (!Number.isFinite(value)) {
+    return "Unavailable";
+  }
+
+  const formatted = formatNumber(Math.abs(value), digits);
+  if (value === 0) {
+    return `±${formatted}`;
+  }
+
+  return `${value > 0 ? "+" : "−"}${formatted}`;
+}
+
+function movementBadge(movement: CountyMover["movement"]): string {
+  switch (movement) {
+    case "up":
+      return "Riser";
+    case "down":
+      return "Faller";
+    case "new":
+      return "New";
+    default:
+      return "Steady";
+  }
+}
+
+function buildWhatChangedLane(
+  movers: CountyMover[],
+  historyLength: number,
+  moversArtifact: CountyMoversArtifact | null,
+): Pick<
+  StatewideAnalyticsViewModel,
+  "whatChangedHeadline" | "whatChangedDetail" | "whatChangedWindowLabel" | "whatChangedChips" | "whatChangedLanes"
+> {
+  const upwardMovers = movers
+    .filter((mover) => mover.movement === "up")
+    .sort((left, right) => Math.abs(right.rankDelta ?? 0) - Math.abs(left.rankDelta ?? 0) || left.currentRank - right.currentRank);
+  const downwardMovers = movers
+    .filter((mover) => mover.movement === "down")
+    .sort((left, right) => Math.abs(right.rankDelta ?? 0) - Math.abs(left.rankDelta ?? 0) || left.currentRank - right.currentRank);
+  const newMovers = movers.filter((mover) => mover.movement === "new").sort((left, right) => left.currentRank - right.currentRank);
+  const steadyMovers = movers.filter((mover) => mover.movement === "steady").sort((left, right) => left.currentRank - right.currentRank);
+  const scoreShifts = movers
+    .filter((mover) => typeof mover.scoreDelta === "number" && mover.scoreDelta !== 0)
+    .sort((left, right) => Math.abs(right.scoreDelta ?? 0) - Math.abs(left.scoreDelta ?? 0) || left.currentRank - right.currentRank);
+
+  const whatChangedWindowLabel =
+    moversArtifact?.baselineSnapshotAt && moversArtifact?.comparisonSnapshotAt
+      ? `${formatTimestamp(moversArtifact.baselineSnapshotAt)} → ${formatTimestamp(moversArtifact.comparisonSnapshotAt)}`
+      : historyLength > 1
+        ? "Committed comparison window unavailable"
+        : "Single committed snapshot";
+
+  const changedCount = upwardMovers.length + downwardMovers.length + newMovers.length;
+  const whatChangedChips: WhatChangedChip[] = [
+    { label: "Risks up", value: String(upwardMovers.length), tone: upwardMovers.length ? "warning" : "neutral" },
+    { label: "Risks down", value: String(downwardMovers.length), tone: downwardMovers.length ? "accent" : "neutral" },
+    { label: "New in lane", value: String(newMovers.length), tone: newMovers.length ? "accent" : "neutral" },
+    { label: "Steady", value: String(steadyMovers.length), tone: steadyMovers.length ? "neutral" : "accent" },
+  ];
+
+  if (historyLength < 2 || !moversArtifact?.baselineSnapshotAt || !moversArtifact.comparisonSnapshotAt) {
+    return {
+      whatChangedHeadline: "What changed will activate once Atlas has at least two committed statewide snapshots.",
+      whatChangedDetail:
+        movers.length > 0
+          ? "Current county ranks still render below, but this lane avoids period-over-period claims until a real comparison window is committed."
+          : "No committed mover rows are available yet, so Atlas can only show empty-state messaging for now.",
+      whatChangedWindowLabel,
+      whatChangedChips,
+      whatChangedLanes: [],
+    };
+  }
+
+  const seen = new Set<string>();
+  const whatChangedLanes: ScreeningLane[] = [];
+
+  const pushLane = (mover: CountyMover, primary: string, secondary: string) => {
+    if (seen.has(mover.county.slug) || whatChangedLanes.length >= 4) {
+      return;
+    }
+
+    seen.add(mover.county.slug);
+    whatChangedLanes.push({
+      title: mover.county.name,
+      badge: movementBadge(mover.movement),
+      href: `/counties/${mover.county.slug}`,
+      primary,
+      secondary,
+    });
+  };
+
+  upwardMovers.forEach((mover) => {
+    pushLane(
+      mover,
+      `Rank #${mover.currentRank} · ${movementLabel(mover)}`,
+      `Risk ${formatSignedNumber(mover.scoreDelta ?? 0)} · pressure ${formatNumber(mover.currentPressureScore)} · prior rank ${mover.previousRank ?? "—"}`,
+    );
+  });
+
+  downwardMovers.forEach((mover) => {
+    pushLane(
+      mover,
+      `Rank #${mover.currentRank} · ${movementLabel(mover)}`,
+      `Risk ${formatSignedNumber(mover.scoreDelta ?? 0)} · pressure ${formatNumber(mover.currentPressureScore)} · prior rank ${mover.previousRank ?? "—"}`,
+    );
+  });
+
+  newMovers.forEach((mover) => {
+    pushLane(
+      mover,
+      `Entered at rank #${mover.currentRank} · risk ${formatNumber(mover.currentRiskScore)}`,
+      `Pressure ${formatNumber(mover.currentPressureScore)} · no prior committed rank in this comparison window.`,
+    );
+  });
+
+  scoreShifts.forEach((mover) => {
+    pushLane(
+      mover,
+      `Rank #${mover.currentRank} · risk ${formatNumber(mover.currentRiskScore)}`,
+      `Risk ${formatSignedNumber(mover.scoreDelta ?? 0)} versus prior snapshot · ${movementLabel(mover)}.`,
+    );
+  });
+
+  if (!whatChangedLanes.length) {
+    steadyMovers.slice(0, 4).forEach((mover) => {
+      pushLane(
+        mover,
+        `Held rank #${mover.currentRank} · risk ${formatNumber(mover.currentRiskScore)}`,
+        `No movement between committed snapshots · pressure ${formatNumber(mover.currentPressureScore)} · prior risk ${formatNumber(mover.previousRiskScore ?? mover.currentRiskScore)}.`,
+      );
+    });
+  }
+
+  const whatChangedHeadline =
+    changedCount > 0
+      ? `Recent movement across committed snapshots: ${upwardMovers.length} up, ${downwardMovers.length} down, ${newMovers.length} new.`
+      : `No county movement was recorded across the latest committed comparison window.`;
+  const whatChangedDetail =
+    changedCount > 0
+      ? `${steadyMovers.length} counties stayed steady while the lane below surfaces the clearest movement labels and score changes already committed to county-movers.json.`
+      : steadyMovers.length > 0
+        ? `${steadyMovers.length} counties are marked steady, so Atlas falls back to the highest-ranked persistent counties instead of inventing a trend.`
+        : "The mover artifact is present but does not contain enough rows to build a recent-movement lane yet.";
+
+  return {
+    whatChangedHeadline,
+    whatChangedDetail,
+    whatChangedWindowLabel,
+    whatChangedChips,
+    whatChangedLanes,
+  };
+}
+
 export async function loadStatewideAnalyticsViewModel(): Promise<StatewideAnalyticsViewModel> {
-  const [moversArtifact, scatterArtifact, freshnessArtifact] = await Promise.all([
+  const [historyArtifact, moversArtifact, scatterArtifact, freshnessArtifact] = await Promise.all([
+    readJsonIfPresent<{ historyLength?: number }>("county-history.json"),
     readJsonIfPresent<CountyMoversArtifact>("county-movers.json"),
     readJsonIfPresent<PressureRiskScatterArtifact>("pressure-risk-scatter.json"),
     readJsonIfPresent<SourceFreshnessArtifact>("source-freshness.json"),
   ]);
 
+  const historyLength = historyArtifact?.historyLength ?? 0;
   const movers = [...(moversArtifact?.movers ?? [])].sort((left, right) => left.currentRank - right.currentRank);
   const points = [...(scatterArtifact?.points ?? [])];
   const sources = [...(freshnessArtifact?.sources ?? [])];
+  const whatChangedLane = buildWhatChangedLane(movers, historyLength, moversArtifact);
 
   const moversRows = movers.slice(0, 20).map((mover) => ({
     id: mover.county.slug,
@@ -367,12 +536,18 @@ export async function loadStatewideAnalyticsViewModel(): Promise<StatewideAnalyt
 
   return {
     generatedAt,
+    historyLength,
     moversCount: movers.length,
     scatterCount: points.length,
     freshSourceCount: sources.filter((source) => source.status === "fresh").length,
     moversGeneratedAt: moversArtifact?.generatedAt ?? null,
     scatterGeneratedAt: scatterArtifact?.generatedAt ?? null,
     moversComparisonSummary: buildComparisonSummary(moversArtifact),
+    whatChangedHeadline: whatChangedLane.whatChangedHeadline,
+    whatChangedDetail: whatChangedLane.whatChangedDetail,
+    whatChangedWindowLabel: whatChangedLane.whatChangedWindowLabel,
+    whatChangedChips: whatChangedLane.whatChangedChips,
+    whatChangedLanes: whatChangedLane.whatChangedLanes,
     moversNotes: moversArtifact?.notes ?? [],
     scatterNotes: scatterArtifact?.notes ?? [],
     moversRows,

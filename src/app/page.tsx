@@ -63,6 +63,12 @@ export default async function Home() {
             >
               County workspace overview
             </Link>
+            <Link
+              href="/analytics"
+              className="rounded-full border border-white/10 px-5 py-2.5 font-medium text-slate-200 transition-colors hover:border-white/20 hover:bg-white/5"
+            >
+              Statewide analytics terminal
+            </Link>
             <TrackedLink
               event="outbound"
               eventTarget="repo:github.com/sbauwow/atlas-tx@home"
@@ -118,6 +124,25 @@ export default async function Home() {
           href="/permits"
           cta="Open permit tracker"
         />
+      </section>
+
+      <section className="rounded-2xl border border-cyan-400/15 bg-cyan-400/5 p-5 ring-1 ring-cyan-400/10">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <div className="space-y-2">
+            <div className="text-xs font-medium uppercase tracking-[0.18em] text-cyan-300">New statewide screen</div>
+            <h2 className="text-2xl font-semibold text-white">Analytics terminal</h2>
+            <p className="max-w-3xl text-sm leading-7 text-slate-300">
+              Open statewide movers, pressure-versus-risk screening, and direct county jump links from one fast terminal-style surface.
+            </p>
+          </div>
+          <Link
+            href="/analytics"
+            className="inline-flex items-center gap-2 rounded-full border border-cyan-300/30 bg-slate-950/60 px-5 py-2.5 text-sm font-medium text-cyan-200 transition-colors hover:border-cyan-300/50 hover:bg-slate-950"
+          >
+            Open analytics
+            <span aria-hidden="true">→</span>
+          </Link>
+        </div>
       </section>
 
       <section className="grid gap-px overflow-hidden rounded-2xl bg-white/5 ring-1 ring-white/10 sm:grid-cols-3">

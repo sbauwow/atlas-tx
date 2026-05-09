@@ -3,6 +3,7 @@ import TrackedLink from "@/app/components/tracked-link";
 
 const NAV_LINKS: Array<{ label: string; href: string }> = [
   { label: "Overview", href: "/" },
+  { label: "Analytics", href: "/analytics" },
   { label: "Water", href: "/water" },
   { label: "Counties", href: "/counties" },
   { label: "Education", href: "/education" },

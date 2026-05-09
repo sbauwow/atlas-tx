@@ -15,6 +15,7 @@ describe("TopNav", () => {
 
     expect(html).toContain("Atlas TX");
     expect(html).toContain('href="/"');
+    expect(html).toContain('href="/analytics"');
     expect(html).toContain('href="/water"');
     expect(html).toContain('href="/counties"');
     expect(html).toContain('href="/education"');

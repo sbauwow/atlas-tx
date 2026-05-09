@@ -16,6 +16,24 @@ const DATASET_URLS = {
   'tceq-cid-search-two': 'https://www14.tceq.texas.gov/epic/eCID/index.cfm#searchtwo',
   'census-acs5-2023-county': 'https://www.census.gov/programs-surveys/acs',
   'epa-sdwis-violations': 'https://data.epa.gov/efservice',
+  'tceq-swq-segments': 'https://gisweb.tceq.texas.gov/arcgis/rest/services/Segments/SegmentsViewer_PRD/MapServer',
+  'twdb-major-aquifers': 'https://www.twdb.texas.gov/mapping/gisdata.asp',
+  'twdb-river-basins': 'https://www.twdb.texas.gov/mapping/gisdata.asp',
+  'twdb-huc8': 'https://www.twdb.texas.gov/mapping/gisdata.asp',
+};
+
+const ANALYTICS_DATASET_IDS = {
+  sdwis: ['epa-sdwis-violations'],
+  'acs-county': ['census-acs5-2023-county'],
+  'surface-water-quality': ['tceq-swq-segments'],
+  'twdb-hydrology': ['twdb-major-aquifers', 'twdb-river-basins', 'twdb-huc8'],
+};
+
+const SCATTER_QUADRANT_LABELS = {
+  'high-pressure-high-risk': 'High pressure + high risk',
+  'high-pressure-lower-risk': 'High pressure + lower risk',
+  'lower-pressure-high-risk': 'Lower pressure + high risk',
+  'lower-pressure-lower-risk': 'Lower pressure + lower risk',
 };
 
 function datasetById(datasetId) {
@@ -63,6 +81,28 @@ async function loadPipelineHealthReportFromSnapshot() {
   return JSON.parse(raw);
 }
 
+async function loadAnalyticsArtifact(filename) {
+  const artifactPath = path.join(process.cwd(), 'public', 'cache', 'analytics', filename);
+  const raw = await fs.readFile(artifactPath, 'utf8');
+  return JSON.parse(raw);
+}
+
+async function loadAnalyticsArtifactsFromSnapshot() {
+  const [countyHistory, countyMovers, pressureRiskScatter, sourceFreshness] = await Promise.all([
+    loadAnalyticsArtifact('county-history.json'),
+    loadAnalyticsArtifact('county-movers.json'),
+    loadAnalyticsArtifact('pressure-risk-scatter.json'),
+    loadAnalyticsArtifact('source-freshness.json'),
+  ]);
+
+  return {
+    countyHistory,
+    countyMovers,
+    pressureRiskScatter,
+    sourceFreshness,
+  };
+}
+
 function source(datasetId, retrievedAt, rowsUsed) {
   const dataset = datasetById(datasetId);
   return {
@@ -86,6 +126,64 @@ function envelope(data, { generatedAt, cacheState, sources, caveats = [] }) {
 
 function normalizeCounty(value) {
   return value?.trim() ?? undefined;
+}
+
+function normalizeCountyKey(value) {
+  return value?.trim().toLowerCase().replace(/\s+/g, ' ') ?? undefined;
+}
+
+function findCountyRecord(records, county) {
+  const normalizedCounty = normalizeCountyKey(county);
+  if (!normalizedCounty) return null;
+  return records.find((record) => {
+    const names = [record?.county?.name, record?.county].filter(Boolean);
+    return names.some((name) => normalizeCountyKey(name) === normalizedCounty);
+  }) ?? null;
+}
+
+function latestSnapshot(historyRecord) {
+  return historyRecord?.snapshots?.at(-1) ?? null;
+}
+
+function previousSnapshot(historyRecord) {
+  return historyRecord?.snapshots?.at(-2) ?? null;
+}
+
+function formatScatterQuadrant(quadrant) {
+  return SCATTER_QUADRANT_LABELS[quadrant] ?? quadrant ?? null;
+}
+
+function buildAnalyticsSources(sourceFreshness, sourceIds = null) {
+  const freshnessRows = sourceFreshness?.sources ?? [];
+  const selectedRows = sourceIds
+    ? freshnessRows.filter((row) => sourceIds.includes(row.sourceId))
+    : freshnessRows;
+
+  return selectedRows.flatMap((row) => {
+    const datasetIds = ANALYTICS_DATASET_IDS[row.sourceId] ?? [row.sourceId];
+    return datasetIds.map((datasetId) => source(datasetId, row.generatedAt, row.rowCount ?? 0));
+  });
+}
+
+function buildAnalyticsCaveats(sourceFreshness, extraCaveats = []) {
+  const freshnessNotes = (sourceFreshness?.sources ?? [])
+    .flatMap((row) => row.notes ?? [])
+    .slice(0, 8);
+
+  return [...new Set([...extraCaveats, ...freshnessNotes])];
+}
+
+function summarizeQuadrants(points) {
+  const counts = points.reduce((accumulator, point) => {
+    accumulator[point.quadrant] = (accumulator[point.quadrant] ?? 0) + 1;
+    return accumulator;
+  }, {});
+
+  return Object.keys(SCATTER_QUADRANT_LABELS).map((quadrant) => ({
+    quadrant,
+    label: SCATTER_QUADRANT_LABELS[quadrant],
+    count: counts[quadrant] ?? 0,
+  }));
 }
 
 function normalizePermitContext(data) {
@@ -183,6 +281,7 @@ export function createAtlasTxMcpHandlers(deps = {}) {
     return normalizePermitContext(await helpers.getTceqPendingPermitsPageData());
   });
   const loadPipelineHealthReport = deps.loadPipelineHealthReport ?? loadPipelineHealthReportFromSnapshot;
+  const loadAnalyticsArtifacts = deps.loadAnalyticsArtifacts ?? loadAnalyticsArtifactsFromSnapshot;
 
   return {
     async discover_datasets(params = {}) {
@@ -243,6 +342,258 @@ export function createAtlasTxMcpHandlers(deps = {}) {
           ...(sdwis.caveats ?? []),
           'DWRS is a risk indicator derived from violation history, not a measurement of present harm.',
         ],
+      });
+    },
+
+    async get_county_analytics_summary({ county, history_limit = 4 } = {}) {
+      if (!county) {
+        throw new Error('county is required');
+      }
+
+      const analytics = await loadAnalyticsArtifacts();
+      const historyRecord = findCountyRecord(analytics.countyHistory?.counties ?? [], county);
+      if (!historyRecord) {
+        throw new Error(`Unknown analytics county: ${county}`);
+      }
+
+      const mover = findCountyRecord(analytics.countyMovers?.movers ?? [], county);
+      const scatterPoint = findCountyRecord(analytics.pressureRiskScatter?.points ?? [], county);
+      const currentSnapshot = latestSnapshot(historyRecord);
+      const priorSnapshot = previousSnapshot(historyRecord);
+      const riskDelta =
+        typeof currentSnapshot?.metrics?.countyRiskScore === 'number' && typeof priorSnapshot?.metrics?.countyRiskScore === 'number'
+          ? Number((currentSnapshot.metrics.countyRiskScore - priorSnapshot.metrics.countyRiskScore).toFixed(2))
+          : null;
+      const pressureDelta =
+        typeof currentSnapshot?.metrics?.pressureScore === 'number' && typeof priorSnapshot?.metrics?.pressureScore === 'number'
+          ? Number((currentSnapshot.metrics.pressureScore - priorSnapshot.metrics.pressureScore).toFixed(2))
+          : null;
+
+      return envelope({
+        county: historyRecord.county.name,
+        county_slug: historyRecord.county.slug,
+        current_snapshot: currentSnapshot ? {
+          snapshot_at: currentSnapshot.snapshotAt,
+          county_risk_score: currentSnapshot.metrics.countyRiskScore,
+          pressure_score: currentSnapshot.metrics.pressureScore,
+          risk_rank: currentSnapshot.ranks.risk,
+          pressure_rank: currentSnapshot.ranks.pressure,
+          system_count: currentSnapshot.metrics.systemCount,
+          violation_count: currentSnapshot.metrics.violationCount,
+          impaired_segment_count: currentSnapshot.metrics.impairedSegmentCount,
+          hydrology_layer_hit_count: currentSnapshot.metrics.hydrologyLayerHitCount,
+          affected_population: currentSnapshot.metrics.affectedPopulation ?? null,
+          population: currentSnapshot.metrics.population ?? null,
+        } : null,
+        previous_snapshot: priorSnapshot ? {
+          snapshot_at: priorSnapshot.snapshotAt,
+          county_risk_score: priorSnapshot.metrics.countyRiskScore,
+          pressure_score: priorSnapshot.metrics.pressureScore,
+          risk_rank: priorSnapshot.ranks.risk,
+          pressure_rank: priorSnapshot.ranks.pressure,
+        } : null,
+        deltas: {
+          county_risk_score: riskDelta,
+          pressure_score: pressureDelta,
+          risk_rank: currentSnapshot && priorSnapshot ? currentSnapshot.ranks.risk - priorSnapshot.ranks.risk : null,
+          pressure_rank: currentSnapshot && priorSnapshot ? currentSnapshot.ranks.pressure - priorSnapshot.ranks.pressure : null,
+        },
+        movement: mover ? {
+          movement: mover.movement,
+          current_rank: mover.currentRank,
+          previous_rank: mover.previousRank,
+          rank_delta: mover.rankDelta,
+          current_risk_score: mover.currentRiskScore,
+          previous_risk_score: mover.previousRiskScore,
+          score_delta: mover.scoreDelta,
+          current_pressure_score: mover.currentPressureScore,
+          previous_pressure_score: mover.previousPressureScore,
+        } : null,
+        scatter_context: scatterPoint ? {
+          x: scatterPoint.x,
+          y: scatterPoint.y,
+          quadrant: scatterPoint.quadrant,
+          quadrant_label: formatScatterQuadrant(scatterPoint.quadrant),
+          population: scatterPoint.population,
+          impaired_segment_count: scatterPoint.impairedSegmentCount,
+          hydrology_layer_hit_count: scatterPoint.hydrologyLayerHitCount,
+          system_count: scatterPoint.systemCount,
+          violation_count: scatterPoint.violationCount,
+        } : null,
+        top_systems: currentSnapshot?.highlights?.topSystems ?? [],
+        history: historyRecord.snapshots.slice(-Math.max(1, history_limit)).map((snapshot) => ({
+          snapshot_at: snapshot.snapshotAt,
+          county_risk_score: snapshot.metrics.countyRiskScore,
+          pressure_score: snapshot.metrics.pressureScore,
+          risk_rank: snapshot.ranks.risk,
+          pressure_rank: snapshot.ranks.pressure,
+          violation_count: snapshot.metrics.violationCount,
+          impaired_segment_count: snapshot.metrics.impairedSegmentCount,
+        })),
+        provenance: {
+          method: analytics.countyHistory?.provenance?.method ?? null,
+          notes: analytics.countyHistory?.provenance?.notes ?? [],
+        },
+      }, {
+        generatedAt: analytics.countyHistory?.generatedAt ?? analytics.pressureRiskScatter?.generatedAt,
+        cacheState: 'snapshot',
+        sources: buildAnalyticsSources(analytics.sourceFreshness),
+        caveats: buildAnalyticsCaveats(analytics.sourceFreshness, [
+          'County analytics summary is derived from committed cache artifacts and should be treated as a screening surface, not a live regulatory lookup.',
+        ]),
+      });
+    },
+
+    async list_county_movers(params = {}) {
+      const analytics = await loadAnalyticsArtifacts();
+      const movement = params.movement?.trim();
+      const county = normalizeCounty(params.county);
+      const movers = (analytics.countyMovers?.movers ?? [])
+        .filter((row) => !movement || row.movement === movement)
+        .filter((row) => !county || normalizeCountyKey(row.county.name) === normalizeCountyKey(county))
+        .slice(0, params.limit ?? 25)
+        .map((row) => ({
+          county: row.county.name,
+          county_slug: row.county.slug,
+          movement: row.movement,
+          current_rank: row.currentRank,
+          previous_rank: row.previousRank,
+          rank_delta: row.rankDelta,
+          current_risk_score: row.currentRiskScore,
+          previous_risk_score: row.previousRiskScore,
+          score_delta: row.scoreDelta,
+          current_pressure_score: row.currentPressureScore,
+          previous_pressure_score: row.previousPressureScore,
+        }));
+
+      return envelope({
+        baseline_snapshot_at: analytics.countyMovers?.baselineSnapshotAt ?? null,
+        comparison_snapshot_at: analytics.countyMovers?.comparisonSnapshotAt ?? null,
+        notes: analytics.countyMovers?.notes ?? [],
+        movers,
+      }, {
+        generatedAt: analytics.countyMovers?.generatedAt,
+        cacheState: 'snapshot',
+        sources: buildAnalyticsSources(analytics.sourceFreshness),
+        caveats: buildAnalyticsCaveats(analytics.sourceFreshness, [
+          'Most current committed movers are steady because the first comparison window only spans the initial Wave 1 snapshot pair.',
+        ]),
+      });
+    },
+
+    async get_pressure_risk_scatter(params = {}) {
+      const analytics = await loadAnalyticsArtifacts();
+      const county = normalizeCounty(params.county);
+      const quadrant = params.quadrant?.trim();
+      const points = (analytics.pressureRiskScatter?.points ?? [])
+        .filter((row) => !county || normalizeCountyKey(row.county.name) === normalizeCountyKey(county))
+        .filter((row) => !quadrant || row.quadrant === quadrant);
+
+      const sortedPoints = [...points]
+        .sort((left, right) => right.y - left.y || right.x - left.x)
+        .slice(0, params.limit ?? 100)
+        .map((row) => ({
+          county: row.county.name,
+          county_slug: row.county.slug,
+          x: row.x,
+          y: row.y,
+          population: row.population,
+          impaired_segment_count: row.impairedSegmentCount,
+          hydrology_layer_hit_count: row.hydrologyLayerHitCount,
+          system_count: row.systemCount,
+          violation_count: row.violationCount,
+          quadrant: row.quadrant,
+          quadrant_label: formatScatterQuadrant(row.quadrant),
+        }));
+
+      return envelope({
+        axes: analytics.pressureRiskScatter?.axes ?? { x: 'pressureScore', y: 'countyRiskScore' },
+        quadrant_summary: summarizeQuadrants(analytics.pressureRiskScatter?.points ?? []),
+        points: sortedPoints,
+      }, {
+        generatedAt: analytics.pressureRiskScatter?.generatedAt,
+        cacheState: 'snapshot',
+        sources: buildAnalyticsSources(analytics.sourceFreshness),
+        caveats: buildAnalyticsCaveats(analytics.sourceFreshness, [
+          'Scatter quadrants are relative to the current committed statewide snapshot and will shift as new snapshots are committed.',
+        ]),
+      });
+    },
+
+    async get_county_score_decomposition({ county } = {}) {
+      if (!county) {
+        throw new Error('county is required');
+      }
+
+      const analytics = await loadAnalyticsArtifacts();
+      const historyRecord = findCountyRecord(analytics.countyHistory?.counties ?? [], county);
+      if (!historyRecord) {
+        throw new Error(`Unknown analytics county: ${county}`);
+      }
+
+      const currentSnapshot = latestSnapshot(historyRecord);
+      if (!currentSnapshot) {
+        throw new Error(`No analytics snapshots available for county: ${county}`);
+      }
+
+      const scatterPoint = findCountyRecord(analytics.pressureRiskScatter?.points ?? [], county);
+      const countyCount = analytics.countyHistory?.counties?.length ?? null;
+      const currentTopSystems = currentSnapshot.highlights?.topSystems ?? [];
+
+      return envelope({
+        county: historyRecord.county.name,
+        county_slug: historyRecord.county.slug,
+        snapshot_at: currentSnapshot.snapshotAt,
+        decomposition: [
+          {
+            component_id: 'county_risk_score',
+            label: 'County drinking-water risk axis',
+            value: currentSnapshot.metrics.countyRiskScore,
+            rank: currentSnapshot.ranks.risk,
+            statewide_county_count: countyCount,
+            details: {
+              violation_count: currentSnapshot.metrics.violationCount,
+              system_count: currentSnapshot.metrics.systemCount,
+              affected_population: currentSnapshot.metrics.affectedPopulation ?? null,
+            },
+          },
+          {
+            component_id: 'pressure_score',
+            label: 'Surface-water pressure axis',
+            value: currentSnapshot.metrics.pressureScore,
+            rank: currentSnapshot.ranks.pressure,
+            statewide_county_count: countyCount,
+            details: {
+              impaired_segment_count: currentSnapshot.metrics.impairedSegmentCount,
+              hydrology_layer_hit_count: currentSnapshot.metrics.hydrologyLayerHitCount,
+              population: currentSnapshot.metrics.population ?? null,
+              impaired_segment_share: currentSnapshot.metrics.impairedSegmentShare ?? null,
+            },
+          },
+        ],
+        top_systems: currentTopSystems.map((system) => ({
+          pws_id: system.pwsId,
+          pws_name: system.pwsName,
+          score: system.score,
+          violation_count: system.violationCount,
+        })),
+        scatter_context: scatterPoint ? {
+          quadrant: scatterPoint.quadrant,
+          quadrant_label: formatScatterQuadrant(scatterPoint.quadrant),
+          x: scatterPoint.x,
+          y: scatterPoint.y,
+        } : null,
+        provenance: {
+          method: analytics.countyHistory?.provenance?.method ?? null,
+          notes: analytics.countyHistory?.provenance?.notes ?? [],
+        },
+      }, {
+        generatedAt: analytics.countyHistory?.generatedAt,
+        cacheState: 'snapshot',
+        sources: buildAnalyticsSources(analytics.sourceFreshness),
+        caveats: buildAnalyticsCaveats(analytics.sourceFreshness, [
+          'First-cut decomposition breaks the county view into the committed risk and pressure axes plus supporting counts; it does not yet expose the fuller live county explorer driver stack.',
+        ]),
       });
     },
 
