@@ -1,6 +1,7 @@
 import type {
   LcraWaterQualityObservation,
   LcraWaterQualityParameter,
+  LcraWaterQualitySegment,
   LcraWaterQualitySite,
 } from "@/lib/water/types";
 import { getGlobalWaterDataCache } from "@/lib/water/cache";
@@ -45,6 +46,17 @@ type LcraWaterQualityObservationApiRow = {
   Date?: string;
 };
 
+type LcraWaterQualitySegmentApiRow = {
+  SegmentId?: string | number;
+  SegmentName?: string | null;
+  RootSegmentId?: string | number | null;
+  RootSegmentName?: string | null;
+  SiteIds?: string | null;
+  Agencies?: string | null;
+  ImpairedSegment?: boolean | null;
+  Sites?: Array<{ SiteId?: string | number; SiteName?: string | null }> | null;
+};
+
 function asString(value: string | number | null | undefined, fallback = ""): string {
   return value === null || value === undefined ? fallback : String(value);
 }
@@ -53,6 +65,13 @@ function asNumber(value: string | number | null | undefined): number | null {
   if (value === null || value === undefined || value === "") return null;
   const numeric = typeof value === "number" ? value : Number(value);
   return Number.isFinite(numeric) ? numeric : null;
+}
+
+function splitCsv(value: string | null | undefined): string[] {
+  return (value ?? "")
+    .split(",")
+    .map((item) => item.trim())
+    .filter(Boolean);
 }
 
 export function normalizeLcraWaterQualitySite(row: LcraWaterQualitySiteApiRow): LcraWaterQualitySite {
@@ -106,6 +125,25 @@ export function normalizeLcraWaterQualityObservation(row: LcraWaterQualityObserv
   };
 }
 
+export function normalizeLcraWaterQualitySegment(row: LcraWaterQualitySegmentApiRow): LcraWaterQualitySegment {
+  const siteIds = Array.from(new Set([
+    ...splitCsv(row.SiteIds),
+    ...((row.Sites ?? []).map((site) => asString(site.SiteId)).filter(Boolean)),
+  ]));
+  return {
+    sourceId: "lcra-water-quality-segments",
+    segmentId: asString(row.SegmentId, "unknown-segment"),
+    segmentName: row.SegmentName ?? null,
+    rootSegmentId: row.RootSegmentId === undefined ? null : asString(row.RootSegmentId),
+    rootSegmentName: row.RootSegmentName ?? null,
+    siteIds,
+    agencies: splitCsv(row.Agencies),
+    impairedSegment: row.ImpairedSegment ?? null,
+    siteCount: siteIds.length,
+    raw: row as Record<string, unknown>,
+  };
+}
+
 export function filterLcraWaterQualityObservationsByStoretCode(
   observations: LcraWaterQualityObservation[],
   storetCode: string,
@@ -142,6 +180,22 @@ async function fetchObservationsUncached(siteId: string, includeProfile = false,
   return rows.map(normalizeLcraWaterQualityObservation);
 }
 
+async function fetchSegmentUncached(segmentId: string, signal?: AbortSignal): Promise<LcraWaterQualitySegment> {
+  const row = await fetchJson<LcraWaterQualitySegmentApiRow>(`https://waterquality.lcra.org/api/Segments/GetSegment/${segmentId}`, signal);
+  return normalizeLcraWaterQualitySegment(row);
+}
+
+async function fetchSegmentParametersUncached(segmentId: string, signal?: AbortSignal): Promise<LcraWaterQualityParameter[]> {
+  const rows = await fetchJson<LcraWaterQualityParameterApiRow[]>(`https://waterquality.lcra.org/api/Segments/GetSegmentParameters/${segmentId}`, signal);
+  return rows.map(normalizeLcraWaterQualityParameter);
+}
+
+async function fetchSegmentObservationsUncached(segmentId: string, includeProfile = false, signal?: AbortSignal): Promise<LcraWaterQualityObservation[]> {
+  const suffix = includeProfile ? "?IncludeProfile=true" : "";
+  const rows = await fetchJson<LcraWaterQualityObservationApiRow[]>(`https://waterquality.lcra.org/api/Segments/GetSegmentData/${segmentId}${suffix}`, signal);
+  return rows.map(normalizeLcraWaterQualityObservation);
+}
+
 export async function fetchLcraWaterQualitySites(signal?: AbortSignal): Promise<LcraWaterQualitySite[]> {
   if (signal) return fetchSitesUncached(signal);
   return getGlobalWaterDataCache().getOrLoad("lcra-water-quality-sites", LCRA_WATER_QUALITY_TTL_MS, () => fetchSitesUncached());
@@ -167,5 +221,28 @@ export async function fetchLcraWaterQualitySiteObservations(
     `lcra-water-quality-observations:${siteId}:${includeProfile ? "profile" : "surface"}`,
     LCRA_WATER_QUALITY_TTL_MS,
     () => fetchObservationsUncached(siteId, includeProfile),
+  );
+}
+
+export async function fetchLcraWaterQualitySegment(segmentId: string, signal?: AbortSignal): Promise<LcraWaterQualitySegment> {
+  if (signal) return fetchSegmentUncached(segmentId, signal);
+  return getGlobalWaterDataCache().getOrLoad(`lcra-water-quality-segment:${segmentId}`, LCRA_WATER_QUALITY_TTL_MS, () => fetchSegmentUncached(segmentId));
+}
+
+export async function fetchLcraWaterQualitySegmentParameters(segmentId: string, signal?: AbortSignal): Promise<LcraWaterQualityParameter[]> {
+  if (signal) return fetchSegmentParametersUncached(segmentId, signal);
+  return getGlobalWaterDataCache().getOrLoad(`lcra-water-quality-segment-parameters:${segmentId}`, LCRA_WATER_QUALITY_TTL_MS, () => fetchSegmentParametersUncached(segmentId));
+}
+
+export async function fetchLcraWaterQualitySegmentObservations(
+  segmentId: string,
+  options: { includeProfile?: boolean; signal?: AbortSignal } = {},
+): Promise<LcraWaterQualityObservation[]> {
+  const { includeProfile = false, signal } = options;
+  if (signal) return fetchSegmentObservationsUncached(segmentId, includeProfile, signal);
+  return getGlobalWaterDataCache().getOrLoad(
+    `lcra-water-quality-segment-observations:${segmentId}:${includeProfile ? "profile" : "surface"}`,
+    LCRA_WATER_QUALITY_TTL_MS,
+    () => fetchSegmentObservationsUncached(segmentId, includeProfile),
   );
 }

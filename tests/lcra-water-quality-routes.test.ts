@@ -4,12 +4,18 @@ const fetchLcraWaterQualitySites = vi.fn();
 const fetchLcraWaterQualitySite = vi.fn();
 const fetchLcraWaterQualitySiteParameters = vi.fn();
 const fetchLcraWaterQualitySiteObservations = vi.fn();
+const fetchLcraWaterQualitySegment = vi.fn();
+const fetchLcraWaterQualitySegmentParameters = vi.fn();
+const fetchLcraWaterQualitySegmentObservations = vi.fn();
 
 vi.mock("@/lib/water/lcra-water-quality", () => ({
   fetchLcraWaterQualitySites,
   fetchLcraWaterQualitySite,
   fetchLcraWaterQualitySiteParameters,
   fetchLcraWaterQualitySiteObservations,
+  fetchLcraWaterQualitySegment,
+  fetchLcraWaterQualitySegmentParameters,
+  fetchLcraWaterQualitySegmentObservations,
   filterLcraWaterQualityObservationsByStoretCode: vi.fn((rows, storetCode: string) => rows.filter((row: { storetCode: string }) => row.storetCode === storetCode)),
 }));
 
@@ -56,5 +62,27 @@ describe("LCRA water quality routes", () => {
     expect(response.status).toBe(200);
     expect(payload.observations).toHaveLength(1);
     expect(payload.observations[0].storetCode).toBe("00300");
+  });
+
+  it("returns segment detail, parameters, and observations", async () => {
+    fetchLcraWaterQualitySegment.mockResolvedValue({ sourceId: "lcra-water-quality-segments", segmentId: "1403", segmentName: "LAKE AUSTIN", raw: {} });
+    fetchLcraWaterQualitySegmentParameters.mockResolvedValue([
+      { sourceId: "lcra-water-quality-parameters", segmentId: "1403", siteId: "12300", storetCode: "00010", raw: {} },
+    ]);
+    fetchLcraWaterQualitySegmentObservations.mockResolvedValue([
+      { sourceId: "lcra-water-quality-observations", segmentId: "1403", siteId: "12300", storetCode: "00010", value: 25.4, raw: {} },
+    ]);
+
+    const segmentRoute = await import("@/app/api/water/lcra/quality/segments/[segmentId]/route");
+    const parameterRoute = await import("@/app/api/water/lcra/quality/segments/[segmentId]/parameters/route");
+    const observationRoute = await import("@/app/api/water/lcra/quality/segments/[segmentId]/observations/route");
+
+    const segmentResponse = await segmentRoute.GET(new Request("http://localhost/api/water/lcra/quality/segments/1403"), { params: Promise.resolve({ segmentId: "1403" }) });
+    const parameterResponse = await parameterRoute.GET(new Request("http://localhost/api/water/lcra/quality/segments/1403/parameters"), { params: Promise.resolve({ segmentId: "1403" }) });
+    const observationResponse = await observationRoute.GET(new Request("http://localhost/api/water/lcra/quality/segments/1403/observations?storetCode=00010"), { params: Promise.resolve({ segmentId: "1403" }) });
+
+    expect((await segmentResponse.json()).segment.segmentId).toBe("1403");
+    expect((await parameterResponse.json()).parameters[0].segmentId).toBe("1403");
+    expect((await observationResponse.json()).observations[0].storetCode).toBe("00010");
   });
 });

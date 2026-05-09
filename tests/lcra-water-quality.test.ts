@@ -3,6 +3,7 @@ import {
   filterLcraWaterQualityObservationsByStoretCode,
   normalizeLcraWaterQualityObservation,
   normalizeLcraWaterQualityParameter,
+  normalizeLcraWaterQualitySegment,
   normalizeLcraWaterQualitySite,
 } from "@/lib/water/lcra-water-quality";
 
@@ -120,5 +121,29 @@ describe("LCRA water quality", () => {
       observedAt: "2025-10-29T00:00:00",
     });
     expect(filterLcraWaterQualityObservationsByStoretCode(observations, "00300")).toEqual([observations[1]]);
+  });
+
+  it("normalizes segment metadata", () => {
+    const segment = normalizeLcraWaterQualitySegment({
+      SegmentId: "1403",
+      SegmentName: "LAKE AUSTIN",
+      RootSegmentId: "1403",
+      RootSegmentName: "LAKE AUSTIN",
+      SiteIds: "12300,12299",
+      Agencies: "LCRA,COA",
+      ImpairedSegment: false,
+      Sites: [{ SiteId: "12300", SiteName: "LK AUSTIN AT LOW WATER CROSSIN" }],
+    });
+
+    expect(segment).toMatchObject({
+      sourceId: "lcra-water-quality-segments",
+      segmentId: "1403",
+      segmentName: "LAKE AUSTIN",
+      rootSegmentId: "1403",
+      rootSegmentName: "LAKE AUSTIN",
+      siteIds: ["12300", "12299"],
+      agencies: ["LCRA", "COA"],
+      impairedSegment: false,
+    });
   });
 });

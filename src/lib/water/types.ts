@@ -119,6 +119,19 @@ export type LcraWaterQualityObservation = {
   raw: Record<string, unknown>;
 };
 
+export type LcraWaterQualitySegment = {
+  sourceId: "lcra-water-quality-segments";
+  segmentId: string;
+  segmentName?: string | null;
+  rootSegmentId?: string | null;
+  rootSegmentName?: string | null;
+  siteIds: string[];
+  agencies: string[];
+  impairedSegment?: boolean | null;
+  siteCount: number;
+  raw: Record<string, unknown>;
+};
+
 export type WaterAlert = {
   sourceId: "nws-alerts";
   alertId: string;
