@@ -207,4 +207,126 @@ describe("Atlas TX MCP handlers", () => {
     expect(dispatched.data).toHaveLength(1);
     expect(dispatched.data[0]?.county).toBe('Brazoria County');
   });
+
+  it("lists permit filing red flags with explainable reasons", async () => {
+    const handlers = createAtlasTxMcpHandlers({
+      loadPermitPageData: async () => ({
+        generatedAt: "2026-05-10T00:00:00.000Z",
+        cacheState: "snapshot",
+        permits: [
+          {
+            permitNumber: "WQ0001",
+            authorizationType: "IND WW",
+            authorizationStatus: "PENDING",
+            permitteeName: "Alpha Water LLC",
+            county: "Travis County",
+            nearestCity: "Austin",
+            latitude: 30.27,
+            longitude: -97.74,
+          },
+          {
+            permitNumber: "WQ0002",
+            authorizationType: "IND WW",
+            authorizationStatus: "PENDING",
+            permitteeName: "Alpha Water LLC",
+            county: "Travis County",
+            nearestCity: "Austin",
+            latitude: 30.28,
+            longitude: -97.75,
+          },
+        ],
+        cidSummary: {
+          available: true,
+          generatedAt: "2026-05-09T00:00:00.000Z",
+          openCaseCount: 1,
+          protestedCaseCount: 1,
+          hearingRequestCount: 1,
+          publicMeetingRequestCount: 0,
+          caveats: ["CID Search One is fragile; treat this lane as best-effort procedural context."],
+          topProgramAreas: [{ programArea: "WQ", count: 1 }],
+          cases: [
+            {
+              tceqId: "WQ0000447000",
+              applicantName: "Alpha Water LLC",
+              county: "Travis County",
+              programArea: "WQ",
+              itemStatus: "open",
+              tceqDocketNumber: "2026-001",
+              soahDocketNumber: "582-26-0001",
+              regulatedEntityNumber: null,
+              customerNumber: null,
+              filingCounts: { comments: 1, hearingRequests: 1, publicMeetingRequests: 0 },
+              latestFiledAt: "2026-04-04",
+            },
+          ],
+        },
+      }),
+    });
+
+    const result = await handlers.list_permit_filing_red_flags({ county: "Travis County" });
+
+    expect(result.cache_state).toBe("snapshot");
+    expect(result.data[0]?.tceq_id).toBe("WQ0000447000");
+    expect(result.data[0]?.reasons).toContain("SOAH docket present");
+    expect(result.data[0]?.reasons).toContain("1 hearing request filed");
+    expect(result.data[0]?.reasons).toContain("2 pending permits in Travis County");
+  });
+
+  it("builds a permit protest prep pack without naming individual commenters", async () => {
+    const deps = {
+      loadPermitPageData: async () => ({
+        generatedAt: "2026-05-10T00:00:00.000Z",
+        cacheState: "snapshot",
+        permits: [
+          {
+            permitNumber: "WQ0001",
+            authorizationType: "IND WW",
+            authorizationStatus: "PENDING",
+            permitteeName: "Alpha Water LLC",
+            county: "Travis County",
+            nearestCity: "Austin",
+            latitude: 30.27,
+            longitude: -97.74,
+          },
+        ],
+        cidSummary: {
+          available: true,
+          generatedAt: "2026-05-09T00:00:00.000Z",
+          openCaseCount: 1,
+          protestedCaseCount: 1,
+          hearingRequestCount: 1,
+          publicMeetingRequestCount: 0,
+          caveats: ["CID Search One is fragile; treat this lane as best-effort procedural context."],
+          topProgramAreas: [{ programArea: "WQ", count: 1 }],
+          cases: [
+            {
+              tceqId: "WQ0000447000",
+              applicantName: "Alpha Water LLC",
+              county: "Travis County",
+              programArea: "WQ",
+              itemStatus: "open",
+              tceqDocketNumber: "2026-001",
+              soahDocketNumber: "582-26-0001",
+              regulatedEntityNumber: null,
+              customerNumber: null,
+              filingCounts: { comments: 1, hearingRequests: 1, publicMeetingRequests: 0 },
+              latestFiledAt: "2026-04-04",
+            },
+          ],
+        },
+      }),
+    };
+    const handlers = createAtlasTxMcpHandlers(deps);
+
+    const result = await handlers.build_permit_protest_prep({ tceq_id: "WQ0000447000" });
+
+    expect(result.data.tceq_id).toBe("WQ0000447000");
+    expect(result.data.participation_status).toContain("Request a contested case hearing");
+    expect(result.data.evidence_checklist).toContain("Describe how the filing affects Travis County or nearby neighborhoods.");
+    expect(result.data.draft_text).toContain("I am submitting this comment regarding TCEQ ID WQ0000447000");
+    expect(result.data.export_text).toContain("Top visible red flags:");
+
+    const dispatched = await runAtlasTxTool("build_permit_protest_prep", { tceq_id: "WQ0000447000" }, deps);
+    expect(dispatched.data.tceq_id).toBe("WQ0000447000");
+  });
 });

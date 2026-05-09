@@ -31,6 +31,20 @@ async function loadScoreDrinkingWaterRisk() {
   return mod.scoreDrinkingWaterRisk;
 }
 
+async function loadScorePermitFilingRedFlags() {
+  const mod = await import('../../../src/lib/scoring/permit_filing_red_flags.ts');
+  return mod.scorePermitFilingRedFlags;
+}
+
+async function loadPermitHelpers() {
+  const mod = await import('../../../src/lib/tceq-permits.ts');
+  return {
+    buildPermitProtestPrep: mod.buildPermitProtestPrep,
+    getPermitFilingDetailPageData: mod.getPermitFilingDetailPageData,
+    getTceqPendingPermitsPageData: mod.getTceqPendingPermitsPageData,
+  };
+}
+
 function source(datasetId, retrievedAt, rowsUsed) {
   const dataset = datasetById(datasetId);
   return {
@@ -54,6 +68,15 @@ function envelope(data, { generatedAt, cacheState, sources, caveats = [] }) {
 
 function normalizeCounty(value) {
   return value?.trim() ?? undefined;
+}
+
+function normalizePermitContext(data) {
+  return {
+    generatedAt: data.generatedAt,
+    cacheState: data.cacheState ?? 'snapshot',
+    permits: data.permits,
+    cidSummary: data.cidSummary,
+  };
 }
 
 function aggregatePermitRows(cases, protests, params = {}) {
@@ -112,6 +135,10 @@ export function createAtlasTxMcpHandlers(deps = {}) {
   });
   const loadCountyPopulation = deps.loadCountyPopulation ?? loadAcsCountyPopulationFromSnapshot;
   const loadSdwisData = deps.loadSdwisData ?? loadSdwisSnapshot;
+  const loadPermitPageData = deps.loadPermitPageData ?? (async () => {
+    const helpers = await loadPermitHelpers();
+    return normalizePermitContext(await helpers.getTceqPendingPermitsPageData());
+  });
 
   return {
     async discover_datasets(params = {}) {
@@ -229,6 +256,75 @@ export function createAtlasTxMcpHandlers(deps = {}) {
         caveats: [
           'APD is a protest-pressure indicator, not a finding on environmental harm or permit legality.',
           'Per-capita normalization can brighten rural counties; compare raw pressure alongside the normalized score.',
+        ],
+      });
+    },
+
+    async list_permit_filing_red_flags(params = {}) {
+      const permitData = await loadPermitPageData();
+      const scorePermitFilingRedFlags = await loadScorePermitFilingRedFlags();
+      const county = normalizeCounty(params.county);
+      const rows = scorePermitFilingRedFlags({
+        permits: permitData.permits,
+        cases: permitData.cidSummary.cases,
+      }).filter((row) => !county || row.county === county)
+        .slice(0, params.limit ?? 25)
+        .map((row) => ({
+          tceq_id: row.tceqId,
+          applicant_name: row.applicantName,
+          county: row.county,
+          program_area: row.programArea,
+          score: row.score,
+          reasons: row.reasons.map((reason) => reason.text),
+          components: {
+            procedural_pressure: row.components.proceduralPressure,
+            county_pressure: row.components.countyPressure,
+          },
+        }));
+      return envelope(rows, {
+        generatedAt: permitData.generatedAt,
+        cacheState: permitData.cacheState,
+        sources: [
+          source('7fq8-wig2', permitData.generatedAt, permitData.permits.length),
+          source('tceq-cid-search-one', permitData.cidSummary.generatedAt ?? permitData.generatedAt, permitData.cidSummary.cases.length),
+        ],
+        caveats: [
+          'Filing red flags are public-record leads, not proof that an application is invalid.',
+          'This tool currently emphasizes procedural pressure and county permit concentration over full engineering-document analysis.',
+        ],
+      });
+    },
+
+    async build_permit_protest_prep({ tceq_id }) {
+      const permitData = await loadPermitPageData();
+      const helpers = await loadPermitHelpers();
+      const detail = helpers.getPermitFilingDetailPageData({
+        tceqId: tceq_id,
+        permits: permitData.permits,
+        cidSummary: permitData.cidSummary,
+      });
+      const prep = helpers.buildPermitProtestPrep({
+        caseRow: detail.caseRow,
+        countyPermitCount: detail.countyPermitCount,
+        redFlagReasons: detail.redFlagRow?.reasons.map((reason) => reason.text) ?? [],
+        relatedPermitNumbers: detail.relatedPermits.map((permit) => permit.permitNumber),
+      });
+      return envelope({
+        tceq_id,
+        participation_status: prep.participationStatus,
+        evidence_checklist: prep.evidenceChecklist,
+        draft_text: prep.draftText,
+        export_text: prep.exportText,
+      }, {
+        generatedAt: permitData.generatedAt,
+        cacheState: permitData.cacheState,
+        sources: [
+          source('7fq8-wig2', permitData.generatedAt, permitData.permits.length),
+          source('tceq-cid-search-one', permitData.cidSummary.generatedAt ?? permitData.generatedAt, permitData.cidSummary.cases.length),
+        ],
+        caveats: [
+          'Atlas TX provides drafting support only and does not provide legal advice or submit filings.',
+          'No individual commenter names are surfaced; only aggregate filing signals and public-record context.',
         ],
       });
     },

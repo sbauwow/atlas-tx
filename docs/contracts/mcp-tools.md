@@ -1,8 +1,9 @@
 # Contract — MCP Tool Surface
 
-> Contract version: **0.2.0** — bump on any breaking change to tool name, params, or response shape. Notify `skill` workstream in `STATE.md` when bumping.
+> Contract version: **0.3.0** — bump on any breaking change to tool name, params, or response shape. Notify `skill` workstream in `STATE.md` when bumping.
 >
 > Changelog:
+> - 0.3.0 (2026-05-09): add filing-level permit scrutiny tools `list_permit_filing_red_flags` and `build_permit_protest_prep` so MCP matches the new `/permits` filing-detail workflow.
 > - 0.2.0 (2026-05-08): add draft protest/CID tool signatures (`list_protested_permits`, `score_protest_density`) and optional APD folding in `summarize_water_risk_for_county`.
 > - 0.1.0: initial DWRS/EJ tool surface.
 
@@ -32,7 +33,7 @@ type Source = {
 
 Tools never return naked data. The skill relies on `sources` and `caveats` to satisfy attribution + safety guardrails.
 
-## Tool catalog (v0.2.0)
+## Tool catalog (v0.3.0)
 
 ### `discover_datasets`
 Lists registered datasets with category + use-case + access type.
@@ -164,6 +165,44 @@ data: Array<{
     hearing_request_count: number;
     public_meeting_request_count: number;
     soah_case_count: number;
+  };
+}>;
+```
+
+### `build_permit_protest_prep`
+Builds a non-legal, public-record drafting pack for one filing.
+
+```ts
+params: {
+  tceq_id: string;
+};
+data: {
+  tceq_id: string;
+  participation_status: string[];
+  evidence_checklist: string[];
+  draft_text: string;
+  export_text: string;
+};
+```
+
+### `list_permit_filing_red_flags`
+Lists filing-level scrutiny candidates derived from permit concentration plus CID procedural pressure.
+
+```ts
+params: {
+  county?: string;
+  limit?: number;
+};
+data: Array<{
+  tceq_id: string;
+  applicant_name: string;
+  county: string | null;
+  program_area: string;
+  score: number;
+  reasons: string[];
+  components: {
+    procedural_pressure: number;
+    county_pressure: number;
   };
 }>;
 ```

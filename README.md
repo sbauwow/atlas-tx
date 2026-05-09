@@ -77,6 +77,29 @@ npm run dev
 
 Open `http://localhost:3000`.
 
+## MCP server
+
+Atlas TX ships a local MCP tool surface in `packages/mcp-server/`.
+
+Run it directly:
+
+```bash
+npm run mcp -- discover_datasets
+npm run mcp -- list_permit_filing_red_flags '{"county":"Travis County","limit":5}'
+npm run mcp -- build_permit_protest_prep '{"tceq_id":"WQ0000447000"}'
+```
+
+Current MCP surface includes:
+- `discover_datasets`
+- `get_dataset_schema`
+- `score_pws_drinking_water_risk`
+- `list_protested_permits`
+- `score_protest_density`
+- `list_permit_filing_red_flags`
+- `build_permit_protest_prep`
+
+See `docs/contracts/mcp-tools.md` for the contract.
+
 ## CID refresh utility
 
 The repo now includes a CID refresh scaffold runnable with:
@@ -89,6 +112,8 @@ npm run refresh:cid
 ```
 
 Current limitation: Search Two works with a seeded organization / permit / person-name query, but live Search One still often returns the upstream TCEQ error page even for chunked county/program requests. The script now fails loud on that condition instead of silently producing misleading case rows. It also exposes a browser-automation fallback hook for Search One so a future browser-driven retriever can be swapped in without changing the refresh pipeline.
+
+Automation plan: `docs/plans/2026-05-09-mcp-and-pipeline-automation.md`
 
 ## Citizen observation layer (prototype)
 
