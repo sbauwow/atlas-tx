@@ -8,7 +8,9 @@ Schema for every row: `workstream | agent | branch | intent | started | ref`
 
 ## In-progress
 
-_(empty)_
+| workstream | agent | branch | intent | started | ref |
+|---|---|---|---|---|---|
+| docs | hermes | web/color-tokens | Review all plan docs, align additive weather/community roadmap to current repo state, and add coordination-aware implementation checklist around active feynman/UI work | 2026-05-09T05:52:00Z | working tree |
 
 ---
 
@@ -22,6 +24,7 @@ _(empty)_
 
 | workstream | agent | intent | ref |
 |---|---|---|---|
+| cross (web→data) | claude-opus-4-7 | Fix prod /water 500: wrap every external fetcher in `getWaterOverview` and `getCountyWaterBreakdown` with the existing `safeLoad` helper so a single rejecting fetcher (e.g. live Socrata `8kc5-95uk` sewer-overflows or `6pm5-am5m` general-permits) degrades that one layer instead of failing the entire page. Added `EMPTY_FLOODPLAIN_COVERAGE` fallback so the floodplain coverage type stays satisfied. Added `tests/water-summary-service-fail-soft.test.ts` regression. Branch `cross/water-overview-fail-soft`. NOTE for **data**: the underlying live-Socrata calls (sewer-overflows + general-permits) need cached snapshots — both Socrata dataset IDs return "does not support resource API access". Cert-validation errors on the dev box also surfaced; production Vercel runtime should be fine. | working tree |
 | data | hermes | Add GBRA watershed/subwatershed polygon routes and normalized hydrology types after the GVHS county-join slice | working tree |
 | data | hermes | Add GBRA GVHS lake county-join route using Census county overlay and cover it with hydrology + route tests | working tree |
 | docs | hermes | Record the GBRA next-step sequence in the water ingest plan after shipping the first hydrology slice | working tree |

@@ -122,10 +122,21 @@ function maxIsoDate(values: Array<string | null | undefined>): string | undefine
 async function safeLoad<T>(loader: () => Promise<T>, fallback: T): Promise<T> {
   try {
     return await loader();
-  } catch {
+  } catch (error) {
+    if (process.env.NODE_ENV !== "production") {
+      console.warn("[water-summary-service] fetcher failed, using fallback", error);
+    }
     return fallback;
   }
 }
+
+const EMPTY_FLOODPLAIN_COVERAGE: NfhlCountyCoverageResponse = {
+  sourceId: "fema-nfhl",
+  layerId: 22,
+  layerName: "Political Jurisdictions",
+  countyCount: 0,
+  counties: [],
+};
 
 function isLcraManagedSite(site: LcraWaterQualitySite): boolean {
   return (site.agency ?? "").trim().toUpperCase() === "LCRA";
@@ -286,15 +297,15 @@ export function createAtlasWaterSummaryService({
   return {
     async getWaterOverview() {
       const [alerts, gauges, sewerOverflows, permits, governance, surfaceWaterQuality, floodplainCoverage, lcraArrpOutfalls, lcraArrpLandPermits, lcraWaterQualitySites] = await Promise.all([
-        fetchAlerts(),
-        fetchGauges(),
-        fetchSewerOverflows(),
-        fetchPermits(),
-        fetchGovernance(),
-        fetchSurfaceWaterQuality(),
-        fetchFloodplainCountyCoverage(),
-        fetchLcraArrpOutfalls(),
-        fetchLcraArrpLandPermits(),
+        safeLoad(() => fetchAlerts(), []),
+        safeLoad(() => fetchGauges(), []),
+        safeLoad(() => fetchSewerOverflows(), []),
+        safeLoad(() => fetchPermits(), []),
+        safeLoad(() => fetchGovernance(), []),
+        safeLoad(() => fetchSurfaceWaterQuality(), []),
+        safeLoad(() => fetchFloodplainCountyCoverage(), EMPTY_FLOODPLAIN_COVERAGE),
+        safeLoad(() => fetchLcraArrpOutfalls(), []),
+        safeLoad(() => fetchLcraArrpLandPermits(), []),
         safeLoad(() => fetchLcraWaterQualitySites(), []),
       ]);
 
@@ -344,15 +355,15 @@ export function createAtlasWaterSummaryService({
 
     async getCountyWaterBreakdown(county) {
       const [alerts, gauges, sewerOverflows, permits, governance, surfaceWaterQuality, floodplainCoverage, lcraArrpOutfalls, lcraArrpLandPermits, lcraWaterQualitySites] = await Promise.all([
-        fetchAlerts(),
-        fetchGauges(),
-        fetchSewerOverflows(),
-        fetchPermits(),
-        fetchGovernance(),
-        fetchSurfaceWaterQuality(),
-        fetchFloodplainCountyCoverage(),
-        fetchLcraArrpOutfalls(),
-        fetchLcraArrpLandPermits(),
+        safeLoad(() => fetchAlerts(), []),
+        safeLoad(() => fetchGauges(), []),
+        safeLoad(() => fetchSewerOverflows(), []),
+        safeLoad(() => fetchPermits(), []),
+        safeLoad(() => fetchGovernance(), []),
+        safeLoad(() => fetchSurfaceWaterQuality(), []),
+        safeLoad(() => fetchFloodplainCountyCoverage(), EMPTY_FLOODPLAIN_COVERAGE),
+        safeLoad(() => fetchLcraArrpOutfalls(), []),
+        safeLoad(() => fetchLcraArrpLandPermits(), []),
         safeLoad(() => fetchLcraWaterQualitySites(), []),
       ]);
 
