@@ -6,6 +6,8 @@ const categoryLabels = {
   social: "Social strain",
   fiscal: "Fiscal context",
   debt: "Debt",
+  demographic: "Demographic",
+  compliance: "Compliance",
 } as const;
 
 export default function Home() {
