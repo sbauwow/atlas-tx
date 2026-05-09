@@ -57,6 +57,16 @@ vi.mock("@/lib/tceq-permits", async (importOriginal) => {
           latitude: 30.27,
           longitude: -97.74,
         },
+        {
+          permitNumber: "WQ0002",
+          authorizationType: "MUN WW",
+          authorizationStatus: "PENDING",
+          permitteeName: "Beta Utility",
+          county: "Hays County",
+          nearestCity: "Buda",
+          latitude: 30.08,
+          longitude: -97.84,
+        },
       ],
     })),
   };
@@ -90,6 +100,9 @@ describe("permits page", () => {
     expect(text).toContain("1d old");
     expect(text).toContain("Fresh");
     expect(text).toContain("border-emerald-400/20 bg-emerald-400/10");
+    expect(text).toContain("County permit map");
+    expect(text).toContain("data-county-map-tile=\"travis-county\"");
+    expect(text).toContain("data-county-map-tile=\"hays-county\"");
   });
 
   it("renders the selected county filter when present", async () => {

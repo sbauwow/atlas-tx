@@ -1,4 +1,4 @@
-import { normalizeCountyName, sameCounty } from "@/lib/counties";
+import { normalizeCountyName, sameCounty, countySlug } from "@/lib/counties";
 import type { CidCaseRow, CidProtestRow } from "@/lib/datasets/cid";
 import { fetchDatasetRows } from "@/lib/texas-open-data";
 
@@ -43,6 +43,16 @@ export type PendingPermitsPageData = {
   summary: PendingPermitSummary;
   cidSummary: CidOpenCasesSummary;
   permits: TceqWaterPermit[];
+};
+
+export type PendingPermitCountyMapRow = {
+  county: string;
+  slug: string;
+  permitCount: number;
+  cidCaseCount: number;
+  hearingRequestCount: number;
+  publicMeetingRequestCount: number;
+  hasProceduralPressure: boolean;
 };
 
 export type CidCaseWithFilings = CidCaseRow & {
@@ -124,6 +134,59 @@ export function normalizeTceqWaterPermits(rows: TceqWaterPermitRawRow[]): TceqWa
 export function filterPendingPermitsByCounty(permits: TceqWaterPermit[], county?: string | null): TceqWaterPermit[] {
   if (!county?.trim()) return permits;
   return permits.filter((permit) => permit.county && sameCounty(permit.county, county));
+}
+
+export function buildPendingPermitCountyMapRows(
+  permits: TceqWaterPermit[],
+  cases: CidCaseWithFilings[],
+): PendingPermitCountyMapRow[] {
+  const byCounty = new Map<string, PendingPermitCountyMapRow>();
+
+  for (const permit of permits) {
+    if (!permit.county) continue;
+    const normalized = normalizeCountyName(permit.county);
+    const slug = countySlug(normalized);
+    const current = byCounty.get(slug) ?? {
+      county: normalized,
+      slug,
+      permitCount: 0,
+      cidCaseCount: 0,
+      hearingRequestCount: 0,
+      publicMeetingRequestCount: 0,
+      hasProceduralPressure: false,
+    };
+    current.permitCount += 1;
+    byCounty.set(slug, current);
+  }
+
+  for (const item of cases) {
+    if (!item.county) continue;
+    const normalized = normalizeCountyName(item.county);
+    const slug = countySlug(normalized);
+    const current = byCounty.get(slug) ?? {
+      county: normalized,
+      slug,
+      permitCount: 0,
+      cidCaseCount: 0,
+      hearingRequestCount: 0,
+      publicMeetingRequestCount: 0,
+      hasProceduralPressure: false,
+    };
+    current.cidCaseCount += 1;
+    current.hearingRequestCount += item.filingCounts.hearingRequests;
+    current.publicMeetingRequestCount += item.filingCounts.publicMeetingRequests;
+    current.hasProceduralPressure ||= item.filingCounts.hearingRequests > 0 || item.filingCounts.publicMeetingRequests > 0;
+    byCounty.set(slug, current);
+  }
+
+  return Array.from(byCounty.values()).sort((left, right) => {
+    return (
+      right.permitCount - left.permitCount ||
+      right.cidCaseCount - left.cidCaseCount ||
+      right.hearingRequestCount - left.hearingRequestCount ||
+      left.county.localeCompare(right.county)
+    );
+  });
 }
 
 export function summarizePendingPermits(

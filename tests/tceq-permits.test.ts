@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  buildPendingPermitCountyMapRows,
   filterPendingPermitsByCounty,
   normalizeTceqWaterPermits,
   summarizeCidOpenCases,
@@ -57,6 +58,43 @@ describe("tceq permits", () => {
   it("filters permits by county", () => {
     expect(filterPendingPermitsByCounty(permits, "travis-county")).toHaveLength(2);
     expect(filterPendingPermitsByCounty(permits, "Hays County")).toHaveLength(1);
+  });
+
+  it("builds county map rows from permits and CID cases", () => {
+    const mapRows = buildPendingPermitCountyMapRows(
+      permits,
+      [
+        {
+          tceqId: "WQ0000447000",
+          applicantName: "Alpha Water LLC",
+          county: "Travis County",
+          programArea: "WQ",
+          itemStatus: "open",
+          tceqDocketNumber: "2026-001",
+          soahDocketNumber: "582-26-0001",
+          regulatedEntityNumber: null,
+          customerNumber: null,
+          filingCounts: { comments: 1, hearingRequests: 1, publicMeetingRequests: 0 },
+          latestFiledAt: "2026-04-04",
+        },
+      ],
+    );
+
+    expect(mapRows[0]).toMatchObject({
+      county: "Travis County",
+      slug: "travis-county",
+      permitCount: 2,
+      cidCaseCount: 1,
+      hearingRequestCount: 1,
+      publicMeetingRequestCount: 0,
+      hasProceduralPressure: true,
+    });
+    expect(mapRows[1]).toMatchObject({
+      county: "Hays County",
+      permitCount: 1,
+      cidCaseCount: 0,
+      hasProceduralPressure: false,
+    });
   });
 
   it("summarizes statewide pending permit pressure", () => {
