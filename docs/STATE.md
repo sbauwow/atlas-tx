@@ -22,6 +22,8 @@ _(empty)_
 
 | workstream | agent | intent | ref |
 |---|---|---|---|
+| data | hermes | Add TWDB hydrology refresh script and wire centroid-based hydrology context into county breakdowns | working tree |
+| data | hermes | Add first TWDB hydrology ingestion slice with tested normalizer, compact cached snapshot, and dataset registry entries | working tree |
 | docs | hermes | Document browser-fallback hook and current Search One automation limits in README/contracts/plan docs | working tree |
 | data | hermes | Add browser-fallback hook plus fail-loud Search One handling in CID refresh runtime | working tree |
 | docs | hermes | Document `refresh:cid` usage and fail-loud Search One behavior in README/contracts/plan docs | working tree |
@@ -58,8 +60,10 @@ Listed in the order the refocus plan (`docs/plans/2026-05-08-water-risk-refocus.
 | data | Add federal-source dataset entries to `mvp-datasets.ts` | EJScreen, ECHO, SDWIS, ACS — `accessType: "external"`. May already be partially done in this PR; verify before claiming. |
 | data | `src/lib/datasets/ejscreen.ts` fetcher | EPA EJScreen by block group + buffer query around lat/long; spike geocoding first |
 | data | Expand `src/lib/datasets/acs.ts` beyond county population snapshot | Current loader only covers county-level `B01003_001E` from committed snapshot for APD. Extend to live fetch + block-group demographics for EJ work. |
+| data | Add live refresh/conversion path for `src/lib/datasets/twdb-hydrology.ts` | Current slice is a compact cached extent snapshot with per-feature bounding boxes only. Follow-on should automate TWDB zip download + conversion and decide when full polygon geometry is worth committing. |
 | data | `src/lib/scoring/dwrs.ts` Drinking Water Risk Score | Per `docs/contracts/dataset-registry.md`. Consume `loadSdwis()` rows; weight `populationServed × recency × violation severity tier`. |
 | data | `src/lib/scoring/ej_overlap.ts` EJ Burden Overlap | Per `docs/contracts/dataset-registry.md` |
+| data | Discover/normalize `tceq-swq-segments` surface-water impairment context source | Use TCEQ Surface Water Quality Segments Viewer as an additive burden-indicator layer; preserve the guardrail that "impaired" is a legal-use-support status, not a direct harm claim. |
 | data | (follow-on) Wider SDWIS analysis snapshot in `data/sdwis-tx-full.json` | Current `public/cache/sdwis-tx.json` is filtered to health-based ≥ 2023-04-01 to fit the 5 MB committed budget. For a longer recency window (DWRS sensitivity analysis, demo "what we found" research), call `fetchSdwis({since: undefined})` and write to gitignored `data/`. |
 | data | (follow-on) Add `pws_name` + `county` to `mvp-datasets.ts` SDWIS keyFields | Currently lists raw API columns only; the normalized loader exposes joined `pwsName` + `county` from WATER_SYSTEM and GEOGRAPHIC_AREA — keyFields should reflect what consumers actually see. |
 

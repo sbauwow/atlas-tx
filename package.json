@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "test": "vitest run",
-    "refresh:cid": "tsx scripts/refresh-cid.ts"
+    "refresh:cid": "tsx scripts/refresh-cid.ts",
+    "refresh:twdb-hydrology": "tsx scripts/refresh-twdb-hydrology.ts"
   },
   "dependencies": {
     "next": "16.2.6",

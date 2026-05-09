@@ -40,6 +40,17 @@ export const MVP_DATASETS: MvpDataset[] = [
     accessType: "dataset",
   },
   {
+    id: "tceq-swq-segments",
+    name: "TCEQ Surface Water Quality Segments Viewer",
+    category: "environment",
+    publisher: "Texas Commission on Environmental Quality",
+    summary:
+      "Segment and reservoir viewer for Texas surface-water quality status, including impairment / use-support context for water bodies.",
+    keyFields: ["segmentId", "segmentName", "assessmentUnit", "waterBodyType", "status", "designatedUse"],
+    useCase: "Surface-water burden-indicator overlay and probabilistic environmental-burden inference input; impaired segments are a legal-use-support warning, not a direct harm measure.",
+    accessType: "external",
+  },
+  {
     id: "waxz-c9q5",
     name: "CPI Completed Abuse/Neglect Investigations by County and Region FY2016-FY2025",
     category: "social",
@@ -147,6 +158,39 @@ export const MVP_DATASETS: MvpDataset[] = [
       "American Community Survey 5-year estimates for population, race/ethnicity, income, and age by county and block group.",
     keyFields: ["geoid", "name", "B01003_001E", "B19013_001E", "B02001_002E", "B03002_012E"],
     useCase: "Population denominators and demographic context for DWRS, EJ overlay, and per-capita normalization.",
+    accessType: "external",
+  },
+  {
+    id: "twdb-major-aquifers",
+    name: "TWDB Major Aquifers",
+    category: "environment",
+    publisher: "Texas Water Development Board",
+    summary:
+      "Statewide major aquifer polygons published by TWDB as GIS downloads.",
+    keyFields: ["AQUIFER", "AQ_NAME", "bbox", "geometryType"],
+    useCase: "Hydrologic context layer for groundwater source regions, aquifer adjacency, and water-risk storytelling.",
+    accessType: "external",
+  },
+  {
+    id: "twdb-river-basins",
+    name: "TWDB Major River Basins",
+    category: "environment",
+    publisher: "Texas Water Development Board",
+    summary:
+      "Statewide major river basin polygons published by TWDB as GIS downloads.",
+    keyFields: ["basin_num", "basin_name", "bbox", "geometryType"],
+    useCase: "Watershed and basin overlays for county, facility, and Public Water System context.",
+    accessType: "external",
+  },
+  {
+    id: "twdb-huc8",
+    name: "TWDB HUC 8 Hydrologic Units",
+    category: "environment",
+    publisher: "Texas Water Development Board",
+    summary:
+      "Texas hydrologic unit (HUC 8) polygons from the TWDB GIS download catalog.",
+    keyFields: ["HUC_8", "SUBBASIN", "BASIN", "REGION", "SUBREGION", "bbox", "geometryType"],
+    useCase: "Sub-basin hydrology joins and watershed-oriented aggregation for Atlas TX overlays.",
     accessType: "external",
   },
   {

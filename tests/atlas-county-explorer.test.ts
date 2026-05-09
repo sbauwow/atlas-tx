@@ -79,6 +79,32 @@ describe("atlas county explorer service", () => {
         "travis-county": { lat: 30.28, lon: -97.75 },
         "harris-county": { lat: 29.86, lon: -95.39 },
       },
+      hydrologyRowsLoader: async () => [
+        {
+          layerId: "twdb-major-aquifers",
+          layerName: "Major Aquifers",
+          primaryCode: "42",
+          name: "Edwards-Trinity",
+          basin: null,
+          region: null,
+          subregion: null,
+          bbox: [-99, 29, -97, 31],
+          geometryType: "polygon",
+          sourceUrl: "https://example.test/aquifer.zip",
+        },
+        {
+          layerId: "twdb-huc8",
+          layerName: "HUC 8 Hydrologic Units",
+          primaryCode: "12090205",
+          name: "Austin-Travis Lakes",
+          basin: "Colorado",
+          region: "Texas-Gulf",
+          subregion: "Colorado",
+          bbox: [-98.2, 30.0, -97.4, 30.6],
+          geometryType: "polygon",
+          sourceUrl: "https://example.test/huc8.zip",
+        },
+      ],
       detailService: countyDetailService,
       overviewSources: [
         {
@@ -111,6 +137,35 @@ describe("atlas county explorer service", () => {
     expect(breakdown.overview.county).toEqual({ name: "Travis County", slug: "travis-county" });
     expect(breakdown.overview.ranks).toEqual({ permits: 2, "cpi-investigations": 1, composite: 2 });
     expect(breakdown.profile.sliceCount).toBe(2);
+    expect(breakdown.hydrologyContext).toEqual({
+      countyCentroid: { lat: 30.28, lon: -97.75 },
+      layerHits: {
+        "twdb-major-aquifers": 1,
+        "twdb-river-basins": 0,
+        "twdb-huc8": 1,
+      },
+      matches: [
+        {
+          layerId: "twdb-major-aquifers",
+          layerName: "Major Aquifers",
+          primaryCode: "42",
+          name: "Edwards-Trinity",
+          basin: null,
+          region: null,
+          subregion: null,
+        },
+        {
+          layerId: "twdb-huc8",
+          layerName: "HUC 8 Hydrologic Units",
+          primaryCode: "12090205",
+          name: "Austin-Travis Lakes",
+          basin: "Colorado",
+          region: "Texas-Gulf",
+          subregion: "Colorado",
+        },
+      ],
+      caveat: "Hydrology context is based on county centroid overlap with cached TWDB feature bounding boxes, not full polygon intersection.",
+    });
     expect(breakdown.highlights).toEqual([
       {
         sourceId: "cpi-investigations",

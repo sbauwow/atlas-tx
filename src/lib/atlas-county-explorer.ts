@@ -1,6 +1,11 @@
 import { createAtlasCountyDataService, ATLAS_COUNTY_SOURCES } from "@/lib/atlas-county-sources";
 import type { CountyDataService, CountyProfile } from "@/lib/county-data-service";
 import { countySlug, normalizeCountyName } from "@/lib/counties";
+import {
+  loadTwdbHydrologyFromSnapshot,
+  type TwdbHydrologyLayerId,
+  type TwdbHydrologyRow,
+} from "@/lib/datasets/twdb-hydrology";
 import { fetchDatasetRows } from "@/lib/texas-open-data";
 import { TEXAS_COUNTY_CENTROIDS, type CountyCentroid } from "@/lib/texas-county-centroids";
 
@@ -43,10 +48,26 @@ export type CountyHighlight = {
   value: number;
 };
 
+export type CountyHydrologyContext = {
+  countyCentroid?: CountyCentroid;
+  layerHits: Record<TwdbHydrologyLayerId, number>;
+  matches: Array<{
+    layerId: TwdbHydrologyLayerId;
+    layerName: string;
+    primaryCode: string | null;
+    name: string | null;
+    basin: string | null;
+    region: string | null;
+    subregion: string | null;
+  }>;
+  caveat: string;
+};
+
 export type CountyBreakdown = {
   overview: CountyOverviewRecord;
   profile: CountyProfile;
   highlights: CountyHighlight[];
+  hydrologyContext: CountyHydrologyContext;
 };
 
 export type AtlasCountyExplorerService = {
@@ -58,6 +79,7 @@ export type CreateAtlasCountyExplorerServiceOptions = {
   overviewSources?: CountyOverviewSource[];
   detailService?: CountyDataService;
   centroids?: Record<string, CountyCentroid>;
+  hydrologyRowsLoader?: () => Promise<TwdbHydrologyRow[]>;
 };
 
 type CountyAccumulator = {
@@ -159,6 +181,57 @@ function buildOverviewRecordMap(
 
 function sourceMetricLabel(sourceId: string): string {
   return ATLAS_COUNTY_SOURCES.find((source) => source.sourceId === sourceId)?.name ?? sourceId;
+}
+
+function bboxContainsCentroid(row: TwdbHydrologyRow, centroid: CountyCentroid): boolean {
+  return (
+    centroid.lon >= row.bbox[0] &&
+    centroid.lat >= row.bbox[1] &&
+    centroid.lon <= row.bbox[2] &&
+    centroid.lat <= row.bbox[3]
+  );
+}
+
+function buildCountyHydrologyContext(
+  countyCentroid: CountyCentroid | undefined,
+  rows: TwdbHydrologyRow[],
+): CountyHydrologyContext {
+  const layerHits: Record<TwdbHydrologyLayerId, number> = {
+    "twdb-major-aquifers": 0,
+    "twdb-river-basins": 0,
+    "twdb-huc8": 0,
+  };
+
+  if (!countyCentroid) {
+    return {
+      countyCentroid,
+      layerHits,
+      matches: [],
+      caveat:
+        "Hydrology context is based on county centroid overlap with cached TWDB feature bounding boxes, not full polygon intersection.",
+    };
+  }
+
+  const matches = rows.filter((row) => bboxContainsCentroid(row, countyCentroid));
+  for (const row of matches) {
+    layerHits[row.layerId] += 1;
+  }
+
+  return {
+    countyCentroid,
+    layerHits,
+    matches: matches.map((row) => ({
+      layerId: row.layerId,
+      layerName: row.layerName,
+      primaryCode: row.primaryCode,
+      name: row.name,
+      basin: row.basin,
+      region: row.region,
+      subregion: row.subregion,
+    })),
+    caveat:
+      "Hydrology context is based on county centroid overlap with cached TWDB feature bounding boxes, not full polygon intersection.",
+  };
 }
 
 async function collectPermitOverviewRows(): Promise<CountyOverviewSourceRow[]> {
@@ -272,6 +345,7 @@ export function createAtlasCountyExplorerService({
   overviewSources = DEFAULT_ATLAS_COUNTY_OVERVIEW_SOURCES,
   detailService = createAtlasCountyDataService(),
   centroids = TEXAS_COUNTY_CENTROIDS,
+  hydrologyRowsLoader = () => loadTwdbHydrologyFromSnapshot(),
 }: CreateAtlasCountyExplorerServiceOptions = {}): AtlasCountyExplorerService {
   return {
     async getCountyOverview() {
@@ -307,7 +381,10 @@ export function createAtlasCountyExplorerService({
         throw new Error(`County not found: ${county}`);
       }
 
-      const profile = await detailService.collectCountyProfile(selected.county.name);
+      const [profile, hydrologyRows] = await Promise.all([
+        detailService.collectCountyProfile(selected.county.name),
+        hydrologyRowsLoader(),
+      ]);
       const highlights = Object.entries(selected.sourceValues)
         .map(([sourceId, value]) => ({
           sourceId,
@@ -326,6 +403,7 @@ export function createAtlasCountyExplorerService({
         overview: selected,
         profile,
         highlights,
+        hydrologyContext: buildCountyHydrologyContext(selected.centroid, hydrologyRows),
       };
     },
   };

@@ -5,4 +5,8 @@ describe("package scripts", () => {
   it("exposes a refresh:cid script for running the executable CID refresh scaffold", () => {
     expect(pkg.scripts["refresh:cid"]).toBe("tsx scripts/refresh-cid.ts");
   });
+
+  it("exposes a refresh:twdb-hydrology script for refreshing TWDB hydrology cache", () => {
+    expect(pkg.scripts["refresh:twdb-hydrology"]).toBe("tsx scripts/refresh-twdb-hydrology.ts");
+  });
 });

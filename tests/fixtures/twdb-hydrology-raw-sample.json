@@ -1,0 +1,126 @@
+{
+  "generatedAt": "2026-05-08T22:45:53-05:00",
+  "source": "TWDB GIS downloads",
+  "layers": {
+    "twdb-major-aquifers": {
+      "layerName": "Major Aquifers",
+      "sourceUrl": "https://www.twdb.texas.gov/mapping/gisdata/doc/major_aquifers.zip",
+      "rows": [
+        {
+          "attributes": {
+            "AREA": 0.075116605,
+            "PERIMETER": 3.89347651994,
+            "AQUIFER": 1,
+            "AQ_NAME": "SEYMOUR"
+          },
+          "bbox": [
+            -100.543503,
+            34.679629,
+            -99.999031,
+            35.03237
+          ],
+          "geometryType": "polygon"
+        },
+        {
+          "attributes": {
+            "AREA": 0.00054073836,
+            "PERIMETER": 0.14189407724,
+            "AQUIFER": 0,
+            "AQ_NAME": "SEYMOUR"
+          },
+          "bbox": [
+            -100.068222,
+            34.75778,
+            -100.034119,
+            34.799849
+          ],
+          "geometryType": "polygon"
+        }
+      ]
+    },
+    "twdb-river-basins": {
+      "layerName": "Major River Basins",
+      "sourceUrl": "https://www.twdb.texas.gov/mapping/gisdata/doc/Major_River_Basins_Shapefile.zip",
+      "rows": [
+        {
+          "attributes": {
+            "basin_num": 12,
+            "basin_name": "Brazos",
+            "ID": 0,
+            "Label_No": "12"
+          },
+          "bbox": [
+            -103.051501,
+            28.875647,
+            -95.37043,
+            34.618356
+          ],
+          "geometryType": "polygon"
+        },
+        {
+          "attributes": {
+            "basin_num": 13,
+            "basin_name": "Brazos-Colorado",
+            "ID": 1,
+            "Label_No": "13"
+          },
+          "bbox": [
+            -96.496945,
+            28.596797,
+            -95.376454,
+            29.892418
+          ],
+          "geometryType": "polygon"
+        }
+      ]
+    },
+    "twdb-huc8": {
+      "layerName": "HUC 8 Hydrologic Units",
+      "sourceUrl": "https://www.twdb.texas.gov/mapping/gisdata/doc/USGS_HUC_8_Shapefile.zip",
+      "rows": [
+        {
+          "attributes": {
+            "HUC_8": "11080006",
+            "HUC_2": "11",
+            "HUC_4": "1108",
+            "HUC_6": "110800",
+            "Shape_Le_1": 50631.9024001,
+            "Shape_Ar_1": 97684136.2286,
+            "SUBBASIN": "Upper Canadian-Ute Reservoir",
+            "REGION": "Arkansas-White-Red Region",
+            "SUBREGION": "Upper Canadian",
+            "BASIN": "Upper Canadian"
+          },
+          "bbox": [
+            -103.042226,
+            35.306865,
+            -103.007414,
+            35.39434
+          ],
+          "geometryType": "polygon"
+        },
+        {
+          "attributes": {
+            "HUC_8": "11090101",
+            "HUC_2": "11",
+            "HUC_4": "1109",
+            "HUC_6": "110901",
+            "Shape_Le_1": 94041.3922701,
+            "Shape_Ar_1": 126339598.819,
+            "SUBBASIN": "Middle Canadian-Trujillo",
+            "REGION": "Arkansas-White-Red Region",
+            "SUBREGION": "Lower Canadian",
+            "BASIN": "Middle Candaian"
+          },
+          "bbox": [
+            -103.042685,
+            34.944678,
+            -102.428795,
+            35.74878
+          ],
+          "geometryType": "polygon"
+        }
+      ]
+    }
+  }
+}

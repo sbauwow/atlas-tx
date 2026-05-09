@@ -1,8 +1,10 @@
 # Contract — Dataset Registry & Scoring
 
-> Contract version: **0.2.0** — bump on any breaking change to types, fetcher signatures, or scoring outputs. Notify `mcp` and `web` workstreams in `STATE.md` when bumping.
+> Contract version: **0.4.0** — bump on any breaking change to types, fetcher signatures, or scoring outputs. Notify `mcp` and `web` workstreams in `STATE.md` when bumping.
 >
 > Changelog:
+> - 0.4.0 (2026-05-08): add `tceq-swq-segments` as a registered external source for surface-water impairment / use-support context. Clarify platform stance: environmental burden is inferred from indicator layers, not directly observed.
+> - 0.3.0 (2026-05-08): add first TWDB hydrology context sources (`twdb-major-aquifers`, `twdb-river-basins`, `twdb-huc8`) plus cached snapshot/normalizer contract in `src/lib/datasets/twdb-hydrology.ts`. Additive only.
 > - 0.2.0 (2026-05-08): add CID protest sources (`tceq-cid-search-one`, `tceq-cid-search-two`) and `Active Protest Density` derived signal. See `docs/plans/2026-05-08-protests-extension.md`. Non-breaking for existing fetchers; new entries are additive. MCP gains optional `list_protested_permits` + `score_protest_density`.
 > - 0.1.0: initial contract — DWRS, EJ Burden Overlap, Compliance Gap.
 
@@ -32,6 +34,7 @@ Rules:
 - `id` for Texas Socrata datasets is the 4x4 resource id. For federal sources, use the EPA / Census-stable identifier (e.g. `epa-sdwis-violations`, `epa-ejscreen-2024`, `census-acs5-2023-county`).
 - `keyFields` lists the canonical field names the rest of the pipeline relies on. Renaming a field is a breaking change.
 - `accessType: "dataset"` ⇒ Texas Socrata (auto-built URL via `texas-open-data.ts`). `"external"` ⇒ has a dedicated fetcher under `src/lib/datasets/`.
+- Environmental-burden layers are treated as indicators/proxies. Registry entries and downstream tools must distinguish legal-status or proxy signals (for example "impaired" water segments) from direct measurements of harm.
 
 ## Per-source fetcher contract
 
@@ -88,6 +91,12 @@ File: `src/lib/scoring/ej_overlap.ts` (TBD).
 Inputs: EJScreen block-group indicators, TCEQ permit rows with lat/long.
 Per-block-group score: EJScreen demographic-burden percentile × permit density within N-mile buffer.
 Caveats: buffer-based exposure is a proxy, not a measured impact; EJScreen percentiles are state-relative.
+
+### Surface Water Impairment Context (additive)
+File: `src/lib/datasets/surface-water-quality.ts` (future).
+Inputs: TCEQ Surface Water Quality Segment Viewer rows, hydrologic joins, county/PWS geometry joins.
+Purpose: classify nearby water bodies by use-support / impairment status so Atlas TX can treat them as burden indicators inside a larger probabilistic analysis, not as direct proof of harm to a community or water system.
+Caveats: "Impaired" is a legal-use-support classification for the intended use of the water body; it is not by itself a causal statement about downstream human health outcomes.
 
 ### Compliance Gap (secondary)
 File: `src/lib/scoring/compliance_gap.ts` (TBD, M2+).
@@ -151,6 +160,60 @@ Fetcher contract notes specific to CID:
 - `scripts/refresh-cid.ts` now exists as the executable planning/execution scaffold. It builds chunked Search One request plans, builds the broad Search Two query, executes via injected fetch/parse functions, resolves size-based snapshot targets, can write snapshot payloads, and supports a browser-automation fallback hook for Search One chunks.
 - Snapshot files: `public/cache/cid-cases-tx.json` and `public/cache/cid-protests-tx.json`. If either exceeds 5 MB, redirect to `data/` (gitignored) and keep the same script as the refresh entrypoint.
 - Parser must be pinned to fixture HTML in `tests/fixtures/cid/` and fail loud on schema drift.
+
+## Surface-water impairment context source (added 0.4.0)
+
+Registered external dataset:
+
+```ts
+{
+  id: "tceq-swq-segments",
+  name: "TCEQ Surface Water Quality Segments Viewer",
+  category: "environment",
+  publisher: "Texas Commission on Environmental Quality",
+  keyFields: ["segmentId", "segmentName", "assessmentUnit", "waterBodyType", "status", "designatedUse"],
+  accessType: "external",
+}
+```
+
+Contract notes:
+- Atlas TX should treat this source as a context/indicator layer around counties, PWSs, and facilities.
+- The user-provided interpretation to preserve in product language is: a water source labeled `impaired` does not meet the legal water-quality standards for its intended use.
+- This source is best used inside a probabilistic burden story alongside DWRS, permit density, EJScreen, and similar indicators rather than as a standalone burden verdict.
+- Because the source is an ArcGIS experience/viewer, a stable loader may require ArcGIS layer/service discovery before a dedicated fetcher is implemented.
+
+## TWDB hydrology context sources (added 0.3.0)
+
+These entries register as `accessType: "external"` and currently share one cached-snapshot loader at `src/lib/datasets/twdb-hydrology.ts`.
+
+Normalized row shape:
+
+```ts
+export type TwdbHydrologyRow = {
+  layerId: "twdb-major-aquifers" | "twdb-river-basins" | "twdb-huc8";
+  layerName: string;
+  primaryCode: string | null;
+  name: string | null;
+  basin: string | null;
+  region: string | null;
+  subregion: string | null;
+  bbox: [number, number, number, number];
+  geometryType: "polygon" | "other";
+  sourceUrl: string;
+};
+```
+
+Current layer-specific field mapping:
+- `twdb-major-aquifers` → `AQUIFER`, `AQ_NAME`, `bbox`, `geometryType`
+- `twdb-river-basins` → `basin_num`, `basin_name`, `bbox`, `geometryType`
+- `twdb-huc8` → `HUC_8`, `SUBBASIN`, `BASIN`, `REGION`, `SUBREGION`, `bbox`, `geometryType`
+
+Caching notes:
+- Snapshot file: `public/cache/twdb-hydrology-tx.json`
+- Refresh entrypoint: `npm run refresh:twdb-hydrology` (`scripts/refresh-twdb-hydrology.ts`)
+- Current slice is intentionally a compact statewide extent snapshot (layer metadata + per-feature bounding boxes), not a full polygon-geometry cache.
+- County summary wiring currently uses county centroid overlap against cached feature bounding boxes as an approximate hydrology-context signal, not full polygon intersection.
+- Follow-on work can add fuller geometry export once Atlas TX needs map rendering or spatial joins beyond extents.
 
 ## Adding a new source or signal
 

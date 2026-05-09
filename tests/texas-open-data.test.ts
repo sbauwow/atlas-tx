@@ -17,4 +17,16 @@ describe("texas open data adapters", () => {
     expect(datasetResourceUrl("7fq8-wig2")).toBe("https://data.texas.gov/resource/7fq8-wig2.json");
     expect(datasetResourceUrl("xdwx-843n")).toBeUndefined();
   });
+
+  it("registers TWDB hydrology datasets as external atlas-tx sources", () => {
+    expect(getDatasetById("twdb-major-aquifers")?.name).toBe("TWDB Major Aquifers");
+    expect(getDatasetById("twdb-river-basins")?.accessType).toBe("external");
+    expect(getDatasetById("twdb-huc8")?.publisher).toBe("Texas Water Development Board");
+  });
+
+  it("registers the TCEQ impaired surface water segments source for burden-indicator overlays", () => {
+    expect(getDatasetById("tceq-swq-segments")?.publisher).toBe("Texas Commission on Environmental Quality");
+    expect(getDatasetById("tceq-swq-segments")?.accessType).toBe("external");
+    expect(getDatasetById("tceq-swq-segments")?.useCase).toContain("burden-indicator");
+  });
 });
