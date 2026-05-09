@@ -5,6 +5,12 @@ vi.mock("@/lib/water/water-summary-service", () => ({
     getWaterOverview: vi.fn().mockResolvedValue({
       generatedAt: "2026-05-09T00:00:00.000Z",
       sourceIds: ["nws-alerts", "usgs-stream-sites", "tceq-sewer-overflows"],
+      freshness: {
+        generatedAt: "2026-05-09T00:00:00.000Z",
+        sources: {
+          "nws-alerts": { cached: true, cachedAt: "2026-05-09T00:00:00.000Z", expiresAt: "2026-05-09T00:15:00.000Z", ttlMs: 900000 },
+        },
+      },
       counties: [
         {
           county: { name: "Travis County", slug: "travis-county" },
@@ -35,6 +41,7 @@ describe("water API routes", () => {
 
     expect(response.status).toBe(200);
     expect(payload.counties[0].county.slug).toBe("travis-county");
+    expect(payload.freshness.sources["nws-alerts"].cached).toBe(true);
   });
 
   it("returns a county water breakdown JSON", async () => {

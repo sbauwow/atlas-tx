@@ -330,6 +330,24 @@ export function mapNfhlPoliticalJurisdictionsToAtlasCounties(
   };
 }
 
+export function filterNfhlLeveesForCounty(
+  county: string,
+  levees: NfhlLeveesResponse,
+  countyCoverage: NfhlCountyCoverageResponse,
+): NfhlLeveesResponse {
+  const match = countyCoverage.counties.find((coverage) => coverage.county.slug === county || coverage.county.name === county);
+  if (!match) {
+    return { ...levees, featureCount: 0, features: [] };
+  }
+  const dfirmIds = new Set(match.dfirmIds);
+  const features = levees.features.filter((feature) => feature.dfirmId && dfirmIds.has(feature.dfirmId));
+  return {
+    ...levees,
+    featureCount: features.length,
+    features,
+  };
+}
+
 async function fetchNfhlServiceMetadataUncached(signal?: AbortSignal): Promise<NormalizedNfhlServiceMetadata> {
   const response = await fetch(`${NFHL_SERVICE_URL}?f=pjson`, { signal });
   if (!response.ok) {
@@ -383,6 +401,18 @@ export async function fetchTexasNfhlPoliticalJurisdictions(
 
 export async function fetchTexasNfhlCountyCoverage(signal?: AbortSignal): Promise<NfhlCountyCoverageResponse> {
   return mapNfhlPoliticalJurisdictionsToAtlasCounties(await fetchTexasNfhlPoliticalJurisdictions(undefined, signal));
+}
+
+export async function fetchTexasNfhlCountyLevees(
+  county: string,
+  limit?: number,
+  signal?: AbortSignal,
+): Promise<NfhlLeveesResponse> {
+  const [levees, countyCoverage] = await Promise.all([
+    fetchTexasNfhlLevees(limit, signal),
+    fetchTexasNfhlCountyCoverage(signal),
+  ]);
+  return filterNfhlLeveesForCounty(county, levees, countyCoverage);
 }
 
 async function fetchTexasNfhlLeveesUncached(limit?: number, signal?: AbortSignal): Promise<NfhlLeveesResponse> {

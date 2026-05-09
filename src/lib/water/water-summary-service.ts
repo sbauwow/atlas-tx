@@ -7,6 +7,7 @@ import { fetchTexasStreamGauges, filterGaugesForCounty } from "@/lib/water/usgs"
 import { fetchWaterGovernance } from "@/lib/water/water-governance";
 import type { CountyWaterSummary, SewerOverflowEvent, StreamGauge, WaterAlert, WaterGovernanceEntity, WaterPermitRecord } from "@/lib/water/types";
 import { listWaterSources } from "@/lib/water/water-source-registry";
+import { buildWaterFreshness } from "@/lib/water/freshness";
 
 export type WaterBreakdown = {
   county: CountyWaterSummary;
@@ -20,8 +21,15 @@ export type WaterBreakdown = {
   notes: string[];
 };
 
+export type WaterOverview = {
+  generatedAt: string;
+  sourceIds: string[];
+  freshness: { generatedAt: string; sources: Record<string, { cached: boolean; cachedAt: string | null; expiresAt: string | null; ttlMs: number | null }> };
+  counties: CountyWaterSummary[];
+};
+
 export type AtlasWaterSummaryService = {
-  getWaterOverview(): Promise<{ generatedAt: string; sourceIds: string[]; counties: CountyWaterSummary[] }>;
+  getWaterOverview(): Promise<WaterOverview>;
   getCountyWaterBreakdown(county: string): Promise<WaterBreakdown>;
 };
 
@@ -94,6 +102,7 @@ export function createAtlasWaterSummaryService({
         fetchGovernance(),
         fetchFloodplainCountyCoverage(),
       ]);
+      const sourceIds = listWaterSources().map((source) => source.sourceId);
       const countyNames = new Set<string>();
       alerts.forEach((alert) => (alert.countyNames ?? []).forEach((county) => countyNames.add(county)));
       gauges.forEach((gauge) => gauge.countyName && countyNames.add(gauge.countyName));
@@ -120,7 +129,8 @@ export function createAtlasWaterSummaryService({
 
       return {
         generatedAt: new Date().toISOString(),
-        sourceIds: listWaterSources().map((source) => source.sourceId),
+        sourceIds,
+        freshness: buildWaterFreshness(sourceIds),
         counties,
       };
     },

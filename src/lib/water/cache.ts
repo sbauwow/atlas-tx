@@ -1,11 +1,21 @@
 type CacheEntry<TValue> = {
   value?: TValue;
   expiresAt?: number;
+  cachedAt?: number;
+  ttlMs?: number;
   pending?: Promise<TValue>;
+};
+
+export type WaterCacheFreshness = {
+  cached: boolean;
+  cachedAt: string | null;
+  expiresAt: string | null;
+  ttlMs: number | null;
 };
 
 export type WaterDataCache = {
   getOrLoad<TValue>(key: string, ttlMs: number, loader: () => Promise<TValue>): Promise<TValue>;
+  getFreshness(key: string): WaterCacheFreshness;
   clear(key?: string): void;
 };
 
@@ -25,7 +35,8 @@ export function createWaterDataCache(): WaterDataCache {
 
       const pending = loader()
         .then((value) => {
-          entries.set(key, { value, expiresAt: Date.now() + ttlMs });
+          const cachedAt = Date.now();
+          entries.set(key, { value, cachedAt, expiresAt: cachedAt + ttlMs, ttlMs });
           return value;
         })
         .catch((error) => {
@@ -35,6 +46,24 @@ export function createWaterDataCache(): WaterDataCache {
 
       entries.set(key, { ...existing, pending });
       return pending;
+    },
+
+    getFreshness(key: string): WaterCacheFreshness {
+      const existing = entries.get(key);
+      if (!existing || existing.value === undefined || existing.cachedAt === undefined || existing.expiresAt === undefined) {
+        return {
+          cached: false,
+          cachedAt: null,
+          expiresAt: null,
+          ttlMs: null,
+        };
+      }
+      return {
+        cached: true,
+        cachedAt: new Date(existing.cachedAt).toISOString(),
+        expiresAt: new Date(existing.expiresAt).toISOString(),
+        ttlMs: existing.ttlMs ?? null,
+      };
     },
 
     clear(key?: string) {

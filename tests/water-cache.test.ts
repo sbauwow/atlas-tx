@@ -34,4 +34,16 @@ describe("water data cache", () => {
     expect(second).toEqual({ gauges: 3 });
     expect(loader).toHaveBeenCalledTimes(2);
   });
+
+  it("exposes freshness metadata for cached keys", async () => {
+    const cache = createWaterDataCache();
+    await cache.getOrLoad("permits", 60_000, async () => ({ permits: 5 }));
+
+    expect(cache.getFreshness("permits")).toEqual({
+      cached: true,
+      cachedAt: "2026-05-09T00:00:00.000Z",
+      expiresAt: "2026-05-09T00:01:00.000Z",
+      ttlMs: 60000,
+    });
+  });
 });
