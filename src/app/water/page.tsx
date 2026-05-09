@@ -120,6 +120,7 @@ export default async function WaterPage({
           <Link href="/api/water/fema/nfhl/counties" className="rounded-full border border-slate-700 px-5 py-3 font-medium text-slate-100">FEMA counties API</Link>
           <Link href="/api/water/lcra/hydromet/stage-flow" className="rounded-full border border-slate-700 px-5 py-3 font-medium text-slate-100">LCRA Hydromet stage-flow API</Link>
           <Link href="/api/water/lcra/arrp/outfalls" className="rounded-full border border-slate-700 px-5 py-3 font-medium text-slate-100">LCRA ARRP outfalls API</Link>
+          <Link href="/api/water/gbra/hydrology/gvhs-lakes" className="rounded-full border border-slate-700 px-5 py-3 font-medium text-slate-100">GBRA GVHS lakes API</Link>
         </div>
       </section>
 
@@ -292,6 +293,22 @@ export default async function WaterPage({
                   <div className="text-sm text-slate-400">LCRA ARRP land permits</div>
                   <div className="mt-2 text-3xl font-semibold text-white">{formatNumber(breakdown.county.metrics.lcraArrpLandPermitCount)}</div>
                 </div>
+                <div className="rounded-2xl border border-slate-800 bg-slate-950/70 p-4">
+                  <div className="text-sm text-slate-400">Active LCRA quality sites</div>
+                  <div className="mt-2 text-3xl font-semibold text-white">{formatNumber(breakdown.county.metrics.activeLcraQualitySiteCount)}</div>
+                </div>
+                <div className="rounded-2xl border border-slate-800 bg-slate-950/70 p-4">
+                  <div className="text-sm text-slate-400">Impaired LCRA monitoring sites</div>
+                  <div className="mt-2 text-3xl font-semibold text-white">{formatNumber(breakdown.county.metrics.impairedLcraMonitoringSiteCount)}</div>
+                </div>
+                <div className="rounded-2xl border border-slate-800 bg-slate-950/70 p-4">
+                  <div className="text-sm text-slate-400">Available LCRA parameters</div>
+                  <div className="mt-2 text-3xl font-semibold text-white">{formatNumber(breakdown.county.metrics.availableLcraParameterCount)}</div>
+                </div>
+                <div className="rounded-2xl border border-slate-800 bg-slate-950/70 p-4">
+                  <div className="text-sm text-slate-400">Latest LCRA observation</div>
+                  <div className="mt-2 text-lg font-semibold text-white break-all">{breakdown.county.metrics.latestLcraObservationAt ?? "—"}</div>
+                </div>
               </div>
               <div className="rounded-2xl border border-slate-800 bg-slate-950/70 p-4 text-sm text-slate-300">
                 Governance entities: {breakdown.layers.governance.length} · Alerts: {breakdown.layers.alerts.length} · Gauges: {breakdown.layers.gauges.length} · Sewer overflows: {breakdown.layers.sewerOverflows.length} · Permits: {breakdown.layers.permits.length} · LCRA outfalls: {breakdown.layers.lcraArrpOutfalls.length} · LCRA land permits: {breakdown.layers.lcraArrpLandPermits.length}
@@ -324,6 +341,9 @@ export default async function WaterPage({
                   <th className="px-3 py-3 font-medium">Water utilities</th>
                   <th className="px-3 py-3 font-medium">LCRA outfalls</th>
                   <th className="px-3 py-3 font-medium">LCRA land permits</th>
+                  <th className="px-3 py-3 font-medium">Active LCRA sites</th>
+                  <th className="px-3 py-3 font-medium">LCRA params</th>
+                  <th className="px-3 py-3 font-medium">Impaired LCRA sites</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-900">
@@ -341,6 +361,9 @@ export default async function WaterPage({
                     <td className="px-3 py-3 text-slate-300">{formatNumber(county.metrics.waterUtilityCount)}</td>
                     <td className="px-3 py-3 text-slate-300">{formatNumber(county.metrics.lcraArrpOutfallCount)}</td>
                     <td className="px-3 py-3 text-slate-300">{formatNumber(county.metrics.lcraArrpLandPermitCount)}</td>
+                    <td className="px-3 py-3 text-slate-300">{formatNumber(county.metrics.activeLcraQualitySiteCount)}</td>
+                    <td className="px-3 py-3 text-slate-300">{formatNumber(county.metrics.availableLcraParameterCount)}</td>
+                    <td className="px-3 py-3 text-slate-300">{formatNumber(county.metrics.impairedLcraMonitoringSiteCount)}</td>
                   </tr>
                 ))}
               </tbody>

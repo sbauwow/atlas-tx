@@ -20,3 +20,19 @@ export function getCountyBySlugOrName(input: string): CountyRef | undefined {
 export function getCountyByFips(fips: string): CountyRef | undefined {
   return COUNTY_BY_FIPS.get(fips);
 }
+
+export function getNearestCountyForPoint(latitude: number, longitude: number): CountyRef | undefined {
+  let bestCounty: CountyRef | undefined;
+  let bestDistance = Number.POSITIVE_INFINITY;
+
+  for (const county of COUNTY_REFS) {
+    const centroid = TEXAS_COUNTY_CENTROIDS[county.slug];
+    const distance = ((centroid.lat - latitude) ** 2) + ((centroid.lon - longitude) ** 2);
+    if (distance < bestDistance) {
+      bestDistance = distance;
+      bestCounty = county;
+    }
+  }
+
+  return bestCounty;
+}

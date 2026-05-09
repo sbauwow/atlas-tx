@@ -8,6 +8,8 @@ const CACHE_KEYS: Record<string, string> = {
   "lcra-arrp-outfalls": "lcra-arrp-outfalls",
   "lcra-arrp-land-permits": "lcra-arrp-land-permits",
   "lcra-water-quality-sites": "lcra-water-quality-sites",
+  "gbra-hydrology-major-rivers": "gbra-hydrology-major-rivers",
+  "gbra-hydrology-gvhs-lakes": "gbra-hydrology-gvhs-lakes",
   "tceq-sewer-overflows": "tceq-sewer-overflows:30",
   "tceq-general-water-permits": "tceq-general-water-permits",
   "tceq-water-districts": "tceq-water-districts",

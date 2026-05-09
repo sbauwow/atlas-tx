@@ -20,6 +20,10 @@ vi.mock("@/lib/water/water-summary-service", () => ({
             waterUtilityCount: 4,
             lcraArrpOutfallCount: 5,
             lcraArrpLandPermitCount: 2,
+            activeLcraQualitySiteCount: 6,
+            impairedLcraMonitoringSiteCount: 2,
+            availableLcraParameterCount: 9,
+            latestLcraObservationAt: "2026-05-09T12:00:00Z",
           },
           overlays: { hasFloodplainLayer: false, hasGaugeLayer: true, hasAlertLayer: true, hasSewerOverflowLayer: true },
           annotations: [],
@@ -39,6 +43,10 @@ vi.mock("@/lib/water/water-summary-service", () => ({
           waterUtilityCount: 4,
           lcraArrpOutfallCount: 5,
           lcraArrpLandPermitCount: 2,
+          activeLcraQualitySiteCount: 6,
+          impairedLcraMonitoringSiteCount: 2,
+          availableLcraParameterCount: 9,
+          latestLcraObservationAt: "2026-05-09T12:00:00Z",
         },
         overlays: { hasFloodplainLayer: false, hasGaugeLayer: true, hasAlertLayer: true, hasSewerOverflowLayer: true },
         annotations: [],
@@ -61,8 +69,12 @@ describe("water page LCRA integration", () => {
 
     expect(text).toContain("LCRA Hydromet stage-flow API");
     expect(text).toContain("LCRA ARRP outfalls API");
+    expect(text).toContain("GBRA GVHS lakes API");
     expect(text).toContain("LCRA ARRP outfalls");
     expect(text).toContain("LCRA ARRP land permits");
     expect(text).toContain("LCRA ARRP outfalls: 5");
+    expect(text).toContain("Active LCRA quality sites");
+    expect(text).toContain("Available LCRA parameters");
+    expect(text).toContain("Latest LCRA observation");
   });
 });

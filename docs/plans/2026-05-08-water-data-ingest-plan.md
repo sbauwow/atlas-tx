@@ -31,6 +31,53 @@ Verified public endpoints (checked live):
 - TCEQ GIS data hub: `https://gis-tceq.opendata.arcgis.com/`
 - National Levee Database home: `https://levees.sec.usace.army.mil/#/`
 
+## Regional authority ingest matrix (Texas)
+
+Use this to prioritize LCRA-like authorities after the current LCRA slice. Preference order: machine-readable first, county-joinable second, operational value third.
+
+| Authority | Coverage / type | Verified data surface | Likely source mode | County-joinable | First ingest target | ROI |
+|---|---|---|---|---|---|---|
+| GBRA | Guadalupe-Blanco basin river authority | `https://www.gbra.org/operations/hydrolakes/`, `https://www.gbra.org/environmental/water-quality/`, ArcGIS hub `https://opengbra-gbra.hub.arcgis.com`, ArcGIS experience `https://experience.arcgis.com/experience/d69ff8b1857940a9a3567fb5b08418cc` | ArcGIS Hub / Experience + site endpoints | yes for many GIS layers; maybe for ops tables after normalization | hydrolakes + water-quality inventory + open-data layer catalog | very high |
+| SARA | San Antonio River Authority | Open data hub `https://sariverauthority-sara-tx.opendata.arcgis.com/`, floodplain viewer `https://experience.arcgis.com/experience/929de86ce9274a858eb53319a8d16d87`, watershed viewer `https://experience.arcgis.com/experience/d9e510a7bfbb456fa3243c9f7ba20766`, basin report card `https://www.sariverauthority.org/maps-reports/river-basin-report-card/` | ArcGIS Hub / ArcGIS Experience / downloadable GIS | yes | floodplain + water-quality viewer layers + watershed planning layers | very high |
+| SJRA | San Jacinto River Authority | OneRain dashboards under `https://sanjacinto.onerain.com/`, flood management `https://www.sjra.net/floodmanagement/`, Lake Conroe `https://www.sjra.net/lakeconroe/` | OneRain + site metadata | partial; point gauges yes, some ops pages maybe not | rainfall / gauge / reservoir conditions | high |
+| TRA | Trinity River Authority | Clean Rivers `https://www.trinityra.org/basin_planning/clean_rivers_program/index.php`, lake/river data `https://www.trinityra.org/lake_information/lake_river_data/index.php`, flood planning `https://www.trinityra.org/basin_planning/flood_planning/index.php`, ArcGIS experience `https://experience.arcgis.com/experience/b5cc6be47b324f47bbcf4cc866694052` | site tables + ArcGIS | yes for basin/lake layers; maybe for quality program outputs after normalization | lake storage / river data + Clean Rivers data inventory | high |
+| SRA | Sabine River Authority of Texas | rain `https://sratx.org/basin-conditions/se-texas-rain/`, lake levels `https://sratx.org/basin-conditions/lake-levels/`, stream levels `https://sratx.org/basin-conditions/stream-levels/`, water quality `https://sratx.org/water-quality/water-quality-monitoring/` | site endpoints + linked gauges | partial to yes | rain / stream / lake condition feeds | high |
+| LNVA | Lower Neches Valley Authority | OneRain `https://lnva.onerain.com/dashboard/?dashboard=54023492-7d9f-47c4-a0ed-3ef734c35c0b`, canal quality `https://lnva.dst.tx.us/canal-water-quality`, Clean Rivers `https://lnva.dst.tx.us/clean-rivers-program` | OneRain + site tables | partial to yes | canal quality + rainfall / gauge feeds | medium-high |
+| EAA | Edwards Aquifer Authority (adjacent groundwater authority, not river authority) | Environmental Data Portal `https://data.edwardsaquifer.org/`, homepage aquifer conditions `https://www.edwardsaquifer.org/` | dedicated data portal | yes for many monitoring locations / regional overlays | aquifer conditions + environmental data catalog | very high |
+| TRWD | Tarrant Regional Water District (adjacent regional water authority) | OneRain dashboards `https://trwd.onerain.com/`, ArcGIS app `https://trwdmaps.maps.arcgis.com/apps/instant/nearby/index.html?appid=9b2f631d838946c5a410df998cf984ee` | OneRain + ArcGIS | partial to yes | rainfall / flood ops / lake levels | medium-high |
+| BRA | Brazos River Authority | basin / reservoir pages `https://brazos.org/about-us/about-the-bra/maps`, lake maps like `https://brazos.org/about-us/reservoirs/lake-granbury/online-lake-map` | site pages; deeper endpoint hunt still needed | unclear | reservoir / lake metadata, then inspect hidden GIS/API surfaces | medium |
+| UCRA | Upper Colorado River Authority | `https://www.ucra.org/` (needs deeper endpoint discovery) | unknown yet | unclear | second-pass discovery only | low for now |
+
+Recommended execution order:
+1. GBRA
+2. SARA
+3. EAA
+4. TRA
+5. SJRA
+6. SRA
+7. LNVA
+8. TRWD
+9. BRA
+10. UCRA
+
+## Best next move after the current LCRA quality routes
+
+Build a county aggregation layer from:
+- LCRA quality site coordinates
+- observation counts / latest observation dates
+- top STORET categories / codes by county
+
+Then surface these county summary fields:
+- `activeLcraQualitySiteCount`
+- `latestLcraObservationAt`
+- `availableLcraParameterCount`
+- `impairedLcraMonitoringSiteCount`
+
+Implementation note:
+- county-join sites by point-in-county from latitude/longitude
+- compute observation recency from normalized site / segment observations already exposed under `/api/water/lcra/quality/...`
+- treat LCRA as monitoring-context enrichment; do not present it as the statewide regulatory source of truth
+
 ---
 
 ## Product scope for this lane

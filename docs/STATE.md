@@ -22,6 +22,9 @@ _(empty)_
 
 | workstream | agent | intent | ref |
 |---|---|---|---|
+| data | hermes | Add first GBRA slice with tested hydrology adapters/routes for major rivers + GVHS lakes and wire freshness/registry/page link | working tree |
+| data | hermes | Add LCRA quality county aggregation metrics/notes to water summaries and water page; degrade gracefully when LCRA TLS fetch fails | working tree |
+| docs | hermes | Add regional water-authority ingest matrix and record the post-LCRA county aggregation next move in the water ingest plan | working tree |
 | docs | feynman | Update README to reflect planned mismatch-signal and weather / hydrologic context layers for Atlas TX | working tree |
 | docs | feynman | Add weather / hydrologic contract language and draft normalized row shapes for NWS alerts, USGS streamflow, drought, precipitation, and temperature context | working tree |
 | docs | feynman | Add Milestone 1.2 weather / hydrologic context planning rows for alerts, streamflow, drought, precipitation, temperature, and county-summary follow-on contract work | working tree |

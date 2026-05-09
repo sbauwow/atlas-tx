@@ -132,6 +132,25 @@ export type LcraWaterQualitySegment = {
   raw: Record<string, unknown>;
 };
 
+export type GbraHydrologyMajorRiver = {
+  sourceId: "gbra-hydrology-major-rivers";
+  objectId: number;
+  name: string;
+  miles: number | null;
+  shapeLength: number | null;
+  raw: Record<string, unknown>;
+};
+
+export type GbraHydrologyLake = {
+  sourceId: "gbra-hydrology-gvhs-lakes";
+  objectId: number;
+  name: string;
+  areaAcres: number | null;
+  shapeArea: number | null;
+  shapeLength: number | null;
+  raw: Record<string, unknown>;
+};
+
 export type WaterAlert = {
   sourceId: "nws-alerts";
   alertId: string;
@@ -228,6 +247,10 @@ export type CountyWaterSummary = {
     impairedSurfaceWaterSegmentCount?: number;
     lcraArrpOutfallCount?: number;
     lcraArrpLandPermitCount?: number;
+    activeLcraQualitySiteCount?: number;
+    latestLcraObservationAt?: string;
+    availableLcraParameterCount?: number;
+    impairedLcraMonitoringSiteCount?: number;
   };
   overlays: {
     hasFloodplainLayer: boolean;
