@@ -151,6 +151,65 @@ export type GbraHydrologyLake = {
   raw: Record<string, unknown>;
 };
 
+export type GbraHydrologyLakeCountyCoverage = {
+  sourceId: "gbra-hydrology-gvhs-lakes";
+  lake: GbraHydrologyLake;
+  countyCount: number;
+  counties: Array<{ name: string; slug: string; fips?: string }>;
+};
+
+export type GbraHydrologyWatershed = {
+  sourceId: "gbra-hydrology-watersheds";
+  objectId: number;
+  name: string;
+  huc10: string;
+  areaSqKm: number | null;
+  areaAcres: number | null;
+  shapeArea: number | null;
+  shapeLength: number | null;
+  raw: Record<string, unknown>;
+};
+
+export type GbraHydrologySubwatershed = {
+  sourceId: "gbra-hydrology-subwatersheds";
+  objectId: number;
+  name: string;
+  huc12: string;
+  areaSqKm: number | null;
+  areaAcres: number | null;
+  shapeArea: number | null;
+  shapeLength: number | null;
+  raw: Record<string, unknown>;
+};
+
+export type GbraWaterQualitySite = {
+  sourceId: "gbra-water-quality-sites";
+  stationId: string;
+  countySlug: string;
+  countyName: string;
+  sourcePageUrl: string;
+  description: string;
+  latitude: number | null;
+  longitude: number | null;
+  parameterFrequency: string | null;
+  monitoringType: string | null;
+  historicalXlsUrl: string | null;
+  currentCsvUrl: string | null;
+  raw: Record<string, unknown>;
+};
+
+export type GbraWaterQualityObservation = {
+  sourceId: "gbra-water-quality-observations";
+  stationId: string;
+  stationName: string | null;
+  collectedAt: string;
+  parameter: string;
+  reportedResult: string | null;
+  units: string | null;
+  parameterCode: string | null;
+  raw: Record<string, unknown>;
+};
+
 export type WaterAlert = {
   sourceId: "nws-alerts";
   alertId: string;

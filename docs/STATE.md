@@ -22,6 +22,9 @@ _(empty)_
 
 | workstream | agent | intent | ref |
 |---|---|---|---|
+| data | hermes | Add GBRA watershed/subwatershed polygon routes and normalized hydrology types after the GVHS county-join slice | working tree |
+| data | hermes | Add GBRA GVHS lake county-join route using Census county overlay and cover it with hydrology + route tests | working tree |
+| docs | hermes | Record the GBRA next-step sequence in the water ingest plan after shipping the first hydrology slice | working tree |
 | data | hermes | Add first GBRA slice with tested hydrology adapters/routes for major rivers + GVHS lakes and wire freshness/registry/page link | working tree |
 | data | hermes | Add LCRA quality county aggregation metrics/notes to water summaries and water page; degrade gracefully when LCRA TLS fetch fails | working tree |
 | docs | hermes | Add regional water-authority ingest matrix and record the post-LCRA county aggregation next move in the water ingest plan | working tree |

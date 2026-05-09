@@ -70,6 +70,8 @@ describe("water page LCRA integration", () => {
     expect(text).toContain("LCRA Hydromet stage-flow API");
     expect(text).toContain("LCRA ARRP outfalls API");
     expect(text).toContain("GBRA GVHS lakes API");
+    expect(text).toContain("GBRA watersheds API");
+    expect(text).toContain("GBRA quality sites API");
     expect(text).toContain("LCRA ARRP outfalls");
     expect(text).toContain("LCRA ARRP land permits");
     expect(text).toContain("LCRA ARRP outfalls: 5");

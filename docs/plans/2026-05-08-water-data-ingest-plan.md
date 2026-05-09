@@ -60,6 +60,17 @@ Recommended execution order:
 9. BRA
 10. UCRA
 
+## GBRA next move sequence
+
+1. add county overlay / join for GVHS lakes
+2. ingest GBRA watershed / subwatershed polygons
+3. inspect GBRA water-quality + ArcGIS experience surfaces for a cleaner machine-readable monitoring layer to ship next
+
+Implementation note:
+- use the new GBRA hydrology open-data layers as the base spine before adding more brittle page-level discovery
+- prefer county-joinable polygon layers before chasing dashboard-only views
+- treat water-quality monitoring as the likely next high-value GBRA layer only if it exposes stable JSON / ArcGIS endpoints
+
 ## Best next move after the current LCRA quality routes
 
 Build a county aggregation layer from:

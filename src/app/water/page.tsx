@@ -121,6 +121,8 @@ export default async function WaterPage({
           <Link href="/api/water/lcra/hydromet/stage-flow" className="rounded-full border border-slate-700 px-5 py-3 font-medium text-slate-100">LCRA Hydromet stage-flow API</Link>
           <Link href="/api/water/lcra/arrp/outfalls" className="rounded-full border border-slate-700 px-5 py-3 font-medium text-slate-100">LCRA ARRP outfalls API</Link>
           <Link href="/api/water/gbra/hydrology/gvhs-lakes" className="rounded-full border border-slate-700 px-5 py-3 font-medium text-slate-100">GBRA GVHS lakes API</Link>
+          <Link href="/api/water/gbra/hydrology/watersheds" className="rounded-full border border-slate-700 px-5 py-3 font-medium text-slate-100">GBRA watersheds API</Link>
+          <Link href="/api/water/gbra/quality/sites" className="rounded-full border border-slate-700 px-5 py-3 font-medium text-slate-100">GBRA quality sites API</Link>
         </div>
       </section>
 

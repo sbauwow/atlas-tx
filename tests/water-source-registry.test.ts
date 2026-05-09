@@ -14,6 +14,10 @@ describe("water source registry", () => {
       "lcra-water-quality-observations",
       "gbra-hydrology-major-rivers",
       "gbra-hydrology-gvhs-lakes",
+      "gbra-hydrology-watersheds",
+      "gbra-hydrology-subwatersheds",
+      "gbra-water-quality-sites",
+      "gbra-water-quality-observations",
       "nws-alerts",
       "tceq-sewer-overflows",
       "tceq-general-water-permits",
@@ -40,6 +44,6 @@ describe("water source registry", () => {
       refreshCadence: "manual",
     });
     expect(getWaterSource("missing-source")).toBeUndefined();
-    expect(listWaterSources()).toHaveLength(21);
+    expect(listWaterSources()).toHaveLength(25);
   });
 });
