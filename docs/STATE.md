@@ -22,6 +22,7 @@ _(empty)_
 
 | workstream | agent | intent | ref |
 |---|---|---|---|
+| data | hermes | Add chunked CID refresh script scaffold and tests for statewide Search One planning | working tree |
 | mcp | hermes | Make the MCP scaffold directly callable via tool dispatch (`runAtlasTxTool` / CLI JSON args) and wire protest handlers | working tree |
 | data | hermes | Add ACS county population loader snapshot and wire it into protest-density flows | working tree |
 | data | hermes | Implement `src/lib/scoring/protest_density.ts` and pin APD behavior with scorer tests | working tree |
