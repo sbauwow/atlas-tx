@@ -44,6 +44,37 @@ export type LcraLakeLevelReading = {
   raw: Record<string, unknown>;
 };
 
+export type LcraArrpOutfall = {
+  sourceId: "lcra-arrp-outfalls";
+  recordId: string;
+  permitNumber: string;
+  countyName?: string | null;
+  permitteeName?: string | null;
+  status?: string | null;
+  segmentId?: string | null;
+  basinId?: string | null;
+  outfallNumber?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
+  raw: Record<string, unknown>;
+};
+
+export type LcraArrpLandPermit = {
+  sourceId: "lcra-arrp-land-permits";
+  recordId: string;
+  permitNumber: string;
+  countyName?: string | null;
+  permitteeName?: string | null;
+  status?: string | null;
+  segmentId?: string | null;
+  basinId?: string | null;
+  permitType?: string | null;
+  reviewType?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
+  raw: Record<string, unknown>;
+};
+
 export type WaterAlert = {
   sourceId: "nws-alerts";
   alertId: string;

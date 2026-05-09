@@ -5,6 +5,8 @@ const CACHE_KEYS: Record<string, string> = {
   "usgs-stream-sites": "usgs-stream-sites",
   "lcra-hydromet-stageflow": "lcra-hydromet-stageflow",
   "lcra-hydromet-lakelevels": "lcra-hydromet-lakelevels",
+  "lcra-arrp-outfalls": "lcra-arrp-outfalls",
+  "lcra-arrp-land-permits": "lcra-arrp-land-permits",
   "tceq-sewer-overflows": "tceq-sewer-overflows:30",
   "tceq-general-water-permits": "tceq-general-water-permits",
   "tceq-water-districts": "tceq-water-districts",
