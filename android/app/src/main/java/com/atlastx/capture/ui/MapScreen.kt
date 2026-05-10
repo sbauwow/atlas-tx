@@ -1,5 +1,6 @@
 package com.atlastx.capture.ui
 
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
@@ -28,21 +29,22 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.foundation.Canvas
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.atlastx.capture.data.CountyCentroid
 import com.atlastx.capture.data.CountyOverviewEntry
+import com.atlastx.capture.data.CountyPolygonAsset
 import kotlinx.coroutines.launch
 
 private val SeverityPalette = listOf(
@@ -52,6 +54,7 @@ private val SeverityPalette = listOf(
     Color(0xFFF97316), // 3 — orange-500
     Color(0xFFEF4444), // 4 — red-500
 )
+private val Accent = Color(0xFF22D3EE)
 
 private fun severityFor(entry: CountyOverviewEntry?): Int {
     if (entry == null) return 0
@@ -81,9 +84,9 @@ fun MapScreen(viewModel: CaptureViewModel) {
 
     LaunchedEffect(Unit) { viewModel.loadMapData() }
 
-    var selected by remember { mutableStateOf<CountyCentroid?>(null) }
+    var selectedFips by remember { mutableStateOf<String?>(null) }
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-    val scope = rememberCoroutineScopeCompat()
+    val scope = rememberCoroutineScope()
 
     Column(modifier = Modifier.fillMaxSize().padding(horizontal = 20.dp, vertical = 16.dp)) {
         Text(
@@ -108,16 +111,19 @@ fun MapScreen(viewModel: CaptureViewModel) {
             contentAlignment = Alignment.Center,
         ) {
             when (val s = mapState) {
-                MapDataState.Idle, MapDataState.Loading -> CircularProgressIndicator(color = Color(0xFF22D3EE))
+                MapDataState.Idle, MapDataState.Loading -> CircularProgressIndicator(color = Accent)
                 is MapDataState.Failed -> Text(
                     "Map data failed: ${s.message}",
                     color = Color(0xFFFCA5A5),
                     modifier = Modifier.padding(20.dp),
                 )
                 is MapDataState.Ready -> CountyChoropleth(
-                    centroids = s.centroids,
-                    overviewBySlug = s.overviewBySlug,
-                    onSelect = { selected = it },
+                    polygons = s.polygons,
+                    overviewByFips = s.overviewBySlug.values.associateBy {
+                        it.county.fips ?: it.county.slug
+                    },
+                    selectedFips = selectedFips,
+                    onSelect = { selectedFips = it },
                 )
             }
         }
@@ -135,19 +141,29 @@ fun MapScreen(viewModel: CaptureViewModel) {
         }
     }
 
-    val current = selected
     val ready = mapState as? MapDataState.Ready
-    if (current != null && ready != null) {
+    val pickedFips = selectedFips
+    if (pickedFips != null && ready != null) {
+        val centroid = ready.centroids.firstOrNull { it.fips == pickedFips }
+        val polygon = ready.polygons.counties.firstOrNull { it.fips == pickedFips }
+        val overview = ready.overviewBySlug.values.firstOrNull {
+            (it.county.fips ?: "") == pickedFips
+        }
+        val name = centroid?.name ?: overview?.county?.name ?: polygon?.name ?: "County"
+        val slug = centroid?.slug ?: overview?.county?.slug
         ModalBottomSheet(
-            onDismissRequest = { selected = null },
+            onDismissRequest = { selectedFips = null },
             sheetState = sheetState,
         ) {
             CountyDetailSheet(
-                centroid = current,
-                entry = ready.overviewBySlug[current.slug],
+                name = name,
+                fips = pickedFips,
+                slug = slug,
+                centroid = centroid,
+                entry = overview,
                 onClose = {
                     scope.launch { sheetState.hide() }.invokeOnCompletion {
-                        if (!sheetState.isVisible) selected = null
+                        if (!sheetState.isVisible) selectedFips = null
                     }
                 },
             )
@@ -155,85 +171,156 @@ fun MapScreen(viewModel: CaptureViewModel) {
     }
 }
 
-@Composable
-private fun rememberCoroutineScopeCompat() = androidx.compose.runtime.rememberCoroutineScope()
+private data class CountyDraw(
+    val fips: String,
+    val severity: Int,
+    val rings: List<List<Double>>,
+)
 
 @Composable
 private fun CountyChoropleth(
-    centroids: List<CountyCentroid>,
-    overviewBySlug: Map<String, CountyOverviewEntry>,
-    onSelect: (CountyCentroid) -> Unit,
+    polygons: CountyPolygonAsset,
+    overviewByFips: Map<String, CountyOverviewEntry>,
+    selectedFips: String?,
+    onSelect: (String) -> Unit,
 ) {
-    val bounds by remember(centroids) {
+    val drawList by remember(polygons, overviewByFips) {
         derivedStateOf {
-            val minLat = centroids.minOf { it.lat }
-            val maxLat = centroids.maxOf { it.lat }
-            val minLon = centroids.minOf { it.lon }
-            val maxLon = centroids.maxOf { it.lon }
-            Bounds(minLat, maxLat, minLon, maxLon)
+            polygons.counties.map { c ->
+                val entry = overviewByFips[c.fips]
+                CountyDraw(
+                    fips = c.fips,
+                    severity = severityFor(entry),
+                    rings = c.rings,
+                )
+            }.sortedBy { it.severity } // higher severity drawn last → on top
         }
-    }
-
-    val ranked = remember(centroids, overviewBySlug) {
-        centroids.map { c ->
-            val entry = overviewBySlug[c.slug]
-            CentroidRender(centroid = c, severity = severityFor(entry))
-        }.sortedBy { it.severity } // higher severity drawn last (on top)
     }
 
     Canvas(
         modifier = Modifier
             .fillMaxSize()
-            .pointerInput(centroids, bounds) {
+            .pointerInput(polygons) {
                 detectTapGestures { tap ->
-                    val pad = 24f
-                    val w = size.width.toFloat()
-                    val h = size.height.toFloat()
-                    val nearest = centroids.minByOrNull { c ->
-                        val (x, y) = project(c, bounds, w, h, pad)
-                        val dx = tap.x - x
-                        val dy = tap.y - y
-                        dx * dx + dy * dy
+                    val s = minOf(
+                        size.width / polygons.viewWidth,
+                        size.height / polygons.viewHeight,
+                    )
+                    val offsetX = (size.width - polygons.viewWidth * s) / 2.0
+                    val offsetY = (size.height - polygons.viewHeight * s) / 2.0
+                    val viewX = (tap.x - offsetX) / s
+                    val viewY = (tap.y - offsetY) / s
+                    val hit = polygons.counties.firstOrNull { county ->
+                        county.rings.any { ring -> pointInRing(ring, viewX, viewY) }
                     }
-                    if (nearest != null) {
-                        val (nx, ny) = project(nearest, bounds, w, h, pad)
-                        val dx = tap.x - nx
-                        val dy = tap.y - ny
-                        if (dx * dx + dy * dy < 80f * 80f) onSelect(nearest)
-                    }
+                    if (hit != null) onSelect(hit.fips)
                 }
             },
     ) {
-        val pad = 24f
-        val w = size.width
-        val h = size.height
-        for (entry in ranked) {
-            val (x, y) = project(entry.centroid, bounds, w, h, pad)
-            val color = SeverityPalette[entry.severity]
-            val r = if (entry.severity >= 3) 9f else 6f
-            drawCircle(color = color, radius = r, center = Offset(x, y))
-            if (color.luminance() > 0.4f) {
-                drawCircle(color = Color(0xFF0F172A), radius = r, center = Offset(x, y), style = Stroke(width = 1f))
+        val s = minOf(
+            size.width / polygons.viewWidth.toFloat(),
+            size.height / polygons.viewHeight.toFloat(),
+        )
+        val offsetX = (size.width - polygons.viewWidth.toFloat() * s) / 2f
+        val offsetY = (size.height - polygons.viewHeight.toFloat() * s) / 2f
+
+        for (draw in drawList) {
+            val color = SeverityPalette[draw.severity]
+            for (ring in draw.rings) {
+                val path = ringToPath(ring, s, offsetX, offsetY)
+                drawPath(path = path, color = color, alpha = if (draw.severity == 0) 0.55f else 1f)
+                drawPath(
+                    path = path,
+                    color = Color(0xFF0F172A),
+                    style = Stroke(width = 0.6f),
+                )
             }
+        }
+
+        if (selectedFips != null) {
+            val selected = polygons.counties.firstOrNull { it.fips == selectedFips }
+            if (selected != null) {
+                for (ring in selected.rings) {
+                    val path = ringToPath(ring, s, offsetX, offsetY)
+                    drawPath(path = path, color = Accent.copy(alpha = 0.18f))
+                    drawPath(path = path, color = Accent, style = Stroke(width = 2.5f))
+                }
+            }
+        }
+
+        for ((fips, entry) in overviewByFips) {
+            val alerts = entry.metrics.activeWaterAlertCount ?: 0
+            if (alerts <= 0) continue
+            val poly = polygons.counties.firstOrNull { it.fips == fips } ?: continue
+            val centroid = ringCentroid(poly.rings.firstOrNull() ?: continue) ?: continue
+            val cx = centroid.first.toFloat() * s + offsetX
+            val cy = centroid.second.toFloat() * s + offsetY
+            drawCircle(color = Color(0xFFF8FAFC), radius = 3.2f, center = Offset(cx, cy))
+            drawCircle(
+                color = Accent,
+                radius = 7.5f,
+                center = Offset(cx, cy),
+                style = Stroke(width = 1.4f),
+            )
         }
     }
 }
 
-private data class Bounds(val minLat: Double, val maxLat: Double, val minLon: Double, val maxLon: Double)
-private data class CentroidRender(val centroid: CountyCentroid, val severity: Int)
+private fun ringToPath(
+    ring: List<Double>,
+    scale: Float,
+    offsetX: Float,
+    offsetY: Float,
+): Path {
+    val path = Path()
+    var i = 0
+    var first = true
+    while (i + 1 < ring.size) {
+        val x = ring[i].toFloat() * scale + offsetX
+        val y = ring[i + 1].toFloat() * scale + offsetY
+        if (first) {
+            path.moveTo(x, y)
+            first = false
+        } else {
+            path.lineTo(x, y)
+        }
+        i += 2
+    }
+    path.close()
+    return path
+}
 
-private fun project(
-    c: CountyCentroid,
-    b: Bounds,
-    width: Float,
-    height: Float,
-    pad: Float,
-): Pair<Float, Float> {
-    val w = width - pad * 2
-    val h = height - pad * 2
-    val x = ((c.lon - b.minLon) / (b.maxLon - b.minLon)) * w + pad
-    val y = h - ((c.lat - b.minLat) / (b.maxLat - b.minLat)) * h + pad
-    return x.toFloat() to y.toFloat()
+private fun ringCentroid(ring: List<Double>): Pair<Double, Double>? {
+    if (ring.size < 4) return null
+    var sumX = 0.0
+    var sumY = 0.0
+    var n = 0
+    var i = 0
+    while (i + 1 < ring.size) {
+        sumX += ring[i]
+        sumY += ring[i + 1]
+        n += 1
+        i += 2
+    }
+    if (n == 0) return null
+    return sumX / n to sumY / n
+}
+
+private fun pointInRing(ring: List<Double>, x: Double, y: Double): Boolean {
+    if (ring.size < 6) return false
+    var inside = false
+    var i = 0
+    var j = ring.size - 2
+    while (i + 1 < ring.size) {
+        val xi = ring[i]; val yi = ring[i + 1]
+        val xj = ring[j]; val yj = ring[j + 1]
+        val intersect = ((yi > y) != (yj > y)) &&
+            (x < (xj - xi) * (y - yi) / (yj - yi + 1e-12) + xi)
+        if (intersect) inside = !inside
+        j = i
+        i += 2
+    }
+    return inside
 }
 
 @Composable
@@ -242,9 +329,7 @@ private fun SeverityLegend() {
     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
         for (i in 0..4) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Box(
-                    modifier = Modifier.size(10.dp).clip(CircleShape).background(SeverityPalette[i]),
-                )
+                Box(modifier = Modifier.size(10.dp).clip(CircleShape).background(SeverityPalette[i]))
                 Spacer(Modifier.size(6.dp))
                 Text(labels[i], style = MaterialTheme.typography.labelSmall)
             }
@@ -254,14 +339,26 @@ private fun SeverityLegend() {
 
 @Composable
 private fun CountyDetailSheet(
-    centroid: CountyCentroid,
+    name: String,
+    fips: String,
+    slug: String?,
+    centroid: CountyCentroid?,
     entry: CountyOverviewEntry?,
     onClose: () -> Unit,
 ) {
     Column(modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp).fillMaxWidth()) {
-        Text(centroid.name, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold)
+        Text(name, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold)
         Text(
-            "FIPS ${centroid.fips ?: "—"} · ${"%.3f".format(centroid.lat)}, ${"%.3f".format(centroid.lon)}",
+            buildString {
+                append("FIPS $fips")
+                if (slug != null) append(" · $slug")
+                if (centroid != null) {
+                    append(" · ")
+                    append("%.3f".format(centroid.lat))
+                    append(", ")
+                    append("%.3f".format(centroid.lon))
+                }
+            },
             style = MaterialTheme.typography.labelMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )

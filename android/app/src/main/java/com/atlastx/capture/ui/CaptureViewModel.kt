@@ -15,6 +15,8 @@ import com.atlastx.capture.data.CaptureSettings
 import com.atlastx.capture.data.Centroids
 import com.atlastx.capture.data.CountyCentroid
 import com.atlastx.capture.data.CountyOverviewEntry
+import com.atlastx.capture.data.CountyPolygonAsset
+import com.atlastx.capture.data.CountyPolygons
 import com.atlastx.capture.data.Observation
 import com.atlastx.capture.data.ObservationComparison
 import com.atlastx.capture.data.SettingsRepository
@@ -47,6 +49,7 @@ sealed interface MapDataState {
     data object Loading : MapDataState
     data class Ready(
         val centroids: List<CountyCentroid>,
+        val polygons: CountyPolygonAsset,
         val overviewBySlug: Map<String, CountyOverviewEntry>,
     ) : MapDataState
     data class Failed(val message: String) : MapDataState
@@ -250,14 +253,19 @@ class CaptureViewModel(
         _mapData.value = MapDataState.Loading
         viewModelScope.launch {
             val centroids = runCatching { Centroids.load(app) }.getOrNull()
-            if (centroids == null) {
-                _mapData.value = MapDataState.Failed("Could not load county centroids.")
+            val polygons = runCatching { CountyPolygons.load(app) }.getOrNull()
+            if (centroids == null || polygons == null) {
+                _mapData.value = MapDataState.Failed("Could not load county geography.")
                 return@launch
             }
             val baseUrl = settings.current().baseUrl
             val overview: WaterOverviewResponse? = api.fetchWaterOverview(baseUrl)
             val map = overview?.counties.orEmpty().associateBy { it.county.slug }
-            _mapData.value = MapDataState.Ready(centroids = centroids, overviewBySlug = map)
+            _mapData.value = MapDataState.Ready(
+                centroids = centroids,
+                polygons = polygons,
+                overviewBySlug = map,
+            )
         }
     }
 
