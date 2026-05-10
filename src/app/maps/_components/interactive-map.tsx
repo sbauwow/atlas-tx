@@ -13,7 +13,7 @@ import {
   bucketFillFor,
   type CountyViewId,
   type CountyViewPayload,
-} from "@/lib/maps/county-views";
+} from "@/lib/maps/county-views.types";
 
 type LayerKey = "counties" | "permits" | "gauges";
 const ALL_LAYERS: LayerKey[] = ["counties", "permits", "gauges"];
