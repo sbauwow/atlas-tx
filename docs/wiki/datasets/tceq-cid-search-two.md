@@ -15,6 +15,7 @@ registry_id: tceq-cid-search-two
 relationships:
   - {type: published_by, target: agencies/tceq.md}
   - {type: references, target: datasets/tceq-cid-search-one.md}
+  - {type: implements, target: concepts/cid.md}
 stale: false
 ---
 

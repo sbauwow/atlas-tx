@@ -15,6 +15,7 @@ registry_id: null
 relationships:
   - {type: published_by, target: agencies/epa.md}
   - {type: references, target: datasets/epa-ejscreen-2024.md}
+  - {type: implements, target: concepts/tri.md}
 stale: false
 ---
 

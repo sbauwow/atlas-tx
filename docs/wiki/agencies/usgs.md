@@ -13,6 +13,8 @@ sources:
   - docs/research/texas-gis-inventory.md
 relationships:
   - {type: references, target: agencies/twdb.md}
+  - {type: references, target: datasets/usgs-nwis.md}
+  - {type: references, target: concepts/nhd.md}
 stale: false
 ---
 

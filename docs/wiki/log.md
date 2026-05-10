@@ -14,6 +14,17 @@ Schema for entries:
 
 ---
 
+## 2026-05-10 — first lint pass + 8 new concept pages
+
+- agent: claude-opus-4-7
+- action: linted, created, updated, schema-tooling
+- pages touched:
+  - **Tooling**: `scripts/lint-wiki.ts` — first executable linter implementing the schema's lint workflow. Walks pages, builds `graph.md` (deduped edge list per relationship type), computes decay analytically (not iteratively — frontmatter `confidence` stays at the `last_confirmed` value; the lint report shows what it would be after decay). Surfaces orphans, dangling links, registry drift (best-effort regex), missing concepts (heuristic gated against existing slugs/titles), low-confidence pages.
+  - **New concepts (8)**: `concepts/cwa.md`, `concepts/sdwa.md`, `concepts/npdes.md`, `concepts/tpdes.md`, `concepts/cid.md`, `concepts/soah.md`, `concepts/tri.md`, `concepts/acs.md` — all surfaced by the first lint as terms mentioned ≥ 3 times across non-concept pages without their own page.
+  - **Relationship updates**: 13 dataset / agency / concept pages gained inbound links to previously-orphaned pages (LSLI, NRI, NHD, USGS-NWIS, NOAA Storm Events, NFHL, comparisons trio, sources/texas-gis-inventory, projects/refresh-cached-snapshot, projects/author-an-svg-viz-primitive). Wiki now reads as a connected graph instead of star-shaped clusters.
+  - **Auto-rebuilt**: `graph.md`, `lint-report.md`. Both deterministic — re-running on an unchanged tree produces no diff.
+- notes: First-run lint surfaced 19 orphans, 14 missing-concept candidates, and 3 dangling links (false-positive on root meta files). After fixes + new pages: **2 orphans (both episodes — end-state by design), 0 dangling, 0 missing concepts, 0 low-confidence**. The decay logic is now idempotent: `confidence` in frontmatter is the value at `last_confirmed`; the lint report shows the analytically-decayed value as a separate column. Re-running the linter doesn't compound. Registry drift surfaces 2 false positives (`epa-echo-violations`, `hr84-s96f`) where the regex scan can't find the IDs in `dataset-registry.md`'s tables — flagged as "best-effort, cross-check by hand."
+
 ## 2026-05-10 — Tufte primitives, Marey unblock, eye-candy
 
 - agent: claude-opus-4-7

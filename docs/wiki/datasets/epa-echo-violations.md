@@ -15,6 +15,8 @@ registry_id: epa-echo-violations
 relationships:
   - {type: published_by, target: agencies/epa.md}
   - {type: references, target: datasets/epa-sdwis-violations.md}
+  - {type: depends_on, target: concepts/cwa.md}
+  - {type: depends_on, target: concepts/npdes.md}
 stale: false
 ---
 
