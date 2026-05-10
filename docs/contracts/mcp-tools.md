@@ -1,8 +1,9 @@
 # Contract — MCP Tool Surface
 
-> Contract version: **0.6.0** — bump on any breaking change to tool name, params, or response shape. Notify `skill` workstream in `STATE.md` when bumping.
+> Contract version: **0.7.0** — bump on any breaking change to tool name, params, or response shape. Notify `skill` workstream in `STATE.md` when bumping.
 >
 > Changelog:
+> - 0.7.0 (2026-05-10): wire a real stdio MCP transport via `@modelcontextprotocol/sdk` (`packages/mcp-server/src/server.js`, run with `npm run mcp:stdio`); ship the contract-promised `summarize_water_risk_for_county` composite (DWRS top PWS + analytics snapshot + optional APD); existing JSON CLI dispatch (`npm run mcp <tool> '<json>'`) stays as a back-door for scripts.
 > - 0.6.0 (2026-05-10): add Wave 3 analytics-spine MCP tools `get_county_analytics_summary`, `list_county_movers`, `get_pressure_risk_scatter`, and `get_county_score_decomposition` over the committed Wave 1/2 analytics artifacts.
 > - 0.5.0 (2026-05-10): add `get_permit_filing_detail` and `list_county_pending_fights` so MCP exposes the permit-detail workspace and county-level pending-fights lane.
 > - 0.4.0 (2026-05-10): add `get_pipeline_health` so MCP can read the staged refresh artifact and expose CID fallback/failure state to agents.
@@ -36,7 +37,7 @@ type Source = {
 
 Tools never return naked data. The skill relies on `sources` and `caveats` to satisfy attribution + safety guardrails.
 
-## Tool catalog (v0.5.0)
+## Tool catalog (v0.7.0)
 
 ### `discover_datasets`
 Lists registered datasets with category + use-case + access type.

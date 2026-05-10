@@ -831,6 +831,138 @@ export function createAtlasTxMcpHandlers(deps = {}) {
         ],
       });
     },
+
+    async summarize_water_risk_for_county(params = {}) {
+      const county = normalizeCounty(params.county);
+      if (!county) {
+        throw new Error('county is required');
+      }
+      const maxWords = Math.max(40, Math.min(params.max_words ?? 200, 400));
+      const includeProtestDensity = params.include_protest_density === true;
+
+      const [sdwis, analytics] = await Promise.all([
+        loadSdwisData(),
+        loadAnalyticsArtifacts(),
+      ]);
+
+      const scoreDrinkingWaterRisk = await loadScoreDrinkingWaterRisk();
+      const dwrsRows = scoreDrinkingWaterRisk({
+        violations: sdwis.rows,
+        county,
+      }).slice(0, 5);
+      const topPws = dwrsRows.map((row) => ({
+        pws_id: row.pwsId,
+        pws_name: row.pwsName,
+        score: row.score,
+      }));
+
+      const historyRecord = findCountyRecord(analytics.countyHistory?.counties ?? [], county);
+      const currentSnapshot = latestSnapshot(historyRecord);
+      const scatterPoint = findCountyRecord(analytics.pressureRiskScatter?.points ?? [], county);
+
+      let protestDensity;
+      const protestSources = [];
+      const protestCaveats = [];
+      let cidGeneratedAt = null;
+      if (includeProtestDensity) {
+        const cid = await loadCidData();
+        cidGeneratedAt = cid.generatedAt;
+        const countyPopulation = await loadCountyPopulation();
+        const scoreProtestDensity = await loadScoreProtestDensity();
+        const apdRows = scoreProtestDensity({
+          cases: cid.cases,
+          protests: cid.protests,
+          countyPopulation,
+          county,
+        });
+        const apd = apdRows[0] ?? null;
+        if (apd) {
+          protestDensity = {
+            score: apd.score,
+            raw_pressure: apd.rawPressure,
+            per_1k_population: apd.per1kPopulation,
+            open_case_count: apd.openCaseCount,
+          };
+        } else {
+          protestDensity = null;
+          protestCaveats.push(`No CID activity matched ${county} in the current snapshot.`);
+        }
+        protestSources.push(
+          source('tceq-cid-search-one', cid.generatedAt, cid.cases.length),
+          source('tceq-cid-search-two', cid.generatedAt, cid.protests.length),
+          source('census-acs5-2023-county', cid.generatedAt, Object.keys(countyPopulation).length),
+        );
+      }
+
+      const headlineCounty = historyRecord?.county?.name ?? county;
+      const headlineParts = [`${headlineCounty}`];
+      if (currentSnapshot?.metrics?.countyRiskScore != null) {
+        headlineParts.push(`risk ${currentSnapshot.metrics.countyRiskScore.toFixed(2)} (rank ${currentSnapshot.ranks?.risk ?? '—'})`);
+      }
+      if (currentSnapshot?.metrics?.pressureScore != null) {
+        headlineParts.push(`pressure ${currentSnapshot.metrics.pressureScore.toFixed(2)} (rank ${currentSnapshot.ranks?.pressure ?? '—'})`);
+      }
+      const headline = headlineParts.join(' — ');
+
+      const narrativeBits = [];
+      if (currentSnapshot?.metrics) {
+        const m = currentSnapshot.metrics;
+        narrativeBits.push(
+          `${headlineCounty} carries ${m.systemCount ?? 0} public water systems with ${m.violationCount ?? 0} cached health-based violations and ${m.impairedSegmentCount ?? 0} impaired surface-water segments.`,
+        );
+      }
+      if (topPws.length > 0) {
+        const lead = topPws[0];
+        narrativeBits.push(
+          `Top DWRS PWS is ${lead.pws_name ?? lead.pws_id} at score ${lead.score}.`,
+        );
+      } else {
+        narrativeBits.push(`No SDWIS health-based violations matched ${headlineCounty} in the current snapshot.`);
+      }
+      if (scatterPoint?.quadrant) {
+        narrativeBits.push(`Quadrant: ${formatScatterQuadrant(scatterPoint.quadrant)}.`);
+      }
+      if (protestDensity) {
+        narrativeBits.push(
+          `APD score ${protestDensity.score} across ${protestDensity.open_case_count} open CID cases (${protestDensity.per_1k_population.toFixed(2)} per 1k residents).`,
+        );
+      }
+      narrativeBits.push(
+        'EJ block-group overlay is not yet implemented; treat this summary as a screening surface, not a regulatory finding.',
+      );
+
+      let narrative = narrativeBits.join(' ');
+      const words = narrative.split(/\s+/);
+      if (words.length > maxWords) {
+        narrative = `${words.slice(0, maxWords).join(' ')}…`;
+      }
+
+      return envelope(
+        {
+          county: headlineCounty,
+          headline,
+          narrative,
+          top_pws: topPws,
+          top_block_groups: [],
+          ...(includeProtestDensity ? { protest_density: protestDensity } : {}),
+        },
+        {
+          generatedAt: currentSnapshot?.snapshotAt ?? sdwis.generatedAt,
+          cacheState: 'snapshot',
+          sources: [
+            source('epa-sdwis-violations', sdwis.generatedAt, sdwis.rows.length),
+            ...buildAnalyticsSources(analytics.sourceFreshness, ['surface-water-quality', 'twdb-hydrology']),
+            ...protestSources,
+          ],
+          caveats: [
+            'EJ block-group overlay is not yet wired; top_block_groups returns an empty list.',
+            'Composite summary is derived from cached snapshots and is a screening lead, not proof of harm.',
+            ...protestCaveats,
+            ...(historyRecord ? [] : [`No analytics history matched ${county}; pressure/risk fields will be empty.`]),
+          ],
+        },
+      );
+    },
   };
 }
 
