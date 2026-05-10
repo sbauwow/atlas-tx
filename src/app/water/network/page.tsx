@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { Sankey, type SankeyEdge, type SankeyNode } from "@/app/components/data-viz";
 import { getDefaultHydrologyDependencyService } from "@/lib/water/hydrology-dependencies";
 import { buildNetworkCorrelationSummary } from "@/lib/water/network-analytics";
 
@@ -48,6 +49,48 @@ export default async function WaterNetworkPage({
     ? graph.edges.filter((edge) => edge.upstreamCountySlug === selectedCounty.countySlug)
     : [];
 
+  // 3-column Sankey: upstream county → river → downstream county. Rivers coalesce flow,
+  // exposing the watershed bottlenecks Tufte-style without a hairball.
+  const upstreamCountyIds = new Set(graph.edges.map((edge) => edge.upstreamCountySlug));
+  const downstreamCountyIds = new Set(graph.edges.map((edge) => edge.downstreamCountySlug));
+  const riverIds = new Set(graph.edges.map((edge) => edge.evidence));
+
+  const sankeyNodes: SankeyNode[] = [
+    ...Array.from(upstreamCountyIds).map((slug) => ({
+      id: `up:${slug}`,
+      label: nodeBySlug.get(slug)?.countyName ?? slug,
+      column: 0,
+      href: `/water/counties/${slug}`,
+    })),
+    ...Array.from(riverIds).map((river) => ({
+      id: `river:${river}`,
+      label: river.replace(/-/g, " "),
+      column: 1,
+      accent: "#22d3ee",
+    })),
+    ...Array.from(downstreamCountyIds).map((slug) => ({
+      id: `down:${slug}`,
+      label: nodeBySlug.get(slug)?.countyName ?? slug,
+      column: 2,
+      href: `/water/counties/${slug}`,
+    })),
+  ];
+
+  const sankeyEdges: SankeyEdge[] = [
+    ...graph.edges.map((edge) => ({
+      fromId: `up:${edge.upstreamCountySlug}`,
+      toId: `river:${edge.evidence}`,
+      weight: edge.weight,
+      title: `${nodeBySlug.get(edge.upstreamCountySlug)?.countyName ?? edge.upstreamCountySlug} → ${edge.evidence}`,
+    })),
+    ...graph.edges.map((edge) => ({
+      fromId: `river:${edge.evidence}`,
+      toId: `down:${edge.downstreamCountySlug}`,
+      weight: edge.weight,
+      title: `${edge.evidence} → ${nodeBySlug.get(edge.downstreamCountySlug)?.countyName ?? edge.downstreamCountySlug}`,
+    })),
+  ];
+
   return (
     <main className="mx-auto flex w-full max-w-7xl flex-1 flex-col gap-8 px-6 py-12">
       <header className="space-y-3">
@@ -65,6 +108,22 @@ export default async function WaterNetworkPage({
         <h1 className="text-4xl font-semibold tracking-tight text-white">County dependency flow map</h1>
         <p className="max-w-3xl text-slate-400">Flow method: {graph.flowDirectionMethod}</p>
       </header>
+
+      <section className="rounded-2xl bg-slate-900/40 p-6 ring-1 ring-white/5">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <div className="text-[11px] font-medium uppercase tracking-[0.18em] text-cyan-300/80">Watershed lineage</div>
+            <h2 className="mt-2 text-2xl font-semibold text-white">Where the water actually flows</h2>
+            <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-400">
+              Counties on the left feed the river in the middle, which feeds counties on the right. Ribbon width = seeded weight. River nodes coalesce flow so bottlenecks are visible without a hairball.
+            </p>
+          </div>
+          <div className="rounded-full border border-white/10 px-3 py-1 text-xs text-slate-400">{graph.edges.length} edges · {riverIds.size} rivers</div>
+        </div>
+        <div className="mt-5 overflow-x-auto">
+          <Sankey nodes={sankeyNodes} edges={sankeyEdges} height={Math.max(280, graph.edges.length * 14)} />
+        </div>
+      </section>
 
       <section id="network-workspace" className="grid gap-6 xl:grid-cols-[1.25fr_0.75fr]">
         <div className="space-y-6">
