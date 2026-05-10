@@ -5,6 +5,7 @@ const readFileMock = vi.fn();
 const getTceqPendingPermitsPageDataMock = vi.fn();
 const buildSourceNetworkMock = vi.fn();
 const buildHydrologyGraphMock = vi.fn();
+const getWaterOverviewMock = vi.fn();
 
 vi.mock("fs/promises", () => ({
   readFile: (...args: unknown[]) => readFileMock(...args),
@@ -24,6 +25,10 @@ vi.mock("@/lib/water/source-network", () => ({
 
 vi.mock("@/lib/water/hydrology-dependencies", () => ({
   getDefaultHydrologyDependencyService: () => ({ buildGraph: buildHydrologyGraphMock }),
+}));
+
+vi.mock("@/lib/water/water-summary-service", () => ({
+  getDefaultAtlasWaterSummaryService: () => ({ getWaterOverview: getWaterOverviewMock }),
 }));
 
 function analyticsFile(filename: string) {
@@ -268,6 +273,14 @@ describe("statewide analytics page", () => {
     getTceqPendingPermitsPageDataMock.mockReset();
     buildSourceNetworkMock.mockReset();
     buildHydrologyGraphMock.mockReset();
+    getWaterOverviewMock.mockReset();
+    getWaterOverviewMock.mockResolvedValue({
+      counties: [
+        { county: { slug: "harris-county", name: "Harris County" }, metrics: { oilAndGasExtractionPermitCount: 6 } },
+        { county: { slug: "travis-county", name: "Travis County" }, metrics: { oilAndGasExtractionPermitCount: 1 } },
+        { county: { slug: "orange-county", name: "Orange County" }, metrics: { oilAndGasExtractionPermitCount: 3 } },
+      ],
+    });
     buildSourceNetworkMock.mockResolvedValue({
       schemaVersion: 1,
       flowDirectionMethod: "centroid-gulf-proxy-v1",
@@ -304,12 +317,14 @@ describe("statewide analytics page", () => {
     expect(text).toContain("Start on the county map, hunt your own statewide correlations");
     expect(text).toContain("Analytics map emphasis");
     expect(text).toContain("Current emphasis: county risk");
+    expect(text).toContain("Oil view");
     expect(text).toContain("Texas county analytics correlation map");
     expect(text).toContain("1. Start on the map");
     expect(text).toContain("2. Check ranked movers");
     expect(text).toContain("3. Validate in scatter");
     expect(text).toContain("County risk score");
     expect(text).toContain("Permit pressure");
+    expect(text).toContain("Oil &amp; gas extraction");
     expect(text).toContain("Open this county next");
     expect(text).toContain("Map overlays");
     expect(text).toContain("Shared source network");
@@ -318,9 +333,11 @@ describe("statewide analytics page", () => {
     expect(text).toContain("Downstream dependency counties");
     expect(text).toContain("Top counties in this view");
     expect(text).toContain('href="/analytics?mode=pressure&amp;county=harris-county#analytics-map"');
+    expect(text).toContain('href="/analytics?mode=oil&amp;county=harris-county#analytics-map"');
     expect(text).toContain('href="/analytics?mode=risk&amp;county=harris-county#statewide-scatter"');
+    expect(text).toContain('href="/water?county=harris-county#oil-gas-footprint"');
     expect(text).toContain('href="/analytics?mode=risk&amp;county=orange-county#analytics-map"');
-    expect(text).toContain("Harris County: risk 100, pressure 100 — Up 2 rank slots.");
+    expect(text).toContain("Harris County: risk 100, pressure 100, oil 6 — Up 2 rank slots.");
     expect(text).toContain("Shared source network — Downstream hydrology dependency");
     expect(text).toContain("What changed");
     expect(text).toContain("Recent movement across committed snapshots");

@@ -14,6 +14,7 @@ import { AddToWatchlistControl } from "@/app/watchlists/watchlist-client";
 import { TEXAS_COUNTY_CENTROIDS } from "@/lib/texas-county-centroids";
 import { getDefaultHydrologyDependencyService } from "@/lib/water/hydrology-dependencies";
 import { getDefaultCountyDependencyNetworkService } from "@/lib/water/source-network";
+import { getDefaultAtlasWaterSummaryService } from "@/lib/water/water-summary-service";
 
 import { formatNumber, formatTimestamp, loadStatewideAnalyticsViewModel } from "./analytics-data";
 
@@ -57,11 +58,19 @@ function projectionFor(width: number, height: number) {
   return geoAlbers().rotate([99, 0]).center([0, 31.3]).parallels([28, 36]).scale(Math.min(width, height) * 5.2).translate([width / 2, height / 2]);
 }
 
-function analyticsMapSeverity(value: number, mode: "risk" | "pressure"): SeverityLevel {
+function analyticsMapSeverity(value: number, mode: "risk" | "pressure" | "oil"): SeverityLevel {
   if (mode === "pressure") {
     if (value >= 50) return 4;
     if (value >= 20) return 3;
     if (value >= 10) return 2;
+    if (value >= 1) return 1;
+    return 0;
+  }
+
+  if (mode === "oil") {
+    if (value >= 10) return 4;
+    if (value >= 5) return 3;
+    if (value >= 2) return 2;
     if (value >= 1) return 1;
     return 0;
   }
@@ -114,12 +123,13 @@ function AnalyticsCountyCorrelationMap({
     fips?: string;
     pressureScore: number;
     riskScore: number;
+    oilScore: number;
     movementLabel: string;
     quadrantDetail: string;
     href: string;
   }>;
   selectedSlug: string | null;
-  mode: "risk" | "pressure";
+  mode: "risk" | "pressure" | "oil";
   overlays: AnalyticsMapOverlay[];
 }) {
   const features = loadTexasCountyFeatures();
@@ -152,7 +162,7 @@ function AnalyticsCountyCorrelationMap({
               {map.features.map(({ feature: currentFeature, path }) => {
                 const county = byFips.get(currentFeature.properties.fips);
                 if (!path) return null;
-                const focusValue = mode === "pressure" ? county?.pressureScore ?? 0 : county?.riskScore ?? 0;
+                const focusValue = mode === "pressure" ? county?.pressureScore ?? 0 : mode === "oil" ? county?.oilScore ?? 0 : county?.riskScore ?? 0;
                 const severity = analyticsMapSeverity(focusValue, mode);
                 const isSelected = county?.slug === selectedSlug;
                 const countyOverlays = county ? overlays.filter((overlay) => overlay.countySlugs.has(county.slug)) : [];
@@ -174,7 +184,7 @@ function AnalyticsCountyCorrelationMap({
                       ))}
                     <title>
                       {county
-                        ? `${county.name}: risk ${formatNumber(county.riskScore)}, pressure ${formatNumber(county.pressureScore)} — ${county.movementLabel}. ${county.quadrantDetail}${titleSuffix}`
+                        ? `${county.name}: risk ${formatNumber(county.riskScore)}, pressure ${formatNumber(county.pressureScore)}, oil ${formatNumber(county.oilScore)} — ${county.movementLabel}. ${county.quadrantDetail}${titleSuffix}`
                         : `${currentFeature.properties.name} County (no statewide analytics point)`}
                     </title>
                   </g>
@@ -325,10 +335,11 @@ export default async function AnalyticsPage({
   searchParams?: Promise<{ mode?: string | string[]; county?: string | string[] }>;
 } = {}) {
   const analytics = await loadStatewideAnalyticsViewModel();
+  const waterOverview = await getDefaultAtlasWaterSummaryService().getWaterOverview().catch(() => null);
   const params = searchParams ? await searchParams : undefined;
   const requestedMode = Array.isArray(params?.mode) ? params?.mode[0] : params?.mode;
   const requestedCounty = Array.isArray(params?.county) ? params?.county[0] : params?.county;
-  const mapMode: "risk" | "pressure" = requestedMode === "pressure" ? "pressure" : "risk";
+  const mapMode: "risk" | "pressure" | "oil" = requestedMode === "pressure" ? "pressure" : requestedMode === "oil" ? "oil" : "risk";
 
   const chipToneClassName: Record<"accent" | "warning" | "neutral", string> = {
     accent: "border-cyan-400/20 bg-cyan-400/10 text-cyan-100",
@@ -370,6 +381,9 @@ export default async function AnalyticsPage({
   const statewideWatchEntries = [...countyWatchEntries, ...operatorWatchEntries].slice(0, 6);
 
   const moversBySlug = new Map(analytics.moversRows.map((row) => [row.href.replace("/counties/", ""), row]));
+  const oilBySlug = new Map(
+    (waterOverview?.counties ?? []).map((county) => [county.county.slug, county.metrics.oilAndGasExtractionPermitCount ?? 0]),
+  );
   const countyMapRows = analytics.scatterPoints
     .map((point) => ({
       slug: point.href.replace("/counties/", ""),
@@ -377,6 +391,7 @@ export default async function AnalyticsPage({
       fips: TEXAS_COUNTY_CENTROIDS[point.href.replace("/counties/", "")]?.fips,
       pressureScore: point.x,
       riskScore: point.y,
+      oilScore: oilBySlug.get(point.href.replace("/counties/", "")) ?? 0,
       movementLabel: moversBySlug.get(point.href.replace("/counties/", ""))?.movementLabel ?? "Present in the current statewide scatter",
       quadrantDetail: point.detail,
       href: point.href,
@@ -384,7 +399,13 @@ export default async function AnalyticsPage({
     .filter((county) => county.fips);
   const selectedCounty = countyMapRows.find((county) => county.slug === requestedCounty) ?? countyMapRows[0] ?? null;
   const comparisonCounties = [...countyMapRows]
-    .sort((left, right) => (mapMode === "pressure" ? right.pressureScore - left.pressureScore : right.riskScore - left.riskScore))
+    .sort((left, right) => (
+      mapMode === "pressure"
+        ? right.pressureScore - left.pressureScore
+        : mapMode === "oil"
+          ? right.oilScore - left.oilScore
+          : right.riskScore - left.riskScore
+    ))
     .slice(0, 3);
 
   const [sourceNetwork, hydrologyGraph] = await Promise.all([
@@ -449,7 +470,7 @@ export default async function AnalyticsPage({
             <div className="text-[11px] font-medium uppercase tracking-[0.22em] text-cyan-300/80">Map-first correlation workflow</div>
             <h2 className="mt-2 text-3xl font-semibold text-white">County map is the statewide headliner</h2>
             <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-400">
-              Start with the map, switch between county risk and permit-pressure emphasis, then jump into movers, scatter, and county pages to prove or reject the pattern. This keeps the workflow anchored to counties instead of making charts the first stop.
+              Start with the map, switch between county risk, permit-pressure, and oil extraction emphasis, then jump into movers, scatter, and county pages to prove or reject the pattern. This keeps the workflow anchored to counties instead of making charts the first stop.
             </p>
           </div>
           <div className="rounded-full border border-white/10 px-3 py-1 text-xs text-slate-400">Scatter-backed counties: {analytics.scatterCount}</div>
@@ -460,8 +481,9 @@ export default async function AnalyticsPage({
           <div className="inline-flex rounded-full bg-white/[0.04] p-1 ring-1 ring-white/5" role="group" aria-label="Analytics map emphasis">
             <AnalyticsWorkflowToggle href={`/analytics?mode=risk${selectedCounty ? `&county=${selectedCounty.slug}` : ""}#analytics-map`} active={mapMode === "risk"} label="County risk" />
             <AnalyticsWorkflowToggle href={`/analytics?mode=pressure${selectedCounty ? `&county=${selectedCounty.slug}` : ""}#analytics-map`} active={mapMode === "pressure"} label="Permit pressure" />
+            <AnalyticsWorkflowToggle href={`/analytics?mode=oil${selectedCounty ? `&county=${selectedCounty.slug}` : ""}#analytics-map`} active={mapMode === "oil"} label="Oil view" />
           </div>
-          <span className="text-xs text-slate-500">Current emphasis: {mapMode === "pressure" ? "permit pressure" : "county risk"}</span>
+          <span className="text-xs text-slate-500">Current emphasis: {mapMode === "pressure" ? "permit pressure" : mapMode === "oil" ? "oil extraction" : "county risk"}</span>
         </div>
 
         <div className="mt-5 flex flex-wrap gap-2">
@@ -510,6 +532,11 @@ export default async function AnalyticsPage({
                     <div className="mt-2 text-3xl font-semibold text-white">{formatNumber(selectedCounty.pressureScore)}</div>
                     <div className="mt-1 text-xs text-slate-500">Severity {SEVERITY_LABEL[analyticsMapSeverity(selectedCounty.pressureScore, "pressure")]}</div>
                   </div>
+                  <div className="rounded-2xl border border-white/10 bg-slate-950/60 p-4 sm:col-span-2 xl:col-span-1">
+                    <div className="text-[11px] font-medium uppercase tracking-[0.18em] text-slate-500">Oil &amp; gas extraction</div>
+                    <div className="mt-2 text-3xl font-semibold text-white">{formatNumber(selectedCounty.oilScore)}</div>
+                    <div className="mt-1 text-xs text-slate-500">Severity {SEVERITY_LABEL[analyticsMapSeverity(selectedCounty.oilScore, "oil")]}</div>
+                  </div>
                 </div>
 
                 <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
@@ -537,6 +564,9 @@ export default async function AnalyticsPage({
                     <Link href={`/analytics?mode=${mapMode}&county=${selectedCounty.slug}#statewide-scatter`} className="rounded-full border border-white/10 px-3 py-1.5 text-xs text-slate-300 transition-colors hover:border-white/20 hover:bg-white/5">
                       Compare in scatter
                     </Link>
+                    <Link href={`/water?county=${selectedCounty.slug}#oil-gas-footprint`} className="rounded-full border border-white/10 px-3 py-1.5 text-xs text-slate-300 transition-colors hover:border-white/20 hover:bg-white/5">
+                      Open oil footprint
+                    </Link>
                   </div>
                 </div>
               </>
@@ -553,7 +583,11 @@ export default async function AnalyticsPage({
                   >
                     <span>{county.name}</span>
                     <span className="font-mono text-xs text-slate-400">
-                      {mapMode === "pressure" ? `Pressure ${formatNumber(county.pressureScore)}` : `Risk ${formatNumber(county.riskScore)}`}
+                      {mapMode === "pressure"
+                        ? `Pressure ${formatNumber(county.pressureScore)}`
+                        : mapMode === "oil"
+                          ? `Oil ${formatNumber(county.oilScore)}`
+                          : `Risk ${formatNumber(county.riskScore)}`}
                     </span>
                   </Link>
                 )) : <div className="text-sm leading-6 text-slate-500">No statewide scatter counties are available yet.</div>}
@@ -569,6 +603,14 @@ export default async function AnalyticsPage({
                     <AnalyticsLegendRow level={3} text="20–49 strong pressure" />
                     <AnalyticsLegendRow level={2} text="10–19 visible pressure" />
                     <AnalyticsLegendRow level={0} text="No mapped statewide point" />
+                  </>
+                ) : mapMode === "oil" ? (
+                  <>
+                    <AnalyticsLegendRow level={4} text="10+ TXG31 oil and gas extraction permits" />
+                    <AnalyticsLegendRow level={3} text="5–9 TXG31 permits" />
+                    <AnalyticsLegendRow level={2} text="2–4 TXG31 permits" />
+                    <AnalyticsLegendRow level={1} text="1 TXG31 permit" />
+                    <AnalyticsLegendRow level={0} text="No mapped statewide point or no TXG31 permits" />
                   </>
                 ) : (
                   <>
