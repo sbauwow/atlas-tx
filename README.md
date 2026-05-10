@@ -1,17 +1,31 @@
 # Atlas TX
 
-Atlas TX is an open-source Texas county intelligence platform for public-interest data work.
+Atlas TX is a map-first intelligence system for Texas public-interest evidence.
 
-It is designed to become a map-first operating system for Texas county evidence: permits, water, hydrology, governance, operators, environmental burden, and field verification in one system that both humans and agents can use.
+It is built to help people find, verify, and act on county-level signals across permits, water, hydrology, operators, governance, environmental burden, and field observations.
 
-The platform combines:
-- county intelligence maps and analytical workspaces
+This is not another passive dashboard.
+
+Atlas TX is designed as an operating system for county evidence:
+- statewide county intelligence maps
 - public-record ingestion and normalization
-- API and MCP access to the same evidence
-- watchlist and queue workflows for operators and investigators
-- a mobile/field-verification path for water testing and community observation
+- API and MCP access to the same underlying evidence
+- watchlist and queue workflows for investigators and operators
+- Android-based field verification and water-testing missions
 
-The goal is not another static dashboard. The goal is a system that helps investigators, civic-tech analysts, policy operators, and field teams find what matters first, drill into evidence fast, and separate official record, inferred risk, and community observation without collapsing them into a black box.
+The product thesis is simple: Texas has too much fragmented public data, too much local variation, and too many decisions hidden inside county-by-county process. Atlas TX turns that fragmentation into a usable, governed evidence layer for humans, communities, and AI-native workflows.
+
+## Why Texas
+
+Texas is the right proving ground because it combines:
+- county-scale variation that actually matters
+- intense water, land-use, permitting, and infrastructure pressure
+- large public-data surface area spread across agencies and authorities
+- real need for field verification, not just desktop analysis
+
+Atlas is also shaped by an AI TX community framing.
+
+That means the system is not built as a closed expert terminal for a tiny class of insiders. It is built in the spirit of a Texas AI community that wants better public tools, stronger evidence workflows, and more local capacity to investigate what is happening on the ground.
 
 ## Why Atlas TX is compelling
 
@@ -25,6 +39,19 @@ That means Atlas can evolve into more than a website:
 - a structured permit/water operator watch system
 - a field-missions product for Android-based evidence capture
 - a patent-pending system for linking public-record intelligence, map workflows, and structured field verification
+
+## Why this wins over ordinary dashboards
+
+Most dashboards stop at display.
+
+Atlas TX is designed to go further:
+- start from county maps, not buried filters
+- connect records, operators, water signals, and field evidence in one workflow
+- expose the same evidence through UI, API, and MCP
+- support repeat investigation, not one-off browsing
+- preserve separation between authoritative records, modeled signals, and community submissions
+
+The result should feel less like a static civic site and more like an evidence workstation for Texas.
 
 ## What Atlas TX is
 
@@ -426,6 +453,22 @@ Atlas TX is being developed as part of a broader patent-pending system concept s
 - structured community water-testing capture
 - confidence-scored field verification
 - explicit separation of authoritative, explanatory, and community evidence classes
+
+### Patent-pending system components
+
+```text
+county intelligence maps
+        +
+public-record permit + water evidence
+        +
+Android mission workflows
+        +
+community water-testing capture
+        +
+confidence-aware field verification
+        +
+evidence-class separation and review
+```
 
 This repository is the open technical platform layer for that system. It should describe the product honestly and compellingly, while avoiding unsupported legal, medical, or regulatory claims.
 
