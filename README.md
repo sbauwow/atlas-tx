@@ -493,6 +493,20 @@ The current mobile/field product direction is documented in:
 - `docs/contracts/community-observation.md`
 - `docs/research/smartphone-colorimetry.md`
 
+### Inference provider
+
+The Android client never calls an inference API directly and never holds an
+inference key. Strip photos are uploaded to `/api/citizen/observations`, and
+the route runs the server-side vision pass against
+[Featherless](https://featherless.ai) (preferred, OpenAI-compatible chat
+completions at `https://api.featherless.ai/v1`) when `FEATHERLESS_API_KEY`
+is set. OpenAI `gpt-4o-mini` is the fallback when only `OPENAI_API_KEY` is
+set; if neither is set the observation is recorded with the client reading
+only and routed to manual review. Default Featherless model is
+`meta-llama/Llama-4-Scout-17B-16E-Instruct`; override with
+`FEATHERLESS_MODEL`. The actual model that ran is recorded on each
+observation as `llmModel`. Implementation: `src/lib/observations/vision.ts`.
+
 ### Water testing and field verification
 
 A major Atlas system lane is structured water testing and field verification.
