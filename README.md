@@ -119,6 +119,37 @@ Atlas treats these as evidence layers, not final causal verdicts.
 
 ## Architecture
 
+### Compact architecture diagram
+
+```text
+                        public/open datasets
+   TCEQ / TWDB / EPA / FEMA / USGS / NOAA / regional authorities
+                                  |
+                                  v
+                 src/lib/* fetchers + normalizers + scoring services
+                                  |
+                                  v
+      public/cache/* <---- scripts/refresh:* ----> pipeline-health.json
+                                  |
+                    +-------------+-------------+
+                    |                           |
+                    v                           v
+           Next.js route pages            JSON API routes
+   /analytics /water /permits /counties   /api/water/* /api/counties/*
+                    |                           |
+                    +-------------+-------------+
+                                  |
+                                  v
+                     map-first county intelligence UX
+                                  |
+                    +-------------+-------------+
+                    |                           |
+                    v                           v
+              watchlists + telemetry       local MCP server
+            /watchlists /api/beacon        packages/mcp-server/
+                 /api/event
+```
+
 ### App/runtime
 - Next.js 16 App Router
 - React 19
@@ -137,6 +168,30 @@ Atlas treats these as evidence layers, not final causal verdicts.
 - `docs/` — contracts, plans, design, wiki, state, ownership, research
 - `skills/` — repo-local agent skills
 - `tests/` — Vitest coverage
+
+### Key route-to-file map
+
+| Surface | Primary file | Notes |
+|---|---|---|
+| `/` | `src/app/page.tsx` | product overview |
+| `/analytics` | `src/app/analytics/page.tsx` | statewide map-first analytics terminal |
+| `/water` | `src/app/water/page.tsx` | county-map-first water workspace |
+| `/water/network` | `src/app/water/network/page.tsx` | dependency + hydrology view |
+| `/water/counties/[slug]` | `src/app/water/counties/[slug]/page.tsx` | county water detail |
+| `/water/sources/[slug]` | `src/app/water/sources/[slug]/page.tsx` | source anomaly/provenance |
+| `/counties` | `src/app/counties/page.tsx` | county index |
+| `/counties/[slug]` | `src/app/counties/[slug]/page.tsx` | county intelligence detail |
+| `/permits` | `src/app/permits/page.tsx` | permit pressure workspace |
+| `/permits/[tceqId]` | `src/app/permits/[tceqId]/page.tsx` | permit detail |
+| `/operators` | `src/app/operators/page.tsx` | operator index |
+| `/operators/[slug]` | `src/app/operators/[slug]/page.tsx` | operator detail |
+| `/watchlists` | `src/app/watchlists/page.tsx` | saved watchlists |
+| `/map` | `src/app/map/page.tsx` | map shell entry |
+| `/api/event` | `src/app/api/event/route.ts` | structured telemetry ingest |
+| `/api/beacon` | `src/app/api/beacon/route.ts` | pixel telemetry ingest |
+| `/api/water/overview` | `src/app/api/water/overview/route.ts` | statewide water summary |
+| `/api/water/oil-gas-extraction` | `src/app/api/water/oil-gas-extraction/route.ts` | TXG31 permit lane |
+| local MCP server | `packages/mcp-server/src/index.js` | command entrypoint |
 
 ### Important internal modules
 - `src/lib/water/water-summary-service.ts` — water overview + county breakdown orchestration
@@ -258,6 +313,7 @@ npm run refresh:county-month-nws-flood-alerts
 
 ### Design and execution plans
 - `docs/design/atlas-missions-design-memo.md`
+- `docs/design/agent-build-workflow.md`
 - `docs/plans/2026-05-09-atlas-of-maps-reframe.md`
 - `docs/plans/2026-05-09-mcp-and-pipeline-automation.md`
 - `docs/plans/2026-05-10-county-dataset-roadmap.md`
@@ -323,6 +379,9 @@ See:
 Atlas has been built through an agent-assisted workflow centered on Hermes Agent as the orchestration layer, with repo-local skills, MCP tooling, and iterative map/API/test slices inside this repository.
 
 Public README copy intentionally stays focused on the platform and its technical surfaces rather than on specific model-vendor branding.
+
+For the internal workflow summary, see:
+- `docs/design/agent-build-workflow.md`
 
 ## Constraints and product guardrails
 
