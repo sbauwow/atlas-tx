@@ -5,8 +5,18 @@ Companion mobile capture client for the Atlas TX citizen water-strip lane.
 Pairs with the existing web flow at `src/app/citizen/` and posts to
 `POST /api/citizen/observations` (multipart). All on-device strip colorimetry
 is intentionally deferred — v1 sends a minimal `clientReading` and lets the
-server-side QA + LLM pass do the reading. Same caveats as the web lane:
+server-side QA + vision pass do the reading. Same caveats as the web lane:
 **screening only, not regulatory**. See `docs/contracts/community-observation.md`.
+
+The phone never calls an inference API directly and never holds an inference
+key. The server route runs the vision pass against
+[Featherless](https://featherless.ai) (preferred,
+`https://api.featherless.ai/v1`) when `FEATHERLESS_API_KEY` is set, falling
+back to OpenAI's `gpt-4o-mini` only when Featherless is unkeyed. Default
+Featherless model is `meta-llama/Llama-4-Scout-17B-16E-Instruct`; override
+with `FEATHERLESS_MODEL`. The actual model that ran is recorded on each
+observation as `llmModel: "featherless:<model>"` (or `"openai:<model>"`).
+See `src/lib/observations/vision.ts`.
 
 ## Stack
 
