@@ -9,6 +9,7 @@
     "lint": "eslint",
     "test": "vitest run",
     "mcp": "tsx packages/mcp-server/src/index.js",
+    "mcp:stdio": "tsx packages/mcp-server/src/server.js",
     "refresh:all": "tsx scripts/refresh-all.ts",
     "refresh:cid": "tsx scripts/refresh-cid.ts",
     "refresh:twdb-hydrology": "tsx scripts/refresh-twdb-hydrology.ts",
@@ -32,6 +33,7 @@
     "db:migrate": "prisma migrate dev"
   },
   "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.29.0",
     "@prisma/adapter-better-sqlite3": "^7.8.0",
     "@prisma/client": "^7.8.0",
     "@types/d3-geo": "^3.1.0",
@@ -49,7 +51,8 @@
     "server-only": "^0.0.1",
     "sharp": "^0.34.5",
     "topojson-client": "^3.1.0",
-    "us-atlas": "^3.0.1"
+    "us-atlas": "^3.0.1",
+    "zod": "^3.25.76"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",

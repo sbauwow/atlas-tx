@@ -13,6 +13,7 @@ Schema for every row: `workstream | agent | branch | intent | started | ref`
 | docs | hermes | web/color-tokens | Review all plan docs, align additive weather/community roadmap to current repo state, and add coordination-aware implementation checklist around active feynman/UI work | 2026-05-09T05:52:00Z | working tree |
 | cross (android + docs) | claude-opus-4-7 | cross/android-capture-app | Scaffold the Atlas TX Capture Android client (Kotlin/Compose, minSdk 31) under `android/`, wire it to `POST /api/citizen/observations`, and add the `android` workstream to OWNERSHIP/AGENTS. v1 deferred: on-device colorimetry, CameraX preview, GPS attach. | 2026-05-09T19:00:00Z | branch `cross/android-capture-app` |
 | web | claude-opus-4-7 | web/interactive-map | Add `/map` route: full-viewport MapLibre GL (CARTO dark + OSM tiles, no token), three toggleable layers — TX county polygons (cached `public/cache/tx-counties-topo.json`), TCEQ pending permits (new `/api/permits/locations` GeoJSON endpoint), USGS stream gauges (existing `/api/water/gauges`). Click → popup with deep links into `/permits?county=` / `/counties/[slug]` / USGS NWIS. URL-persisted layer toggle. Android map mirror deferred. | 2026-05-10T00:08:00Z | branch `web/interactive-map` |
+| cross (web + data) | claude-opus-4-7 | cross/address-lookup | Add address-input feature on homepage: Census geocoder → resolved county → composite envelope (county profile, water summary, ACS pop, NWS alerts, drought, nearby TCEQ permits + USGS gauges + SDWIS PWSs + surface-water segments). New `src/lib/geocoding/census.ts`, `src/lib/address-lookup.ts`, `GET /api/address/lookup?q=`, `<AddressSearch />` on `/`. Returns `{data, sources, caveats}` envelope to mirror MCP shape; lat/lon-buffered EJScreen deferred. | 2026-05-10T18:00:00Z | branch `cross/address-lookup` |
 
 ---
 
@@ -26,6 +27,7 @@ _(empty)_
 
 | workstream | agent | intent | ref |
 |---|---|---|---|
+| mcp+docs | claude-opus-4-7 | Bolster the MCP server: wire a real stdio MCP transport via `@modelcontextprotocol/sdk` (`packages/mcp-server/src/server.js`, `npm run mcp:stdio`) on top of the existing handlers, ship the contract-promised composite `summarize_water_risk_for_county` (DWRS top PWS + analytics snapshot + optional APD), bump `docs/contracts/mcp-tools.md` to 0.7.0, and replace the stale `packages/mcp-server/README.md`. JSON CLI dispatch (`npm run mcp <tool> '<json>'`) stays as a script-friendly back-door. Verified with `npx vitest run tests/mcp-server.test.ts tests/mcp-server-stdio.test.ts` (14/14). EJ block-group overlay still TODO and `summarize_water_risk_for_county.top_block_groups` returns `[]` until `src/lib/scoring/ej_overlap.ts` lands. | working tree |
 | web | claude-opus-4-7 | Demo-prep visual + copy + empty-state polish across `/`, `/water`, `/counties`, `/permits`, `/analytics`: hero CTA pruning on home (6→3 + secondary row), 9 debug API pills wrapped in `<details>` disclosure on `/water`, podium ranks + empty state + hover affordance on `/counties`, hero anchor jumps on `/permits`, terminal eyebrow demoted on `/analytics`. Stays clear of `src/app/design/` color-token lane. | branch `web/demo-polish` |
 | docs | hermes | Add county dataset roadmap (`docs/plans/2026-05-10-county-dataset-roadmap.md`) and link it from the plans index for quick execution against county priorities. | working tree |
 | docs | hermes | Update README + CHANGELOG to reflect the new map-first county workflow: county choropleths lead analytics and water, while other charts remain user-directed correlation lanes. | commit `6edd23f` |
@@ -137,8 +139,6 @@ Listed in the order the refocus plan (`docs/plans/2026-05-08-water-risk-refocus.
 | workstream | task | notes |
 |---|---|---|
 | data | Freeze first real `cid-cases` / `cid-protests` snapshot files | Search Two live POST works; Search One still errors in scripted runs even with chunks. Next step is deciding whether to tolerate partial Search Two-only outputs, add retries/browser automation, or keep manual operator refresh for cases. |
-| mcp | Replace CLI/tool-dispatch scaffold with actual MCP transport/tool registry | `packages/mcp-server/src/index.js` now supports JSON tool dispatch, but it is still not a full MCP transport/server implementation. |
-| mcp | Implement `summarize_water_risk_for_county` protest-density folding | Contract supports `include_protest_density`; wire it once county summary tools exist. |
 
 ### Milestone 2 — MCP tools
 
@@ -147,8 +147,7 @@ Listed in the order the refocus plan (`docs/plans/2026-05-08-water-risk-refocus.
 | mcp | Implement `discover_datasets` | Return registered MVP_DATASETS with provenance |
 | mcp | Implement `get_dataset_schema` | Per dataset id, return key fields + caveats |
 | mcp | Implement `score_pws_drinking_water_risk` | Wraps `src/lib/scoring/dwrs.ts` |
-| mcp | Implement `overlay_ej_burden` | Wraps `src/lib/scoring/ej_overlap.ts` |
-| mcp | Implement `summarize_water_risk_for_county` | Composite output, structured envelope |
+| mcp | Implement `overlay_ej_burden` | Wraps `src/lib/scoring/ej_overlap.ts`. Once landed, fold `top_block_groups` into the existing `summarize_water_risk_for_county` composite (currently returns `[]` with a caveat). |
 
 ### Milestone 2.5 — protest MCP tools (additive)
 

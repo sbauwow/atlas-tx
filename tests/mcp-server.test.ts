@@ -824,4 +824,118 @@ describe("Atlas TX MCP handlers", () => {
     expect(dispatched.data).toHaveLength(1);
     expect(dispatched.data[0]?.tceq_id).toBe("WQ0000447000");
   });
+
+  it("composes a county water-risk summary with DWRS + analytics + optional APD", async () => {
+    const sdwisRows = [
+      {
+        pwsid: "TX0000001",
+        pwsName: "Comal Public Water",
+        county: "Comal County",
+        populationServed: 50000,
+        violationId: "V1",
+        violationCode: "MCL",
+        violationCategory: "TT",
+        isHealthBased: true,
+        contaminantCode: "1005",
+        complianceStatusCode: "open",
+        complPerBeginDate: "2026-04-01",
+        complPerEndDate: null,
+        pwsTypeCode: "CWS",
+        ruleCode: null,
+        ruleGroupCode: null,
+        publicNotificationTier: 1,
+      },
+      {
+        pwsid: "TX0000002",
+        pwsName: "Travis Water",
+        county: "Travis County",
+        populationServed: 1000,
+        violationId: "V2",
+        violationCode: "MON",
+        violationCategory: "MRDL",
+        isHealthBased: true,
+        contaminantCode: "2000",
+        complianceStatusCode: "open",
+        complPerBeginDate: "2026-03-01",
+        complPerEndDate: null,
+        pwsTypeCode: "CWS",
+        ruleCode: null,
+        ruleGroupCode: null,
+        publicNotificationTier: 2,
+      },
+    ];
+
+    const cidFixture = {
+      cases: [
+        {
+          tceqId: "WQ1",
+          applicantName: "Comal Industrial",
+          county: "Comal County",
+          programArea: "WQ",
+          itemStatus: "open",
+          tceqDocketNumber: null,
+          soahDocketNumber: "582-26-1234",
+          regulatedEntityNumber: null,
+          customerNumber: null,
+        },
+      ],
+      protests: [
+        {
+          tceqId: "WQ1",
+          filingType: "hearing_request",
+          filerOrganization: "Public Citizen",
+          filedAt: "2026-04-03",
+        },
+      ],
+      generatedAt: "2026-05-09T00:00:00.000Z",
+      cacheState: "snapshot" as const,
+    };
+
+    const deps = {
+      loadSdwisData: async () => ({
+        rows: sdwisRows,
+        generatedAt: "2026-05-08T00:00:00.000Z",
+        cacheState: "snapshot",
+        caveats: [],
+      }),
+      loadAnalyticsArtifacts: async () => ANALYTICS_FIXTURE,
+      loadCidData: async () => cidFixture,
+      loadCountyPopulation: async () => ({ "Comal County": 180000 }),
+    };
+    const handlers = createAtlasTxMcpHandlers(deps);
+
+    const result = await handlers.summarize_water_risk_for_county({
+      county: "Comal County",
+      include_protest_density: true,
+      max_words: 80,
+    });
+
+    expect(result.cache_state).toBe("snapshot");
+    expect(result.data.county).toBe("Comal County");
+    expect(result.data.headline).toContain("risk 6.07");
+    expect(result.data.headline).toContain("pressure 3.09");
+    expect(result.data.top_pws[0]?.pws_id).toBe("TX0000001");
+    expect(result.data.top_block_groups).toEqual([]);
+    expect(result.data.protest_density?.open_case_count).toBe(1);
+    expect(result.sources.map((s) => s.dataset_id)).toEqual(
+      expect.arrayContaining([
+        "epa-sdwis-violations",
+        "tceq-swq-segments",
+        "tceq-cid-search-one",
+        "tceq-cid-search-two",
+        "census-acs5-2023-county",
+      ]),
+    );
+    expect(result.caveats.some((c) => c.includes("EJ"))).toBe(true);
+
+    const noProtest = await handlers.summarize_water_risk_for_county({ county: "Comal County" });
+    expect(noProtest.data).not.toHaveProperty("protest_density");
+
+    const dispatched = await runAtlasTxTool(
+      "summarize_water_risk_for_county",
+      { county: "Comal County" },
+      deps,
+    );
+    expect(dispatched.data.county).toBe("Comal County");
+  });
 });

@@ -1,10 +1,16 @@
 {
   "name": "@atlas-tx/mcp-server",
-  "version": "0.1.0",
+  "version": "0.7.0",
   "private": true,
-  "description": "MCP server scaffold for Atlas TX county intelligence tools",
+  "description": "MCP server for Atlas TX county water-risk + permit-protest intelligence",
   "type": "module",
+  "main": "src/index.js",
+  "exports": {
+    ".": "./src/index.js",
+    "./server": "./src/server.js"
+  },
   "scripts": {
-    "dev": "node src/index.js"
+    "dev": "node src/index.js",
+    "stdio": "node src/server.js"
   }
 }
