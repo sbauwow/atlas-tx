@@ -24,6 +24,11 @@ const BASEMAP_KEYS: BasemapKey[] = ["street", "satellite"];
 const VIEW_NONE = "none" as const;
 type ViewSelection = typeof VIEW_NONE | CountyViewId;
 
+const INITIAL_CENTER: [number, number] = [-99.3, 31.4];
+const INITIAL_ZOOM = 5.4;
+const DEFAULT_BASEMAP: BasemapKey = "street";
+const DEFAULT_VIEW: ViewSelection = VIEW_NONE;
+
 const BASEMAP_DEFS: Record<
   BasemapKey,
   { tiles: string[]; tileSize: number; maxzoom: number; attribution: string; label: string }
@@ -216,8 +221,8 @@ export default function InteractiveMap() {
     const map = new maplibregl.Map({
       container: containerRef.current,
       style: buildBaseStyle(initialBasemap),
-      center: [-99.3, 31.4],
-      zoom: 5.4,
+      center: INITIAL_CENTER,
+      zoom: INITIAL_ZOOM,
       attributionControl: { compact: true },
     });
     mapRef.current = map;
@@ -581,6 +586,29 @@ export default function InteractiveMap() {
     [replaceQuery],
   );
 
+  const isDefaultState = useMemo(
+    () =>
+      view === DEFAULT_VIEW &&
+      basemap === DEFAULT_BASEMAP &&
+      activeLayers.size === ALL_LAYERS.length &&
+      ALL_LAYERS.every((k) => activeLayers.has(k)),
+    [view, basemap, activeLayers],
+  );
+
+  const onReset = useCallback(() => {
+    const defaults = new Set<LayerKey>(ALL_LAYERS);
+    setActiveLayers(defaults);
+    setView(DEFAULT_VIEW);
+    setBasemap(DEFAULT_BASEMAP);
+    replaceQuery({ layers: defaults, view: DEFAULT_VIEW, basemap: DEFAULT_BASEMAP });
+    mapRef.current?.flyTo({
+      center: INITIAL_CENTER,
+      zoom: INITIAL_ZOOM,
+      duration: 700,
+      essential: true,
+    });
+  }, [replaceQuery]);
+
   return (
     <div style={{ position: "relative", width: "100%", height: "100%" }}>
       <div ref={containerRef} style={{ position: "absolute", inset: 0, width: "100%", height: "100%" }} />
@@ -595,6 +623,8 @@ export default function InteractiveMap() {
         viewLoading={viewLoading}
         counts={counts}
         errors={errors}
+        onReset={onReset}
+        canReset={!isDefaultState}
       />
       {errors.map && (
         <div className="absolute right-3 top-3 z-10 max-w-md rounded-lg border border-rose-500/30 bg-rose-950/90 px-3 py-2 text-xs text-rose-100 shadow-xl backdrop-blur">
@@ -625,6 +655,8 @@ function Sidebar({
   viewLoading,
   counts,
   errors,
+  onReset,
+  canReset,
 }: {
   activeLayers: Set<LayerKey>;
   toggleLayer: (key: LayerKey) => void;
@@ -636,6 +668,8 @@ function Sidebar({
   viewLoading: boolean;
   counts: Record<LayerKey, number | null>;
   errors: Record<string, string>;
+  onReset: () => void;
+  canReset: boolean;
 }) {
   const layerRows: Array<{ key: LayerKey; label: string; swatch: string; sub: string }> = [
     {
@@ -662,6 +696,25 @@ function Sidebar({
 
   return (
     <div className="absolute left-3 top-3 z-10 w-[268px] rounded-xl border border-white/10 bg-slate-950/85 p-3 text-sm text-slate-100 shadow-xl backdrop-blur">
+      {/* Header — title + reset */}
+      <div className="-mt-0.5 mb-3 flex items-center justify-between gap-2">
+        <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-300">Layers &amp; views</span>
+        <button
+          type="button"
+          onClick={onReset}
+          disabled={!canReset}
+          title={canReset ? "Reset to default view" : "Already at default view"}
+          aria-label="Reset map to default view"
+          className="inline-flex items-center gap-1.5 rounded-md border border-white/10 bg-white/[0.04] px-2 py-1 text-[11px] font-medium text-slate-200 transition-colors hover:border-cyan-300/30 hover:bg-cyan-300/[0.08] hover:text-cyan-100 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:border-white/10 disabled:hover:bg-white/[0.04] disabled:hover:text-slate-200"
+        >
+          <svg aria-hidden="true" viewBox="0 0 16 16" className="size-3">
+            <path d="M2.5 8a5.5 5.5 0 1 0 1.61-3.89" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+            <path d="M2 2v3.5h3.5" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+          Reset
+        </button>
+      </div>
+
       {/* Basemap */}
       <div className="mb-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400">
         Basemap
