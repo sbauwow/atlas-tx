@@ -29,16 +29,20 @@ That means the system is not built as a closed expert terminal for a tiny class 
 
 ## Why Atlas TX is compelling
 
-Atlas TX sits at the intersection of three things that are rarely built together well:
-- public-record county intelligence
-- field-ready water and infrastructure verification workflows
-- agent-native analytical tooling
+Atlas TX closes a gap that most public-data products leave open.
 
-That means Atlas can evolve into more than a website:
-- a county intelligence workspace for researchers and journalists
-- a structured permit/water operator watch system
-- a field-missions product for Android-based evidence capture
-- a patent-pending system for linking public-record intelligence, map workflows, and structured field verification
+They show records. Atlas is built to help users investigate them.
+
+It combines three layers that usually live in separate products:
+- county intelligence from public records
+- field-ready water and infrastructure verification workflows
+- agent-native analytical tooling for repeatable investigation
+
+That creates something bigger than a website:
+- a county intelligence workspace for researchers, journalists, and local operators
+- a structured permit and water watch system
+- an Android field-missions product for evidence capture and review
+- a patent-pending system that links public-record intelligence, map workflows, and structured field verification
 
 ## Why this wins over ordinary dashboards
 
@@ -52,6 +56,15 @@ Atlas TX is designed to go further:
 - preserve separation between authoritative records, modeled signals, and community submissions
 
 The result should feel less like a static civic site and more like an evidence workstation for Texas.
+
+## Example workflow
+
+1. Start on the county map.
+   Spot a county with unusual permit pressure, water alerts, or mismatch signals.
+2. Launch a field mission.
+   Use the Android workflow to capture strip results, photos, notes, and site context in a constrained evidence flow.
+3. Review the evidence together.
+   Compare public records, modeled signals, and community submissions without collapsing them into one opaque score.
 
 ## What Atlas TX is
 

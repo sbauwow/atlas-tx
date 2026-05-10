@@ -32,14 +32,14 @@ export default async function Home() {
         <div className="space-y-7">
           <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-medium uppercase tracking-[0.18em] text-slate-300 backdrop-blur">
             <span aria-hidden="true" className="size-1.5 rounded-full bg-accent" />
-            Atlas TX · Texas OSINT maps from open data
+            Atlas TX · county intelligence, water evidence, field missions
           </span>
           <div className="space-y-5">
             <h1 className="max-w-4xl text-balance text-5xl font-semibold leading-[1.05] tracking-tight text-white sm:text-6xl">
-              Texas, mapped from public data.
+              Texas county evidence, mapped and made usable.
             </h1>
             <p className="max-w-3xl text-pretty text-lg leading-8 text-slate-400">
-              Atlas pulls public records — federal, state, and city — into county-level maps you can read without a data team. Water + water quality first; more themes on the way.
+              Atlas TX turns fragmented public records into a map-first investigation system for counties, permits, water risk, operators, and field verification. Start on the map, drill into the evidence, and carry the workflow into Android missions.
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-3 text-sm">
