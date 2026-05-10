@@ -6,6 +6,7 @@ import path from "node:path";
 
 import { NextResponse } from "next/server";
 
+import { computeObservationComparison } from "@/lib/observations/comparison";
 import {
   createObservation,
   findByImageHash,
@@ -115,7 +116,19 @@ export async function POST(request: Request) {
     status: decision.status,
   });
 
-  return NextResponse.json({ observation: toPublicView(updated) }, { status: 201 });
+  const comparison = llmReading
+    ? await computeObservationComparison({
+        observationId: updated.id,
+        chart,
+        llmReading,
+        countySlug,
+      }).catch(() => null)
+    : null;
+
+  return NextResponse.json(
+    { observation: toPublicView(updated), comparison },
+    { status: 201 },
+  );
 }
 
 function stringOrNull(v: FormDataEntryValue | null): string | null {

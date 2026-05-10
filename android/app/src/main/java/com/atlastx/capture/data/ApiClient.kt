@@ -14,7 +14,11 @@ import java.io.File
 import java.util.concurrent.TimeUnit
 
 sealed interface SubmitResult {
-    data class Ok(val observation: Observation, val deduped: Boolean) : SubmitResult
+    data class Ok(
+        val observation: Observation,
+        val deduped: Boolean,
+        val comparison: ObservationComparison?,
+    ) : SubmitResult
     data class Error(val message: String) : SubmitResult
 }
 
@@ -69,7 +73,7 @@ class ApiClient {
                             onSuccess = { parsed ->
                                 val obs = parsed.observation
                                 if (obs == null) SubmitResult.Error(parsed.error ?: "no observation in response")
-                                else SubmitResult.Ok(obs, parsed.deduped == true)
+                                else SubmitResult.Ok(obs, parsed.deduped == true, parsed.comparison)
                             },
                             onFailure = { e -> SubmitResult.Error("parse failed: ${e.message}") },
                         )
