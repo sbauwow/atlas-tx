@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { normalizeGeneralPermitRecord, summarizeGeneralPermitsByCounty } from "@/lib/water/tceq-general-permits";
+import {
+  filterOilAndGasExtractionPermits,
+  normalizeGeneralPermitRecord,
+  summarizeGeneralPermitsByCounty,
+  summarizeOilAndGasExtractionPermitsByCounty,
+} from "@/lib/water/tceq-general-permits";
 
 const records = [
   {
@@ -40,5 +45,16 @@ describe("TCEQ general water permits", () => {
   it("summarizes permit counts by county", () => {
     const summary = summarizeGeneralPermitsByCounty(records.map(normalizeGeneralPermitRecord));
     expect(summary.get("travis-county")).toEqual({ count: 2, countyName: "Travis County" });
+  });
+
+  it("filters and summarizes the oil and gas extraction authorizations", () => {
+    const oilAndGas = filterOilAndGasExtractionPermits([
+      normalizeGeneralPermitRecord({ permit_no: "TXG310001", permit_status: "ACTIVE", permit_type: "GENERAL", county_name: "FAYETTE", site_name: "Pad A" }),
+      normalizeGeneralPermitRecord({ permit_no: "TXG310045", permit_status: "PENDING", permit_type: "GENERAL", county_name: "FAYETTE", site_name: "Pad B" }),
+      normalizeGeneralPermitRecord({ permit_no: "TXG340100", permit_status: "ACTIVE", permit_type: "GENERAL", county_name: "HARRIS", site_name: "Terminal" }),
+    ]);
+
+    expect(oilAndGas.map((record) => record.permitNumber)).toEqual(["TXG310001", "TXG310045"]);
+    expect(summarizeOilAndGasExtractionPermitsByCounty(oilAndGas).get("fayette-county")).toEqual({ count: 2, countyName: "Fayette County" });
   });
 });

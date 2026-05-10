@@ -251,6 +251,12 @@ export type WaterPermitRecord = {
   raw: Record<string, unknown>;
 };
 
+export type OilAndGasExtractionCountySummary = {
+  countyName: string;
+  countySlug: string;
+  count: number;
+};
+
 export type WaterGovernanceEntity = {
   sourceId: "tceq-water-districts" | "puct-water-iou" | "puct-water-submeter";
   entityId: string;
@@ -300,6 +306,7 @@ export type CountyWaterSummary = {
     sewerOverflowCount30d?: number;
     sewerOverflowGallons30d?: number;
     generalPermitCount?: number;
+    oilAndGasExtractionPermitCount?: number;
     waterDistrictCount?: number;
     waterUtilityCount?: number;
     surfaceWaterSegmentCount?: number;

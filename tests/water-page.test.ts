@@ -16,6 +16,7 @@ vi.mock("@/lib/water/water-summary-service", () => ({
             sewerOverflowCount30d: 1,
             sewerOverflowGallons30d: 200,
             generalPermitCount: 2,
+            oilAndGasExtractionPermitCount: 1,
             waterDistrictCount: 3,
             waterUtilityCount: 4,
           },
@@ -33,6 +34,7 @@ vi.mock("@/lib/water/water-summary-service", () => ({
           sewerOverflowCount30d: 1,
           sewerOverflowGallons30d: 200,
           generalPermitCount: 2,
+          oilAndGasExtractionPermitCount: 1,
           waterDistrictCount: 3,
           waterUtilityCount: 4,
         },
@@ -63,6 +65,7 @@ describe("water page", () => {
     expect(text).toContain("Map-driven county detail for the current water slice.");
     expect(text).toContain("Travis County");
     expect(text).toContain("General permits");
+    expect(text).toContain("Oil &amp; gas extraction");
     expect(text).toContain("Pending permits");
     expect(text).toContain("title=\"National Flood Hazard Layer\"");
   });

@@ -13,7 +13,7 @@ import {
   fetchLcraWaterQualitySites as fetchLcraWaterQualitySitesDefault,
 } from "@/lib/water/lcra-water-quality";
 import { fetchTexasWaterAlerts, filterAlertsForCounty } from "@/lib/water/nws";
-import { fetchGeneralWaterPermits } from "@/lib/water/tceq-general-permits";
+import { fetchGeneralWaterPermits, filterOilAndGasExtractionPermits } from "@/lib/water/tceq-general-permits";
 import { fetchRecentSewerOverflows } from "@/lib/water/tceq-sewer-overflows";
 import { fetchTexasStreamGauges, filterGaugesForCounty } from "@/lib/water/usgs";
 import { fetchWaterGovernance } from "@/lib/water/water-governance";
@@ -236,6 +236,7 @@ function buildSummary(
   const floodplainFeatureCount = getFloodplainCount(countyName, floodplainCoverage);
   const impairedSurfaceWaterSegmentCount = surfaceWaterQuality.filter((row) => row.isImpaired).length;
   const mismatch = buildMismatch(alerts, sewerOverflows, surfaceWaterQuality);
+  const oilAndGasExtractionPermits = filterOilAndGasExtractionPermits(permits);
 
   return {
     county: {
@@ -250,6 +251,7 @@ function buildSummary(
       sewerOverflowCount30d: sewerOverflows.length,
       sewerOverflowGallons30d: sewerOverflows.reduce((sum, event) => sum + (event.amountGallons ?? 0), 0),
       generalPermitCount: permits.length,
+      oilAndGasExtractionPermitCount: oilAndGasExtractionPermits.length,
       waterDistrictCount: governance.filter((entity) => entity.sourceId === "tceq-water-districts").length,
       waterUtilityCount: governance.filter((entity) => entity.sourceId !== "tceq-water-districts").length,
       surfaceWaterSegmentCount: surfaceWaterQuality.length,

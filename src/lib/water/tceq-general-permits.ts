@@ -4,6 +4,7 @@ import { getGlobalWaterDataCache } from "@/lib/water/cache";
 import type { WaterPermitRecord } from "@/lib/water/types";
 
 const GENERAL_PERMITS_TTL_MS = 12 * 60 * 60 * 1000;
+const OIL_AND_GAS_EXTRACTION_PREFIX = "TXG31";
 
 type GeneralPermitRow = {
   permit_no?: string;
@@ -44,6 +45,14 @@ export function summarizeGeneralPermitsByCounty(records: WaterPermitRecord[]): M
     summary.set(slug, existing);
   }
   return summary;
+}
+
+export function filterOilAndGasExtractionPermits(records: WaterPermitRecord[]): WaterPermitRecord[] {
+  return records.filter((record) => record.permitNumber.toUpperCase().startsWith(OIL_AND_GAS_EXTRACTION_PREFIX));
+}
+
+export function summarizeOilAndGasExtractionPermitsByCounty(records: WaterPermitRecord[]): Map<string, { count: number; countyName: string }> {
+  return summarizeGeneralPermitsByCounty(filterOilAndGasExtractionPermits(records));
 }
 
 async function fetchGeneralWaterPermitsUncached(signal?: AbortSignal): Promise<WaterPermitRecord[]> {

@@ -21,6 +21,7 @@ describe("water source registry", () => {
       "nws-alerts",
       "tceq-sewer-overflows",
       "tceq-general-water-permits",
+      "tceq-oil-gas-extraction-permits",
       "tceq-water-districts",
       "puct-water-iou",
       "puct-water-submeter",
@@ -43,7 +44,12 @@ describe("water source registry", () => {
       joinStrategy: "polygon-overlay",
       refreshCadence: "manual",
     });
+    expect(getWaterSource("tceq-oil-gas-extraction-permits")).toMatchObject({
+      kind: "socrata",
+      joinStrategy: "county-name",
+      refreshCadence: "daily",
+    });
     expect(getWaterSource("missing-source")).toBeUndefined();
-    expect(listWaterSources()).toHaveLength(25);
+    expect(listWaterSources()).toHaveLength(26);
   });
 });

@@ -135,6 +135,7 @@ export default async function WaterPage({
           <ApiPill href="/api/water/overview" label="Overview API" />
           <ApiPill href="/api/water/alerts" label="Alerts API" />
           <ApiPill href="/api/water/gauges" label="Gauges API" />
+          <ApiPill href="/api/water/oil-gas-extraction" label="Oil & gas extraction API" />
           <RoutePill href="/permits" label="Pending permits" />
           <ApiPill href="/api/water/fema/nfhl/counties" label="FEMA counties API" />
           <ApiPill href="/api/water/lcra/hydromet/stage-flow" label="LCRA Hydromet stage-flow API" />
@@ -258,6 +259,7 @@ export default async function WaterPage({
                 <DetailMetric label="Stream gauges" value={formatNumber(breakdown.county.metrics.streamGaugeCount)} />
                 <DetailMetric label="Sewer overflows (30d)" value={formatNumber(breakdown.county.metrics.sewerOverflowCount30d)} />
                 <DetailMetric label="General permits" value={formatNumber(breakdown.county.metrics.generalPermitCount)} />
+                <DetailMetric label="Oil & gas extraction" value={formatNumber(breakdown.county.metrics.oilAndGasExtractionPermitCount)} />
                 <DetailMetric label="Water districts" value={formatNumber(breakdown.county.metrics.waterDistrictCount)} />
                 <DetailMetric label="Water utilities" value={formatNumber(breakdown.county.metrics.waterUtilityCount)} />
                 <DetailMetric label="LCRA ARRP outfalls" value={formatNumber(breakdown.county.metrics.lcraArrpOutfallCount)} />
@@ -346,6 +348,7 @@ export default async function WaterPage({
                   <th className="px-3 py-3 text-right">Gauges</th>
                   <th className="px-3 py-3 text-right">Sewer overflows</th>
                   <th className="px-3 py-3 text-right">General permits</th>
+                  <th className="px-3 py-3 text-right">Oil &amp; gas extraction</th>
                   <th className="px-3 py-3 text-right">Water districts</th>
                   <th className="px-3 py-3 text-right">Water utilities</th>
                   <th className="px-3 py-3 text-right">LCRA outfalls</th>
@@ -376,6 +379,7 @@ export default async function WaterPage({
                       <NumCell v={county.metrics.streamGaugeCount} />
                       <NumCell v={county.metrics.sewerOverflowCount30d} />
                       <NumCell v={county.metrics.generalPermitCount} />
+                      <NumCell v={county.metrics.oilAndGasExtractionPermitCount} />
                       <NumCell v={county.metrics.waterDistrictCount} />
                       <NumCell v={county.metrics.waterUtilityCount} />
                       <NumCell v={county.metrics.lcraArrpOutfallCount} />

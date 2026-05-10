@@ -15,6 +15,7 @@ const CACHE_KEYS: Record<string, string> = {
   "gbra-water-quality-sites": "gbra-water-quality-sites",
   "tceq-sewer-overflows": "tceq-sewer-overflows:30",
   "tceq-general-water-permits": "tceq-general-water-permits",
+  "tceq-oil-gas-extraction-permits": "tceq-general-water-permits",
   "tceq-water-districts": "tceq-water-districts",
   "puct-water-iou": "puct-water-utilities",
   "puct-water-submeter": "puct-water-utilities",
