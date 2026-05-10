@@ -14,6 +14,7 @@
     "refresh:cid": "tsx scripts/refresh-cid.ts",
     "refresh:twdb-hydrology": "tsx scripts/refresh-twdb-hydrology.ts",
     "refresh:surface-water-quality": "tsx scripts/refresh-surface-water-quality.ts",
+    "refresh:water-snapshot": "tsx scripts/refresh-water-snapshot.ts",
     "refresh:sdwis-facilities": "tsx scripts/refresh-sdwis-facilities.ts",
     "refresh:city-open-data": "tsx scripts/refresh-city-open-data.ts",
     "refresh:city-open-data-curated": "tsx scripts/refresh-city-open-data-curated.ts",

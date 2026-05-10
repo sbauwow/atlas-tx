@@ -36,6 +36,7 @@ import type {
   WaterPermitRecord,
 } from "@/lib/water/types";
 import { listWaterSources } from "@/lib/water/water-source-registry";
+import { getWaterOverviewSnapshotPromise } from "@/lib/water/water-snapshot";
 
 export type WaterBreakdown = {
   county: CountyWaterSummary;
@@ -496,9 +497,35 @@ export function createAtlasWaterSummaryService({
 
 let defaultWaterSummaryService: AtlasWaterSummaryService | undefined;
 
+function buildSnapshotBackedOptions(): CreateAtlasWaterSummaryServiceOptions {
+  return {
+    fetchAlerts: async () => (await getWaterOverviewSnapshotPromise())?.alerts ?? fetchTexasWaterAlerts(),
+    fetchGauges: async () => (await getWaterOverviewSnapshotPromise())?.gauges ?? fetchTexasStreamGauges(),
+    fetchSewerOverflows: async () => (await getWaterOverviewSnapshotPromise())?.sewerOverflows ?? fetchRecentSewerOverflows(30),
+    fetchPermits: async () => (await getWaterOverviewSnapshotPromise())?.permits ?? fetchGeneralWaterPermits(),
+    fetchGovernance: async () => (await getWaterOverviewSnapshotPromise())?.governance ?? fetchWaterGovernance(),
+    fetchFloodplainCountyCoverage: async () =>
+      (await getWaterOverviewSnapshotPromise())?.floodplainCoverage ?? fetchTexasNfhlCountyCoverage(),
+    fetchLcraArrpOutfalls: async () =>
+      (await getWaterOverviewSnapshotPromise())?.lcraArrpOutfalls ?? fetchLcraArrpOutfallsDefault(),
+    fetchLcraArrpLandPermits: async () =>
+      (await getWaterOverviewSnapshotPromise())?.lcraArrpLandPermits ?? fetchLcraArrpLandPermitsDefault(),
+    fetchLcraWaterQualitySites: async () =>
+      (await getWaterOverviewSnapshotPromise())?.lcraWaterQualitySites ?? fetchLcraWaterQualitySitesDefault(),
+    fetchLcraWaterQualitySiteParameters: async (siteId: string) => {
+      const snap = await getWaterOverviewSnapshotPromise();
+      return snap?.lcraSiteParameters?.[siteId] ?? fetchLcraWaterQualitySiteParametersDefault(siteId);
+    },
+    fetchLcraWaterQualitySiteObservations: async (siteId: string) => {
+      const snap = await getWaterOverviewSnapshotPromise();
+      return snap?.lcraSiteObservations?.[siteId] ?? fetchLcraWaterQualitySiteObservationsDefault(siteId);
+    },
+  };
+}
+
 export function getDefaultAtlasWaterSummaryService(): AtlasWaterSummaryService {
   if (!defaultWaterSummaryService) {
-    defaultWaterSummaryService = createAtlasWaterSummaryService();
+    defaultWaterSummaryService = createAtlasWaterSummaryService(buildSnapshotBackedOptions());
   }
   return defaultWaterSummaryService;
 }

@@ -19,8 +19,6 @@ import {
 } from "@/app/design/states";
 import { FRESHNESS_GLYPH, SEVERITY_GLYPH } from "@/app/design/glyphs";
 
-export const dynamic = "force-dynamic";
-
 const SEV_DOT_CLASS: Record<SeverityLevel, string> = {
   0: "bg-sev-0",
   1: "bg-sev-1",
@@ -90,15 +88,29 @@ export default async function WaterPage({
   searchParams?: Promise<{ county?: string | string[]; mode?: string | string[] }>;
 }) {
   const service = getDefaultAtlasWaterSummaryService();
-  const overview = await service.getWaterOverview();
+  const overviewPromise = service.getWaterOverview();
   const params = searchParams ? await searchParams : undefined;
   const mapMode = parseEnumQueryParam(params?.mode, ["risk", "mismatch"] as const, "risk");
+  const requestedRaw = Array.isArray(params?.county) ? params?.county[0] : params?.county;
+  const speculativeSlug = requestedRaw ? countySlug(requestedRaw) : null;
+  const speculativeBreakdownPromise = speculativeSlug
+    ? service.getCountyWaterBreakdown(speculativeSlug).catch(() => null)
+    : null;
+
+  const overview = await overviewPromise;
   const selectedSlug = resolveAllowedQueryParam(
     params?.county,
     overview.counties.map((county) => county.county.slug),
     countySlug,
   ) ?? overview.counties[0]?.county.slug;
-  const breakdown = selectedSlug ? await service.getCountyWaterBreakdown(selectedSlug) : null;
+
+  let breakdown: Awaited<ReturnType<typeof service.getCountyWaterBreakdown>> | null = null;
+  if (speculativeBreakdownPromise && speculativeSlug === selectedSlug) {
+    breakdown = await speculativeBreakdownPromise;
+  }
+  if (!breakdown && selectedSlug) {
+    breakdown = await service.getCountyWaterBreakdown(selectedSlug);
+  }
 
   const sourceFreshness = Object.values(overview.freshness?.sources ?? {});
   const anySourceStale = sourceFreshness.some((source) => freshnessFromCacheMeta(source) === "stale");
