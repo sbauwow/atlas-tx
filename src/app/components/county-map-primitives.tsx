@@ -149,7 +149,7 @@ export function CountyChoroplethSvg({
   }));
 
   return (
-    <svg viewBox={viewBox} className={className ?? "h-[420px] w-full"} role="img" aria-label={ariaLabel}>
+    <svg viewBox={viewBox} className={className ?? "h-[560px] w-full sm:h-[720px] lg:h-[880px]"} role="img" aria-label={ariaLabel}>
       <defs>
         <radialGradient id={`${idPrefix}-backdrop`} cx="50%" cy="40%" r="60%">
           <stop offset="0%" stopColor="#0f172a" />

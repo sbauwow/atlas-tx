@@ -100,7 +100,7 @@ export default function TexasChoropleth({
     <div className="relative overflow-hidden rounded-xl bg-slate-950 ring-1 ring-white/5">
       <svg
         viewBox={`0 0 ${MAP_WIDTH} ${MAP_HEIGHT}`}
-        className="h-[420px] w-full"
+        className="h-[560px] w-full sm:h-[720px] lg:h-[880px]"
         role="img"
         aria-label={variant === "oil-gas" ? "Texas county oil and gas extraction permit map" : "Texas county water risk map"}
       >
