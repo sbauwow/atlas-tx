@@ -14,6 +14,17 @@ Schema for entries:
 
 ---
 
+## 2026-05-10 — Tufte primitives, Marey unblock, eye-candy
+
+- agent: claude-opus-4-7
+- action: created, updated, crystallized
+- pages touched:
+  - **Concepts (2)**: `concepts/marey-chart.md`, `concepts/sankey-flow.md`
+  - **Procedural (1)**: `projects/author-an-svg-viz-primitive.md` — second tier-4 page; promotion bar met by six primitives shipped on PR #16
+  - **Datasets (1)**: `datasets/7fq8-wig2-tceq-water-permits.md` — added "Date columns — asymmetric across status" subsection. `last_confirmed` 2026-05-09 → 2026-05-10. `confidence` 0.7 → 0.8 (+0.1 for live Socrata third-source confirmation). `source_count` 2 → 3.
+  - **Housekeeping**: `index.md`, `log.md`, `episodes/2026-05-10-tufte-marey-eyecandy.md`
+- notes: Live-curl against `https://data.texas.gov/resource/7fq8-wig2.json` confirmed `date_coverage_began` exists on ACTIVE rows only — not on PENDING. This was previously undocumented in the wiki. Drives both the dataset page update and the Marey concept's caveat. Six SVG primitives (`Sparkline`, `MicroBar`, `MismatchStrip`, `TileCartogram`, `Sankey`, `MareyChart`) all shipped on `web/tufte-marey` (PR #16, merged 2026-05-10) share an authoring pattern, earning the second tier-4 page. No contracts touched.
+
 ## 2026-05-09 — concepts + first procedural
 
 - agent: claude-opus-4-7
