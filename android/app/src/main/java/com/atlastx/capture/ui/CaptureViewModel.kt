@@ -108,59 +108,103 @@ class CaptureViewModel(
     }
 
     fun setCapturedFromCamera(file: File?) {
-        _capturedFile.value = file
+        if (file == null) {
+            _capturedFile.value = null
+            _capturedMime.value = "image/jpeg"
+            _upload.value = UploadState.Idle
+            return
+        }
+        // Even camera output gets re-encoded so we never ship HEIC-as-JPEG
+        // and so the upload stays comfortably under the server's 8 MB cap.
+        val processed = decodeAndReencodeJpeg(
+            source = ImageSource.LocalFile(file),
+            destDir = File(app.filesDir, "captures"),
+        )
+        if (processed == null) {
+            _importError.value = "Could not read the captured photo."
+            file.takeIf { it.exists() }?.delete()
+            return
+        }
+        // Drop the camera's original if we wrote a separate processed file.
+        if (processed.absolutePath != file.absolutePath) {
+            file.takeIf { it.exists() }?.delete()
+        }
+        _capturedFile.value = processed
         _capturedMime.value = "image/jpeg"
         _upload.value = UploadState.Idle
     }
 
     /**
      * Decode any picked image (jpeg / png / webp / heic / heif) into a Bitmap and
-     * re-encode as JPEG, so the server side never sees a HEIC payload mislabeled
-     * as JPEG. Surfaces failure as `importError` instead of silently returning
-     * null — the gallery flow used to dead-end on Pixel HEIC files because
-     * the byte stream copied through unchanged but the server's vision pass
-     * could not actually grade the image.
+     * re-encode as JPEG. Surfaces failure as `importError` instead of silently
+     * returning null — the gallery flow used to dead-end on Pixel HEIC files
+     * because the byte stream copied through unchanged but the server's vision
+     * pass could not actually grade the image.
      */
     fun importGalleryUri(uri: Uri): File? {
         _importError.value = null
-        val resolver = app.contentResolver
-        val dir = File(app.filesDir, "captures").apply { mkdirs() }
-        val file = File(dir, "strip-${timestamp()}.jpg")
-
-        val bitmap: Bitmap? = runCatching {
-            resolver.openInputStream(uri)?.use { input ->
-                BitmapFactory.decodeStream(input)
-            }
-        }.getOrNull()
-
-        if (bitmap == null) {
+        val processed = decodeAndReencodeJpeg(
+            source = ImageSource.ContentUri(uri),
+            destDir = File(app.filesDir, "captures"),
+        )
+        if (processed == null) {
             _importError.value = "Could not read this image. Try a JPEG/PNG/HEIC photo from the gallery."
             return null
         }
-
-        val ok = runCatching {
-            file.outputStream().use { out ->
-                bitmap.compress(Bitmap.CompressFormat.JPEG, 92, out)
-            }
-        }.getOrElse {
-            _importError.value = "Failed to save the picked image: ${it.message ?: it.javaClass.simpleName}"
-            file.takeIf { it.exists() }?.delete()
-            return null
-        }
-
-        bitmap.recycle()
-
-        if (!ok || file.length() == 0L) {
-            file.takeIf { it.exists() }?.delete()
-            _importError.value = "Encoded image was empty."
-            return null
-        }
-
-        _capturedFile.value = file
+        _capturedFile.value = processed
         _capturedMime.value = "image/jpeg"
         _upload.value = UploadState.Idle
-        return file
+        return processed
     }
+
+    private sealed interface ImageSource {
+        data class LocalFile(val file: File) : ImageSource
+        data class ContentUri(val uri: Uri) : ImageSource
+    }
+
+    private fun decodeAndReencodeJpeg(
+        source: ImageSource,
+        destDir: File,
+        maxEdgePx: Int = 2048,
+        quality: Int = 88,
+    ): File? {
+        destDir.mkdirs()
+        val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+        runCatching { openSourceStream(source).use { BitmapFactory.decodeStream(it, null, bounds) } }
+            .getOrNull()
+        val rawW = bounds.outWidth
+        val rawH = bounds.outHeight
+        var sample = 1
+        if (rawW > 0 && rawH > 0) {
+            val longest = maxOf(rawW, rawH)
+            while (longest / sample > maxEdgePx) sample *= 2
+        }
+        val decode = BitmapFactory.Options().apply { inSampleSize = sample.coerceAtLeast(1) }
+        val bitmap: Bitmap = runCatching {
+            openSourceStream(source).use { BitmapFactory.decodeStream(it, null, decode) }
+        }.getOrNull() ?: return null
+
+        val out = File(destDir, "strip-${timestamp()}.jpg")
+        val ok = runCatching {
+            out.outputStream().use { stream ->
+                bitmap.compress(Bitmap.CompressFormat.JPEG, quality, stream)
+            }
+        }.getOrDefault(false)
+        bitmap.recycle()
+
+        if (!ok || out.length() == 0L) {
+            out.takeIf { it.exists() }?.delete()
+            return null
+        }
+        return out
+    }
+
+    private fun openSourceStream(source: ImageSource): java.io.InputStream =
+        when (source) {
+            is ImageSource.LocalFile -> source.file.inputStream()
+            is ImageSource.ContentUri -> app.contentResolver.openInputStream(source.uri)
+                ?: error("could not open input stream for ${source.uri}")
+        }
 
     fun setCountySlug(slug: String?) { _countySlug.value = slug?.takeIf { it.isNotBlank() } }
 
