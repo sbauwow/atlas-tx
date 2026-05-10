@@ -448,27 +448,27 @@ export default async function AnalyticsPage({
             County workspace
           </Link>
           <Link href="/water" className="rounded-full border border-white/10 px-4 py-2 text-slate-200 transition-colors hover:border-white/20 hover:bg-white/5">
-            Water explorer
+            Water map
           </Link>
           <Link href="/watchlists" className="rounded-full border border-white/10 px-4 py-2 text-slate-200 transition-colors hover:border-white/20 hover:bg-white/5">
             Saved watchlists
           </Link>
         </div>
         <div className="space-y-3">
-          <div className="text-[11px] font-medium uppercase tracking-[0.28em] text-cyan-300/80">Wave 2 · Stream F</div>
-          <h1 className="text-4xl font-semibold tracking-tight text-white">Texas statewide analytics terminal</h1>
-          <p className="max-w-4xl text-base leading-7 text-slate-400">
-            Start on the county map, hunt your own statewide correlations, then use the ranked lanes and scatter to verify what you see. Atlas only uses committed Wave 1 analytics artifacts and does not invent missing history.
+          <div className="text-[11px] font-medium uppercase tracking-[0.28em] text-cyan-300/80">Statewide analytics</div>
+          <h1 className="text-4xl font-semibold tracking-tight text-white sm:text-5xl">Statewide analytics</h1>
+          <p className="max-w-4xl text-base leading-7 text-slate-400 sm:text-lg sm:leading-8">
+            Map first, then movers and scatter. Built only on committed snapshots — never invented history.
           </p>
-          <div className="text-sm text-slate-500">Latest statewide analytics refresh: {formatTimestamp(analytics.generatedAt)}</div>
+          <div className="text-xs font-medium uppercase tracking-[0.18em] text-slate-500">Refreshed {formatTimestamp(analytics.generatedAt)}</div>
         </div>
       </section>
 
       <section id="analytics-map" className="rounded-3xl border border-white/10 bg-slate-950/85 p-6 shadow-[0_0_0_1px_rgba(255,255,255,0.02)]">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <div className="text-[11px] font-medium uppercase tracking-[0.22em] text-cyan-300/80">Map-first correlation workflow</div>
-            <h2 className="mt-2 text-3xl font-semibold text-white">County map is the statewide headliner</h2>
+            <div className="text-[11px] font-medium uppercase tracking-[0.22em] text-cyan-300/80">County map</div>
+            <h2 className="mt-2 text-3xl font-semibold text-white">Start on the map.</h2>
             <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-400">
               Start with the map, switch between county risk, permit-pressure, and oil extraction emphasis, then jump into movers, scatter, and county pages to prove or reject the pattern. This keeps the workflow anchored to counties instead of making charts the first stop.
             </p>

@@ -23,7 +23,7 @@ export default function GlossaryPage() {
             Open education guide
           </Link>
           <Link href="/water" className="rounded-full border border-white/10 px-4 py-2 text-slate-200 transition-colors hover:border-white/20 hover:bg-white/5">
-            Water explorer
+            Water map
           </Link>
           <Link href="/permits" className="rounded-full border border-white/10 px-4 py-2 text-slate-200 transition-colors hover:border-white/20 hover:bg-white/5">
             Permit tracker

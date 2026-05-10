@@ -53,34 +53,31 @@ export default async function PermitsPage({
             <h1 className="max-w-4xl text-balance text-5xl font-semibold leading-[1.05] tracking-tight text-white sm:text-6xl">
               TCEQ pending permits
             </h1>
-            <p className="text-sm font-medium uppercase tracking-[0.18em] text-cyan-300">
-              Pending permit tracker for Texas
-            </p>
             <p className="max-w-3xl text-pretty text-lg leading-8 text-slate-400">
-              Live view of pending <GlossaryTooltip term="TCEQ" expand /> water-quality individual permits across Texas, with county concentration and permit roster context for newsroom, civic-tech, and policy workflows.
+              Pending <GlossaryTooltip term="TCEQ" expand /> water-quality individual permits, mapped by county. Filings worth a closer look surfaced first.
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-3 text-sm">
-            <Link href="/water" className="group inline-flex items-center gap-2 rounded-full bg-white px-5 py-2.5 font-medium text-slate-950 transition-colors hover:bg-slate-200">
-              Open water explorer
+            <Link href="#filings-need-scrutiny" className="group inline-flex items-center gap-2 rounded-full bg-white px-5 py-2.5 font-medium text-slate-950 transition-colors hover:bg-slate-200">
+              Jump to filings that need scrutiny
               <span aria-hidden="true" className="transition-transform group-hover:translate-x-0.5">→</span>
             </Link>
-            <Link href="/watchlists" className="rounded-full border border-white/10 px-5 py-2.5 font-medium text-slate-200 transition-colors hover:border-white/20 hover:bg-white/5">
-              Open watchlists
+            <Link href="#top-counties" className="rounded-full border border-white/10 px-5 py-2.5 font-medium text-slate-200 transition-colors hover:border-white/20 hover:bg-white/5">
+              County hotspots
             </Link>
-            <Link href="/" className="rounded-full border border-white/10 px-5 py-2.5 font-medium text-slate-200 transition-colors hover:border-white/20 hover:bg-white/5">
-              Back to homepage
+            <Link href="/watchlists" className="rounded-full border border-white/10 px-5 py-2.5 font-medium text-slate-200 transition-colors hover:border-white/20 hover:bg-white/5">
+              Watchlists
             </Link>
           </div>
         </div>
 
         <aside className="rounded-2xl bg-gradient-to-b from-white/[0.06] to-white/[0.02] p-6 ring-1 ring-white/10 backdrop-blur">
-          <div className="text-xs font-medium uppercase tracking-[0.18em] text-slate-400">Tracking stance</div>
+          <div className="text-xs font-medium uppercase tracking-[0.18em] text-slate-400">Scope</div>
           <ul className="mt-4 space-y-3.5 text-sm leading-7 text-slate-300">
-            <li className="flex gap-3"><span aria-hidden="true" className="mt-2.5 size-1 shrink-0 rounded-full bg-cat-3" />This page tracks pending water-quality individual permits, not every <GlossaryTooltip term="TCEQ" /> program workflow.</li>
-            <li className="flex gap-3"><span aria-hidden="true" className="mt-2.5 size-1 shrink-0 rounded-full bg-cat-2" />County clustering helps show where permit pressure is concentrating.</li>
-            <li className="flex gap-3"><span aria-hidden="true" className="mt-2.5 size-1 shrink-0 rounded-full bg-cat-1" />Permit rows can be saved directly into shared watchlists, with browser fallback when the API is unavailable.</li>
-            <li className="flex gap-3"><span aria-hidden="true" className="mt-2.5 size-1 shrink-0 rounded-full bg-cat-4" />Pending status is procedural context, not proof of harm or permit outcome.</li>
+            <li className="flex gap-3"><span aria-hidden="true" className="mt-2.5 size-1 shrink-0 rounded-full bg-cat-3" />Pending water-quality individual permits only — not every <GlossaryTooltip term="TCEQ" /> workflow.</li>
+            <li className="flex gap-3"><span aria-hidden="true" className="mt-2.5 size-1 shrink-0 rounded-full bg-cat-2" />County clustering shows where pressure is concentrating.</li>
+            <li className="flex gap-3"><span aria-hidden="true" className="mt-2.5 size-1 shrink-0 rounded-full bg-cat-1" />Save rows into watchlists; browser fallback if the API is down.</li>
+            <li className="flex gap-3"><span aria-hidden="true" className="mt-2.5 size-1 shrink-0 rounded-full bg-cat-4" />Pending is procedural status. Not proof of harm or final outcome.</li>
           </ul>
         </aside>
       </section>
@@ -149,7 +146,7 @@ export default async function PermitsPage({
         </div>
       </section>
 
-      <section className="grid gap-6 lg:grid-cols-[1.05fr_0.95fr]">
+      <section id="filings-need-scrutiny" className="grid gap-6 lg:grid-cols-[1.05fr_0.95fr]">
         <article className="rounded-2xl bg-slate-900/40 p-6 ring-1 ring-white/5">
           <div className="flex items-start justify-between gap-4">
             <div>

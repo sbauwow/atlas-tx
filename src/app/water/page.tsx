@@ -197,28 +197,37 @@ export default async function WaterPage({
       <section className="space-y-6">
         <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-medium uppercase tracking-[0.18em] text-slate-300 backdrop-blur">
           <span aria-hidden="true" className="size-1.5 rounded-full bg-accent" />
-          Texas water explorer
+          Water + water quality · live map
         </span>
         <h1 className="max-w-4xl text-balance text-4xl font-semibold leading-[1.1] tracking-tight text-white sm:text-5xl">
-          Water stress, flood operations, and county hydrology.
+          Texas water, by county.
         </h1>
         <p className="max-w-3xl text-pretty text-base leading-7 text-slate-400 sm:text-lg sm:leading-8">
-          First-pass water lane for Atlas Texas: active flood alerts, stream gauge coverage, sewer overflow pressure, permit counts, governance structure, and <GlossaryTooltip term="FEMA" expand /> <GlossaryTooltip term="NFHL" expand /> coverage by county.
+          Floodplain footprint, alerts, gauges, sewer overflows, permits, and who runs the public water system — joined at the county level from federal and Texas open data.
         </p>
         <div className="flex flex-wrap gap-2 text-xs">
-          <ApiPill href="/api/water/overview" label="Overview API" />
-          <ApiPill href="/api/water/alerts" label="Alerts API" />
-          <ApiPill href="/api/water/gauges" label="Gauges API" />
-          <ApiPill href="/api/water/oil-gas-extraction" label="Oil & gas extraction API" />
           <RoutePill href="/permits" label="Pending permits" />
-          <ApiPill href="/api/water/fema/nfhl/counties" label="FEMA counties API" />
-          <ApiPill href="/api/water/lcra/hydromet/stage-flow" label="LCRA Hydromet stage-flow API" />
-          <ApiPill href="/api/water/lcra/arrp/outfalls" label="LCRA ARRP outfalls API" />
-          <ApiPill href="/api/water/gbra/hydrology/gvhs-lakes" label="GBRA GVHS lakes API" />
-          <ApiPill href="/api/water/gbra/hydrology/watersheds" label="GBRA watersheds API" />
-          <ApiPill href="/api/water/gbra/quality/sites" label="GBRA quality sites API" />
           <RoutePill href="/water/network" label="County dependency map" />
         </div>
+        <details className="group rounded-xl border border-white/5 bg-white/[0.02] open:bg-white/[0.03]">
+          <summary className="flex cursor-pointer list-none items-center gap-2 px-4 py-2.5 text-xs font-medium uppercase tracking-[0.14em] text-slate-500 transition-colors hover:text-slate-300">
+            <span aria-hidden="true" className="text-slate-600 transition-transform group-open:rotate-90">›</span>
+            Source APIs · developer reference
+            <span className="text-[10px] text-slate-600">(9 endpoints)</span>
+          </summary>
+          <div className="flex flex-wrap gap-2 px-4 pb-4 pt-1 text-xs">
+            <ApiPill href="/api/water/overview" label="Overview API" />
+            <ApiPill href="/api/water/alerts" label="Alerts API" />
+            <ApiPill href="/api/water/gauges" label="Gauges API" />
+            <ApiPill href="/api/water/oil-gas-extraction" label="Oil & gas extraction API" />
+            <ApiPill href="/api/water/fema/nfhl/counties" label="FEMA counties API" />
+            <ApiPill href="/api/water/lcra/hydromet/stage-flow" label="LCRA Hydromet stage-flow API" />
+            <ApiPill href="/api/water/lcra/arrp/outfalls" label="LCRA ARRP outfalls API" />
+            <ApiPill href="/api/water/gbra/hydrology/gvhs-lakes" label="GBRA GVHS lakes API" />
+            <ApiPill href="/api/water/gbra/hydrology/watersheds" label="GBRA watersheds API" />
+            <ApiPill href="/api/water/gbra/quality/sites" label="GBRA quality sites API" />
+          </div>
+        </details>
       </section>
 
       <GlossaryInlineList label="Common water terms" terms={["NFHL", "LCRA", "GBRA", "TWDB", "PWS"]} />
@@ -227,15 +236,15 @@ export default async function WaterPage({
         <div className="rounded-2xl bg-white/[0.02] p-5 ring-1 ring-white/5 sm:p-6">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
-              <div className="text-[11px] font-medium uppercase tracking-[0.18em] text-cyan-300/80">Map-first county workflow</div>
-              <h2 className="mt-2 text-2xl font-semibold tracking-tight text-white">County risk map</h2>
+              <div className="text-[11px] font-medium uppercase tracking-[0.18em] text-cyan-300/80">County map</div>
+              <h2 className="mt-2 text-2xl font-semibold tracking-tight text-white">Water risk by county</h2>
               <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-400">
-                Start on the county map, switch between operational risk and mismatch severity, then open the selected county detail and table row to test your own correlation hunt. Atlas stays grounded to the cached county water overview and county breakdown feeds.
+                Pick a county, flip between operational pressure and mismatch lenses, then open the detail panel and table row.
               </p>
               <p className="mt-2 text-sm leading-6 text-slate-500">
                 {mapMode === "mismatch"
-                  ? "Mismatch mode · Counties are colored by contradiction severity rather than operational load."
-                  : "Operational risk mode · Counties are colored from NFHL footprint intensity, active alerts, sewer overflow pressure, and gauge coverage already present in the overview."}
+                  ? "Mismatch lens · counties shaded where official signals don’t line up."
+                  : "Operational pressure · counties shaded by floodplain footprint, alerts, overflows, and gauge coverage."}
               </p>
             </div>
           </div>

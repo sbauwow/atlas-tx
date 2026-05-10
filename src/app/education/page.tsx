@@ -30,7 +30,7 @@ export default function EducationPage() {
               href="/water"
               className="group inline-flex items-center gap-2 rounded-full bg-white px-5 py-2.5 font-medium text-slate-950 transition-colors hover:bg-slate-200"
             >
-              Open the water explorer
+              Open the water map
               <span aria-hidden="true" className="transition-transform group-hover:translate-x-0.5">→</span>
             </Link>
             <Link
