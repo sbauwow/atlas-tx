@@ -12,7 +12,7 @@ Schema for every row: `workstream | agent | branch | intent | started | ref`
 |---|---|---|---|---|---|
 | docs | hermes | web/color-tokens | Review all plan docs, align additive weather/community roadmap to current repo state, and add coordination-aware implementation checklist around active feynman/UI work | 2026-05-09T05:52:00Z | working tree |
 | cross (android + docs) | claude-opus-4-7 | cross/android-capture-app | Scaffold the Atlas TX Capture Android client (Kotlin/Compose, minSdk 31) under `android/`, wire it to `POST /api/citizen/observations`, and add the `android` workstream to OWNERSHIP/AGENTS. v1 deferred: on-device colorimetry, CameraX preview, GPS attach. | 2026-05-09T19:00:00Z | branch `cross/android-capture-app` |
-| web | claude-opus-4-7 | web/maps-* (stack) | Scaffold themed maps collection at `/maps` plus seven themed routes (`/maps/{weather,ej,operators,citizen,energy,open-data,satellite}`). Each route ships scaffold + one cached live layer where possible. Branch per view, sequenced for overnight delivery. Top-nav adds `Maps` entry. Stays clear of `src/app/design/` (hermes color-tokens) and `src/app/map/` (parallel `web/interactive-map` MapLibre hub). | 2026-05-09T23:50:00Z | branch `web/maps-index` (head of stack) |
+| web | claude-opus-4-7 | web/inv-* (stack) | Tier 1 investigation-grade work on top of `web/maps-bundle`: county weather/hydrology context block on `/counties/[slug]` and `/water/counties/[slug]`, weighted mismatch scoring with seven contradiction tests, SDWIS + ACS fold-in with population-exposure rate, microbial-rule (boil-water proxy) lane, D/DBP-rule (E2 disinfectant proxy) lane. Branch per item, stacked. | 2026-05-10T00:30:00Z | branch `web/inv-e2-disinfectant` (head of stack) |
 
 ---
 
@@ -26,6 +26,7 @@ _(empty)_
 
 | workstream | agent | intent | ref |
 |---|---|---|---|
+| web | claude-opus-4-7 | Atlas maps collection: `/maps` index hub + seven themed map routes (`weather`, `ej`, `operators`, `citizen`, `energy`, `open-data`, `satellite`). Each route ships scaffold + one cached live layer where data exists; energy stays scaffold-only with EIA/RRC roadmap. Branch per view, bundled into `web/maps-bundle` for demo deploy. Top-nav adds `Maps` entry. | branch stack `web/maps-*`, bundle `web/maps-bundle` |
 | docs | hermes | Add county dataset roadmap (`docs/plans/2026-05-10-county-dataset-roadmap.md`) and link it from the plans index for quick execution against county priorities. | working tree |
 | docs | hermes | Update README + CHANGELOG to reflect the new map-first county workflow: county choropleths lead analytics and water, while other charts remain user-directed correlation lanes. | commit `6edd23f` |
 | data (cross: docs) | hermes | Add first JED Pool Tools 5-way strip support to the citizen observation prototype: new chart file/registry, route-side chart resolution by `clientReading.chartId`, and JED-default citizen capture/results wiring. Verified with `tests/observations-route.test.ts`, `tests/observations-sampling.test.ts`, and `tests/observations-status.test.ts`. `npm run build` still fails on a pre-existing type error in `experiments/build_county_month_water_risk_panel.ts` unrelated to the citizen-strip changes. | working tree |
