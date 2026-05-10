@@ -1,0 +1,118 @@
+{
+  "generatedAt": "2026-05-10T13:19:02.850Z",
+  "scope": "atlas-tx-roadmap-open-data-botnet",
+  "candidateCount": 5,
+  "waves": {
+    "wave-2": 1,
+    "wave-3": 3,
+    "wave-4": 1
+  },
+  "candidates": [
+    {
+      "executionUnitId": "echo-facility-compliance",
+      "name": "EPA ECHO facility compliance",
+      "roadmapWave": "wave-2",
+      "roadmapPhaseLabel": "later",
+      "strategicPriority": "high",
+      "evidenceClass": "authoritative",
+      "thesisLane": "contradiction-detection",
+      "upstreamType": "envirofacts",
+      "grain": "facility",
+      "geographicJoinStrategy": "point-in-county",
+      "downstreamConsumers": [
+        "analytics-ui",
+        "county-ui"
+      ],
+      "activationCriteria": [
+        "county_join_verified",
+        "source_attribution_present"
+      ],
+      "nextAction": "productize-existing-module"
+    },
+    {
+      "executionUnitId": "boil-water-notices",
+      "name": "Boil-water notices",
+      "roadmapWave": "wave-3",
+      "roadmapPhaseLabel": "later",
+      "strategicPriority": "very-high",
+      "evidenceClass": "authoritative",
+      "thesisLane": "contradiction-detection",
+      "upstreamType": "manual-discovery",
+      "grain": "pws-event",
+      "geographicJoinStrategy": "pws-to-county",
+      "downstreamConsumers": [
+        "water-ui",
+        "county-ui",
+        "missions"
+      ],
+      "activationCriteria": [
+        "upstream_source_verified",
+        "county_join_verified"
+      ],
+      "nextAction": "verify-upstream-source"
+    },
+    {
+      "executionUnitId": "e2-disinfectant-reporting",
+      "name": "E2 disinfectant reporting",
+      "roadmapWave": "wave-3",
+      "roadmapPhaseLabel": "later",
+      "strategicPriority": "very-high",
+      "evidenceClass": "authoritative",
+      "thesisLane": "operational-stress",
+      "upstreamType": "manual-discovery",
+      "grain": "pws-month",
+      "geographicJoinStrategy": "pws-to-county",
+      "downstreamConsumers": [
+        "water-ui",
+        "county-ui"
+      ],
+      "activationCriteria": [
+        "upstream_source_verified",
+        "county_join_verified"
+      ],
+      "nextAction": "verify-upstream-source"
+    },
+    {
+      "executionUnitId": "ibi-biological-integrity",
+      "name": "IBI / biological integrity",
+      "roadmapWave": "wave-3",
+      "roadmapPhaseLabel": "later",
+      "strategicPriority": "high",
+      "evidenceClass": "authoritative",
+      "thesisLane": "contradiction-detection",
+      "upstreamType": "manual-discovery",
+      "grain": "segment",
+      "geographicJoinStrategy": "polygon-overlay",
+      "downstreamConsumers": [
+        "water-ui",
+        "county-ui"
+      ],
+      "activationCriteria": [
+        "upstream_source_verified",
+        "county_join_verified"
+      ],
+      "nextAction": "verify-upstream-source"
+    },
+    {
+      "executionUnitId": "citizen-water-observations",
+      "name": "Citizen water observations",
+      "roadmapWave": "wave-4",
+      "roadmapPhaseLabel": "future-community",
+      "strategicPriority": "high",
+      "evidenceClass": "community",
+      "thesisLane": "community-verification",
+      "upstreamType": "app-capture",
+      "grain": "site-observation",
+      "geographicJoinStrategy": "point-in-county",
+      "downstreamConsumers": [
+        "missions",
+        "citizen-ui"
+      ],
+      "activationCriteria": [
+        "community_data_isolated",
+        "qa_missingness_report"
+      ],
+      "nextAction": "verify-upstream-source"
+    }
+  ]
+}

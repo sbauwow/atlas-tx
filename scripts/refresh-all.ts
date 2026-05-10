@@ -1,25 +1,36 @@
 import { promises as fs } from "node:fs";
 import path from "node:path";
-import { exec as execCallback } from "node:child_process";
-import { promisify } from "node:util";
 
-const exec = promisify(execCallback);
+import { buildAtlasIngestPlan, runAtlasIngestPlan, type AtlasIngestTask } from "@/lib/atlas-ingest-orchestrator";
+
+export type RefreshAllStepId =
+  | "refresh-twdb-hydrology"
+  | "refresh-surface-water-quality"
+  | "refresh-city-open-data"
+  | "refresh-city-open-data-curated"
+  | "refresh-city-open-data-ranked"
+  | "refresh-analytics-history"
+  | "refresh-county-month-precipitation"
+  | "refresh-county-month-streamflow"
+  | "refresh-county-month-drought"
+  | "refresh-county-month-temperature"
+  | "refresh-county-month-nws-flood-alerts"
+  | "refresh-roadmap-open-data"
+  | "refresh-cid";
 
 export type RefreshAllStep = {
-  stepId:
-    | "refresh-twdb-hydrology"
-    | "refresh-surface-water-quality"
-    | "refresh-city-open-data"
-    | "refresh-city-open-data-curated"
-    | "refresh-city-open-data-ranked"
-    | "refresh-analytics-history"
-    | "refresh-cid";
+  stepId: RefreshAllStepId;
   command: string;
   critical: boolean;
+  dependsOn: string[];
+  family: string;
+  maxParallelRequests: number;
+  retryCount: number;
+  expectedOutputPath: string | null;
 };
 
 export type RefreshAllStepResult = {
-  stepId: RefreshAllStep["stepId"];
+  stepId: RefreshAllStepId;
   status: "ok" | "failed" | "skipped";
   startedAt: string;
   endedAt: string;
@@ -35,15 +46,17 @@ export type PipelineHealthReport = {
 };
 
 export function buildRefreshAllPlan(): RefreshAllStep[] {
-  return [
-    { stepId: "refresh-twdb-hydrology", command: "npm run refresh:twdb-hydrology", critical: false },
-    { stepId: "refresh-surface-water-quality", command: "npm run refresh:surface-water-quality", critical: false },
-    { stepId: "refresh-city-open-data", command: "npm run refresh:city-open-data", critical: false },
-    { stepId: "refresh-city-open-data-curated", command: "npm run refresh:city-open-data-curated", critical: false },
-    { stepId: "refresh-city-open-data-ranked", command: "npm run refresh:city-open-data-ranked", critical: false },
-    { stepId: "refresh-analytics-history", command: "tsx scripts/refresh-analytics-history.ts", critical: false },
-    { stepId: "refresh-cid", command: "npm run refresh:cid", critical: true },
-  ];
+  const plan = buildAtlasIngestPlan({ mode: "balanced" });
+  return plan.tasks.map((task) => ({
+    stepId: task.taskId as RefreshAllStepId,
+    command: task.command,
+    critical: task.critical,
+    dependsOn: task.dependsOn,
+    family: task.family,
+    maxParallelRequests: task.maxParallelRequests,
+    retryCount: task.retryCount,
+    expectedOutputPath: task.expectedOutputPath,
+  }));
 }
 
 function computeOverallStatus(steps: RefreshAllStepResult[]): PipelineHealthReport["overallStatus"] {
@@ -54,45 +67,47 @@ function computeOverallStatus(steps: RefreshAllStepResult[]): PipelineHealthRepo
 
 export async function runRefreshAll(options?: {
   generatedAt?: string;
-  runCommand?: (step: RefreshAllStep) => Promise<{ status: "ok" | "failed"; notes?: string[]; outputPath?: string | null }>;
+  runCommand?: (step: RefreshAllStep) => Promise<{ status: "ok" | "failed" | "skipped"; notes?: string[]; outputPath?: string | null }>;
 }): Promise<PipelineHealthReport> {
   const generatedAt = options?.generatedAt ?? new Date().toISOString();
-  const plan = buildRefreshAllPlan();
-  const runCommand = options?.runCommand ?? defaultRunCommand;
-  const steps: RefreshAllStepResult[] = [];
+  const result = await runAtlasIngestPlan({
+    generatedAt,
+    mode: "balanced",
+    runCommand: options?.runCommand
+      ? async (task: AtlasIngestTask) => {
+          const response = await options.runCommand?.({
+            stepId: task.taskId as RefreshAllStepId,
+            command: task.command,
+            critical: task.critical,
+            dependsOn: task.dependsOn,
+            family: task.family,
+            maxParallelRequests: task.maxParallelRequests,
+            retryCount: task.retryCount,
+            expectedOutputPath: task.expectedOutputPath,
+          });
+          return {
+            status: response?.status ?? "failed",
+            notes: response?.notes,
+          };
+        }
+      : undefined,
+  });
 
-  for (const step of plan) {
-    const startedAt = new Date().toISOString();
-    const startMs = Date.now();
-    const result = await runCommand(step);
-    const endedAt = new Date().toISOString();
-    steps.push({
-      stepId: step.stepId,
-      status: result.status,
-      startedAt,
-      endedAt,
-      durationMs: Math.max(0, Date.now() - startMs),
-      outputPath: result.outputPath ?? null,
-      notes: result.notes ?? [],
-    });
-  }
+  const steps = result.tasks.map((task) => ({
+    stepId: task.taskId as RefreshAllStepId,
+    status: task.status,
+    startedAt: task.startedAt,
+    endedAt: task.endedAt,
+    durationMs: task.durationMs,
+    outputPath: task.outputPath,
+    notes: task.notes,
+  }));
 
   return {
     generatedAt,
     overallStatus: computeOverallStatus(steps),
     steps,
   };
-}
-
-async function defaultRunCommand(step: RefreshAllStep): Promise<{ status: "ok" | "failed"; notes?: string[]; outputPath?: string | null }> {
-  try {
-    const { stdout, stderr } = await exec(step.command, { cwd: process.cwd() });
-    const notes = [stdout.trim(), stderr.trim()].filter(Boolean);
-    return { status: "ok", notes };
-  } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
-    return { status: "failed", notes: [message] };
-  }
 }
 
 export async function writePipelineHealthReport(report: PipelineHealthReport, outputPath?: string) {

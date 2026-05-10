@@ -395,6 +395,9 @@ npm run build
 ### Data refresh entrypoints
 ```bash
 npm run refresh:all
+npm run refresh:botnet
+npm run refresh:weather
+npm run refresh:roadmap-open-data
 npm run refresh:cid
 npm run refresh:surface-water-quality
 npm run refresh:city-open-data
@@ -407,6 +410,24 @@ npm run refresh:county-month-drought
 npm run refresh:county-month-temperature
 npm run refresh:county-month-nws-flood-alerts
 ```
+
+### Agentic ingest botnet
+
+Atlas now includes a registry-driven ingest spine for weather and future roadmap datasets.
+
+Key pieces:
+- `config/execution-registry.county.json` — machine-readable county ingest roadmap
+- `src/lib/execution/execution-registry.ts` — typed loader/helpers for the execution registry
+- `src/lib/atlas-ingest-orchestrator.ts` — dependency-aware task catalog and botnet runner
+- `scripts/refresh-weather.ts` — grouped county-month weather refreshes
+- `scripts/refresh-roadmap-open-data.ts` — future open-data candidate queue snapshot
+- `scripts/refresh-all.ts` — top-level orchestrator that stages core water, weather, catalog, roadmap, then CID work
+
+The orchestrator is designed around waves:
+- wave 0 — current county water backbone
+- wave 1 — county-month weather and hydrology history
+- wave 2 — SDWIS / EJ / ACS / ECHO / CID deepening
+- wave 3+ — boil-water notices, E2, IBI, and later community-verification lanes
 
 ### Pipeline outputs
 - `public/cache/pipeline-health.json` — refresh pipeline health/status
@@ -422,6 +443,7 @@ npm run refresh:county-month-nws-flood-alerts
 
 ### Contracts
 - `docs/contracts/dataset-registry.md`
+- `docs/contracts/execution-registry.md`
 - `docs/contracts/mcp-tools.md`
 - `docs/contracts/skill-protocol.md`
 - `docs/contracts/community-observation.md`
