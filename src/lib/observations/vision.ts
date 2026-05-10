@@ -1,6 +1,6 @@
 import "server-only";
 
-import Anthropic from "@anthropic-ai/sdk";
+import OpenAI from "openai";
 
 import type {
   LlmReading,
@@ -12,20 +12,19 @@ import { OBSERVATION_SCHEMA_VERSION } from "./types";
 
 /**
  * Server-side vision sanity-check. The client has already produced a candidate
- * reading by sampling pixels. This pass asks Claude to grade the strip against
- * its in-frame reference chart and emit per-analyte bands. Disagreement with
- * the client reading is the signal that the photo is unreliable.
+ * reading by sampling pixels. This pass asks an OpenAI vision model to grade
+ * the strip against its in-frame reference chart and emit per-analyte bands.
+ * Disagreement with the client reading is the signal that the photo is
+ * unreliable.
  *
- * Cost: ~$0.01–0.05 per image at claude-opus-4-7. Acceptable for prototype;
- * rate-limit before any public exposure (out of scope for v1, see plan §Risks).
- *
- * Returns null when ANTHROPIC_API_KEY is unset so dev / tests can run without
+ * Returns null when OPENAI_API_KEY is unset so dev / tests can run without
  * burning the budget. Callers must treat null as "no LLM signal" and mark the
  * observation `review` rather than auto-accepting.
  */
 
-const MODEL = "claude-opus-4-7";
-const MAX_TOKENS = 1024;
+const MODEL = "gpt-4o-mini";
+const MAX_COMPLETION_TOKENS = 1024;
+const TOOL_NAME = "report_strip_reading";
 
 export interface AnalyzeStripParams {
   readonly imageBase64: string;
@@ -36,48 +35,54 @@ export interface AnalyzeStripParams {
 export async function analyzeStripImage(
   params: AnalyzeStripParams,
 ): Promise<LlmReading | null> {
-  const apiKey = process.env.ANTHROPIC_API_KEY;
+  const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) return null;
 
-  const client = new Anthropic({ apiKey });
+  const client = new OpenAI({ apiKey });
 
   const tool = buildAnalyzerTool(params.chart);
-  const systemBlocks = buildSystemBlocks(params.chart);
+  const systemText = buildSystemPrompt(params.chart);
 
-  const response = await client.messages.create({
+  const response = await client.chat.completions.create({
     model: MODEL,
-    max_tokens: MAX_TOKENS,
-    system: systemBlocks,
-    tools: [tool],
-    tool_choice: { type: "tool", name: tool.name },
+    max_completion_tokens: MAX_COMPLETION_TOKENS,
     messages: [
+      { role: "system", content: systemText },
       {
         role: "user",
         content: [
           {
-            type: "image",
-            source: {
-              type: "base64",
-              media_type: params.mediaType,
-              data: params.imageBase64,
-            },
+            type: "text",
+            text: "Analyze this photo. The user has dipped a freshwater test strip and laid it next to its bottle's color reference chart in the same frame. Match each pad against the in-frame chart (NOT against absolute color memory) and call the analyzer tool with one band index per analyte.",
           },
           {
-            type: "text",
-            text: "Analyze this photo. The user has dipped a 9-pad freshwater test strip and laid it next to its bottle's color reference chart in the same frame. Match each pad against the in-frame chart (NOT against absolute color memory) and call the analyzer tool with one band index per analyte.",
+            type: "image_url",
+            image_url: {
+              url: `data:${params.mediaType};base64,${params.imageBase64}`,
+              detail: "low",
+            },
           },
         ],
       },
     ],
+    tools: [tool],
+    tool_choice: { type: "function", function: { name: TOOL_NAME } },
   });
 
-  const toolUse = response.content.find(
-    (block): block is Extract<(typeof response.content)[number], { type: "tool_use" }> =>
-      block.type === "tool_use" && block.name === tool.name,
+  const choice = response.choices[0];
+  const toolCall = choice?.message?.tool_calls?.find(
+    (c) => c.type === "function" && c.function.name === TOOL_NAME,
   );
-  if (!toolUse) return null;
+  if (!toolCall || toolCall.type !== "function") return null;
 
-  const parsed = parseToolInput(toolUse.input, params.chart);
+  let input: unknown;
+  try {
+    input = JSON.parse(toolCall.function.arguments);
+  } catch {
+    return null;
+  }
+
+  const parsed = parseToolInput(input, params.chart);
   if (!parsed) return null;
 
   return {
@@ -89,7 +94,7 @@ export async function analyzeStripImage(
   };
 }
 
-function buildSystemBlocks(chart: ReferenceChart) {
+function buildSystemPrompt(chart: ReferenceChart): string {
   const chartSpec = chart.analytes
     .map((a, i) => {
       const bands = a.bands
@@ -100,62 +105,66 @@ function buildSystemBlocks(chart: ReferenceChart) {
     .join("\n\n");
 
   return [
-    {
-      type: "text" as const,
-      text: [
-        "You are a careful, conservative water-strip color reader. You compare each pad against the user's in-frame reference chart, not from memory.",
-        "",
-        "Output rules:",
-        "- Always emit exactly one band index per analyte, even if uncertain — set a low confidence (≤0.3) when you can't tell.",
-        "- If the chart isn't visible in the photo, still emit best-guess band indices and add the qa flag \"no-chart-detected\".",
-        "- Add qa flags for any of: blur, glare, low-light, saturation-clip, no-chart-detected, underfill.",
-        "- Do not invent analytes that aren't in the schema.",
-        "- Treat outputs as non-regulatory bands, not numeric measurements.",
-        "",
-        "Reference chart spec (band indices the user expects):",
-        "",
-        chartSpec,
-      ].join("\n"),
-      cache_control: { type: "ephemeral" as const },
-    },
-  ];
+    "You are a careful, conservative water-strip color reader. You compare each pad against the user's in-frame reference chart, not from memory.",
+    "",
+    "Output rules:",
+    "- Always emit exactly one band index per analyte, even if uncertain — set a low confidence (≤0.3) when you can't tell.",
+    "- If the chart isn't visible in the photo, still emit best-guess band indices and add the qa flag \"no-chart-detected\".",
+    "- Add qa flags for any of: blur, glare, low-light, saturation-clip, no-chart-detected, underfill.",
+    "- Do not invent analytes that aren't in the schema.",
+    "- Treat outputs as non-regulatory bands, not numeric measurements.",
+    "",
+    "Reference chart spec (band indices the user expects):",
+    "",
+    chartSpec,
+  ].join("\n");
 }
 
 function buildAnalyzerTool(chart: ReferenceChart) {
   return {
-    name: "report_strip_reading",
-    description:
-      "Report a per-analyte band index and confidence. Call this exactly once per image.",
-    input_schema: {
-      type: "object" as const,
-      properties: {
-        perAnalyte: {
-          type: "array",
-          items: {
-            type: "object",
-            properties: {
-              analyteId: {
-                type: "string",
-                enum: chart.analytes.map((a) => a.id),
+    type: "function" as const,
+    function: {
+      name: TOOL_NAME,
+      description:
+        "Report a per-analyte band index and confidence. Call this exactly once per image.",
+      parameters: {
+        type: "object" as const,
+        properties: {
+          perAnalyte: {
+            type: "array",
+            items: {
+              type: "object",
+              properties: {
+                analyteId: {
+                  type: "string",
+                  enum: chart.analytes.map((a) => a.id),
+                },
+                bandIndex: { type: "integer", minimum: 0 },
+                confidence: { type: "number", minimum: 0, maximum: 1 },
+                note: { type: "string" },
               },
-              bandIndex: { type: "integer", minimum: 0 },
-              confidence: { type: "number", minimum: 0, maximum: 1 },
-              note: { type: "string" },
+              required: ["analyteId", "bandIndex", "confidence"],
+              additionalProperties: false,
             },
-            required: ["analyteId", "bandIndex", "confidence"],
-            additionalProperties: false,
+          },
+          qaFlags: {
+            type: "array",
+            items: {
+              type: "string",
+              enum: [
+                "blur",
+                "glare",
+                "low-light",
+                "saturation-clip",
+                "no-chart-detected",
+                "underfill",
+              ],
+            },
           },
         },
-        qaFlags: {
-          type: "array",
-          items: {
-            type: "string",
-            enum: ["blur", "glare", "low-light", "saturation-clip", "no-chart-detected", "underfill"],
-          },
-        },
+        required: ["perAnalyte", "qaFlags"],
+        additionalProperties: false,
       },
-      required: ["perAnalyte", "qaFlags"],
-      additionalProperties: false,
     },
   };
 }
@@ -218,7 +227,7 @@ function clamp01(x: number): number {
 
 export const __TEST_ONLY__ = {
   buildAnalyzerTool,
-  buildSystemBlocks,
+  buildSystemPrompt,
   parseToolInput,
   MODEL,
 };

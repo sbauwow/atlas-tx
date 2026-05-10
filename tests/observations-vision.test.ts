@@ -3,21 +3,26 @@ import { describe, expect, it } from "vitest";
 import { __TEST_ONLY__ } from "@/lib/observations/vision";
 import { GENERIC_9PAD_CHART } from "@/lib/observations/strips/reference-chart-9pad";
 
-const { buildAnalyzerTool, buildSystemBlocks, parseToolInput, MODEL } = __TEST_ONLY__;
+const { buildAnalyzerTool, buildSystemPrompt, parseToolInput, MODEL } = __TEST_ONLY__;
 
 describe("vision tool schema", () => {
   it("constrains analyteId to chart-defined ids", () => {
     const tool = buildAnalyzerTool(GENERIC_9PAD_CHART);
-    const enumIds = tool.input_schema.properties.perAnalyte.items.properties.analyteId.enum;
+    const enumIds = tool.function.parameters.properties.perAnalyte.items.properties.analyteId.enum;
     expect(enumIds).toEqual(GENERIC_9PAD_CHART.analytes.map((a) => a.id));
   });
 
-  it("emits a single cache_control text block in the system prompt", () => {
-    const blocks = buildSystemBlocks(GENERIC_9PAD_CHART);
-    expect(blocks).toHaveLength(1);
-    expect(blocks[0].type).toBe("text");
-    expect(blocks[0].cache_control).toEqual({ type: "ephemeral" });
-    expect(blocks[0].text).toContain("non-regulatory");
+  it("emits a function-shaped tool for OpenAI tool_choice", () => {
+    const tool = buildAnalyzerTool(GENERIC_9PAD_CHART);
+    expect(tool.type).toBe("function");
+    expect(tool.function.name).toBe("report_strip_reading");
+    expect(tool.function.parameters.required).toEqual(["perAnalyte", "qaFlags"]);
+  });
+
+  it("system prompt carries the non-regulatory framing", () => {
+    const prompt = buildSystemPrompt(GENERIC_9PAD_CHART);
+    expect(prompt).toContain("non-regulatory");
+    expect(prompt).toContain("Reference chart spec");
   });
 });
 
@@ -91,7 +96,7 @@ describe("parseToolInput", () => {
 });
 
 describe("model id", () => {
-  it("uses the current Opus model", () => {
-    expect(MODEL).toBe("claude-opus-4-7");
+  it("uses the OpenAI vision model", () => {
+    expect(MODEL).toBe("gpt-4o-mini");
   });
 });

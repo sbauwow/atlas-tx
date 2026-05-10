@@ -1,8 +1,9 @@
 # Contract — Dataset Registry & Scoring
 
-> Contract version: **0.9.0** — bump on any breaking change to types, fetcher signatures, or scoring outputs. Notify `mcp` and `web` workstreams in `STATE.md` when bumping.
+> Contract version: **0.10.0** — bump on any breaking change to types, fetcher signatures, or scoring outputs. Notify `mcp` and `web` workstreams in `STATE.md` when bumping.
 >
 > Changelog:
+> - 0.10.0 (2026-05-09): register planned data-center water-pressure (DCWP) sources and scorer per `docs/plans/2026-05-09-data-center-water-pressure.md`. Additive only. New planned source ids: `ercot-lfl`, `twdb-water-use-manufacturing`, `austin-top-commercial-water`, `city-building-permits-tx` (composed from the existing ranked city-open-data snapshot). New planned scorer: `data-center-water-pressure` (per-county DCWP). New planned mismatch hooks for `official_signal_mismatch.ts`: ESG-vs-permits, queue-vs-baseline, stress co-incidence, EJ co-incidence. Standard guardrails apply: queued ≠ commissioned, water-intensity bounds must be reported, no row ships without TX or federal open-data attribution.
 > - 0.9.0 (2026-05-09): add ranked `city-open-data` snapshot contract for Atlas ingest prioritization (`public/cache/city-open-data-ranked-tx.json`) with lane, score, reasons, and `priorityTop25` shortlist.
 > - 0.9.0 (2026-05-09): add `citizen-strips` as a separate, **non-regulatory** community-observation source under a strict isolation contract — does NOT feed DWRS, EJ Overlap, or any regulatory scorer. Lives behind `/citizen` and the new `WaterObservation` Prisma model. See "Citizen observation layer" section below.
 > - 0.8.0 (2026-05-09): add curated `city-open-data` snapshot contract for water / permits / infrastructure source triage (`public/cache/city-open-data-curated-tx.json`) plus theme-match metadata and counts.
@@ -448,6 +449,150 @@ Caching notes:
 - County summary wiring currently uses county centroid overlap against cached feature bounding boxes as an approximate hydrology-context signal, not full polygon intersection.
 - Follow-on work can add fuller geometry export once Atlas TX needs map rendering or spatial joins beyond extents.
 
+## Data center water pressure sources and scorer (added 0.10.0)
+
+These entries are **planned** registrations supporting the additive plan in `docs/plans/2026-05-09-data-center-water-pressure.md`. Implementation lands under DC.M1. Until each fetcher ships, treat the rows here as the contract that the fetcher must satisfy.
+
+### Planned sources
+
+```ts
+{
+  id: "ercot-lfl",
+  name: "ERCOT Large Flexible Load interconnection queue",
+  category: "infrastructure",
+  publisher: "Electric Reliability Council of Texas",
+  keyFields: [
+    "facilityName",
+    "county",
+    "queuedMw",
+    "queueStatus",
+    "queuePosition",
+    "asOfDate",
+    "facilityNameKnown",
+  ],
+  accessType: "external",
+}
+
+{
+  id: "twdb-water-use-manufacturing",
+  name: "TWDB Water Use Survey — manufacturing category",
+  category: "infrastructure",
+  publisher: "Texas Water Development Board",
+  keyFields: [
+    "countyFips",
+    "countyName",
+    "year",
+    "manufacturingWaterUseGpd",
+    "sourceUrl",
+  ],
+  accessType: "external",
+}
+
+{
+  id: "austin-top-commercial-water",
+  name: "Austin Top Commercial Water Customers",
+  category: "infrastructure",
+  publisher: "Austin Water (City of Austin)",
+  keyFields: [
+    "year",
+    "customerName",
+    "customerCategory",   // e.g. data-center, hotel, golf, hospital, school
+    "annualGallons",
+    "averageGpd",
+    "sourceUrl",
+  ],
+  accessType: "external",
+}
+
+{
+  id: "city-building-permits-tx",
+  name: "City building / development permits (Austin / Dallas / Houston / San Antonio)",
+  category: "infrastructure",
+  publisher: "City of Austin / City of Dallas / City of Houston / City of San Antonio",
+  keyFields: [
+    "sourceCity",
+    "permitId",
+    "permitType",
+    "issuedAt",
+    "valuation",
+    "address",
+    "latitude",
+    "longitude",
+    "applicantName",
+    "isLikelyDataCenter", // boolean derived from heuristics + applicant + valuation + use
+  ],
+  accessType: "external",
+}
+```
+
+Notes:
+- All four sources register as `accessType: "external"` and follow the standard `fetch* / normalize* / load*` contract.
+- `city-building-permits-tx` is a composed loader — it reads the existing `public/cache/city-open-data-ranked-tx.json` shortlist for the `building-development-permits` lane and per-city Socrata datasets, normalizes them into one row shape, and exposes a single TX-wide loader.
+- Snapshots live under `public/cache/<id>-tx.json` when small enough to commit; otherwise `data/<id>-tx.json` (gitignored) plus a refresh script.
+- Per the field-name discipline at the bottom of this contract, every `county` / `countyName` field must be normalized through `normalizeCountyName()` before any join.
+
+### Planned derived signal — Data Center Water Pressure (DCWP)
+
+File: `src/lib/scoring/data_center_water_pressure.ts` (planned, DC.M1).
+
+Inputs:
+- `ercot-lfl` rows (current statewide queue snapshot)
+- `twdb-water-use-manufacturing` rows (county baseline)
+- `austin-top-commercial-water` rows where county is Travis
+- `city-building-permits-tx` rows filtered to `isLikelyDataCenter: true`
+- Existing TCEQ permit rows (`7fq8-wig2`)
+- Existing US Drought Monitor and reservoir-storage context layers
+- Existing DWRS rows (county-quartile rollup)
+
+Per-county output (extends `<Slug>Row`):
+
+```ts
+export type DataCenterWaterPressureRow = {
+  id: string;                        // county FIPS
+  countyFips: string;
+  countyName: string;
+  score: number;                     // 0-100, statewide min-max
+  components: {
+    queuedWaterDemandGpdLow: number;
+    queuedWaterDemandGpdHigh: number;
+    countyBaselineWaterUseGpd: number;
+    droughtMultiplier: number;
+    dwrsQuartileMultiplier: number;
+    reservoirTrendMultiplier: number;
+  };
+  facilities: Array<{
+    facilityName: string | null;
+    facilityNameKnown: boolean;
+    queuedMw: number;
+    waterIntensityFactorLow: number;
+    waterIntensityFactorHigh: number;
+    queueStatus: string;
+    citationSourceIds: string[];     // ercot-lfl, city-building-permits-tx, etc.
+  }>;
+  caveats: string[];
+};
+```
+
+Always-emitted caveats (the scorer is required to attach these or close equivalents):
+- water intensity per MW is the largest unknown; defaults are documented and per-row low/high bounds are reported
+- cooling type is rarely public; rows note which facilities used the default vs a known type
+- ERCOT LFL queue includes paper projects; `queueStatus` must be visible per row
+- city building-permit data is leading and noisy; permits do not equal commissioned load
+- Austin Top Commercial Water Customers is annual and self-reported; cross-county comparisons are limited
+- per-capita normalization is intentionally not used for DCWP — the journalist question is absolute siting pressure; per-resident exposure stays under EJ Burden Overlap
+- queued data-center water demand is not a measurement of harm; DCWP is a journalist outlier signal
+
+### Planned mismatch hooks
+
+When `src/lib/scoring/official_signal_mismatch.ts` is implemented, it must accept the following DC-related inputs and emit them as distinct mismatch classes (each with its own caveats and citations):
+
+1. **ESG vs permits** — hyperscaler regional ESG gpd vs sum of TCEQ permits + Austin top-customer rows in the same region.
+2. **Queue vs baseline** — sum of `ercot-lfl` queued water demand vs the TWDB manufacturing baseline projection for the same county.
+3. **Stress co-incidence** — high DCWP in counties with D2+ drought and top-quartile DWRS.
+4. **EJ co-incidence** — DC siting density vs EJ Burden Overlap percentile in the same block groups.
+
+Each mismatch is a journalist lead, not a causal claim. Standard Atlas TX framing rules apply: indicators / burden / contradiction, never harm or diagnosis.
+
 ## Citizen observation layer (added 0.7.0)
 
 A separate, prototype community-observation lane. Strictly **isolated** from
@@ -471,9 +616,9 @@ migration churn. JSON-as-text columns parsed at the boundary in
    `ClientReading`.
 2. Server runs sharp-based QA (`src/lib/observations/qa.ts`) — blur,
    low-light, saturation-clip flags.
-3. Server calls Claude Opus vision (`src/lib/observations/vision.ts`) for an
-   independent per-analyte band reading. Returns `null` if `ANTHROPIC_API_KEY`
-   is unset → falls back to `review` status.
+3. Server calls OpenAI `gpt-4o-mini` vision (`src/lib/observations/vision.ts`)
+   for an independent per-analyte band reading. Returns `null` if
+   `OPENAI_API_KEY` is unset → falls back to `review` status.
 4. `decideStatus` in `src/lib/observations/status.ts` merges QA flags + client
    ↔ LLM agreement into one of: `accepted` / `accepted_warn` / `review` /
    `rejected`.

@@ -62,6 +62,30 @@ Use for:
 - Now / Next / Later execution order
 - quickly aligning county work against the water-first thesis
 
+### 6. `2026-05-09-data-center-water-pressure.md`
+Status: additive scope plan
+
+Read when working on data-center water pressure as a county-level outlier signal grounded in TX state + city open data plus the federal layers Atlas TX already integrates.
+
+Use for:
+- ERCOT LFL queue, TWDB manufacturing water-use baseline, and city building-permit / top-commercial-customer ingest sequencing
+- DCWP scorer composition and caveats
+- mismatch hooks (ESG vs permits, queue vs baseline, stress co-incidence, EJ co-incidence)
+- holding the line against a "DC tracker as a product" pivot — the layer is one input to the journalist water-risk thesis, not a separate product
+
+### 7. `2026-05-09-atlas-of-maps-reframe.md`
+Status: web/IA reframe plan
+
+Read when working on the homepage, top nav, footer, scaffolded future-map routes, or the Operators-into-Permits / Watchlists-hide moves.
+
+Use for:
+- the "atlas as a bound collection of TX maps" framing
+- homepage section-by-section rewrite spec
+- nav / footer restructure
+- scaffold-route pattern for future maps (weather, energy/data centers, hydrology, floodplain, drought)
+- subtle civic-trust polish layer (pulse, fill-bar, count-up, hover ripple)
+- holding the line against gimmicky animations or homepage cursor changes
+
 ---
 
 ## Historical / reference plans

@@ -1,7 +1,6 @@
 package com.atlastx.capture.ui
 
 import android.net.Uri
-import android.provider.MediaStore
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
@@ -39,7 +38,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -54,19 +52,20 @@ fun CaptureScreen(
     viewModel: CaptureViewModel,
     onSubmitted: () -> Unit,
     onBack: () -> Unit,
+    initialSource: CaptureSource = CaptureSource.NONE,
 ) {
-    val context = LocalContext.current
     val captured by viewModel.capturedFile.collectAsStateWithLifecycle()
     val upload by viewModel.upload.collectAsStateWithLifecycle()
     val countySlug by viewModel.countySlug.collectAsStateWithLifecycle()
 
     var pendingFile by remember { mutableStateOf<File?>(null) }
     var pendingUri by remember { mutableStateOf<Uri?>(null) }
+    var autoLaunched by remember { mutableStateOf(false) }
 
     val cameraLauncher = rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { ok ->
         val f = pendingFile
         if (ok && f != null && f.exists() && f.length() > 0) {
-            viewModel.setCaptured(f)
+            viewModel.setCapturedFromCamera(f)
         } else {
             f?.takeIf { it.exists() }?.delete()
         }
@@ -75,17 +74,29 @@ fun CaptureScreen(
     }
 
     val galleryLauncher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
-        if (uri != null) {
-            val (file, _) = viewModel.newCaptureFile()
-            context.contentResolver.openInputStream(uri)?.use { input ->
-                file.outputStream().use { input.copyTo(it) }
-            }
-            if (file.length() > 0) viewModel.setCaptured(file) else file.delete()
-        }
+        if (uri != null) viewModel.importGalleryUri(uri)
     }
 
     LaunchedEffect(upload) {
         if (upload is UploadState.Done) onSubmitted()
+    }
+
+    LaunchedEffect(initialSource, captured) {
+        if (autoLaunched || captured != null) return@LaunchedEffect
+        when (initialSource) {
+            CaptureSource.GALLERY -> {
+                autoLaunched = true
+                galleryLauncher.launch("image/*")
+            }
+            CaptureSource.CAMERA -> {
+                autoLaunched = true
+                val (file, uri) = viewModel.newCaptureFile()
+                pendingFile = file
+                pendingUri = uri
+                cameraLauncher.launch(uri)
+            }
+            CaptureSource.NONE -> Unit
+        }
     }
 
     Scaffold(

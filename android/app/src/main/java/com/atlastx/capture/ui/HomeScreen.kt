@@ -12,6 +12,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CameraAlt
+import androidx.compose.material.icons.filled.PhotoLibrary
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -19,6 +20,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -35,7 +37,8 @@ import com.atlastx.capture.R
 @Composable
 fun HomeScreen(
     viewModel: CaptureViewModel,
-    onCapture: () -> Unit,
+    onTakePhoto: () -> Unit,
+    onUploadExisting: () -> Unit,
     onSettings: () -> Unit,
 ) {
     val settings by viewModel.settingsState.collectAsStateWithLifecycle()
@@ -57,7 +60,8 @@ fun HomeScreen(
             baseUrl = settings.baseUrl,
             deviceId = settings.deviceId,
             stripBrand = settings.stripBrand,
-            onCapture = onCapture,
+            onTakePhoto = onTakePhoto,
+            onUploadExisting = onUploadExisting,
         )
     }
 }
@@ -68,7 +72,8 @@ private fun HomeContent(
     baseUrl: String,
     deviceId: String,
     stripBrand: String,
-    onCapture: () -> Unit,
+    onTakePhoto: () -> Unit,
+    onUploadExisting: () -> Unit,
 ) {
     Column(
         modifier = Modifier
@@ -103,10 +108,13 @@ private fun HomeContent(
 
         Spacer(Modifier.height(8.dp))
 
-        Button(onClick = onCapture, modifier = Modifier.fillMaxWidth()) {
+        Button(onClick = onTakePhoto, modifier = Modifier.fillMaxWidth()) {
             Icon(Icons.Filled.CameraAlt, contentDescription = null)
-            Spacer(Modifier.height(0.dp))
-            Text("  " + stringResource(R.string.action_capture))
+            Text("  Take a new photo")
+        }
+        OutlinedButton(onClick = onUploadExisting, modifier = Modifier.fillMaxWidth()) {
+            Icon(Icons.Filled.PhotoLibrary, contentDescription = null)
+            Text("  Upload an existing photo")
         }
     }
 }

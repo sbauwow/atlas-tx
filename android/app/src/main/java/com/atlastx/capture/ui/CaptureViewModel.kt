@@ -51,6 +51,9 @@ class CaptureViewModel(
     private val _capturedFile = MutableStateFlow<File?>(null)
     val capturedFile: StateFlow<File?> = _capturedFile.asStateFlow()
 
+    private val _capturedMime = MutableStateFlow("image/jpeg")
+    val capturedMime: StateFlow<String> = _capturedMime.asStateFlow()
+
     private val _upload = MutableStateFlow<UploadState>(UploadState.Idle)
     val upload: StateFlow<UploadState> = _upload.asStateFlow()
 
@@ -59,15 +62,46 @@ class CaptureViewModel(
 
     fun newCaptureFile(): Pair<File, Uri> {
         val dir = File(app.filesDir, "captures").apply { mkdirs() }
-        val name = "strip-" + SimpleDateFormat("yyyyMMdd-HHmmss", Locale.US).format(Date()) + ".jpg"
+        val name = "strip-" + timestamp() + ".jpg"
         val file = File(dir, name)
         val uri = FileProvider.getUriForFile(app, "${app.packageName}.fileprovider", file)
         return file to uri
     }
 
-    fun setCaptured(file: File?) {
+    fun setCapturedFromCamera(file: File?) {
         _capturedFile.value = file
+        _capturedMime.value = "image/jpeg"
         _upload.value = UploadState.Idle
+    }
+
+    fun importGalleryUri(uri: Uri): File? {
+        val resolver = app.contentResolver
+        val mime = resolver.getType(uri)?.lowercase()
+        val (ext, normalizedMime) = when (mime) {
+            "image/png" -> "png" to "image/png"
+            "image/webp" -> "webp" to "image/webp"
+            "image/jpeg", "image/jpg" -> "jpg" to "image/jpeg"
+            else -> "jpg" to "image/jpeg"
+        }
+        val dir = File(app.filesDir, "captures").apply { mkdirs() }
+        val file = File(dir, "strip-${timestamp()}.$ext")
+        return runCatching {
+            resolver.openInputStream(uri)?.use { input ->
+                file.outputStream().use { input.copyTo(it) }
+            } ?: error("could not open input stream")
+            if (file.length() == 0L) {
+                file.delete()
+                null
+            } else {
+                _capturedFile.value = file
+                _capturedMime.value = normalizedMime
+                _upload.value = UploadState.Idle
+                file
+            }
+        }.getOrElse {
+            file.takeIf { it.exists() }?.delete()
+            null
+        }
     }
 
     fun setCountySlug(slug: String?) { _countySlug.value = slug?.takeIf { it.isNotBlank() } }
@@ -88,7 +122,7 @@ class CaptureViewModel(
                 stripBrand = s.stripBrand,
                 countySlug = _countySlug.value,
                 imageFile = file,
-                imageMime = "image/jpeg",
+                imageMime = _capturedMime.value,
             )
             _upload.value = when (result) {
                 is SubmitResult.Ok -> UploadState.Done(result.observation, result.deduped)
@@ -100,9 +134,13 @@ class CaptureViewModel(
     fun reset() {
         _capturedFile.value?.takeIf { it.exists() }?.delete()
         _capturedFile.value = null
+        _capturedMime.value = "image/jpeg"
         _upload.value = UploadState.Idle
         _countySlug.value = null
     }
+
+    private fun timestamp(): String =
+        SimpleDateFormat("yyyyMMdd-HHmmss", Locale.US).format(Date())
 
     fun setBaseUrl(value: String) = viewModelScope.launch { settings.setBaseUrl(value) }
     fun setStripBrand(value: String) = viewModelScope.launch { settings.setStripBrand(value) }

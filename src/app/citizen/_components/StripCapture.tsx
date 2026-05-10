@@ -127,13 +127,31 @@ export function StripCapture() {
             <li>Lay the strip <strong>next to its bottle&apos;s color chart</strong> in the same frame.</li>
             <li>Photograph in daylight, flat surface, no flash, no shadows on the strip.</li>
           </ol>
-          <input
-            type="file"
-            accept="image/jpeg,image/png,image/webp"
-            capture="environment"
-            onChange={onFileChange}
-            className="block w-full text-sm text-slate-300 file:mr-4 file:rounded-full file:border-0 file:bg-cyan-400 file:px-4 file:py-2 file:font-medium file:text-slate-950 hover:file:bg-cyan-300"
-          />
+
+          <div className="flex flex-col gap-2 sm:flex-row">
+            <label className="inline-flex flex-1 cursor-pointer items-center justify-center rounded-full bg-cyan-400 px-4 py-3 text-sm font-medium text-slate-950 transition hover:bg-cyan-300">
+              Take a photo
+              <input
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                capture="environment"
+                onChange={onFileChange}
+                className="hidden"
+              />
+            </label>
+            <label className="inline-flex flex-1 cursor-pointer items-center justify-center rounded-full border border-cyan-400/60 px-4 py-3 text-sm font-medium text-cyan-200 transition hover:bg-cyan-400/10">
+              Upload an existing photo
+              <input
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                onChange={onFileChange}
+                className="hidden"
+              />
+            </label>
+          </div>
+          <p className="text-xs text-slate-500">
+            JPEG, PNG, or WebP. Up to 8 MB. The photo is stored server-side; not displayed publicly.
+          </p>
         </div>
       )}
 
