@@ -139,9 +139,18 @@ export default function TileCartogram({
               stroke={isSelected ? "#f8fafc" : "#020617"}
               strokeWidth={isSelected ? 1.25 : 0.5}
               rx={1}
-            />
+            >
+              {isSelected ? (
+                <>
+                  <animate attributeName="stroke-opacity" values="1;0.4;1" dur="2.4s" repeatCount="indefinite" />
+                  <animate attributeName="stroke-width" values="1.25;2.25;1.25" dur="2.4s" repeatCount="indefinite" />
+                </>
+              ) : null}
+            </rect>
             {p.flag ? (
-              <circle cx={x + tile - 3} cy={y + 3} r={1.5} fill="#f8fafc" />
+              <circle cx={x + tile - 3} cy={y + 3} r={1.5} fill="#f8fafc">
+                <animate attributeName="opacity" values="1;0.4;1" dur="2s" repeatCount="indefinite" />
+              </circle>
             ) : null}
             <title>{p.title}</title>
           </g>

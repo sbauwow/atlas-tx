@@ -45,6 +45,7 @@ export default function MismatchStrip({
         height={height - 2}
         fill={COMPLIANCE_COLOR}
         fillOpacity={complianceValue > 0 ? 0.85 : 0.2}
+        className="atlas-strip-left"
       />
       {/* world side: grows rightward from center */}
       <rect
@@ -54,6 +55,7 @@ export default function MismatchStrip({
         height={height - 2}
         fill={WORLD_COLOR}
         fillOpacity={worldValue > 0 ? 0.85 : 0.2}
+        className="atlas-strip-right"
       />
       <line x1={half} y1={0} x2={half} y2={height} stroke="#94a3b8" strokeWidth={0.6} />
     </svg>

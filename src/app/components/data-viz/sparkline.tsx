@@ -53,7 +53,16 @@ export default function Sparkline({
         fill={areaColor}
         stroke="none"
       />
-      <polyline points={points} fill="none" stroke={lineColor} strokeWidth={1} strokeLinejoin="round" strokeLinecap="round" />
+      <polyline
+        points={points}
+        fill="none"
+        stroke={lineColor}
+        strokeWidth={1}
+        strokeLinejoin="round"
+        strokeLinecap="round"
+        className="atlas-sparkline-path"
+        style={{ ["--dash-len" as string]: width * 1.4 }}
+      />
       {showEnd ? <circle cx={lastX} cy={lastY} r={1.6} fill={lineColor} /> : null}
     </svg>
   );

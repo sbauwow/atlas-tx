@@ -129,8 +129,14 @@ export default function MareyChart({
         const x1 = xFor(Math.min(endTs, Number.isNaN(endTsSeg) ? endTs : endTsSeg));
         const color = seg.color ?? DEFAULT_COLOR;
         const isOpen = !seg.endAt;
+        // Stagger fade-in across segments so the chart "draws" left-to-right.
+        const delayMs = Math.min(800, ((startTsSeg - startTs) / span) * 1200);
         return (
-          <g key={seg.id}>
+          <g
+            key={seg.id}
+            className="atlas-fade-rise"
+            style={{ animationDelay: `${delayMs}ms` }}
+          >
             <line
               x1={x0}
               y1={yTop}

@@ -38,4 +38,217 @@ body {
   background: #020617;
   color: #e2e8f0;
   font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+  position: relative;
+}
+
+/* ======================================================================
+   Atmospheric layer — grain + topographic drift behind everything.
+   ====================================================================== */
+
+body::before {
+  /* Static grain overlay. Pure SVG fractalNoise, very low opacity. */
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.035;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.9 0 0 0 0 0.93 0 0 0 0 1 0 0 0 0.55 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+}
+
+/* ======================================================================
+   Motion primitives.
+   ====================================================================== */
+
+@keyframes atlas-pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.45; transform: scale(0.85); }
+}
+
+@keyframes atlas-pulse-halo {
+  0% { stroke-opacity: 0.85; stroke-width: 2; }
+  50% { stroke-opacity: 0.35; stroke-width: 4; }
+  100% { stroke-opacity: 0.85; stroke-width: 2; }
+}
+
+@keyframes atlas-draw-in {
+  from { stroke-dashoffset: var(--dash-len, 200); }
+  to { stroke-dashoffset: 0; }
+}
+
+@keyframes atlas-fade-rise {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes atlas-bar-grow {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
+@keyframes atlas-strip-grow-left {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
+@keyframes atlas-strip-grow-right {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
+@keyframes atlas-shimmer-stroke {
+  0%, 100% { stroke-opacity: 0.45; }
+  50% { stroke-opacity: 0.7; }
+}
+
+@keyframes atlas-hero-gradient {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 100% 50%; }
+}
+
+@keyframes atlas-topo-drift {
+  0% { transform: translate3d(0, 0, 0); }
+  100% { transform: translate3d(-120px, -16px, 0); }
+}
+
+@keyframes atlas-topo-drift-reverse {
+  0% { transform: translate3d(0, 0, 0); }
+  100% { transform: translate3d(80px, 12px, 0); }
+}
+
+/* ======================================================================
+   Utility classes.
+   ====================================================================== */
+
+.atlas-pulse-dot {
+  animation: atlas-pulse-dot 2.4s ease-in-out infinite;
+  box-shadow: 0 0 12px var(--color-accent), 0 0 4px var(--color-accent);
+}
+
+.atlas-fade-rise {
+  animation: atlas-fade-rise 600ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.atlas-fade-rise-delay-1 { animation-delay: 80ms; }
+.atlas-fade-rise-delay-2 { animation-delay: 160ms; }
+.atlas-fade-rise-delay-3 { animation-delay: 240ms; }
+.atlas-fade-rise-delay-4 { animation-delay: 320ms; }
+
+.atlas-sparkline-path {
+  stroke-dasharray: var(--dash-len, 240);
+  animation: atlas-draw-in 1100ms cubic-bezier(0.65, 0, 0.35, 1) both;
+}
+
+.atlas-bar-grow {
+  transform-origin: left center;
+  animation: atlas-bar-grow 700ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.atlas-strip-left {
+  transform-origin: right center;
+  animation: atlas-strip-grow-left 700ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.atlas-strip-right {
+  transform-origin: left center;
+  animation: atlas-strip-grow-right 700ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.atlas-pulse-halo {
+  animation: atlas-pulse-halo 2.6s ease-in-out infinite;
+}
+
+.atlas-shimmer-stroke {
+  animation: atlas-shimmer-stroke 3s ease-in-out infinite;
+}
+
+.atlas-hero-gradient {
+  background: linear-gradient(
+    100deg,
+    #f8fafc 0%,
+    #f8fafc 30%,
+    #67e8f9 50%,
+    #f8fafc 70%,
+    #f8fafc 100%
+  );
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: atlas-hero-gradient 12s ease-in-out infinite alternate;
+}
+
+.atlas-topo-layer {
+  will-change: transform;
+}
+
+.atlas-topo-layer-a { animation: atlas-topo-drift 60s linear infinite; }
+.atlas-topo-layer-b { animation: atlas-topo-drift-reverse 90s linear infinite; }
+
+/* Card shimmer on hover: animated gradient border ring. */
+.atlas-card-shimmer {
+  position: relative;
+  isolation: isolate;
+  transition: transform 250ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.atlas-card-shimmer::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(
+    135deg,
+    transparent 0%,
+    rgba(34, 211, 238, 0) 40%,
+    rgba(34, 211, 238, 0.45) 50%,
+    rgba(34, 211, 238, 0) 60%,
+    transparent 100%
+  );
+  background-size: 220% 220%;
+  background-position: 200% 0%;
+  -webkit-mask: linear-gradient(#000, #000) content-box, linear-gradient(#000, #000);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000, #000) content-box, linear-gradient(#000, #000);
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 250ms ease-out, background-position 700ms ease-out;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.atlas-card-shimmer:hover::before {
+  opacity: 1;
+  background-position: -20% 0%;
+}
+
+.atlas-card-shimmer:hover {
+  transform: translateY(-2px);
+}
+
+/* Reduced motion: disable everything decorative. */
+@media (prefers-reduced-motion: reduce) {
+  .atlas-pulse-dot,
+  .atlas-fade-rise,
+  .atlas-sparkline-path,
+  .atlas-bar-grow,
+  .atlas-strip-left,
+  .atlas-strip-right,
+  .atlas-pulse-halo,
+  .atlas-shimmer-stroke,
+  .atlas-hero-gradient,
+  .atlas-topo-layer-a,
+  .atlas-topo-layer-b {
+    animation: none !important;
+  }
+  .atlas-sparkline-path {
+    stroke-dasharray: none;
+  }
+  .atlas-bar-grow,
+  .atlas-strip-left,
+  .atlas-strip-right {
+    transform: none !important;
+  }
 }
