@@ -1,0 +1,37 @@
+family	model_short	split	auprc
+Pooled	Benchmark	Validation	0.5585064215359342
+Pooled	Benchmark	Test	0.45994019233206923
+Pooled	temp z only	Validation	0.5579043845980414
+Pooled	temp z only	Test	0.4601080284044038
+Pooled	heat only	Validation	0.5584815924864824
+Pooled	heat only	Test	0.4598318170403888
+Pooled	freeze only	Validation	0.577341932765168
+Pooled	freeze only	Test	0.4722044053254137
+Pooled	overflow×heat	Validation	0.558496817315637
+Pooled	overflow×heat	Test	0.4594547709474918
+Pooled	temp z + heat	Validation	0.5578443687695106
+Pooled	temp z + heat	Test	0.4603118700684129
+Pooled	heat + freeze	Validation	0.5780343810308906
+Pooled	heat + freeze	Test	0.47502697809359506
+Pooled	temp z + heat + freeze	Validation	0.5783944930627367
+Pooled	temp z + heat + freeze	Test	0.47492163250684055
+Pooled	full heat stack	Validation	0.5784707516640522
+Pooled	full heat stack	Test	0.47498875604048035
+County FE-style	Benchmark	Validation	0.5589719601115632
+County FE-style	Benchmark	Test	0.46245824166115806
+County FE-style	temp z only	Validation	0.5580230424197477
+County FE-style	temp z only	Test	0.46347772266628895
+County FE-style	heat only	Validation	0.5589361768777541
+County FE-style	heat only	Test	0.462528971146611
+County FE-style	freeze only	Validation	0.5774862206905362
+County FE-style	freeze only	Test	0.47508255276511435
+County FE-style	overflow×heat	Validation	0.5589866555353329
+County FE-style	overflow×heat	Test	0.46244609668718073
+County FE-style	temp z + heat	Validation	0.5577641594264457
+County FE-style	temp z + heat	Test	0.4637294880004836
+County FE-style	heat + freeze	Validation	0.5781789232287137
+County FE-style	heat + freeze	Test	0.4775008121759924
+County FE-style	temp z + heat + freeze	Validation	0.5781293107776075
+County FE-style	temp z + heat + freeze	Test	0.47788842291464045
+County FE-style	full heat stack	Validation	0.5781166045816678
+County FE-style	full heat stack	Test	0.47789099665596446

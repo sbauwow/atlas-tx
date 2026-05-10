@@ -33,4 +33,8 @@ describe("package scripts", () => {
   it("exposes a refresh:city-open-data-ranked script for refreshing ranked Texas city open-data catalogs", () => {
     expect(pkg.scripts["refresh:city-open-data-ranked"]).toBe("tsx scripts/refresh-city-open-data-ranked.ts");
   });
+
+  it("exposes a heat ablation analysis script for the thesis robustness pass", () => {
+    expect(pkg.scripts["analyze:heat-ablation"]).toBe("tsx experiments/heat_ablation.ts");
+  });
 });

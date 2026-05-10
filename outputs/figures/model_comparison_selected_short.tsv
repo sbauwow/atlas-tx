@@ -1,0 +1,21 @@
+family	model_short	split	auprc
+Pooled	Persistence	Validation	0.3893536814375148
+Pooled	Persistence	Test	0.39314482343037743
+Pooled	Persistence + EB	Validation	0.5589046073486115
+Pooled	Persistence + EB	Test	0.4613419647254943
+Pooled	EB + trig. no temp	Validation	0.5585064215359342
+Pooled	EB + trig. no temp	Test	0.45994019233206923
+Pooled	EB + trig. + temp	Validation	0.5784707516640522
+Pooled	EB + trig. + temp	Test	0.47498875604048035
+Pooled	EB + structural	Validation	0.5695416753008586
+Pooled	EB + structural	Test	0.46092261509248467
+County FE-style	FE + persistence	Validation	0.4112300887862674
+County FE-style	FE + persistence	Test	0.4169769677450466
+County FE-style	FE + EB	Validation	0.5587643519196446
+County FE-style	FE + EB	Test	0.4632140023412886
+County FE-style	FE + trig. no temp	Validation	0.5589719601115632
+County FE-style	FE + trig. no temp	Test	0.46245824166115806
+County FE-style	FE + trig. + temp	Validation	0.5781166045816678
+County FE-style	FE + trig. + temp	Test	0.47789099665596446
+County FE-style	FE + precip. int.	Validation	0.5665606082862167
+County FE-style	FE + precip. int.	Test	0.4586218182869698

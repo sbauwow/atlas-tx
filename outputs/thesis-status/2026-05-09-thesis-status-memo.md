@@ -6,7 +6,7 @@ Generated: 2026-05-09
 
 The thesis is now **empirically real but not yet paper-finished**.
 
-We have a reproducible Texas county-month panel, a backtest ladder, and a defensible central result. The strongest current framing is not a broad causal weather thesis. It is a **predictive county-month risk-ranking thesis** in which:
+We have a reproducible Texas county-month panel, a backtest ladder, and a defensible central result. The strongest current framing is not a broad causal weather thesis. It is an **open-data county-month risk-ranking thesis** in which:
 
 1. **persistent county baseline risk dominates**,
 2. **empirical-Bayes shrinkage materially improves baseline-risk estimation**, and
@@ -18,7 +18,7 @@ We have a reproducible Texas county-month panel, a backtest ladder, and a defens
 
 ### What is complete
 
-- Canonical county-month Texas panel built and regenerated
+- Canonical county-month Texas panel built and regenerated from contest-relevant Texas open data plus adjacent public federal context
 - Historical window fixed at **2020-01 through 2025-12**
 - Coverage fixed at **254 counties × 72 months = 18,288 rows**
 - Reproducible experiment scripts for:
@@ -143,7 +143,7 @@ Read:
 
 The strongest current thesis statement is:
 
-> In a Texas county-month backtest of SDWIS health-based event occurrence, persistent county-level baseline risk is the dominant predictive component, empirical-Bayes shrinkage improves baseline-risk estimation, and county-month heat context adds measurable incremental ranking value beyond precipitation, flood-warning, streamflow, and drought proxy layers.
+> Using contest-relevant Texas open data plus adjacent public environmental context, a Texas county-month backtest of SDWIS health-based event occurrence shows that persistent county-level baseline risk is the dominant predictive component, empirical-Bayes shrinkage improves baseline-risk estimation, and county-month temperature-seasonality context adds measurable incremental ranking value beyond precipitation, flood-warning, streamflow, and drought proxy layers.
 
 That framing is:
 - predictive rather than causal

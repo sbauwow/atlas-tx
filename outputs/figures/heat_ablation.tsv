@@ -1,0 +1,37 @@
+family	model	split	auprc
+Pooled	Benchmark: EB trigger stack without heat	Validation	0.5585064215359342
+Pooled	Benchmark: EB trigger stack without heat	Test	0.45994019233206923
+Pooled	Benchmark + temp_mean_anomaly_z	Validation	0.5579043845980414
+Pooled	Benchmark + temp_mean_anomaly_z	Test	0.4601080284044038
+Pooled	Benchmark + heat_days	Validation	0.5584815924864824
+Pooled	Benchmark + heat_days	Test	0.4598318170403888
+Pooled	Benchmark + freeze_days	Validation	0.577341932765168
+Pooled	Benchmark + freeze_days	Test	0.4722044053254137
+Pooled	Benchmark + overflow_x_heat	Validation	0.558496817315637
+Pooled	Benchmark + overflow_x_heat	Test	0.4594547709474918
+Pooled	Benchmark + temp_mean_anomaly_z + heat_days	Validation	0.5578443687695106
+Pooled	Benchmark + temp_mean_anomaly_z + heat_days	Test	0.4603118700684129
+Pooled	Benchmark + heat_days + freeze_days	Validation	0.5780343810308906
+Pooled	Benchmark + heat_days + freeze_days	Test	0.47502697809359506
+Pooled	Benchmark + temp_mean_anomaly_z + heat_days + freeze_days	Validation	0.5783944930627367
+Pooled	Benchmark + temp_mean_anomaly_z + heat_days + freeze_days	Test	0.47492163250684055
+Pooled	Benchmark + full heat stack	Validation	0.5784707516640522
+Pooled	Benchmark + full heat stack	Test	0.47498875604048035
+County FE-style	Benchmark: EB trigger stack without heat	Validation	0.5589719601115632
+County FE-style	Benchmark: EB trigger stack without heat	Test	0.46245824166115806
+County FE-style	Benchmark + temp_mean_anomaly_z	Validation	0.5580230424197477
+County FE-style	Benchmark + temp_mean_anomaly_z	Test	0.46347772266628895
+County FE-style	Benchmark + heat_days	Validation	0.5589361768777541
+County FE-style	Benchmark + heat_days	Test	0.462528971146611
+County FE-style	Benchmark + freeze_days	Validation	0.5774862206905362
+County FE-style	Benchmark + freeze_days	Test	0.47508255276511435
+County FE-style	Benchmark + overflow_x_heat	Validation	0.5589866555353329
+County FE-style	Benchmark + overflow_x_heat	Test	0.46244609668718073
+County FE-style	Benchmark + temp_mean_anomaly_z + heat_days	Validation	0.5577641594264457
+County FE-style	Benchmark + temp_mean_anomaly_z + heat_days	Test	0.4637294880004836
+County FE-style	Benchmark + heat_days + freeze_days	Validation	0.5781789232287137
+County FE-style	Benchmark + heat_days + freeze_days	Test	0.4775008121759924
+County FE-style	Benchmark + temp_mean_anomaly_z + heat_days + freeze_days	Validation	0.5781293107776075
+County FE-style	Benchmark + temp_mean_anomaly_z + heat_days + freeze_days	Test	0.47788842291464045
+County FE-style	Benchmark + full heat stack	Validation	0.5781166045816678
+County FE-style	Benchmark + full heat stack	Test	0.47789099665596446

@@ -2,6 +2,69 @@
 
 ## 2026-05-09
 
+### research: foreground contest open-data framing in thesis artifacts
+
+What shipped:
+- revised the main paper draft to frame the thesis explicitly as a Texas open-data systems and risk-ranking contribution, not just a weather-trigger modeling exercise
+- revised the thesis status memo to foreground contest-relevant Texas open data plus adjacent public federal context as the backbone of the study
+- updated the problem framing, contribution list, data provenance section, and conclusion so the contest/open-data motivation is explicit
+
+### research: grassroots strip validation preregistration and schema
+
+Added:
+- `papers/2026-05-10-grassroots-strip-validation-preregistration-and-schema.md`
+
+What shipped:
+- a preregistration-style study plan for using grassroots strip observations as external validation and mismatch detection on top of the public-data thesis backbone
+- a first observation-level, analyte-level, and county-month aggregation schema for the grassroots strip layer
+- explicit evidence-class separation rules so grassroots strips stay a secondary validation layer rather than an authoritative outcome replacement
+
+### research: add paper tables and figures to the draft
+
+Added:
+- `outputs/figures/model-comparison-selected.png`
+- `outputs/figures/heat-ablation-auprc.png`
+
+What shipped:
+- inserted compact model-comparison and heat-ablation tables into the first paper draft
+- generated first draft figures for selected model comparisons and heat ablations and linked them from the paper draft
+
+### research: first full county-month paper draft
+
+Added:
+- `papers/2026-05-10-county-month-water-risk-paper-draft.md`
+
+What shipped:
+- a first full paper-style draft covering abstract, introduction, data, methods, results, discussion, limitations, conclusion, and next tables/figures
+- the draft now reflects the refined heat-ablation result: temperature-seasonality context improves ranking, with `freeze_days` and the `heat_days + freeze_days` bundle carrying the strongest incremental signal
+
+### research: heat ablation memo artifact
+
+Added:
+- `experiments/heat_ablation.ts`
+- `tests/heat-ablation.test.ts`
+- `outputs/thesis-status/2026-05-09-heat-ablation-memo.md`
+- `outputs/thesis-status/2026-05-09-heat-ablation-memo.json`
+- package script `analyze:heat-ablation`
+
+What shipped:
+- a focused pooled + county-FE heat decomposition benchmark against the existing EB-aware non-heat trigger stack
+- single-term and bundled heat ablations for `temp_mean_anomaly_z`, `heat_days`, `freeze_days`, and `overflow_x_heat`
+
+Observed result:
+- the strongest single added heat term by validation AUPRC was `freeze_days` in both pooled and FE-style passes
+- the best compact bundle was `heat_days + freeze_days`
+- the full pooled heat stack matched the top validation result and kept the improved test AUPRC (`0.475` pooled, `0.478` FE-style)
+
+### research: thesis outline plus heat-ablation plan artifact
+
+Added:
+- `papers/2026-05-09-thesis-outline-and-heat-ablation-plan.md`
+
+What shipped:
+- a paper-ready thesis outline centered on chronic county baseline risk, EB stabilization, and the incremental heat finding
+- a focused heat-ablation plan specifying benchmark models, decomposition tests, robustness checks, and interpretation rules
+
 ### research: add county-month temperature / heat context and rerun EB-aware ladders
 
 Added:

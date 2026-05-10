@@ -1,0 +1,21 @@
+family	model	split	auprc
+Pooled	Persistence only	Validation	0.3893536814375148
+Pooled	Persistence only	Test	0.39314482343037743
+Pooled	Persistence + EB county baseline	Validation	0.5589046073486115
+Pooled	Persistence + EB county baseline	Test	0.4613419647254943
+Pooled	Persistence + EB baseline + overflow + precipitation + NWS flood + streamflow + drought	Validation	0.5585064215359342
+Pooled	Persistence + EB baseline + overflow + precipitation + NWS flood + streamflow + drought	Test	0.45994019233206923
+Pooled	Persistence + EB baseline + overflow + precipitation + NWS flood + streamflow + drought + heat	Validation	0.5784707516640522
+Pooled	Persistence + EB baseline + overflow + precipitation + NWS flood + streamflow + drought + heat	Test	0.47498875604048035
+Pooled	Persistence + EB baseline + overflow + precipitation + structural context	Validation	0.5695416753008586
+Pooled	Persistence + EB baseline + overflow + precipitation + structural context	Test	0.46092261509248467
+County FE-style	County FE + persistence	Validation	0.4112300887862674
+County FE-style	County FE + persistence	Test	0.4169769677450466
+County FE-style	County FE + persistence + EB baseline	Validation	0.5587643519196446
+County FE-style	County FE + persistence + EB baseline	Test	0.4632140023412886
+County FE-style	County FE + persistence + EB baseline + overflow + precipitation + NWS flood + streamflow + drought	Validation	0.5589719601115632
+County FE-style	County FE + persistence + EB baseline + overflow + precipitation + NWS flood + streamflow + drought	Test	0.46245824166115806
+County FE-style	County FE + persistence + EB baseline + overflow + precipitation + NWS flood + streamflow + drought + heat	Validation	0.5781166045816678
+County FE-style	County FE + persistence + EB baseline + overflow + precipitation + NWS flood + streamflow + drought + heat	Test	0.47789099665596446
+County FE-style	County FE + persistence + EB baseline + overflow + precipitation + interaction	Validation	0.5665606082862167
+County FE-style	County FE + persistence + EB baseline + overflow + precipitation + interaction	Test	0.4586218182869698
