@@ -48,6 +48,8 @@ _(empty)_
 | data | hermes | Add LCRA quality county aggregation metrics/notes to water summaries and water page; degrade gracefully when LCRA TLS fetch fails | working tree |
 | docs | hermes | Add regional water-authority ingest matrix and record the post-LCRA county aggregation next move in the water ingest plan | working tree |
 | docs | feynman | Update README to reflect planned mismatch-signal and weather / hydrologic context layers for Atlas TX | working tree |
+| data (cross: docs) | feynman | Add county-month temperature / heat context, finish the historical Open-Meteo snapshot with a resumable fallback path after 429s, integrate heat features into the county-month panel, and rerun the EB-aware pooled and county-FE ladders | working tree |
+| data (cross: docs) | feynman | Add county-month temperature / heat context, finish the historical Open-Meteo snapshot with a resumable fallback path after 429s, integrate heat features into the county-month panel, rerun the EB-aware pooled and county-FE ladders, and write a thesis status memo artifact. | working tree |
 | docs | feynman | Add weather / hydrologic contract language and draft normalized row shapes for NWS alerts, USGS streamflow, drought, precipitation, and temperature context | working tree |
 | docs | feynman | Add Milestone 1.2 weather / hydrologic context planning rows for alerts, streamflow, drought, precipitation, temperature, and county-summary follow-on contract work | working tree |
 | docs | feynman | Add Milestone 1.1 mismatch-signal planning rows and dataset-registry contract language for boil notices, disinfectant residuals, and biological integrity | working tree |

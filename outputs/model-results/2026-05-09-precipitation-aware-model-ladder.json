@@ -1,0 +1,1451 @@
+{
+  "generatedAt": "2026-05-09T20:36:29.980Z",
+  "exampleCount": 14490,
+  "runs": [
+    {
+      "model": {
+        "id": "prevalence",
+        "label": "Prevalence baseline",
+        "featureNames": []
+      },
+      "coefficients": [],
+      "intercept": -1.6570111328540014,
+      "metrics": {
+        "train": {
+          "count": 9534,
+          "positives": 1527,
+          "prevalence": 0.16016362492133418,
+          "auroc": 0.5,
+          "auprc": 0.19378482661253427,
+          "brier": 0.13451123817339475,
+          "precisionAtTopDecile": 0.24134312696747115,
+          "liftAtTopDecile": 1.506853551085704,
+          "meanPredictedProbability": 0.16016362492132527
+        },
+        "validation": {
+          "count": 2446,
+          "positives": 532,
+          "prevalence": 0.21749795584627965,
+          "auroc": 0.5,
+          "auprc": 0.2505994291581226,
+          "brier": 0.17347982055157854,
+          "precisionAtTopDecile": 0.3020408163265306,
+          "liftAtTopDecile": 1.38870646002762,
+          "meanPredictedProbability": 0.16016362492132807
+        },
+        "test": {
+          "count": 2510,
+          "positives": 385,
+          "prevalence": 0.15338645418326693,
+          "auroc": 0.5,
+          "auprc": 0.17356879018971968,
+          "brier": 0.12990497989956148,
+          "precisionAtTopDecile": 0.20318725099601595,
+          "liftAtTopDecile": 1.3246753246753247,
+          "meanPredictedProbability": 0.16016362492132796
+        }
+      }
+    },
+    {
+      "model": {
+        "id": "persistence",
+        "label": "Persistence only",
+        "featureNames": [
+          "sdwis_prior_1m_any",
+          "sdwis_prior_3m_count",
+          "sdwis_prior_12m_count",
+          "sdwis_cumulative_prior_count"
+        ]
+      },
+      "coefficients": [
+        {
+          "feature": "sdwis_prior_1m_any",
+          "weight": -0.06755428942992807
+        },
+        {
+          "feature": "sdwis_prior_3m_count",
+          "weight": 0.48725905300998124
+        },
+        {
+          "feature": "sdwis_prior_12m_count",
+          "weight": 0.2614150125109689
+        },
+        {
+          "feature": "sdwis_cumulative_prior_count",
+          "weight": -0.09855999460765545
+        }
+      ],
+      "intercept": -1.6990788427050356,
+      "metrics": {
+        "train": {
+          "count": 9534,
+          "positives": 1527,
+          "prevalence": 0.16016362492133418,
+          "auroc": 0.8134264313094085,
+          "auprc": 0.43479456456815657,
+          "brier": 0.12432579624840585,
+          "precisionAtTopDecile": 0.4931794333683106,
+          "liftAtTopDecile": 3.0792224739577425,
+          "meanPredictedProbability": 0.16020576053605767
+        },
+        "validation": {
+          "count": 2446,
+          "positives": 532,
+          "prevalence": 0.21749795584627965,
+          "auroc": 0.709655211696954,
+          "auprc": 0.3893536814375148,
+          "brier": 0.16628487927384183,
+          "precisionAtTopDecile": 0.4448979591836735,
+          "liftAtTopDecile": 2.0455270830136567,
+          "meanPredictedProbability": 0.16737801861799229
+        },
+        "test": {
+          "count": 2510,
+          "positives": 385,
+          "prevalence": 0.15338645418326693,
+          "auroc": 0.805290756302521,
+          "auprc": 0.39314482343037743,
+          "brier": 0.1185403831112452,
+          "precisionAtTopDecile": 0.450199203187251,
+          "liftAtTopDecile": 2.935064935064935,
+          "meanPredictedProbability": 0.17708354037513227
+        }
+      }
+    },
+    {
+      "model": {
+        "id": "persistence_eb",
+        "label": "Persistence + EB county baseline",
+        "featureNames": [
+          "sdwis_prior_1m_any",
+          "sdwis_prior_3m_count",
+          "sdwis_prior_12m_count",
+          "sdwis_cumulative_prior_count",
+          "county_eb_baseline"
+        ]
+      },
+      "coefficients": [
+        {
+          "feature": "sdwis_prior_1m_any",
+          "weight": -0.7406392633463104
+        },
+        {
+          "feature": "sdwis_prior_3m_count",
+          "weight": 0.16818714399939458
+        },
+        {
+          "feature": "sdwis_prior_12m_count",
+          "weight": 0.006631276596718182
+        },
+        {
+          "feature": "sdwis_cumulative_prior_count",
+          "weight": -0.1043351943549833
+        },
+        {
+          "feature": "county_eb_baseline",
+          "weight": 1.7430949043373485
+        }
+      ],
+      "intercept": -2.157672189985964,
+      "metrics": {
+        "train": {
+          "count": 9534,
+          "positives": 1527,
+          "prevalence": 0.16016362492133418,
+          "auroc": 0.8790792421398794,
+          "auprc": 0.6123209910027503,
+          "brier": 0.09063452666523356,
+          "precisionAtTopDecile": 0.621196222455404,
+          "liftAtTopDecile": 3.8785100097510288,
+          "meanPredictedProbability": 0.1625108637401811
+        },
+        "validation": {
+          "count": 2446,
+          "positives": 532,
+          "prevalence": 0.21749795584627965,
+          "auroc": 0.7739283553711865,
+          "auprc": 0.5589046073486115,
+          "brier": 0.13819888384851456,
+          "precisionAtTopDecile": 0.6448979591836734,
+          "liftAtTopDecile": 2.9650759551941075,
+          "meanPredictedProbability": 0.15204035556530063
+        },
+        "test": {
+          "count": 2510,
+          "positives": 385,
+          "prevalence": 0.15338645418326693,
+          "auroc": 0.7975052711993889,
+          "auprc": 0.4613419647254943,
+          "brier": 0.10705363665392946,
+          "precisionAtTopDecile": 0.49800796812749004,
+          "liftAtTopDecile": 3.2467532467532467,
+          "meanPredictedProbability": 0.15818770127913345
+        }
+      }
+    },
+    {
+      "model": {
+        "id": "persistence_overflow",
+        "label": "Persistence + overflow",
+        "featureNames": [
+          "sdwis_prior_1m_any",
+          "sdwis_prior_3m_count",
+          "sdwis_prior_12m_count",
+          "sdwis_cumulative_prior_count",
+          "overflow_any",
+          "overflow_count",
+          "overflow_log_gallons_sum",
+          "overflow_repeat_3m_any",
+          "overflow_severe_any"
+        ]
+      },
+      "coefficients": [
+        {
+          "feature": "sdwis_prior_1m_any",
+          "weight": -0.08744888165482649
+        },
+        {
+          "feature": "sdwis_prior_3m_count",
+          "weight": 0.47106231535369925
+        },
+        {
+          "feature": "sdwis_prior_12m_count",
+          "weight": 0.24950210396128233
+        },
+        {
+          "feature": "sdwis_cumulative_prior_count",
+          "weight": -0.08451088068312682
+        },
+        {
+          "feature": "overflow_any",
+          "weight": 0.12485372541189745
+        },
+        {
+          "feature": "overflow_count",
+          "weight": 0.16452674540505827
+        },
+        {
+          "feature": "overflow_log_gallons_sum",
+          "weight": -0.12802116828038781
+        },
+        {
+          "feature": "overflow_repeat_3m_any",
+          "weight": 0.06728533116499237
+        },
+        {
+          "feature": "overflow_severe_any",
+          "weight": -0.0402502030860125
+        }
+      ],
+      "intercept": -1.7116718627191632,
+      "metrics": {
+        "train": {
+          "count": 9534,
+          "positives": 1527,
+          "prevalence": 0.16016362492133418,
+          "auroc": 0.7943656291576566,
+          "auprc": 0.40912814490251365,
+          "brier": 0.12332157924374948,
+          "precisionAtTopDecile": 0.4826862539349423,
+          "liftAtTopDecile": 3.013707102171408,
+          "meanPredictedProbability": 0.16021362289454266
+        },
+        "validation": {
+          "count": 2446,
+          "positives": 532,
+          "prevalence": 0.21749795584627965,
+          "auroc": 0.7101482153660013,
+          "auprc": 0.3870267272862915,
+          "brier": 0.1657520900428647,
+          "precisionAtTopDecile": 0.43673469387755104,
+          "liftAtTopDecile": 2.007994475985883,
+          "meanPredictedProbability": 0.16551502094204326
+        },
+        "test": {
+          "count": 2510,
+          "positives": 385,
+          "prevalence": 0.15338645418326693,
+          "auroc": 0.7960421695951108,
+          "auprc": 0.3852886717102613,
+          "brier": 0.11824623684568562,
+          "precisionAtTopDecile": 0.450199203187251,
+          "liftAtTopDecile": 2.935064935064935,
+          "meanPredictedProbability": 0.17574543827309652
+        }
+      }
+    },
+    {
+      "model": {
+        "id": "persistence_precip",
+        "label": "Persistence + precipitation",
+        "featureNames": [
+          "sdwis_prior_1m_any",
+          "sdwis_prior_3m_count",
+          "sdwis_prior_12m_count",
+          "sdwis_cumulative_prior_count",
+          "precip_total_mm",
+          "precip_anomaly_z",
+          "heavy_rain_days",
+          "precip_max_1d_mm"
+        ]
+      },
+      "coefficients": [
+        {
+          "feature": "sdwis_prior_1m_any",
+          "weight": -0.07202973535643457
+        },
+        {
+          "feature": "sdwis_prior_3m_count",
+          "weight": 0.4868918520737704
+        },
+        {
+          "feature": "sdwis_prior_12m_count",
+          "weight": 0.2605237287029303
+        },
+        {
+          "feature": "sdwis_cumulative_prior_count",
+          "weight": -0.09548481582214374
+        },
+        {
+          "feature": "precip_total_mm",
+          "weight": 0.08950306896003132
+        },
+        {
+          "feature": "precip_anomaly_z",
+          "weight": 0.0038757918806436365
+        },
+        {
+          "feature": "heavy_rain_days",
+          "weight": -0.05225300344054295
+        },
+        {
+          "feature": "precip_max_1d_mm",
+          "weight": 0.014469698480453277
+        }
+      ],
+      "intercept": -1.7008220517881867,
+      "metrics": {
+        "train": {
+          "count": 9534,
+          "positives": 1527,
+          "prevalence": 0.16016362492133418,
+          "auroc": 0.8199868337208871,
+          "auprc": 0.42695163834565286,
+          "brier": 0.12426340258187511,
+          "precisionAtTopDecile": 0.4858342077649528,
+          "liftAtTopDecile": 3.033361713707308,
+          "meanPredictedProbability": 0.16021237500118024
+        },
+        "validation": {
+          "count": 2446,
+          "positives": 532,
+          "prevalence": 0.21749795584627965,
+          "auroc": 0.7147531839001894,
+          "auprc": 0.38602908238701517,
+          "brier": 0.1661055242431461,
+          "precisionAtTopDecile": 0.43673469387755104,
+          "liftAtTopDecile": 2.007994475985883,
+          "meanPredictedProbability": 0.1675281070502263
+        },
+        "test": {
+          "count": 2510,
+          "positives": 385,
+          "prevalence": 0.15338645418326693,
+          "auroc": 0.7959431627196333,
+          "auprc": 0.3860102419586255,
+          "brier": 0.11854178771327861,
+          "precisionAtTopDecile": 0.4342629482071713,
+          "liftAtTopDecile": 2.831168831168831,
+          "meanPredictedProbability": 0.17708991958902515
+        }
+      }
+    },
+    {
+      "model": {
+        "id": "persistence_overflow_precip_interaction",
+        "label": "Persistence + overflow + precipitation + interaction",
+        "featureNames": [
+          "sdwis_prior_1m_any",
+          "sdwis_prior_3m_count",
+          "sdwis_prior_12m_count",
+          "sdwis_cumulative_prior_count",
+          "overflow_any",
+          "overflow_count",
+          "overflow_log_gallons_sum",
+          "overflow_repeat_3m_any",
+          "overflow_severe_any",
+          "precip_total_mm",
+          "precip_anomaly_z",
+          "heavy_rain_days",
+          "precip_max_1d_mm",
+          "overflow_x_precip_anomaly"
+        ]
+      },
+      "coefficients": [
+        {
+          "feature": "sdwis_prior_1m_any",
+          "weight": -0.09012666508680603
+        },
+        {
+          "feature": "sdwis_prior_3m_count",
+          "weight": 0.4720331480667464
+        },
+        {
+          "feature": "sdwis_prior_12m_count",
+          "weight": 0.2501012839968865
+        },
+        {
+          "feature": "sdwis_cumulative_prior_count",
+          "weight": -0.08280457418511382
+        },
+        {
+          "feature": "overflow_any",
+          "weight": 0.11771386958718053
+        },
+        {
+          "feature": "overflow_count",
+          "weight": 0.1860907439286272
+        },
+        {
+          "feature": "overflow_log_gallons_sum",
+          "weight": -0.12751745847684012
+        },
+        {
+          "feature": "overflow_repeat_3m_any",
+          "weight": 0.06269481080652023
+        },
+        {
+          "feature": "overflow_severe_any",
+          "weight": -0.044295214030877716
+        },
+        {
+          "feature": "precip_total_mm",
+          "weight": 0.05161757059891974
+        },
+        {
+          "feature": "precip_anomaly_z",
+          "weight": 0.040980905930977855
+        },
+        {
+          "feature": "heavy_rain_days",
+          "weight": -0.05976219916575631
+        },
+        {
+          "feature": "precip_max_1d_mm",
+          "weight": 0.008085088854834955
+        },
+        {
+          "feature": "overflow_x_precip_anomaly",
+          "weight": -0.046669736028003644
+        }
+      ],
+      "intercept": -1.7132441764124433,
+      "metrics": {
+        "train": {
+          "count": 9534,
+          "positives": 1527,
+          "prevalence": 0.16016362492133418,
+          "auroc": 0.8012022715225684,
+          "auprc": 0.4090835740795973,
+          "brier": 0.12325362546426745,
+          "precisionAtTopDecile": 0.47639034627492133,
+          "liftAtTopDecile": 2.974397879099607,
+          "meanPredictedProbability": 0.16022118449488587
+        },
+        "validation": {
+          "count": 2446,
+          "positives": 532,
+          "prevalence": 0.21749795584627965,
+          "auroc": 0.7269064117975189,
+          "auprc": 0.39344737981109185,
+          "brier": 0.16553873336530547,
+          "precisionAtTopDecile": 0.42857142857142855,
+          "liftAtTopDecile": 1.9704618689581093,
+          "meanPredictedProbability": 0.16564447183076975
+        },
+        "test": {
+          "count": 2510,
+          "positives": 385,
+          "prevalence": 0.15338645418326693,
+          "auroc": 0.792290909090909,
+          "auprc": 0.38131158202888066,
+          "brier": 0.11829169887853937,
+          "precisionAtTopDecile": 0.44621513944223107,
+          "liftAtTopDecile": 2.909090909090909,
+          "meanPredictedProbability": 0.17543155859795115
+        }
+      }
+    },
+    {
+      "model": {
+        "id": "persistence_eb_overflow_precip_flood",
+        "label": "Persistence + EB baseline + overflow + precipitation + NWS flood",
+        "featureNames": [
+          "sdwis_prior_1m_any",
+          "sdwis_prior_3m_count",
+          "sdwis_prior_12m_count",
+          "sdwis_cumulative_prior_count",
+          "county_eb_baseline",
+          "overflow_any",
+          "overflow_count",
+          "overflow_log_gallons_sum",
+          "overflow_repeat_3m_any",
+          "overflow_severe_any",
+          "precip_total_mm",
+          "precip_anomaly_z",
+          "heavy_rain_days",
+          "precip_max_1d_mm",
+          "flood_warning_any",
+          "flood_warning_count",
+          "flash_flood_warning_any",
+          "overflow_x_precip_anomaly",
+          "overflow_x_flood_warning"
+        ]
+      },
+      "coefficients": [
+        {
+          "feature": "sdwis_prior_1m_any",
+          "weight": -0.7367401931932082
+        },
+        {
+          "feature": "sdwis_prior_3m_count",
+          "weight": 0.1674045418767846
+        },
+        {
+          "feature": "sdwis_prior_12m_count",
+          "weight": 0.00885723041132464
+        },
+        {
+          "feature": "sdwis_cumulative_prior_count",
+          "weight": -0.10101537536392229
+        },
+        {
+          "feature": "county_eb_baseline",
+          "weight": 1.7471843699784604
+        },
+        {
+          "feature": "overflow_any",
+          "weight": -0.04905595120805708
+        },
+        {
+          "feature": "overflow_count",
+          "weight": 0.017382188735146454
+        },
+        {
+          "feature": "overflow_log_gallons_sum",
+          "weight": 0.003248531870601475
+        },
+        {
+          "feature": "overflow_repeat_3m_any",
+          "weight": 0.03022368690796072
+        },
+        {
+          "feature": "overflow_severe_any",
+          "weight": -0.03856676491749395
+        },
+        {
+          "feature": "precip_total_mm",
+          "weight": 0.0019389605332421546
+        },
+        {
+          "feature": "precip_anomaly_z",
+          "weight": 0.031389800632662675
+        },
+        {
+          "feature": "heavy_rain_days",
+          "weight": -0.023337535855658197
+        },
+        {
+          "feature": "precip_max_1d_mm",
+          "weight": 0.00928107081392193
+        },
+        {
+          "feature": "flood_warning_any",
+          "weight": -0.1081588002002277
+        },
+        {
+          "feature": "flood_warning_count",
+          "weight": -0.070298968070543
+        },
+        {
+          "feature": "flash_flood_warning_any",
+          "weight": 0.02992936826956957
+        },
+        {
+          "feature": "overflow_x_precip_anomaly",
+          "weight": 0.009004438075281231
+        },
+        {
+          "feature": "overflow_x_flood_warning",
+          "weight": 0.04698402337710064
+        }
+      ],
+      "intercept": -2.164989545640332,
+      "metrics": {
+        "train": {
+          "count": 9534,
+          "positives": 1527,
+          "prevalence": 0.16016362492133418,
+          "auroc": 0.8794584535518978,
+          "auprc": 0.6157494064438884,
+          "brier": 0.09019437311205213,
+          "precisionAtTopDecile": 0.6327387198321092,
+          "liftAtTopDecile": 3.950576918715998,
+          "meanPredictedProbability": 0.16260211775877179
+        },
+        "validation": {
+          "count": 2446,
+          "positives": 532,
+          "prevalence": 0.21749795584627965,
+          "auroc": 0.7778596176962783,
+          "auprc": 0.5633579653577294,
+          "brier": 0.13733133402575054,
+          "precisionAtTopDecile": 0.6448979591836734,
+          "liftAtTopDecile": 2.9650759551941075,
+          "meanPredictedProbability": 0.15440477526852195
+        },
+        "test": {
+          "count": 2510,
+          "positives": 385,
+          "prevalence": 0.15338645418326693,
+          "auroc": 0.7953576776165011,
+          "auprc": 0.45623299066002393,
+          "brier": 0.10738274459112371,
+          "precisionAtTopDecile": 0.49800796812749004,
+          "liftAtTopDecile": 3.2467532467532467,
+          "meanPredictedProbability": 0.16108307647150108
+        }
+      }
+    },
+    {
+      "model": {
+        "id": "persistence_eb_overflow_precip_flood_streamflow",
+        "label": "Persistence + EB baseline + overflow + precipitation + NWS flood + streamflow",
+        "featureNames": [
+          "sdwis_prior_1m_any",
+          "sdwis_prior_3m_count",
+          "sdwis_prior_12m_count",
+          "sdwis_cumulative_prior_count",
+          "county_eb_baseline",
+          "overflow_any",
+          "overflow_count",
+          "overflow_log_gallons_sum",
+          "overflow_repeat_3m_any",
+          "overflow_severe_any",
+          "precip_total_mm",
+          "precip_anomaly_z",
+          "heavy_rain_days",
+          "precip_max_1d_mm",
+          "flood_warning_any",
+          "flood_warning_count",
+          "flash_flood_warning_any",
+          "streamflow_high_count",
+          "streamflow_low_count",
+          "streamflow_extreme_high_any",
+          "streamflow_extreme_low_any",
+          "overflow_x_precip_anomaly",
+          "overflow_x_flood_warning",
+          "overflow_x_streamflow_high",
+          "overflow_x_streamflow_low"
+        ]
+      },
+      "coefficients": [
+        {
+          "feature": "sdwis_prior_1m_any",
+          "weight": -0.7333408439326413
+        },
+        {
+          "feature": "sdwis_prior_3m_count",
+          "weight": 0.16204266812728188
+        },
+        {
+          "feature": "sdwis_prior_12m_count",
+          "weight": 0.011865882402291883
+        },
+        {
+          "feature": "sdwis_cumulative_prior_count",
+          "weight": -0.09891404919206745
+        },
+        {
+          "feature": "county_eb_baseline",
+          "weight": 1.7476801204652213
+        },
+        {
+          "feature": "overflow_any",
+          "weight": -0.04889137205280873
+        },
+        {
+          "feature": "overflow_count",
+          "weight": 0.016562209371395045
+        },
+        {
+          "feature": "overflow_log_gallons_sum",
+          "weight": 0.003960951903033482
+        },
+        {
+          "feature": "overflow_repeat_3m_any",
+          "weight": 0.027001552088797037
+        },
+        {
+          "feature": "overflow_severe_any",
+          "weight": -0.03845142363099171
+        },
+        {
+          "feature": "precip_total_mm",
+          "weight": 0.00010629554740125143
+        },
+        {
+          "feature": "precip_anomaly_z",
+          "weight": 0.042244195743077154
+        },
+        {
+          "feature": "heavy_rain_days",
+          "weight": -0.0235299516107745
+        },
+        {
+          "feature": "precip_max_1d_mm",
+          "weight": 0.008214735909953396
+        },
+        {
+          "feature": "flood_warning_any",
+          "weight": -0.10934631169549866
+        },
+        {
+          "feature": "flood_warning_count",
+          "weight": -0.06865734171712863
+        },
+        {
+          "feature": "flash_flood_warning_any",
+          "weight": 0.032613125192505296
+        },
+        {
+          "feature": "streamflow_high_count",
+          "weight": -0.09388025715193396
+        },
+        {
+          "feature": "streamflow_low_count",
+          "weight": 0.044847717752980173
+        },
+        {
+          "feature": "streamflow_extreme_high_any",
+          "weight": 0.0981590572714574
+        },
+        {
+          "feature": "streamflow_extreme_low_any",
+          "weight": 0.0725549324586966
+        },
+        {
+          "feature": "overflow_x_precip_anomaly",
+          "weight": 0.01951616103938998
+        },
+        {
+          "feature": "overflow_x_flood_warning",
+          "weight": 0.048025546336650876
+        },
+        {
+          "feature": "overflow_x_streamflow_high",
+          "weight": -0.010096632908022271
+        },
+        {
+          "feature": "overflow_x_streamflow_low",
+          "weight": 0.02446741489769907
+        }
+      ],
+      "intercept": -2.169187750643574,
+      "metrics": {
+        "train": {
+          "count": 9534,
+          "positives": 1527,
+          "prevalence": 0.16016362492133418,
+          "auroc": 0.8797637692428424,
+          "auprc": 0.6205825641553112,
+          "brier": 0.08978281501327703,
+          "precisionAtTopDecile": 0.640083945435467,
+          "liftAtTopDecile": 3.996437678966432,
+          "meanPredictedProbability": 0.1626236714796698
+        },
+        "validation": {
+          "count": 2446,
+          "positives": 532,
+          "prevalence": 0.21749795584627965,
+          "auroc": 0.7749988215051736,
+          "auprc": 0.5589145852079654,
+          "brier": 0.1381537186117386,
+          "precisionAtTopDecile": 0.636734693877551,
+          "liftAtTopDecile": 2.927543348166334,
+          "meanPredictedProbability": 0.1534985228928918
+        },
+        "test": {
+          "count": 2510,
+          "positives": 385,
+          "prevalence": 0.15338645418326693,
+          "auroc": 0.7943492742551566,
+          "auprc": 0.4599415234529337,
+          "brier": 0.10749095904301151,
+          "precisionAtTopDecile": 0.4940239043824701,
+          "liftAtTopDecile": 3.220779220779221,
+          "meanPredictedProbability": 0.1595469013815981
+        }
+      }
+    },
+    {
+      "model": {
+        "id": "persistence_eb_overflow_precip_flood_streamflow_drought",
+        "label": "Persistence + EB baseline + overflow + precipitation + NWS flood + streamflow + drought",
+        "featureNames": [
+          "sdwis_prior_1m_any",
+          "sdwis_prior_3m_count",
+          "sdwis_prior_12m_count",
+          "sdwis_cumulative_prior_count",
+          "county_eb_baseline",
+          "overflow_any",
+          "overflow_count",
+          "overflow_log_gallons_sum",
+          "overflow_repeat_3m_any",
+          "overflow_severe_any",
+          "precip_total_mm",
+          "precip_anomaly_z",
+          "heavy_rain_days",
+          "precip_max_1d_mm",
+          "flood_warning_any",
+          "flood_warning_count",
+          "flash_flood_warning_any",
+          "streamflow_high_count",
+          "streamflow_low_count",
+          "streamflow_extreme_high_any",
+          "streamflow_extreme_low_any",
+          "drought_fraction_d1plus",
+          "drought_fraction_d3plus",
+          "overflow_x_precip_anomaly",
+          "overflow_x_flood_warning",
+          "overflow_x_streamflow_high",
+          "overflow_x_streamflow_low",
+          "overflow_x_drought"
+        ]
+      },
+      "coefficients": [
+        {
+          "feature": "sdwis_prior_1m_any",
+          "weight": -0.7332514038033908
+        },
+        {
+          "feature": "sdwis_prior_3m_count",
+          "weight": 0.1620838876755883
+        },
+        {
+          "feature": "sdwis_prior_12m_count",
+          "weight": 0.01145417259359903
+        },
+        {
+          "feature": "sdwis_cumulative_prior_count",
+          "weight": -0.09883422380883307
+        },
+        {
+          "feature": "county_eb_baseline",
+          "weight": 1.7481491890954102
+        },
+        {
+          "feature": "overflow_any",
+          "weight": -0.04870431738755673
+        },
+        {
+          "feature": "overflow_count",
+          "weight": 0.021163524438294536
+        },
+        {
+          "feature": "overflow_log_gallons_sum",
+          "weight": 0.0048160713968727065
+        },
+        {
+          "feature": "overflow_repeat_3m_any",
+          "weight": 0.02768537393644692
+        },
+        {
+          "feature": "overflow_severe_any",
+          "weight": -0.03705516520779743
+        },
+        {
+          "feature": "precip_total_mm",
+          "weight": 0.0006515147369397798
+        },
+        {
+          "feature": "precip_anomaly_z",
+          "weight": 0.041765480982020174
+        },
+        {
+          "feature": "heavy_rain_days",
+          "weight": -0.023508891419470025
+        },
+        {
+          "feature": "precip_max_1d_mm",
+          "weight": 0.009234031772427511
+        },
+        {
+          "feature": "flood_warning_any",
+          "weight": -0.10976830118375203
+        },
+        {
+          "feature": "flood_warning_count",
+          "weight": -0.06879127271152177
+        },
+        {
+          "feature": "flash_flood_warning_any",
+          "weight": 0.03282720694739128
+        },
+        {
+          "feature": "streamflow_high_count",
+          "weight": -0.09370929903952809
+        },
+        {
+          "feature": "streamflow_low_count",
+          "weight": 0.04380823866893254
+        },
+        {
+          "feature": "streamflow_extreme_high_any",
+          "weight": 0.09789308721443742
+        },
+        {
+          "feature": "streamflow_extreme_low_any",
+          "weight": 0.07224091836268254
+        },
+        {
+          "feature": "drought_fraction_d1plus",
+          "weight": -0.005867569686477167
+        },
+        {
+          "feature": "drought_fraction_d3plus",
+          "weight": 0.017311518648873512
+        },
+        {
+          "feature": "overflow_x_precip_anomaly",
+          "weight": 0.017989040013823402
+        },
+        {
+          "feature": "overflow_x_flood_warning",
+          "weight": 0.04753611875258053
+        },
+        {
+          "feature": "overflow_x_streamflow_high",
+          "weight": -0.009489053217127244
+        },
+        {
+          "feature": "overflow_x_streamflow_low",
+          "weight": 0.026867559103244436
+        },
+        {
+          "feature": "overflow_x_drought",
+          "weight": -0.01304147093314897
+        }
+      ],
+      "intercept": -2.1693079126388044,
+      "metrics": {
+        "train": {
+          "count": 9534,
+          "positives": 1527,
+          "prevalence": 0.16016362492133418,
+          "auroc": 0.8798360700922384,
+          "auprc": 0.6204897657492118,
+          "brier": 0.08979288029349373,
+          "precisionAtTopDecile": 0.6390346274921301,
+          "liftAtTopDecile": 3.9898861417877987,
+          "meanPredictedProbability": 0.1626317098895482
+        },
+        "validation": {
+          "count": 2446,
+          "positives": 532,
+          "prevalence": 0.21749795584627965,
+          "auroc": 0.7746963411663956,
+          "auprc": 0.5585064215359342,
+          "brier": 0.13826530755226502,
+          "precisionAtTopDecile": 0.6285714285714286,
+          "liftAtTopDecile": 2.8900107411385605,
+          "meanPredictedProbability": 0.1532899344233781
+        },
+        "test": {
+          "count": 2510,
+          "positives": 385,
+          "prevalence": 0.15338645418326693,
+          "auroc": 0.7945191749427044,
+          "auprc": 0.45994019233206923,
+          "brier": 0.10753180710387886,
+          "precisionAtTopDecile": 0.4940239043824701,
+          "liftAtTopDecile": 3.220779220779221,
+          "meanPredictedProbability": 0.159415955892486
+        }
+      }
+    },
+    {
+      "model": {
+        "id": "persistence_eb_overflow_precip_flood_streamflow_drought_heat",
+        "label": "Persistence + EB baseline + overflow + precipitation + NWS flood + streamflow + drought + heat",
+        "featureNames": [
+          "sdwis_prior_1m_any",
+          "sdwis_prior_3m_count",
+          "sdwis_prior_12m_count",
+          "sdwis_cumulative_prior_count",
+          "county_eb_baseline",
+          "overflow_any",
+          "overflow_count",
+          "overflow_log_gallons_sum",
+          "overflow_repeat_3m_any",
+          "overflow_severe_any",
+          "precip_total_mm",
+          "precip_anomaly_z",
+          "heavy_rain_days",
+          "precip_max_1d_mm",
+          "temp_mean_anomaly_z",
+          "heat_days",
+          "freeze_days",
+          "flood_warning_any",
+          "flood_warning_count",
+          "flash_flood_warning_any",
+          "streamflow_high_count",
+          "streamflow_low_count",
+          "streamflow_extreme_high_any",
+          "streamflow_extreme_low_any",
+          "drought_fraction_d1plus",
+          "drought_fraction_d3plus",
+          "overflow_x_precip_anomaly",
+          "overflow_x_flood_warning",
+          "overflow_x_heat",
+          "overflow_x_streamflow_high",
+          "overflow_x_streamflow_low",
+          "overflow_x_drought"
+        ]
+      },
+      "coefficients": [
+        {
+          "feature": "sdwis_prior_1m_any",
+          "weight": -0.723962285889759
+        },
+        {
+          "feature": "sdwis_prior_3m_count",
+          "weight": 0.16158184342709458
+        },
+        {
+          "feature": "sdwis_prior_12m_count",
+          "weight": 0.016708654959966852
+        },
+        {
+          "feature": "sdwis_cumulative_prior_count",
+          "weight": -0.10256593110023142
+        },
+        {
+          "feature": "county_eb_baseline",
+          "weight": 1.7375398451825688
+        },
+        {
+          "feature": "overflow_any",
+          "weight": -0.049160035012676
+        },
+        {
+          "feature": "overflow_count",
+          "weight": 0.02581058888666933
+        },
+        {
+          "feature": "overflow_log_gallons_sum",
+          "weight": 0.005844587575595196
+        },
+        {
+          "feature": "overflow_repeat_3m_any",
+          "weight": 0.024733240632055627
+        },
+        {
+          "feature": "overflow_severe_any",
+          "weight": -0.035095078078647
+        },
+        {
+          "feature": "precip_total_mm",
+          "weight": -0.04608554434236526
+        },
+        {
+          "feature": "precip_anomaly_z",
+          "weight": 0.07132950682541794
+        },
+        {
+          "feature": "heavy_rain_days",
+          "weight": -0.024887082486533797
+        },
+        {
+          "feature": "precip_max_1d_mm",
+          "weight": -0.008740387527753865
+        },
+        {
+          "feature": "temp_mean_anomaly_z",
+          "weight": -0.003065680695234473
+        },
+        {
+          "feature": "heat_days",
+          "weight": -0.05366330423482257
+        },
+        {
+          "feature": "freeze_days",
+          "weight": -0.20700437386561427
+        },
+        {
+          "feature": "flood_warning_any",
+          "weight": -0.10480467918623068
+        },
+        {
+          "feature": "flood_warning_count",
+          "weight": -0.06787399711645299
+        },
+        {
+          "feature": "flash_flood_warning_any",
+          "weight": 0.027226314533697688
+        },
+        {
+          "feature": "streamflow_high_count",
+          "weight": -0.08896378721066417
+        },
+        {
+          "feature": "streamflow_low_count",
+          "weight": 0.0534617171874726
+        },
+        {
+          "feature": "streamflow_extreme_high_any",
+          "weight": 0.08918931232761626
+        },
+        {
+          "feature": "streamflow_extreme_low_any",
+          "weight": 0.07702118766252189
+        },
+        {
+          "feature": "drought_fraction_d1plus",
+          "weight": 0.015227616852927532
+        },
+        {
+          "feature": "drought_fraction_d3plus",
+          "weight": 0.015372357016963229
+        },
+        {
+          "feature": "overflow_x_precip_anomaly",
+          "weight": 0.020601832317069593
+        },
+        {
+          "feature": "overflow_x_flood_warning",
+          "weight": 0.04787822279054496
+        },
+        {
+          "feature": "overflow_x_heat",
+          "weight": 0.004028880022553133
+        },
+        {
+          "feature": "overflow_x_streamflow_high",
+          "weight": -0.011964435591930634
+        },
+        {
+          "feature": "overflow_x_streamflow_low",
+          "weight": 0.026453933753728162
+        },
+        {
+          "feature": "overflow_x_drought",
+          "weight": -0.01425872337559952
+        }
+      ],
+      "intercept": -2.1803957041952953,
+      "metrics": {
+        "train": {
+          "count": 9534,
+          "positives": 1527,
+          "prevalence": 0.16016362492133418,
+          "auroc": 0.879710279700416,
+          "auprc": 0.6234364154137795,
+          "brier": 0.08931564336272302,
+          "precisionAtTopDecile": 0.6442812172088143,
+          "liftAtTopDecile": 4.022643827680966,
+          "meanPredictedProbability": 0.1626748960740057
+        },
+        "validation": {
+          "count": 2446,
+          "positives": 532,
+          "prevalence": 0.21749795584627965,
+          "auroc": 0.789565999638595,
+          "auprc": 0.5784707516640522,
+          "brier": 0.1359234257196539,
+          "precisionAtTopDecile": 0.6775510204081633,
+          "liftAtTopDecile": 3.115206383305202,
+          "meanPredictedProbability": 0.15304345684452836
+        },
+        "test": {
+          "count": 2510,
+          "positives": 385,
+          "prevalence": 0.15338645418326693,
+          "auroc": 0.8051532467532467,
+          "auprc": 0.47498875604048035,
+          "brier": 0.10532494272799463,
+          "precisionAtTopDecile": 0.5059760956175299,
+          "liftAtTopDecile": 3.2987012987012987,
+          "meanPredictedProbability": 0.1580899016368854
+        }
+      }
+    },
+    {
+      "model": {
+        "id": "full_structural",
+        "label": "Persistence + overflow + precipitation + structural context",
+        "featureNames": [
+          "sdwis_prior_1m_any",
+          "sdwis_prior_3m_count",
+          "sdwis_prior_12m_count",
+          "sdwis_cumulative_prior_count",
+          "overflow_any",
+          "overflow_count",
+          "overflow_log_gallons_sum",
+          "overflow_repeat_3m_any",
+          "overflow_severe_any",
+          "precip_total_mm",
+          "precip_anomaly_z",
+          "heavy_rain_days",
+          "precip_max_1d_mm",
+          "overflow_x_precip_anomaly",
+          "permit_count_current",
+          "impaired_segments_current",
+          "hydrology_context_score_current"
+        ]
+      },
+      "coefficients": [
+        {
+          "feature": "sdwis_prior_1m_any",
+          "weight": -0.1304763835256906
+        },
+        {
+          "feature": "sdwis_prior_3m_count",
+          "weight": 0.462973370435042
+        },
+        {
+          "feature": "sdwis_prior_12m_count",
+          "weight": 0.23777264604795653
+        },
+        {
+          "feature": "sdwis_cumulative_prior_count",
+          "weight": -0.10530399148977894
+        },
+        {
+          "feature": "overflow_any",
+          "weight": 0.04151392537050743
+        },
+        {
+          "feature": "overflow_count",
+          "weight": 0.0793637023743622
+        },
+        {
+          "feature": "overflow_log_gallons_sum",
+          "weight": -0.08614498079431142
+        },
+        {
+          "feature": "overflow_repeat_3m_any",
+          "weight": -0.010952060677823802
+        },
+        {
+          "feature": "overflow_severe_any",
+          "weight": -0.05260210359439332
+        },
+        {
+          "feature": "precip_total_mm",
+          "weight": -0.07810316364856065
+        },
+        {
+          "feature": "precip_anomaly_z",
+          "weight": 0.11422414666257347
+        },
+        {
+          "feature": "heavy_rain_days",
+          "weight": -0.0425175478645949
+        },
+        {
+          "feature": "precip_max_1d_mm",
+          "weight": -0.021572075299646536
+        },
+        {
+          "feature": "overflow_x_precip_anomaly",
+          "weight": -0.01473344119133398
+        },
+        {
+          "feature": "permit_count_current",
+          "weight": 0.10279576703504992
+        },
+        {
+          "feature": "impaired_segments_current",
+          "weight": 0.17665850589166332
+        },
+        {
+          "feature": "hydrology_context_score_current",
+          "weight": 0.2779199021228611
+        }
+      ],
+      "intercept": -1.7572078300775573,
+      "metrics": {
+        "train": {
+          "count": 9534,
+          "positives": 1527,
+          "prevalence": 0.16016362492133418,
+          "auroc": 0.7418096591808298,
+          "auprc": 0.3768557679005731,
+          "brier": 0.12073431723548171,
+          "precisionAtTopDecile": 0.4627492130115425,
+          "liftAtTopDecile": 2.8892278957773714,
+          "meanPredictedProbability": 0.16024859230987154
+        },
+        "validation": {
+          "count": 2446,
+          "positives": 532,
+          "prevalence": 0.21749795584627965,
+          "auroc": 0.6909957102788319,
+          "auprc": 0.3838516519619246,
+          "brier": 0.1625387847557522,
+          "precisionAtTopDecile": 0.46938775510204084,
+          "liftAtTopDecile": 2.158124904096977,
+          "meanPredictedProbability": 0.163902018457024
+        },
+        "test": {
+          "count": 2510,
+          "positives": 385,
+          "prevalence": 0.15338645418326693,
+          "auroc": 0.7414857142857143,
+          "auprc": 0.35661595615025743,
+          "brier": 0.1177285168650021,
+          "precisionAtTopDecile": 0.43824701195219123,
+          "liftAtTopDecile": 2.857142857142857,
+          "meanPredictedProbability": 0.17250396446115027
+        }
+      }
+    },
+    {
+      "model": {
+        "id": "full_structural_eb",
+        "label": "Persistence + EB baseline + overflow + precipitation + structural context",
+        "featureNames": [
+          "sdwis_prior_1m_any",
+          "sdwis_prior_3m_count",
+          "sdwis_prior_12m_count",
+          "sdwis_cumulative_prior_count",
+          "county_eb_baseline",
+          "overflow_any",
+          "overflow_count",
+          "overflow_log_gallons_sum",
+          "overflow_repeat_3m_any",
+          "overflow_severe_any",
+          "precip_total_mm",
+          "precip_anomaly_z",
+          "heavy_rain_days",
+          "precip_max_1d_mm",
+          "overflow_x_precip_anomaly",
+          "permit_count_current",
+          "impaired_segments_current",
+          "hydrology_context_score_current"
+        ]
+      },
+      "coefficients": [
+        {
+          "feature": "sdwis_prior_1m_any",
+          "weight": -0.7361872401519445
+        },
+        {
+          "feature": "sdwis_prior_3m_count",
+          "weight": 0.1708227165368325
+        },
+        {
+          "feature": "sdwis_prior_12m_count",
+          "weight": 0.008126297683921247
+        },
+        {
+          "feature": "sdwis_cumulative_prior_count",
+          "weight": -0.10091154443250293
+        },
+        {
+          "feature": "county_eb_baseline",
+          "weight": 1.727939909097477
+        },
+        {
+          "feature": "overflow_any",
+          "weight": -0.05878121706643584
+        },
+        {
+          "feature": "overflow_count",
+          "weight": -0.010275525551734103
+        },
+        {
+          "feature": "overflow_log_gallons_sum",
+          "weight": 0.007298570962315664
+        },
+        {
+          "feature": "overflow_repeat_3m_any",
+          "weight": 0.011612296903416329
+        },
+        {
+          "feature": "overflow_severe_any",
+          "weight": -0.04246576918968946
+        },
+        {
+          "feature": "precip_total_mm",
+          "weight": -0.05505104116904001
+        },
+        {
+          "feature": "precip_anomaly_z",
+          "weight": 0.06128463235627872
+        },
+        {
+          "feature": "heavy_rain_days",
+          "weight": -0.03342264783274271
+        },
+        {
+          "feature": "precip_max_1d_mm",
+          "weight": 0.009077137992060938
+        },
+        {
+          "feature": "overflow_x_precip_anomaly",
+          "weight": 0.019494960328317996
+        },
+        {
+          "feature": "permit_count_current",
+          "weight": 0.0403632068903616
+        },
+        {
+          "feature": "impaired_segments_current",
+          "weight": 0.045349495310995185
+        },
+        {
+          "feature": "hydrology_context_score_current",
+          "weight": 0.06396503605843079
+        }
+      ],
+      "intercept": -2.161287765957074,
+      "metrics": {
+        "train": {
+          "count": 9534,
+          "positives": 1527,
+          "prevalence": 0.16016362492133418,
+          "auroc": 0.8783543116210775,
+          "auprc": 0.6135994740911629,
+          "brier": 0.09046192546088197,
+          "precisionAtTopDecile": 0.6295907660020986,
+          "liftAtTopDecile": 3.9309223071800967,
+          "meanPredictedProbability": 0.16254487306242144
+        },
+        "validation": {
+          "count": 2446,
+          "positives": 532,
+          "prevalence": 0.21749795584627965,
+          "auroc": 0.7798542201899734,
+          "auprc": 0.5695416753008586,
+          "brier": 0.13695333027468307,
+          "precisionAtTopDecile": 0.6612244897959184,
+          "liftAtTopDecile": 3.040141169249655,
+          "meanPredictedProbability": 0.15237039074679848
+        },
+        "test": {
+          "count": 2510,
+          "positives": 385,
+          "prevalence": 0.15338645418326693,
+          "auroc": 0.7991126050420168,
+          "auprc": 0.46092261509248467,
+          "brier": 0.10704696219486366,
+          "precisionAtTopDecile": 0.47808764940239046,
+          "liftAtTopDecile": 3.116883116883117,
+          "meanPredictedProbability": 0.1586952177154429
+        }
+      }
+    }
+  ]
+}

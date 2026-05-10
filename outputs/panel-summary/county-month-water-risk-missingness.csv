@@ -1,0 +1,9 @@
+column,missing_count,missing_share
+sdwis_event_any,0,0
+sdwis_event_count,0,0
+overflow_count,0,0
+permit_count_current,0,0
+impaired_segments_current,0,0
+hydrology_context_score_current,0,0
+precip_total_mm,0,0
+temp_mean_anomaly_z,0,0

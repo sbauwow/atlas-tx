@@ -1,0 +1,2153 @@
+{
+  "generatedAt": "2026-05-09T14:10:19.481Z",
+  "prior": {
+    "alpha": 0.5057374020755265,
+    "beta": 2.510872385646988,
+    "mean": 0.1676509186351706,
+    "strength": 3.0166097877225146
+  },
+  "countySummaries": [
+    {
+      "county_fips": "48001",
+      "county_name": "Anderson County",
+      "n": 48,
+      "successes": 3,
+      "rawRate": 0.0625,
+      "shrunkRate": 0.06871756897729424
+    },
+    {
+      "county_fips": "48003",
+      "county_name": "Andrews County",
+      "n": 48,
+      "successes": 13,
+      "rawRate": 0.2708333333333333,
+      "shrunkRate": 0.26473216190319593
+    },
+    {
+      "county_fips": "48005",
+      "county_name": "Angelina County",
+      "n": 48,
+      "successes": 41,
+      "rawRate": 0.8541666666666666,
+      "shrunkRate": 0.8135730220957206
+    },
+    {
+      "county_fips": "48007",
+      "county_name": "Aransas County",
+      "n": 48,
+      "successes": 3,
+      "rawRate": 0.0625,
+      "shrunkRate": 0.06871756897729424
+    },
+    {
+      "county_fips": "48009",
+      "county_name": "Archer County",
+      "n": 48,
+      "successes": 0,
+      "rawRate": 0,
+      "shrunkRate": 0.00991319109952374
+    },
+    {
+      "county_fips": "48011",
+      "county_name": "Armstrong County",
+      "n": 48,
+      "successes": 0,
+      "rawRate": 0,
+      "shrunkRate": 0.00991319109952374
+    },
+    {
+      "county_fips": "48013",
+      "county_name": "Atascosa County",
+      "n": 48,
+      "successes": 0,
+      "rawRate": 0,
+      "shrunkRate": 0.00991319109952374
+    },
+    {
+      "county_fips": "48015",
+      "county_name": "Austin County",
+      "n": 48,
+      "successes": 2,
+      "rawRate": 0.041666666666666664,
+      "shrunkRate": 0.049116109684704076
+    },
+    {
+      "county_fips": "48017",
+      "county_name": "Bailey County",
+      "n": 48,
+      "successes": 0,
+      "rawRate": 0,
+      "shrunkRate": 0.00991319109952374
+    },
+    {
+      "county_fips": "48019",
+      "county_name": "Bandera County",
+      "n": 48,
+      "successes": 5,
+      "rawRate": 0.10416666666666667,
+      "shrunkRate": 0.10792048756247458
+    },
+    {
+      "county_fips": "48021",
+      "county_name": "Bastrop County",
+      "n": 48,
+      "successes": 5,
+      "rawRate": 0.10416666666666667,
+      "shrunkRate": 0.10792048756247458
+    },
+    {
+      "county_fips": "48023",
+      "county_name": "Baylor County",
+      "n": 48,
+      "successes": 0,
+      "rawRate": 0,
+      "shrunkRate": 0.00991319109952374
+    },
+    {
+      "county_fips": "48025",
+      "county_name": "Bee County",
+      "n": 48,
+      "successes": 13,
+      "rawRate": 0.2708333333333333,
+      "shrunkRate": 0.26473216190319593
+    },
+    {
+      "county_fips": "48027",
+      "county_name": "Bell County",
+      "n": 48,
+      "successes": 4,
+      "rawRate": 0.08333333333333333,
+      "shrunkRate": 0.08831902826988441
+    },
+    {
+      "county_fips": "48029",
+      "county_name": "Bexar County",
+      "n": 48,
+      "successes": 47,
+      "rawRate": 0.9791666666666666,
+      "shrunkRate": 0.9311817778512615
+    },
+    {
+      "county_fips": "48031",
+      "county_name": "Blanco County",
+      "n": 48,
+      "successes": 9,
+      "rawRate": 0.1875,
+      "shrunkRate": 0.18632632473283525
+    },
+    {
+      "county_fips": "48033",
+      "county_name": "Borden County",
+      "n": 48,
+      "successes": 15,
+      "rawRate": 0.3125,
+      "shrunkRate": 0.30393508048837625
+    },
+    {
+      "county_fips": "48035",
+      "county_name": "Bosque County",
+      "n": 48,
+      "successes": 3,
+      "rawRate": 0.0625,
+      "shrunkRate": 0.06871756897729424
+    },
+    {
+      "county_fips": "48037",
+      "county_name": "Bowie County",
+      "n": 48,
+      "successes": 0,
+      "rawRate": 0,
+      "shrunkRate": 0.00991319109952374
+    },
+    {
+      "county_fips": "48039",
+      "county_name": "Brazoria County",
+      "n": 48,
+      "successes": 24,
+      "rawRate": 0.5,
+      "shrunkRate": 0.4803482141216877
+    },
+    {
+      "county_fips": "48041",
+      "county_name": "Brazos County",
+      "n": 48,
+      "successes": 6,
+      "rawRate": 0.125,
+      "shrunkRate": 0.12752194685506474
+    },
+    {
+      "county_fips": "48043",
+      "county_name": "Brewster County",
+      "n": 48,
+      "successes": 5,
+      "rawRate": 0.10416666666666667,
+      "shrunkRate": 0.10792048756247458
+    },
+    {
+      "county_fips": "48045",
+      "county_name": "Briscoe County",
+      "n": 48,
+      "successes": 15,
+      "rawRate": 0.3125,
+      "shrunkRate": 0.30393508048837625
+    },
+    {
+      "county_fips": "48047",
+      "county_name": "Brooks County",
+      "n": 48,
+      "successes": 0,
+      "rawRate": 0,
+      "shrunkRate": 0.00991319109952374
+    },
+    {
+      "county_fips": "48049",
+      "county_name": "Brown County",
+      "n": 48,
+      "successes": 0,
+      "rawRate": 0,
+      "shrunkRate": 0.00991319109952374
+    },
+    {
+      "county_fips": "48051",
+      "county_name": "Burleson County",
+      "n": 48,
+      "successes": 15,
+      "rawRate": 0.3125,
+      "shrunkRate": 0.30393508048837625
+    },
+    {
+      "county_fips": "48053",
+      "county_name": "Burnet County",
+      "n": 48,
+      "successes": 47,
+      "rawRate": 0.9791666666666666,
+      "shrunkRate": 0.9311817778512615
+    },
+    {
+      "county_fips": "48055",
+      "county_name": "Caldwell County",
+      "n": 48,
+      "successes": 12,
+      "rawRate": 0.25,
+      "shrunkRate": 0.24513070261060574
+    },
+    {
+      "county_fips": "48057",
+      "county_name": "Calhoun County",
+      "n": 48,
+      "successes": 18,
+      "rawRate": 0.375,
+      "shrunkRate": 0.36273945836614674
+    },
+    {
+      "county_fips": "48059",
+      "county_name": "Callahan County",
+      "n": 48,
+      "successes": 18,
+      "rawRate": 0.375,
+      "shrunkRate": 0.36273945836614674
+    },
+    {
+      "county_fips": "48061",
+      "county_name": "Cameron County",
+      "n": 48,
+      "successes": 13,
+      "rawRate": 0.2708333333333333,
+      "shrunkRate": 0.26473216190319593
+    },
+    {
+      "county_fips": "48063",
+      "county_name": "Camp County",
+      "n": 48,
+      "successes": 0,
+      "rawRate": 0,
+      "shrunkRate": 0.00991319109952374
+    },
+    {
+      "county_fips": "48065",
+      "county_name": "Carson County",
+      "n": 48,
+      "successes": 1,
+      "rawRate": 0.020833333333333332,
+      "shrunkRate": 0.029514650392113907
+    },
+    {
+      "county_fips": "48067",
+      "county_name": "Cass County",
+      "n": 48,
+      "successes": 11,
+      "rawRate": 0.22916666666666666,
+      "shrunkRate": 0.22552924331801558
+    },
+    {
+      "county_fips": "48069",
+      "county_name": "Castro County",
+      "n": 48,
+      "successes": 4,
+      "rawRate": 0.08333333333333333,
+      "shrunkRate": 0.08831902826988441
+    },
+    {
+      "county_fips": "48071",
+      "county_name": "Chambers County",
+      "n": 48,
+      "successes": 17,
+      "rawRate": 0.3541666666666667,
+      "shrunkRate": 0.3431379990735566
+    },
+    {
+      "county_fips": "48073",
+      "county_name": "Cherokee County",
+      "n": 48,
+      "successes": 16,
+      "rawRate": 0.3333333333333333,
+      "shrunkRate": 0.32353653978096636
+    },
+    {
+      "county_fips": "48075",
+      "county_name": "Childress County",
+      "n": 48,
+      "successes": 0,
+      "rawRate": 0,
+      "shrunkRate": 0.00991319109952374
+    },
+    {
+      "county_fips": "48077",
+      "county_name": "Clay County",
+      "n": 48,
+      "successes": 10,
+      "rawRate": 0.20833333333333334,
+      "shrunkRate": 0.20592778402542541
+    },
+    {
+      "county_fips": "48079",
+      "county_name": "Cochran County",
+      "n": 48,
+      "successes": 1,
+      "rawRate": 0.020833333333333332,
+      "shrunkRate": 0.029514650392113907
+    },
+    {
+      "county_fips": "48081",
+      "county_name": "Coke County",
+      "n": 48,
+      "successes": 9,
+      "rawRate": 0.1875,
+      "shrunkRate": 0.18632632473283525
+    },
+    {
+      "county_fips": "48083",
+      "county_name": "Coleman County",
+      "n": 48,
+      "successes": 0,
+      "rawRate": 0,
+      "shrunkRate": 0.00991319109952374
+    },
+    {
+      "county_fips": "48085",
+      "county_name": "Collin County",
+      "n": 48,
+      "successes": 1,
+      "rawRate": 0.020833333333333332,
+      "shrunkRate": 0.029514650392113907
+    },
+    {
+      "county_fips": "48087",
+      "county_name": "Collingsworth County",
+      "n": 48,
+      "successes": 3,
+      "rawRate": 0.0625,
+      "shrunkRate": 0.06871756897729424
+    },
+    {
+      "county_fips": "48089",
+      "county_name": "Colorado County",
+      "n": 48,
+      "successes": 7,
+      "rawRate": 0.14583333333333334,
+      "shrunkRate": 0.1471234061476549
+    },
+    {
+      "county_fips": "48091",
+      "county_name": "Comal County",
+      "n": 48,
+      "successes": 47,
+      "rawRate": 0.9791666666666666,
+      "shrunkRate": 0.9311817778512615
+    },
+    {
+      "county_fips": "48093",
+      "county_name": "Comanche County",
+      "n": 48,
+      "successes": 13,
+      "rawRate": 0.2708333333333333,
+      "shrunkRate": 0.26473216190319593
+    },
+    {
+      "county_fips": "48095",
+      "county_name": "Concho County",
+      "n": 48,
+      "successes": 15,
+      "rawRate": 0.3125,
+      "shrunkRate": 0.30393508048837625
+    },
+    {
+      "county_fips": "48097",
+      "county_name": "Cooke County",
+      "n": 48,
+      "successes": 2,
+      "rawRate": 0.041666666666666664,
+      "shrunkRate": 0.049116109684704076
+    },
+    {
+      "county_fips": "48099",
+      "county_name": "Coryell County",
+      "n": 48,
+      "successes": 12,
+      "rawRate": 0.25,
+      "shrunkRate": 0.24513070261060574
+    },
+    {
+      "county_fips": "48101",
+      "county_name": "Cottle County",
+      "n": 48,
+      "successes": 0,
+      "rawRate": 0,
+      "shrunkRate": 0.00991319109952374
+    },
+    {
+      "county_fips": "48103",
+      "county_name": "Crane County",
+      "n": 48,
+      "successes": 0,
+      "rawRate": 0,
+      "shrunkRate": 0.00991319109952374
+    },
+    {
+      "county_fips": "48105",
+      "county_name": "Crockett County",
+      "n": 48,
+      "successes": 0,
+      "rawRate": 0,
+      "shrunkRate": 0.00991319109952374
+    },
+    {
+      "county_fips": "48107",
+      "county_name": "Crosby County",
+      "n": 48,
+      "successes": 2,
+      "rawRate": 0.041666666666666664,
+      "shrunkRate": 0.049116109684704076
+    },
+    {
+      "county_fips": "48109",
+      "county_name": "Culberson County",
+      "n": 48,
+      "successes": 0,
+      "rawRate": 0,
+      "shrunkRate": 0.00991319109952374
+    },
+    {
+      "county_fips": "48111",
+      "county_name": "Dallam County",
+      "n": 48,
+      "successes": 9,
+      "rawRate": 0.1875,
+      "shrunkRate": 0.18632632473283525
+    },
+    {
+      "county_fips": "48113",
+      "county_name": "Dallas County",
+      "n": 48,
+      "successes": 0,
+      "rawRate": 0,
+      "shrunkRate": 0.00991319109952374
+    },
+    {
+      "county_fips": "48115",
+      "county_name": "Dawson County",
+      "n": 48,
+      "successes": 15,
+      "rawRate": 0.3125,
+      "shrunkRate": 0.30393508048837625
+    },
+    {
+      "county_fips": "48117",
+      "county_name": "Deaf Smith County",
+      "n": 48,
+      "successes": 2,
+      "rawRate": 0.041666666666666664,
+      "shrunkRate": 0.049116109684704076
+    },
+    {
+      "county_fips": "48119",
+      "county_name": "Delta County",
+      "n": 48,
+      "successes": 2,
+      "rawRate": 0.041666666666666664,
+      "shrunkRate": 0.049116109684704076
+    },
+    {
+      "county_fips": "48121",
+      "county_name": "Denton County",
+      "n": 48,
+      "successes": 3,
+      "rawRate": 0.0625,
+      "shrunkRate": 0.06871756897729424
+    },
+    {
+      "county_fips": "48123",
+      "county_name": "Dewitt County",
+      "n": 48,
+      "successes": 6,
+      "rawRate": 0.125,
+      "shrunkRate": 0.12752194685506474
+    },
+    {
+      "county_fips": "48125",
+      "county_name": "Dickens County",
+      "n": 48,
+      "successes": 7,
+      "rawRate": 0.14583333333333334,
+      "shrunkRate": 0.1471234061476549
+    },
+    {
+      "county_fips": "48127",
+      "county_name": "Dimmit County",
+      "n": 48,
+      "successes": 1,
+      "rawRate": 0.020833333333333332,
+      "shrunkRate": 0.029514650392113907
+    },
+    {
+      "county_fips": "48129",
+      "county_name": "Donley County",
+      "n": 48,
+      "successes": 0,
+      "rawRate": 0,
+      "shrunkRate": 0.00991319109952374
+    },
+    {
+      "county_fips": "48131",
+      "county_name": "Duval County",
+      "n": 48,
+      "successes": 14,
+      "rawRate": 0.2916666666666667,
+      "shrunkRate": 0.2843336211957861
+    },
+    {
+      "county_fips": "48133",
+      "county_name": "Eastland County",
+      "n": 48,
+      "successes": 15,
+      "rawRate": 0.3125,
+      "shrunkRate": 0.30393508048837625
+    },
+    {
+      "county_fips": "48135",
+      "county_name": "Ector County",
+      "n": 48,
+      "successes": 17,
+      "rawRate": 0.3541666666666667,
+      "shrunkRate": 0.3431379990735566
+    },
+    {
+      "county_fips": "48137",
+      "county_name": "Edwards County",
+      "n": 48,
+      "successes": 47,
+      "rawRate": 0.9791666666666666,
+      "shrunkRate": 0.9311817778512615
+    },
+    {
+      "county_fips": "48139",
+      "county_name": "Ellis County",
+      "n": 48,
+      "successes": 3,
+      "rawRate": 0.0625,
+      "shrunkRate": 0.06871756897729424
+    },
+    {
+      "county_fips": "48141",
+      "county_name": "El Paso County",
+      "n": 48,
+      "successes": 15,
+      "rawRate": 0.3125,
+      "shrunkRate": 0.30393508048837625
+    },
+    {
+      "county_fips": "48143",
+      "county_name": "Erath County",
+      "n": 48,
+      "successes": 8,
+      "rawRate": 0.16666666666666666,
+      "shrunkRate": 0.1667248654402451
+    },
+    {
+      "county_fips": "48145",
+      "county_name": "Falls County",
+      "n": 48,
+      "successes": 16,
+      "rawRate": 0.3333333333333333,
+      "shrunkRate": 0.32353653978096636
+    },
+    {
+      "county_fips": "48147",
+      "county_name": "Fannin County",
+      "n": 48,
+      "successes": 1,
+      "rawRate": 0.020833333333333332,
+      "shrunkRate": 0.029514650392113907
+    },
+    {
+      "county_fips": "48149",
+      "county_name": "Fayette County",
+      "n": 48,
+      "successes": 15,
+      "rawRate": 0.3125,
+      "shrunkRate": 0.30393508048837625
+    },
+    {
+      "county_fips": "48151",
+      "county_name": "Fisher County",
+      "n": 48,
+      "successes": 5,
+      "rawRate": 0.10416666666666667,
+      "shrunkRate": 0.10792048756247458
+    },
+    {
+      "county_fips": "48153",
+      "county_name": "Floyd County",
+      "n": 48,
+      "successes": 0,
+      "rawRate": 0,
+      "shrunkRate": 0.00991319109952374
+    },
+    {
+      "county_fips": "48155",
+      "county_name": "Foard County",
+      "n": 48,
+      "successes": 14,
+      "rawRate": 0.2916666666666667,
+      "shrunkRate": 0.2843336211957861
+    },
+    {
+      "county_fips": "48157",
+      "county_name": "Fort Bend County",
+      "n": 48,
+      "successes": 14,
+      "rawRate": 0.2916666666666667,
+      "shrunkRate": 0.2843336211957861
+    },
+    {
+      "county_fips": "48159",
+      "county_name": "Franklin County",
+      "n": 48,
+      "successes": 0,
+      "rawRate": 0,
+      "shrunkRate": 0.00991319109952374
+    },
+    {
+      "county_fips": "48161",
+      "county_name": "Freestone County",
+      "n": 48,
+      "successes": 1,
+      "rawRate": 0.020833333333333332,
+      "shrunkRate": 0.029514650392113907
+    },
+    {
+      "county_fips": "48163",
+      "county_name": "Frio County",
+      "n": 48,
+      "successes": 0,
+      "rawRate": 0,
+      "shrunkRate": 0.00991319109952374
+    },
+    {
+      "county_fips": "48165",
+      "county_name": "Gaines County",
+      "n": 48,
+      "successes": 15,
+      "rawRate": 0.3125,
+      "shrunkRate": 0.30393508048837625
+    },
+    {
+      "county_fips": "48167",
+      "county_name": "Galveston County",
+      "n": 48,
+      "successes": 13,
+      "rawRate": 0.2708333333333333,
+      "shrunkRate": 0.26473216190319593
+    },
+    {
+      "county_fips": "48169",
+      "county_name": "Garza County",
+      "n": 48,
+      "successes": 15,
+      "rawRate": 0.3125,
+      "shrunkRate": 0.30393508048837625
+    },
+    {
+      "county_fips": "48171",
+      "county_name": "Gillespie County",
+      "n": 48,
+      "successes": 17,
+      "rawRate": 0.3541666666666667,
+      "shrunkRate": 0.3431379990735566
+    },
+    {
+      "county_fips": "48173",
+      "county_name": "Glasscock County",
+      "n": 48,
+      "successes": 1,
+      "rawRate": 0.020833333333333332,
+      "shrunkRate": 0.029514650392113907
+    },
+    {
+      "county_fips": "48175",
+      "county_name": "Goliad County",
+      "n": 48,
+      "successes": 0,
+      "rawRate": 0,
+      "shrunkRate": 0.00991319109952374
+    },
+    {
+      "county_fips": "48177",
+      "county_name": "Gonzales County",
+      "n": 48,
+      "successes": 0,
+      "rawRate": 0,
+      "shrunkRate": 0.00991319109952374
+    },
+    {
+      "county_fips": "48179",
+      "county_name": "Gray County",
+      "n": 48,
+      "successes": 0,
+      "rawRate": 0,
+      "shrunkRate": 0.00991319109952374
+    },
+    {
+      "county_fips": "48181",
+      "county_name": "Grayson County",
+      "n": 48,
+      "successes": 19,
+      "rawRate": 0.3958333333333333,
+      "shrunkRate": 0.3823409176587369
+    },
+    {
+      "county_fips": "48183",
+      "county_name": "Gregg County",
+      "n": 48,
+      "successes": 11,
+      "rawRate": 0.22916666666666666,
+      "shrunkRate": 0.22552924331801558
+    },
+    {
+      "county_fips": "48185",
+      "county_name": "Grimes County",
+      "n": 48,
+      "successes": 17,
+      "rawRate": 0.3541666666666667,
+      "shrunkRate": 0.3431379990735566
+    },
+    {
+      "county_fips": "48187",
+      "county_name": "Guadalupe County",
+      "n": 48,
+      "successes": 2,
+      "rawRate": 0.041666666666666664,
+      "shrunkRate": 0.049116109684704076
+    },
+    {
+      "county_fips": "48189",
+      "county_name": "Hale County",
+      "n": 48,
+      "successes": 13,
+      "rawRate": 0.2708333333333333,
+      "shrunkRate": 0.26473216190319593
+    },
+    {
+      "county_fips": "48191",
+      "county_name": "Hall County",
+      "n": 48,
+      "successes": 15,
+      "rawRate": 0.3125,
+      "shrunkRate": 0.30393508048837625
+    },
+    {
+      "county_fips": "48193",
+      "county_name": "Hamilton County",
+      "n": 48,
+      "successes": 3,
+      "rawRate": 0.0625,
+      "shrunkRate": 0.06871756897729424
+    },
+    {
+      "county_fips": "48195",
+      "county_name": "Hansford County",
+      "n": 48,
+      "successes": 0,
+      "rawRate": 0,
+      "shrunkRate": 0.00991319109952374
+    },
+    {
+      "county_fips": "48197",
+      "county_name": "Hardeman County",
+      "n": 48,
+      "successes": 5,
+      "rawRate": 0.10416666666666667,
+      "shrunkRate": 0.10792048756247458
+    },
+    {
+      "county_fips": "48199",
+      "county_name": "Hardin County",
+      "n": 48,
+      "successes": 2,
+      "rawRate": 0.041666666666666664,
+      "shrunkRate": 0.049116109684704076
+    },
+    {
+      "county_fips": "48201",
+      "county_name": "Harris County",
+      "n": 48,
+      "successes": 46,
+      "rawRate": 0.9583333333333334,
+      "shrunkRate": 0.9115803185586714
+    },
+    {
+      "county_fips": "48203",
+      "county_name": "Harrison County",
+      "n": 48,
+      "successes": 18,
+      "rawRate": 0.375,
+      "shrunkRate": 0.36273945836614674
+    },
+    {
+      "county_fips": "48205",
+      "county_name": "Hartley County",
+      "n": 48,
+      "successes": 0,
+      "rawRate": 0,
+      "shrunkRate": 0.00991319109952374
+    },
+    {
+      "county_fips": "48207",
+      "county_name": "Haskell County",
+      "n": 48,
+      "successes": 9,
+      "rawRate": 0.1875,
+      "shrunkRate": 0.18632632473283525
+    },
+    {
+      "county_fips": "48209",
+      "county_name": "Hays County",
+      "n": 48,
+      "successes": 4,
+      "rawRate": 0.08333333333333333,
+      "shrunkRate": 0.08831902826988441
+    },
+    {
+      "county_fips": "48211",
+      "county_name": "Hemphill County",
+      "n": 48,
+      "successes": 0,
+      "rawRate": 0,
+      "shrunkRate": 0.00991319109952374
+    },
+    {
+      "county_fips": "48213",
+      "county_name": "Henderson County",
+      "n": 48,
+      "successes": 13,
+      "rawRate": 0.2708333333333333,
+      "shrunkRate": 0.26473216190319593
+    },
+    {
+      "county_fips": "48215",
+      "county_name": "Hidalgo County",
+      "n": 48,
+      "successes": 20,
+      "rawRate": 0.4166666666666667,
+      "shrunkRate": 0.40194237695132706
+    },
+    {
+      "county_fips": "48217",
+      "county_name": "Hill County",
+      "n": 48,
+      "successes": 2,
+      "rawRate": 0.041666666666666664,
+      "shrunkRate": 0.049116109684704076
+    },
+    {
+      "county_fips": "48219",
+      "county_name": "Hockley County",
+      "n": 48,
+      "successes": 15,
+      "rawRate": 0.3125,
+      "shrunkRate": 0.30393508048837625
+    },
+    {
+      "county_fips": "48221",
+      "county_name": "Hood County",
+      "n": 48,
+      "successes": 6,
+      "rawRate": 0.125,
+      "shrunkRate": 0.12752194685506474
+    },
+    {
+      "county_fips": "48223",
+      "county_name": "Hopkins County",
+      "n": 48,
+      "successes": 3,
+      "rawRate": 0.0625,
+      "shrunkRate": 0.06871756897729424
+    },
+    {
+      "county_fips": "48225",
+      "county_name": "Houston County",
+      "n": 48,
+      "successes": 3,
+      "rawRate": 0.0625,
+      "shrunkRate": 0.06871756897729424
+    },
+    {
+      "county_fips": "48227",
+      "county_name": "Howard County",
+      "n": 48,
+      "successes": 15,
+      "rawRate": 0.3125,
+      "shrunkRate": 0.30393508048837625
+    },
+    {
+      "county_fips": "48229",
+      "county_name": "Hudspeth County",
+      "n": 48,
+      "successes": 2,
+      "rawRate": 0.041666666666666664,
+      "shrunkRate": 0.049116109684704076
+    },
+    {
+      "county_fips": "48231",
+      "county_name": "Hunt County",
+      "n": 48,
+      "successes": 4,
+      "rawRate": 0.08333333333333333,
+      "shrunkRate": 0.08831902826988441
+    },
+    {
+      "county_fips": "48233",
+      "county_name": "Hutchinson County",
+      "n": 48,
+      "successes": 2,
+      "rawRate": 0.041666666666666664,
+      "shrunkRate": 0.049116109684704076
+    },
+    {
+      "county_fips": "48235",
+      "county_name": "Irion County",
+      "n": 48,
+      "successes": 0,
+      "rawRate": 0,
+      "shrunkRate": 0.00991319109952374
+    },
+    {
+      "county_fips": "48237",
+      "county_name": "Jack County",
+      "n": 48,
+      "successes": 0,
+      "rawRate": 0,
+      "shrunkRate": 0.00991319109952374
+    },
+    {
+      "county_fips": "48239",
+      "county_name": "Jackson County",
+      "n": 48,
+      "successes": 0,
+      "rawRate": 0,
+      "shrunkRate": 0.00991319109952374
+    },
+    {
+      "county_fips": "48241",
+      "county_name": "Jasper County",
+      "n": 48,
+      "successes": 16,
+      "rawRate": 0.3333333333333333,
+      "shrunkRate": 0.32353653978096636
+    },
+    {
+      "county_fips": "48243",
+      "county_name": "Jeff Davis County",
+      "n": 48,
+      "successes": 3,
+      "rawRate": 0.0625,
+      "shrunkRate": 0.06871756897729424
+    },
+    {
+      "county_fips": "48245",
+      "county_name": "Jefferson County",
+      "n": 48,
+      "successes": 25,
+      "rawRate": 0.5208333333333334,
+      "shrunkRate": 0.4999496734142779
+    },
+    {
+      "county_fips": "48247",
+      "county_name": "Jim Hogg County",
+      "n": 48,
+      "successes": 4,
+      "rawRate": 0.08333333333333333,
+      "shrunkRate": 0.08831902826988441
+    },
+    {
+      "county_fips": "48249",
+      "county_name": "Jim Wells County",
+      "n": 48,
+      "successes": 15,
+      "rawRate": 0.3125,
+      "shrunkRate": 0.30393508048837625
+    },
+    {
+      "county_fips": "48251",
+      "county_name": "Johnson County",
+      "n": 48,
+      "successes": 2,
+      "rawRate": 0.041666666666666664,
+      "shrunkRate": 0.049116109684704076
+    },
+    {
+      "county_fips": "48253",
+      "county_name": "Jones County",
+      "n": 48,
+      "successes": 10,
+      "rawRate": 0.20833333333333334,
+      "shrunkRate": 0.20592778402542541
+    },
+    {
+      "county_fips": "48255",
+      "county_name": "Karnes County",
+      "n": 48,
+      "successes": 3,
+      "rawRate": 0.0625,
+      "shrunkRate": 0.06871756897729424
+    },
+    {
+      "county_fips": "48257",
+      "county_name": "Kaufman County",
+      "n": 48,
+      "successes": 3,
+      "rawRate": 0.0625,
+      "shrunkRate": 0.06871756897729424
+    },
+    {
+      "county_fips": "48259",
+      "county_name": "Kendall County",
+      "n": 48,
+      "successes": 14,
+      "rawRate": 0.2916666666666667,
+      "shrunkRate": 0.2843336211957861
+    },
+    {
+      "county_fips": "48261",
+      "county_name": "Kenedy County",
+      "n": 48,
+      "successes": 0,
+      "rawRate": 0,
+      "shrunkRate": 0.00991319109952374
+    },
+    {
+      "county_fips": "48263",
+      "county_name": "Kent County",
+      "n": 48,
+      "successes": 8,
+      "rawRate": 0.16666666666666666,
+      "shrunkRate": 0.1667248654402451
+    },
+    {
+      "county_fips": "48265",
+      "county_name": "Kerr County",
+      "n": 48,
+      "successes": 16,
+      "rawRate": 0.3333333333333333,
+      "shrunkRate": 0.32353653978096636
+    },
+    {
+      "county_fips": "48267",
+      "county_name": "Kimble County",
+      "n": 48,
+      "successes": 0,
+      "rawRate": 0,
+      "shrunkRate": 0.00991319109952374
+    },
+    {
+      "county_fips": "48269",
+      "county_name": "King County",
+      "n": 48,
+      "successes": 7,
+      "rawRate": 0.14583333333333334,
+      "shrunkRate": 0.1471234061476549
+    },
+    {
+      "county_fips": "48271",
+      "county_name": "Kinney County",
+      "n": 48,
+      "successes": 0,
+      "rawRate": 0,
+      "shrunkRate": 0.00991319109952374
+    },
+    {
+      "county_fips": "48273",
+      "county_name": "Kleberg County",
+      "n": 48,
+      "successes": 10,
+      "rawRate": 0.20833333333333334,
+      "shrunkRate": 0.20592778402542541
+    },
+    {
+      "county_fips": "48275",
+      "county_name": "Knox County",
+      "n": 48,
+      "successes": 15,
+      "rawRate": 0.3125,
+      "shrunkRate": 0.30393508048837625
+    },
+    {
+      "county_fips": "48277",
+      "county_name": "Lamar County",
+      "n": 48,
+      "successes": 3,
+      "rawRate": 0.0625,
+      "shrunkRate": 0.06871756897729424
+    },
+    {
+      "county_fips": "48279",
+      "county_name": "Lamb County",
+      "n": 48,
+      "successes": 2,
+      "rawRate": 0.041666666666666664,
+      "shrunkRate": 0.049116109684704076
+    },
+    {
+      "county_fips": "48281",
+      "county_name": "Lampasas County",
+      "n": 48,
+      "successes": 12,
+      "rawRate": 0.25,
+      "shrunkRate": 0.24513070261060574
+    },
+    {
+      "county_fips": "48283",
+      "county_name": "La Salle County",
+      "n": 48,
+      "successes": 1,
+      "rawRate": 0.020833333333333332,
+      "shrunkRate": 0.029514650392113907
+    },
+    {
+      "county_fips": "48285",
+      "county_name": "Lavaca County",
+      "n": 48,
+      "successes": 3,
+      "rawRate": 0.0625,
+      "shrunkRate": 0.06871756897729424
+    },
+    {
+      "county_fips": "48287",
+      "county_name": "Lee County",
+      "n": 48,
+      "successes": 1,
+      "rawRate": 0.020833333333333332,
+      "shrunkRate": 0.029514650392113907
+    },
+    {
+      "county_fips": "48289",
+      "county_name": "Leon County",
+      "n": 48,
+      "successes": 0,
+      "rawRate": 0,
+      "shrunkRate": 0.00991319109952374
+    },
+    {
+      "county_fips": "48291",
+      "county_name": "Liberty County",
+      "n": 48,
+      "successes": 9,
+      "rawRate": 0.1875,
+      "shrunkRate": 0.18632632473283525
+    },
+    {
+      "county_fips": "48293",
+      "county_name": "Limestone County",
+      "n": 48,
+      "successes": 18,
+      "rawRate": 0.375,
+      "shrunkRate": 0.36273945836614674
+    },
+    {
+      "county_fips": "48295",
+      "county_name": "Lipscomb County",
+      "n": 48,
+      "successes": 1,
+      "rawRate": 0.020833333333333332,
+      "shrunkRate": 0.029514650392113907
+    },
+    {
+      "county_fips": "48297",
+      "county_name": "Live Oak County",
+      "n": 48,
+      "successes": 1,
+      "rawRate": 0.020833333333333332,
+      "shrunkRate": 0.029514650392113907
+    },
+    {
+      "county_fips": "48299",
+      "county_name": "Llano County",
+      "n": 48,
+      "successes": 7,
+      "rawRate": 0.14583333333333334,
+      "shrunkRate": 0.1471234061476549
+    },
+    {
+      "county_fips": "48301",
+      "county_name": "Loving County",
+      "n": 48,
+      "successes": 0,
+      "rawRate": 0,
+      "shrunkRate": 0.00991319109952374
+    },
+    {
+      "county_fips": "48303",
+      "county_name": "Lubbock County",
+      "n": 48,
+      "successes": 15,
+      "rawRate": 0.3125,
+      "shrunkRate": 0.30393508048837625
+    },
+    {
+      "county_fips": "48305",
+      "county_name": "Lynn County",
+      "n": 48,
+      "successes": 15,
+      "rawRate": 0.3125,
+      "shrunkRate": 0.30393508048837625
+    },
+    {
+      "county_fips": "48307",
+      "county_name": "Mcculloch County",
+      "n": 48,
+      "successes": 15,
+      "rawRate": 0.3125,
+      "shrunkRate": 0.30393508048837625
+    },
+    {
+      "county_fips": "48309",
+      "county_name": "Mclennan County",
+      "n": 48,
+      "successes": 15,
+      "rawRate": 0.3125,
+      "shrunkRate": 0.30393508048837625
+    },
+    {
+      "county_fips": "48311",
+      "county_name": "Mcmullen County",
+      "n": 48,
+      "successes": 3,
+      "rawRate": 0.0625,
+      "shrunkRate": 0.06871756897729424
+    },
+    {
+      "county_fips": "48313",
+      "county_name": "Madison County",
+      "n": 48,
+      "successes": 2,
+      "rawRate": 0.041666666666666664,
+      "shrunkRate": 0.049116109684704076
+    },
+    {
+      "county_fips": "48315",
+      "county_name": "Marion County",
+      "n": 48,
+      "successes": 11,
+      "rawRate": 0.22916666666666666,
+      "shrunkRate": 0.22552924331801558
+    },
+    {
+      "county_fips": "48317",
+      "county_name": "Martin County",
+      "n": 48,
+      "successes": 15,
+      "rawRate": 0.3125,
+      "shrunkRate": 0.30393508048837625
+    },
+    {
+      "county_fips": "48319",
+      "county_name": "Mason County",
+      "n": 48,
+      "successes": 10,
+      "rawRate": 0.20833333333333334,
+      "shrunkRate": 0.20592778402542541
+    },
+    {
+      "county_fips": "48321",
+      "county_name": "Matagorda County",
+      "n": 48,
+      "successes": 15,
+      "rawRate": 0.3125,
+      "shrunkRate": 0.30393508048837625
+    },
+    {
+      "county_fips": "48323",
+      "county_name": "Maverick County",
+      "n": 48,
+      "successes": 4,
+      "rawRate": 0.08333333333333333,
+      "shrunkRate": 0.08831902826988441
+    },
+    {
+      "county_fips": "48325",
+      "county_name": "Medina County",
+      "n": 48,
+      "successes": 1,
+      "rawRate": 0.020833333333333332,
+      "shrunkRate": 0.029514650392113907
+    },
+    {
+      "county_fips": "48327",
+      "county_name": "Menard County",
+      "n": 48,
+      "successes": 1,
+      "rawRate": 0.020833333333333332,
+      "shrunkRate": 0.029514650392113907
+    },
+    {
+      "county_fips": "48329",
+      "county_name": "Midland County",
+      "n": 48,
+      "successes": 16,
+      "rawRate": 0.3333333333333333,
+      "shrunkRate": 0.32353653978096636
+    },
+    {
+      "county_fips": "48331",
+      "county_name": "Milam County",
+      "n": 48,
+      "successes": 8,
+      "rawRate": 0.16666666666666666,
+      "shrunkRate": 0.1667248654402451
+    },
+    {
+      "county_fips": "48333",
+      "county_name": "Mills County",
+      "n": 48,
+      "successes": 7,
+      "rawRate": 0.14583333333333334,
+      "shrunkRate": 0.1471234061476549
+    },
+    {
+      "county_fips": "48335",
+      "county_name": "Mitchell County",
+      "n": 48,
+      "successes": 0,
+      "rawRate": 0,
+      "shrunkRate": 0.00991319109952374
+    },
+    {
+      "county_fips": "48337",
+      "county_name": "Montague County",
+      "n": 48,
+      "successes": 2,
+      "rawRate": 0.041666666666666664,
+      "shrunkRate": 0.049116109684704076
+    },
+    {
+      "county_fips": "48339",
+      "county_name": "Montgomery County",
+      "n": 48,
+      "successes": 22,
+      "rawRate": 0.4583333333333333,
+      "shrunkRate": 0.4411452955365074
+    },
+    {
+      "county_fips": "48341",
+      "county_name": "Moore County",
+      "n": 48,
+      "successes": 0,
+      "rawRate": 0,
+      "shrunkRate": 0.00991319109952374
+    },
+    {
+      "county_fips": "48343",
+      "county_name": "Morris County",
+      "n": 48,
+      "successes": 0,
+      "rawRate": 0,
+      "shrunkRate": 0.00991319109952374
+    },
+    {
+      "county_fips": "48345",
+      "county_name": "Motley County",
+      "n": 48,
+      "successes": 6,
+      "rawRate": 0.125,
+      "shrunkRate": 0.12752194685506474
+    },
+    {
+      "county_fips": "48347",
+      "county_name": "Nacogdoches County",
+      "n": 48,
+      "successes": 2,
+      "rawRate": 0.041666666666666664,
+      "shrunkRate": 0.049116109684704076
+    },
+    {
+      "county_fips": "48349",
+      "county_name": "Navarro County",
+      "n": 48,
+      "successes": 6,
+      "rawRate": 0.125,
+      "shrunkRate": 0.12752194685506474
+    },
+    {
+      "county_fips": "48351",
+      "county_name": "Newton County",
+      "n": 48,
+      "successes": 1,
+      "rawRate": 0.020833333333333332,
+      "shrunkRate": 0.029514650392113907
+    },
+    {
+      "county_fips": "48353",
+      "county_name": "Nolan County",
+      "n": 48,
+      "successes": 2,
+      "rawRate": 0.041666666666666664,
+      "shrunkRate": 0.049116109684704076
+    },
+    {
+      "county_fips": "48355",
+      "county_name": "Nueces County",
+      "n": 48,
+      "successes": 4,
+      "rawRate": 0.08333333333333333,
+      "shrunkRate": 0.08831902826988441
+    },
+    {
+      "county_fips": "48357",
+      "county_name": "Ochiltree County",
+      "n": 48,
+      "successes": 0,
+      "rawRate": 0,
+      "shrunkRate": 0.00991319109952374
+    },
+    {
+      "county_fips": "48359",
+      "county_name": "Oldham County",
+      "n": 48,
+      "successes": 0,
+      "rawRate": 0,
+      "shrunkRate": 0.00991319109952374
+    },
+    {
+      "county_fips": "48361",
+      "county_name": "Orange County",
+      "n": 48,
+      "successes": 29,
+      "rawRate": 0.6041666666666666,
+      "shrunkRate": 0.5783555105846385
+    },
+    {
+      "county_fips": "48363",
+      "county_name": "Palo Pinto County",
+      "n": 48,
+      "successes": 26,
+      "rawRate": 0.5416666666666666,
+      "shrunkRate": 0.519551132706868
+    },
+    {
+      "county_fips": "48365",
+      "county_name": "Panola County",
+      "n": 48,
+      "successes": 13,
+      "rawRate": 0.2708333333333333,
+      "shrunkRate": 0.26473216190319593
+    },
+    {
+      "county_fips": "48367",
+      "county_name": "Parker County",
+      "n": 48,
+      "successes": 16,
+      "rawRate": 0.3333333333333333,
+      "shrunkRate": 0.32353653978096636
+    },
+    {
+      "county_fips": "48369",
+      "county_name": "Parmer County",
+      "n": 48,
+      "successes": 3,
+      "rawRate": 0.0625,
+      "shrunkRate": 0.06871756897729424
+    },
+    {
+      "county_fips": "48371",
+      "county_name": "Pecos County",
+      "n": 48,
+      "successes": 10,
+      "rawRate": 0.20833333333333334,
+      "shrunkRate": 0.20592778402542541
+    },
+    {
+      "county_fips": "48373",
+      "county_name": "Polk County",
+      "n": 48,
+      "successes": 20,
+      "rawRate": 0.4166666666666667,
+      "shrunkRate": 0.40194237695132706
+    },
+    {
+      "county_fips": "48375",
+      "county_name": "Potter County",
+      "n": 48,
+      "successes": 1,
+      "rawRate": 0.020833333333333332,
+      "shrunkRate": 0.029514650392113907
+    },
+    {
+      "county_fips": "48377",
+      "county_name": "Presidio County",
+      "n": 48,
+      "successes": 15,
+      "rawRate": 0.3125,
+      "shrunkRate": 0.30393508048837625
+    },
+    {
+      "county_fips": "48379",
+      "county_name": "Rains County",
+      "n": 48,
+      "successes": 7,
+      "rawRate": 0.14583333333333334,
+      "shrunkRate": 0.1471234061476549
+    },
+    {
+      "county_fips": "48381",
+      "county_name": "Randall County",
+      "n": 48,
+      "successes": 9,
+      "rawRate": 0.1875,
+      "shrunkRate": 0.18632632473283525
+    },
+    {
+      "county_fips": "48383",
+      "county_name": "Reagan County",
+      "n": 48,
+      "successes": 0,
+      "rawRate": 0,
+      "shrunkRate": 0.00991319109952374
+    },
+    {
+      "county_fips": "48385",
+      "county_name": "Real County",
+      "n": 48,
+      "successes": 18,
+      "rawRate": 0.375,
+      "shrunkRate": 0.36273945836614674
+    },
+    {
+      "county_fips": "48387",
+      "county_name": "Red River County",
+      "n": 48,
+      "successes": 4,
+      "rawRate": 0.08333333333333333,
+      "shrunkRate": 0.08831902826988441
+    },
+    {
+      "county_fips": "48389",
+      "county_name": "Reeves County",
+      "n": 48,
+      "successes": 10,
+      "rawRate": 0.20833333333333334,
+      "shrunkRate": 0.20592778402542541
+    },
+    {
+      "county_fips": "48391",
+      "county_name": "Refugio County",
+      "n": 48,
+      "successes": 5,
+      "rawRate": 0.10416666666666667,
+      "shrunkRate": 0.10792048756247458
+    },
+    {
+      "county_fips": "48393",
+      "county_name": "Roberts County",
+      "n": 48,
+      "successes": 0,
+      "rawRate": 0,
+      "shrunkRate": 0.00991319109952374
+    },
+    {
+      "county_fips": "48395",
+      "county_name": "Robertson County",
+      "n": 48,
+      "successes": 0,
+      "rawRate": 0,
+      "shrunkRate": 0.00991319109952374
+    },
+    {
+      "county_fips": "48397",
+      "county_name": "Rockwall County",
+      "n": 48,
+      "successes": 0,
+      "rawRate": 0,
+      "shrunkRate": 0.00991319109952374
+    },
+    {
+      "county_fips": "48399",
+      "county_name": "Runnels County",
+      "n": 48,
+      "successes": 16,
+      "rawRate": 0.3333333333333333,
+      "shrunkRate": 0.32353653978096636
+    },
+    {
+      "county_fips": "48401",
+      "county_name": "Rusk County",
+      "n": 48,
+      "successes": 9,
+      "rawRate": 0.1875,
+      "shrunkRate": 0.18632632473283525
+    },
+    {
+      "county_fips": "48403",
+      "county_name": "Sabine County",
+      "n": 48,
+      "successes": 8,
+      "rawRate": 0.16666666666666666,
+      "shrunkRate": 0.1667248654402451
+    },
+    {
+      "county_fips": "48405",
+      "county_name": "San Augustine County",
+      "n": 48,
+      "successes": 15,
+      "rawRate": 0.3125,
+      "shrunkRate": 0.30393508048837625
+    },
+    {
+      "county_fips": "48407",
+      "county_name": "San Jacinto County",
+      "n": 48,
+      "successes": 18,
+      "rawRate": 0.375,
+      "shrunkRate": 0.36273945836614674
+    },
+    {
+      "county_fips": "48409",
+      "county_name": "San Patricio County",
+      "n": 48,
+      "successes": 9,
+      "rawRate": 0.1875,
+      "shrunkRate": 0.18632632473283525
+    },
+    {
+      "county_fips": "48411",
+      "county_name": "San Saba County",
+      "n": 48,
+      "successes": 0,
+      "rawRate": 0,
+      "shrunkRate": 0.00991319109952374
+    },
+    {
+      "county_fips": "48413",
+      "county_name": "Schleicher County",
+      "n": 48,
+      "successes": 0,
+      "rawRate": 0,
+      "shrunkRate": 0.00991319109952374
+    },
+    {
+      "county_fips": "48415",
+      "county_name": "Scurry County",
+      "n": 48,
+      "successes": 0,
+      "rawRate": 0,
+      "shrunkRate": 0.00991319109952374
+    },
+    {
+      "county_fips": "48417",
+      "county_name": "Shackelford County",
+      "n": 48,
+      "successes": 3,
+      "rawRate": 0.0625,
+      "shrunkRate": 0.06871756897729424
+    },
+    {
+      "county_fips": "48419",
+      "county_name": "Shelby County",
+      "n": 48,
+      "successes": 20,
+      "rawRate": 0.4166666666666667,
+      "shrunkRate": 0.40194237695132706
+    },
+    {
+      "county_fips": "48421",
+      "county_name": "Sherman County",
+      "n": 48,
+      "successes": 0,
+      "rawRate": 0,
+      "shrunkRate": 0.00991319109952374
+    },
+    {
+      "county_fips": "48423",
+      "county_name": "Smith County",
+      "n": 48,
+      "successes": 17,
+      "rawRate": 0.3541666666666667,
+      "shrunkRate": 0.3431379990735566
+    },
+    {
+      "county_fips": "48425",
+      "county_name": "Somervell County",
+      "n": 48,
+      "successes": 3,
+      "rawRate": 0.0625,
+      "shrunkRate": 0.06871756897729424
+    },
+    {
+      "county_fips": "48427",
+      "county_name": "Starr County",
+      "n": 48,
+      "successes": 14,
+      "rawRate": 0.2916666666666667,
+      "shrunkRate": 0.2843336211957861
+    },
+    {
+      "county_fips": "48429",
+      "county_name": "Stephens County",
+      "n": 48,
+      "successes": 1,
+      "rawRate": 0.020833333333333332,
+      "shrunkRate": 0.029514650392113907
+    },
+    {
+      "county_fips": "48431",
+      "county_name": "Sterling County",
+      "n": 48,
+      "successes": 0,
+      "rawRate": 0,
+      "shrunkRate": 0.00991319109952374
+    },
+    {
+      "county_fips": "48433",
+      "county_name": "Stonewall County",
+      "n": 48,
+      "successes": 0,
+      "rawRate": 0,
+      "shrunkRate": 0.00991319109952374
+    },
+    {
+      "county_fips": "48435",
+      "county_name": "Sutton County",
+      "n": 48,
+      "successes": 0,
+      "rawRate": 0,
+      "shrunkRate": 0.00991319109952374
+    },
+    {
+      "county_fips": "48437",
+      "county_name": "Swisher County",
+      "n": 48,
+      "successes": 0,
+      "rawRate": 0,
+      "shrunkRate": 0.00991319109952374
+    },
+    {
+      "county_fips": "48439",
+      "county_name": "Tarrant County",
+      "n": 48,
+      "successes": 13,
+      "rawRate": 0.2708333333333333,
+      "shrunkRate": 0.26473216190319593
+    },
+    {
+      "county_fips": "48441",
+      "county_name": "Taylor County",
+      "n": 48,
+      "successes": 8,
+      "rawRate": 0.16666666666666666,
+      "shrunkRate": 0.1667248654402451
+    },
+    {
+      "county_fips": "48443",
+      "county_name": "Terrell County",
+      "n": 48,
+      "successes": 0,
+      "rawRate": 0,
+      "shrunkRate": 0.00991319109952374
+    },
+    {
+      "county_fips": "48445",
+      "county_name": "Terry County",
+      "n": 48,
+      "successes": 14,
+      "rawRate": 0.2916666666666667,
+      "shrunkRate": 0.2843336211957861
+    },
+    {
+      "county_fips": "48447",
+      "county_name": "Throckmorton County",
+      "n": 48,
+      "successes": 6,
+      "rawRate": 0.125,
+      "shrunkRate": 0.12752194685506474
+    },
+    {
+      "county_fips": "48449",
+      "county_name": "Titus County",
+      "n": 48,
+      "successes": 0,
+      "rawRate": 0,
+      "shrunkRate": 0.00991319109952374
+    },
+    {
+      "county_fips": "48451",
+      "county_name": "Tom Green County",
+      "n": 48,
+      "successes": 4,
+      "rawRate": 0.08333333333333333,
+      "shrunkRate": 0.08831902826988441
+    },
+    {
+      "county_fips": "48453",
+      "county_name": "Travis County",
+      "n": 48,
+      "successes": 23,
+      "rawRate": 0.4791666666666667,
+      "shrunkRate": 0.46074675482909755
+    },
+    {
+      "county_fips": "48455",
+      "county_name": "Trinity County",
+      "n": 48,
+      "successes": 16,
+      "rawRate": 0.3333333333333333,
+      "shrunkRate": 0.32353653978096636
+    },
+    {
+      "county_fips": "48457",
+      "county_name": "Tyler County",
+      "n": 48,
+      "successes": 5,
+      "rawRate": 0.10416666666666667,
+      "shrunkRate": 0.10792048756247458
+    },
+    {
+      "county_fips": "48459",
+      "county_name": "Upshur County",
+      "n": 48,
+      "successes": 1,
+      "rawRate": 0.020833333333333332,
+      "shrunkRate": 0.029514650392113907
+    },
+    {
+      "county_fips": "48461",
+      "county_name": "Upton County",
+      "n": 48,
+      "successes": 9,
+      "rawRate": 0.1875,
+      "shrunkRate": 0.18632632473283525
+    },
+    {
+      "county_fips": "48463",
+      "county_name": "Uvalde County",
+      "n": 48,
+      "successes": 7,
+      "rawRate": 0.14583333333333334,
+      "shrunkRate": 0.1471234061476549
+    },
+    {
+      "county_fips": "48465",
+      "county_name": "Val Verde County",
+      "n": 48,
+      "successes": 15,
+      "rawRate": 0.3125,
+      "shrunkRate": 0.30393508048837625
+    },
+    {
+      "county_fips": "48467",
+      "county_name": "Van Zandt County",
+      "n": 48,
+      "successes": 6,
+      "rawRate": 0.125,
+      "shrunkRate": 0.12752194685506474
+    },
+    {
+      "county_fips": "48469",
+      "county_name": "Victoria County",
+      "n": 48,
+      "successes": 16,
+      "rawRate": 0.3333333333333333,
+      "shrunkRate": 0.32353653978096636
+    },
+    {
+      "county_fips": "48471",
+      "county_name": "Walker County",
+      "n": 48,
+      "successes": 14,
+      "rawRate": 0.2916666666666667,
+      "shrunkRate": 0.2843336211957861
+    },
+    {
+      "county_fips": "48473",
+      "county_name": "Waller County",
+      "n": 48,
+      "successes": 9,
+      "rawRate": 0.1875,
+      "shrunkRate": 0.18632632473283525
+    },
+    {
+      "county_fips": "48475",
+      "county_name": "Ward County",
+      "n": 48,
+      "successes": 3,
+      "rawRate": 0.0625,
+      "shrunkRate": 0.06871756897729424
+    },
+    {
+      "county_fips": "48477",
+      "county_name": "Washington County",
+      "n": 48,
+      "successes": 9,
+      "rawRate": 0.1875,
+      "shrunkRate": 0.18632632473283525
+    },
+    {
+      "county_fips": "48479",
+      "county_name": "Webb County",
+      "n": 48,
+      "successes": 15,
+      "rawRate": 0.3125,
+      "shrunkRate": 0.30393508048837625
+    },
+    {
+      "county_fips": "48481",
+      "county_name": "Wharton County",
+      "n": 48,
+      "successes": 4,
+      "rawRate": 0.08333333333333333,
+      "shrunkRate": 0.08831902826988441
+    },
+    {
+      "county_fips": "48483",
+      "county_name": "Wheeler County",
+      "n": 48,
+      "successes": 2,
+      "rawRate": 0.041666666666666664,
+      "shrunkRate": 0.049116109684704076
+    },
+    {
+      "county_fips": "48485",
+      "county_name": "Wichita County",
+      "n": 48,
+      "successes": 4,
+      "rawRate": 0.08333333333333333,
+      "shrunkRate": 0.08831902826988441
+    },
+    {
+      "county_fips": "48487",
+      "county_name": "Wilbarger County",
+      "n": 48,
+      "successes": 15,
+      "rawRate": 0.3125,
+      "shrunkRate": 0.30393508048837625
+    },
+    {
+      "county_fips": "48489",
+      "county_name": "Willacy County",
+      "n": 48,
+      "successes": 2,
+      "rawRate": 0.041666666666666664,
+      "shrunkRate": 0.049116109684704076
+    },
+    {
+      "county_fips": "48491",
+      "county_name": "Williamson County",
+      "n": 48,
+      "successes": 2,
+      "rawRate": 0.041666666666666664,
+      "shrunkRate": 0.049116109684704076
+    },
+    {
+      "county_fips": "48493",
+      "county_name": "Wilson County",
+      "n": 48,
+      "successes": 2,
+      "rawRate": 0.041666666666666664,
+      "shrunkRate": 0.049116109684704076
+    },
+    {
+      "county_fips": "48495",
+      "county_name": "Winkler County",
+      "n": 48,
+      "successes": 3,
+      "rawRate": 0.0625,
+      "shrunkRate": 0.06871756897729424
+    },
+    {
+      "county_fips": "48497",
+      "county_name": "Wise County",
+      "n": 48,
+      "successes": 16,
+      "rawRate": 0.3333333333333333,
+      "shrunkRate": 0.32353653978096636
+    },
+    {
+      "county_fips": "48499",
+      "county_name": "Wood County",
+      "n": 48,
+      "successes": 3,
+      "rawRate": 0.0625,
+      "shrunkRate": 0.06871756897729424
+    },
+    {
+      "county_fips": "48501",
+      "county_name": "Yoakum County",
+      "n": 48,
+      "successes": 15,
+      "rawRate": 0.3125,
+      "shrunkRate": 0.30393508048837625
+    },
+    {
+      "county_fips": "48503",
+      "county_name": "Young County",
+      "n": 48,
+      "successes": 0,
+      "rawRate": 0,
+      "shrunkRate": 0.00991319109952374
+    },
+    {
+      "county_fips": "48505",
+      "county_name": "Zapata County",
+      "n": 48,
+      "successes": 10,
+      "rawRate": 0.20833333333333334,
+      "shrunkRate": 0.20592778402542541
+    },
+    {
+      "county_fips": "48507",
+      "county_name": "Zavala County",
+      "n": 48,
+      "successes": 0,
+      "rawRate": 0,
+      "shrunkRate": 0.00991319109952374
+    }
+  ],
+  "models": [
+    {
+      "id": "prevalence",
+      "label": "Statewide prevalence baseline",
+      "metrics": {
+        "train": {
+          "count": 12192,
+          "positives": 2044,
+          "prevalence": 0.1676509186351706,
+          "auroc": 0.5,
+          "auprc": 0.18469062782495982,
+          "brier": 0.13954408811592636,
+          "precisionAtTopDecile": 0.17965545529122232,
+          "liftAtTopDecile": 1.0716043595452949
+        },
+        "validation": {
+          "count": 3048,
+          "positives": 678,
+          "prevalence": 0.22244094488188976,
+          "auroc": 0.5,
+          "auprc": 0.2444150960308443,
+          "brier": 0.1759629178980598,
+          "precisionAtTopDecile": 0.25245901639344265,
+          "liftAtTopDecile": 1.1349484984767158
+        },
+        "test": {
+          "count": 3048,
+          "positives": 484,
+          "prevalence": 0.15879265091863518,
+          "auroc": 0.5,
+          "auprc": 0.16727572098733395,
+          "brier": 0.13365601383980932,
+          "precisionAtTopDecile": 0.15081967213114755,
+          "liftAtTopDecile": 0.94979000135483
+        }
+      }
+    },
+    {
+      "id": "raw_county",
+      "label": "Raw county historical rate",
+      "metrics": {
+        "train": {
+          "count": 12192,
+          "positives": 2044,
+          "prevalence": 0.1676509186351706,
+          "auroc": 0.8346587915677716,
+          "auprc": 0.5311184522332152,
+          "brier": 0.10480232939632372,
+          "precisionAtTopDecile": 0.5479901558654635,
+          "liftAtTopDecile": 3.268637955142726
+        },
+        "validation": {
+          "count": 3048,
+          "positives": 678,
+          "prevalence": 0.22244094488188976,
+          "auroc": 0.7254508793547665,
+          "auprc": 0.49676707007149296,
+          "brier": 0.15005057961504664,
+          "precisionAtTopDecile": 0.5573770491803278,
+          "liftAtTopDecile": 2.505730451182359
+        },
+        "test": {
+          "count": 3048,
+          "positives": 484,
+          "prevalence": 0.15879265091863518,
+          "auroc": 0.7710302213741442,
+          "auprc": 0.43746900124897076,
+          "brier": 0.11335985345581764,
+          "precisionAtTopDecile": 0.4360655737704918,
+          "liftAtTopDecile": 2.746131960438965
+        }
+      }
+    },
+    {
+      "id": "eb_county",
+      "label": "Empirical-Bayes county baseline",
+      "metrics": {
+        "train": {
+          "count": 12192,
+          "positives": 2044,
+          "prevalence": 0.1676509186351706,
+          "auroc": 0.8346587915677716,
+          "auprc": 0.5311184522332152,
+          "brier": 0.10492379879496519,
+          "precisionAtTopDecile": 0.5479901558654635,
+          "liftAtTopDecile": 3.268637955142726
+        },
+        "validation": {
+          "count": 3048,
+          "positives": 678,
+          "prevalence": 0.22244094488188976,
+          "auroc": 0.7254508793547665,
+          "auprc": 0.49676707007149296,
+          "brier": 0.1496499657898178,
+          "precisionAtTopDecile": 0.5573770491803278,
+          "liftAtTopDecile": 2.505730451182359
+        },
+        "test": {
+          "count": 3048,
+          "positives": 484,
+          "prevalence": 0.15879265091863518,
+          "auroc": 0.7710302213741442,
+          "auprc": 0.43746900124897076,
+          "brier": 0.11262715529001154,
+          "precisionAtTopDecile": 0.4360655737704918,
+          "liftAtTopDecile": 2.746131960438965
+        }
+      }
+    }
+  ]
+}
