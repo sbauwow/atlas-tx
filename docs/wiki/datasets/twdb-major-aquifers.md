@@ -15,6 +15,8 @@ registry_id: twdb-major-aquifers
 relationships:
   - {type: published_by, target: agencies/twdb.md}
   - {type: references, target: datasets/usdm-drought-monitor.md}
+  - {type: implements, target: projects/refresh-cached-snapshot.md}
+  - {type: references, target: sources/texas-gis-inventory.md}
 stale: false
 ---
 

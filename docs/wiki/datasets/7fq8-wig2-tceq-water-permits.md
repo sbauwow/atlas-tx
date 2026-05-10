@@ -19,6 +19,8 @@ relationships:
   - {type: lives_on, target: portals/data-texas-gov.md}
   - {type: depends_on, target: concepts/socrata-soql.md}
   - {type: depends_on, target: concepts/marey-chart.md}
+  - {type: implements, target: concepts/tpdes.md}
+  - {type: depends_on, target: concepts/cwa.md}
 stale: false
 ---
 

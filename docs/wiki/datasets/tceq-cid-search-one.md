@@ -16,6 +16,8 @@ relationships:
   - {type: published_by, target: agencies/tceq.md}
   - {type: references, target: datasets/tceq-cid-search-two.md}
   - {type: derives_from, target: datasets/7fq8-wig2-tceq-water-permits.md}
+  - {type: implements, target: concepts/cid.md}
+  - {type: references, target: concepts/soah.md}
 stale: false
 ---
 

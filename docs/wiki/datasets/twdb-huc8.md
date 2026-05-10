@@ -15,6 +15,8 @@ registry_id: twdb-huc8
 relationships:
   - {type: published_by, target: agencies/twdb.md}
   - {type: references, target: agencies/usgs.md}
+  - {type: references, target: comparisons/twdb-huc8-vs-usgs-wbd.md}
+  - {type: references, target: comparisons/twdb-river-basins-vs-huc.md}
 stale: false
 ---
 

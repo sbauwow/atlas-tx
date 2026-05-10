@@ -15,6 +15,10 @@ sources:
 relationships:
   - {type: published_by, target: portals/data-texas-gov.md}
   - {type: references, target: agencies/epa.md}
+  - {type: references, target: datasets/hr84-s96f-tx-water-districts.md}
+  - {type: references, target: datasets/tceq-swq-segments.md}
+  - {type: references, target: concepts/cid.md}
+  - {type: references, target: concepts/tpdes.md}
 stale: false
 ---
 

@@ -15,6 +15,8 @@ _Repeatable atlas-tx workflows._
 | [Refresh a cached snapshot](projects/refresh-cached-snapshot.md) | The atlas-tx pattern for refreshing external-source snapshots — Socrata / federal / ColdFusion / shared-loader variants |
 | [Author an SVG viz primitive](projects/author-an-svg-viz-primitive.md) | The atlas-tx pattern for new charts in `src/app/components/data-viz/` — pure SVG, no deps, server-rendered, token colors, motion gated |
 
+_Lint pattern lives in `scripts/lint-wiki.ts` — rebuilds `graph.md` + `lint-report.md` and computes idempotent decay. Run with `npx tsx scripts/lint-wiki.ts`._
+
 ---
 
 ## Tier 3 — Semantic
@@ -89,6 +91,14 @@ _(none yet — geometry-first pages will land when NFHL or NHD are cached as fea
 | [Burden vs Harm](concepts/burden-vs-harm.md) | Atlas TX product stance — indicator-grade, never harm claims |
 | [Marey chart](concepts/marey-chart.md) | Train-schedule diagram — durations as diagonals in lane × time |
 | [Sankey flow](concepts/sankey-flow.md) | Ribbon-width-by-magnitude flow diagram across columns |
+| [Clean Water Act (CWA)](concepts/cwa.md) | Federal surface-water-quality framework; cornerstone for NPDES/TPDES |
+| [Safe Drinking Water Act (SDWA)](concepts/sdwa.md) | Federal drinking-water regulatory framework; cornerstone for SDWIS / DWRS |
+| [NPDES](concepts/npdes.md) | Federal pollutant discharge permit program (CWA § 402) |
+| [TPDES](concepts/tpdes.md) | TX primacy implementation of NPDES — what `7fq8-wig2` actually is |
+| [TCEQ Central Index (CID)](concepts/cid.md) | TCEQ's case + filings public-record system; backs APD |
+| [SOAH](concepts/soah.md) | TX State Office of Administrative Hearings — referral signal in CID |
+| [TRI](concepts/tri.md) | EPA Toxics Release Inventory — self-reported chemical releases |
+| [American Community Survey (ACS)](concepts/acs.md) | Census continuous demographic survey — ACS5 vs ACS1, methodology |
 
 ### Comparisons
 

@@ -14,6 +14,8 @@ sources:
 registry_id: null
 relationships:
   - {type: published_by, target: agencies/fema.md}
+  - {type: references, target: concepts/firm.md}
+  - {type: references, target: concepts/sfha.md}
 stale: false
 ---
 
