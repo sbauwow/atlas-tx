@@ -5,6 +5,11 @@ import { useId, useMemo, useState } from "react";
 import { ChartEmptyState, ChartShell } from "@/app/components/charts/chart-shell";
 
 import {
+  ChoroplethTooltipLayer,
+  type ChoroplethTooltipContent,
+  type ChoroplethTooltipRow,
+} from "./choropleth-tooltip-layer";
+import {
   CountyChoroplethSvg,
   formatCountyMetricValue,
   rankCountiesForMetric,
@@ -68,6 +73,43 @@ export function CountyHeadlinerMap({
   const topCounties = useMemo(() => (metricMode ? rankCountiesForMetric(counties, metricMode).slice(0, 5) : []), [counties, metricMode]);
   const svgIdPrefix = useId().replace(/[:]/g, "_");
 
+  const overlaySlugSets = useMemo(
+    () => overlays.map((overlay) => ({ overlay, slugSet: new Set(overlay.countySlugs) })),
+    [overlays],
+  );
+
+  const tooltipsBySlug = useMemo<Array<[string, ChoroplethTooltipContent]>>(() => {
+    if (!metricMode) return [];
+    return counties.map((county) => {
+      const value = county.metrics[metricMode.id];
+      const formatted = formatCountyMetricValue(metricMode, value);
+      const rows: ChoroplethTooltipRow[] = [
+        {
+          label: metricMode.valueLabel ?? metricMode.label,
+          value: formatted,
+          tone: value === null || value === undefined || Number.isNaN(value) ? "muted" : "accent",
+        },
+      ];
+      if (county.context) {
+        rows.push({ value: county.context, tone: "muted" });
+      }
+      for (const { overlay, slugSet } of overlaySlugSets) {
+        if (slugSet.has(county.slug)) {
+          rows.push({ value: overlay.label, tone: "warn" });
+        }
+      }
+      return [
+        county.slug,
+        {
+          title: county.name,
+          subtitle: metricMode.label,
+          rows,
+          footer: county.href ? "Click for county detail." : undefined,
+        },
+      ];
+    });
+  }, [counties, metricMode, overlaySlugSets]);
+
   if (!metricMode) {
     return (
       <ChartShell
@@ -130,14 +172,16 @@ export function CountyHeadlinerMap({
         <div className="grid gap-5 xl:grid-cols-[minmax(0,1.7fr)_minmax(20rem,0.9fr)]">
           <div className="space-y-4">
             <div className="rounded-[1.6rem] border border-white/8 bg-slate-950/80 p-3 shadow-[0_0_0_1px_rgba(255,255,255,0.02)]">
-              <CountyChoroplethSvg
-                counties={counties}
-                metricMode={metricMode}
-                overlays={overlays}
-                selectedCountySlug={selectedCountySlug}
-                ariaLabel={ariaLabel ?? `${title} county map`}
-                idPrefix={`county-headliner-${svgIdPrefix}`}
-              />
+              <ChoroplethTooltipLayer tooltips={tooltipsBySlug}>
+                <CountyChoroplethSvg
+                  counties={counties}
+                  metricMode={metricMode}
+                  overlays={overlays}
+                  selectedCountySlug={selectedCountySlug}
+                  ariaLabel={ariaLabel ?? `${title} county map`}
+                  idPrefix={`county-headliner-${svgIdPrefix}`}
+                />
+              </ChoroplethTooltipLayer>
             </div>
             <div className="grid gap-3 md:grid-cols-[minmax(0,1.25fr)_minmax(0,0.95fr)]">
               <section className="rounded-2xl border border-white/8 bg-white/[0.03] p-4">

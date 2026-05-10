@@ -9,6 +9,10 @@ import type { GeometryCollection, Topology } from "topojson-specification";
 
 import { ACCENT_HEX, SEVERITY_HEX, SEVERITY_LABEL, type SeverityLevel } from "@/app/design/states";
 import { SEVERITY_GLYPH } from "@/app/design/glyphs";
+import {
+  ChoroplethTooltipLayer,
+  type ChoroplethTooltipContent,
+} from "@/app/components/choropleth-tooltip-layer";
 
 export type ChoroplethCounty = {
   slug: string;
@@ -96,8 +100,71 @@ export default function TexasChoropleth({
   const selected = selectedSlug ? bySlug.get(selectedSlug) ?? null : null;
   const selectedFips = selected?.fips;
 
+  const tooltips: Array<[string, ChoroplethTooltipContent]> = counties.map((county) => {
+    const level: SeverityLevel = county.severity;
+    if (variant === "oil-gas") {
+      return [
+        county.slug,
+        {
+          title: `${county.name}`,
+          subtitle: "Oil and gas extraction permits",
+          rows: [
+            {
+              label: "TXG31 (oil and gas)",
+              value: (county.metrics.oilAndGasExtractionPermitCount ?? 0).toLocaleString(),
+              tone: (county.metrics.oilAndGasExtractionPermitCount ?? 0) > 0 ? "warn" : "muted",
+            },
+            {
+              label: "TXG34 (petroleum bulk)",
+              value: (county.metrics.petroleumBulkStationPermitCount ?? 0).toLocaleString(),
+            },
+            {
+              label: "Other general permits",
+              value: (county.metrics.otherGeneralPermitCount ?? 0).toLocaleString(),
+            },
+            {
+              value: `${SEVERITY_LABEL[level]} ${SEVERITY_GLYPH[level]}`,
+              tone: level >= 3 ? "warn" : level >= 1 ? "accent" : "muted",
+            },
+          ],
+        },
+      ];
+    }
+    return [
+      county.slug,
+      {
+        title: county.name,
+        subtitle: "Water risk overview",
+        rows: [
+          {
+            label: "Mismatch score",
+            value: county.mismatchScore.toLocaleString(),
+            tone: county.mismatchScore >= 4 ? "warn" : county.mismatchScore > 0 ? "accent" : "muted",
+          },
+          {
+            label: "NFHL features",
+            value: (county.metrics.floodplainFeatureCount ?? 0).toLocaleString(),
+          },
+          {
+            label: "Active alerts",
+            value: (county.metrics.activeWaterAlertCount ?? 0).toLocaleString(),
+            tone: (county.metrics.activeWaterAlertCount ?? 0) > 0 ? "warn" : "default",
+          },
+          {
+            label: "Stream gauges",
+            value: (county.metrics.streamGaugeCount ?? 0).toLocaleString(),
+          },
+          {
+            value: `${SEVERITY_LABEL[level]} ${SEVERITY_GLYPH[level]}`,
+            tone: level >= 3 ? "warn" : level >= 1 ? "accent" : "muted",
+          },
+        ],
+      },
+    ];
+  });
+
   return (
-    <div className="relative overflow-hidden rounded-xl bg-slate-950 ring-1 ring-white/5">
+    <ChoroplethTooltipLayer tooltips={tooltips} className="overflow-hidden rounded-xl bg-slate-950 ring-1 ring-white/5">
       <svg
         viewBox={`0 0 ${MAP_WIDTH} ${MAP_HEIGHT}`}
         className="h-[560px] w-full sm:h-[720px] lg:h-[880px]"
@@ -190,6 +257,6 @@ export default function TexasChoropleth({
           );
         })}
       </svg>
-    </div>
+    </ChoroplethTooltipLayer>
   );
 }
