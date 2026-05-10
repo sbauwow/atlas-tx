@@ -137,6 +137,8 @@ export default function Sankey({
           stroke={from.accent ?? SEVERITY_HEX[2]}
           strokeOpacity={FLOW_OPACITY}
           strokeWidth={Math.max(1, ribbon)}
+          className="atlas-shimmer-stroke"
+          style={{ animationDelay: `${(idx % 8) * 200}ms` }}
         >
           <title>{e.title ?? `${from.label} → ${to.label}: ${e.weight}`}</title>
         </path>

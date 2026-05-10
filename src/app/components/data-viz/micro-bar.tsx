@@ -35,7 +35,16 @@ export default function MicroBar({
       className="inline-block align-middle"
     >
       <rect x={0} y={height / 2 - 1} width={width} height={2} fill="#1e293b" rx={1} />
-      <rect x={0} y={1} width={Math.max(1, w)} height={height - 2} fill={fill} rx={1} fillOpacity={value > 0 ? 1 : 0.2} />
+      <rect
+        x={0}
+        y={1}
+        width={Math.max(1, w)}
+        height={height - 2}
+        fill={fill}
+        rx={1}
+        fillOpacity={value > 0 ? 1 : 0.2}
+        className="atlas-bar-grow"
+      />
       {showMedianTick && median > 0 ? (
         <line x1={medianX} y1={0} x2={medianX} y2={height} stroke="#94a3b8" strokeWidth={0.75} strokeDasharray="1.5 1.5" />
       ) : null}

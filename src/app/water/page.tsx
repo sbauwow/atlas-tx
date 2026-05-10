@@ -1,4 +1,6 @@
 import Link from "next/link";
+import PulseDot from "@/app/components/pulse-dot";
+import TopographicBackground from "@/app/components/topographic-background";
 import { GlossaryInlineList } from "@/app/components/glossary-tooltip";
 import { countySlug } from "@/lib/counties";
 import { parseEnumQueryParam, resolveAllowedQueryParam } from "@/lib/query-params";
@@ -209,6 +211,7 @@ export default async function WaterPage({
   });
 
   const countiesWithFloodplain = overview.counties.filter((county) => (county.metrics.floodplainFeatureCount ?? 0) > 0).length;
+  const activeAlertCount = overview.counties.reduce((sum, county) => sum + (county.metrics.activeWaterAlertCount ?? 0), 0);
   const countiesWithOilAndGasExtraction = overview.counties.filter((county) => (county.metrics.oilAndGasExtractionPermitCount ?? 0) > 0).length;
   const statewideOilAndGasPermits = overview.counties.reduce((sum, county) => sum + (county.metrics.oilAndGasExtractionPermitCount ?? 0), 0);
   const selectedMismatchLevel = severityFromMismatch(breakdown?.county.mismatch?.score);
@@ -240,14 +243,15 @@ export default async function WaterPage({
 
   return (
     <main className="relative mx-auto flex w-full max-w-7xl flex-1 flex-col gap-12 px-6 py-12">
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[420px] bg-[radial-gradient(ellipse_60%_45%_at_50%_0%,rgba(34,211,238,0.08),transparent_70%)]"
-      />
+      <TopographicBackground />
 
-      <section className="space-y-6">
-        <h1 className="max-w-4xl text-balance text-4xl font-semibold leading-[1.1] tracking-tight text-white sm:text-5xl">
-          Texas water, by county.
+      <section className="space-y-6 atlas-fade-rise">
+        <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-medium uppercase tracking-[0.18em] text-slate-300 backdrop-blur">
+          <PulseDot size={6} />
+          Live water lane · {activeAlertCount} active alerts
+        </span>
+        <h1 className="max-w-4xl text-balance text-4xl font-semibold leading-[1.1] tracking-tight sm:text-5xl">
+          <span className="atlas-hero-gradient">Texas water, by county.</span>
         </h1>
         <p className="max-w-3xl text-pretty text-base leading-7 text-slate-400 sm:text-lg sm:leading-8">
           Floodplain footprint, alerts, gauges, sewer overflows, permits, and who runs the public water system — joined at the county level from federal and Texas open data.

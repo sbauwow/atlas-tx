@@ -243,6 +243,7 @@ export default function TexasChoropleth({
                         strokeOpacity={0.7}
                         strokeWidth={2}
                         pointerEvents="none"
+                        className="atlas-pulse-halo"
                       />
                     );
                   })()
@@ -257,16 +258,10 @@ export default function TexasChoropleth({
           return (
             <g key={gauge.siteNumber} data-gauge-site={gauge.siteNumber}>
               <circle cx={point[0]} cy={point[1]} r={4} fill="#f8fafc" stroke="#0f172a" strokeWidth={1.5} />
-              <circle
-                cx={point[0]}
-                cy={point[1]}
-                r={11}
-                fill="none"
-                stroke={ACCENT_HEX}
-                strokeWidth={1.25}
-                strokeDasharray="3 3"
-                opacity={0.7}
-              />
+              <circle cx={point[0]} cy={point[1]} r={11} fill="none" stroke={ACCENT_HEX} strokeWidth={1.25}>
+                <animate attributeName="r" values="9;14;9" dur="3.2s" repeatCount="indefinite" />
+                <animate attributeName="stroke-opacity" values="0.65;0.15;0.65" dur="3.2s" repeatCount="indefinite" />
+              </circle>
               <title>{`${gauge.stationName} — stream gauge`}</title>
             </g>
           );
