@@ -31,7 +31,7 @@ export default async function CountyIntelligencePage({ params }: { params: Promi
       <section className="space-y-5">
         <div className="flex flex-wrap items-center gap-3 text-sm">
           <Link href="/water" className="rounded-full border border-white/10 px-4 py-2 text-slate-200 transition-colors hover:border-white/20 hover:bg-white/5">
-            Back to water explorer
+            Back to water map
           </Link>
           <Link href={`/permits?county=${county.slug}`} className="rounded-full bg-white px-4 py-2 font-medium text-slate-950 transition-colors hover:bg-slate-200">
             Open permit view

@@ -53,7 +53,7 @@ export default async function WaterNetworkPage({
       <header className="space-y-3">
         <div className="flex flex-wrap items-center gap-3 text-sm">
           <Link href="/water" className="rounded-full border border-white/15 px-3 py-1.5 text-slate-200 hover:bg-white/5">
-            Back to water explorer
+            Back to water map
           </Link>
           <Link href="/api/water/sources/network/hydrology" className="rounded-full border border-cyan-400/30 bg-cyan-400/10 px-3 py-1.5 text-cyan-200">
             Hydrology dependency API

@@ -123,13 +123,13 @@ export default async function WaterPage({
       <section className="space-y-6">
         <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-medium uppercase tracking-[0.18em] text-slate-300 backdrop-blur">
           <span aria-hidden="true" className="size-1.5 rounded-full bg-accent" />
-          Texas water explorer
+          Water + water quality · live map
         </span>
         <h1 className="max-w-4xl text-balance text-4xl font-semibold leading-[1.1] tracking-tight text-white sm:text-5xl">
-          Water stress, flood operations, and county hydrology.
+          Texas water, by county.
         </h1>
         <p className="max-w-3xl text-pretty text-base leading-7 text-slate-400 sm:text-lg sm:leading-8">
-          First-pass water lane for Atlas Texas: active flood alerts, stream gauge coverage, sewer overflow pressure, permit counts, governance structure, and <GlossaryTooltip term="FEMA" expand /> <GlossaryTooltip term="NFHL" expand /> coverage by county.
+          Floodplain footprint, alerts, gauges, sewer overflows, permits, and who runs the public water system — joined at the county level from federal and Texas open data.
         </p>
         <div className="flex flex-wrap gap-2 text-xs">
           <RoutePill href="/permits" label="Pending permits" />
@@ -161,15 +161,15 @@ export default async function WaterPage({
         <div className="rounded-2xl bg-white/[0.02] p-5 ring-1 ring-white/5 sm:p-6">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
-              <div className="text-[11px] font-medium uppercase tracking-[0.18em] text-cyan-300/80">Map-first county workflow</div>
-              <h2 className="mt-2 text-2xl font-semibold tracking-tight text-white">County risk map</h2>
+              <div className="text-[11px] font-medium uppercase tracking-[0.18em] text-cyan-300/80">County map</div>
+              <h2 className="mt-2 text-2xl font-semibold tracking-tight text-white">Water risk by county</h2>
               <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-400">
-                Start on the county map, switch between operational risk and mismatch severity, then open the selected county detail and table row to test your own correlation hunt. Atlas stays grounded to the cached county water overview and county breakdown feeds.
+                Pick a county, flip between operational pressure and mismatch lenses, then open the detail panel and table row.
               </p>
               <p className="mt-2 text-sm leading-6 text-slate-500">
                 {mapMode === "mismatch"
-                  ? "Mismatch mode · Counties are colored by contradiction severity rather than operational load."
-                  : "Operational risk mode · Counties are colored from NFHL footprint intensity, active alerts, sewer overflow pressure, and gauge coverage already present in the overview."}
+                  ? "Mismatch lens · counties shaded where official signals don’t line up."
+                  : "Operational pressure · counties shaded by floodplain footprint, alerts, overflows, and gauge coverage."}
               </p>
             </div>
           </div>

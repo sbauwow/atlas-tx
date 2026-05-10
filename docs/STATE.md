@@ -25,6 +25,7 @@ _(empty)_
 
 | workstream | agent | intent | ref |
 |---|---|---|---|
+| web | claude-opus-4-7 | Reframe as "Texas OSINT maps from open data" with water + water quality as the live demo lane: rewrote `/` hero, thesis aside, entry-path cards, stat tiles, and dataset-registry copy; tightened `/water`, `/counties`, `/permits`, `/analytics` intros; renamed "Water explorer" → "Water map" across child routes; updated `layout.tsx` metadata + footer tagline. Cuts DWRS/EJ/"decision-support surface"/"terminal" jargon from the top of the funnel. | branch `web/demo-polish` |
 | web | claude-opus-4-7 | Demo-prep visual + copy + empty-state polish across `/`, `/water`, `/counties`, `/permits`, `/analytics`: hero CTA pruning on home (6→3 + secondary row), 9 debug API pills wrapped in `<details>` disclosure on `/water`, podium ranks + empty state + hover affordance on `/counties`, hero anchor jumps on `/permits`, terminal eyebrow demoted on `/analytics`. Stays clear of `src/app/design/` color-token lane. | branch `web/demo-polish` |
 | docs | hermes | Add county dataset roadmap (`docs/plans/2026-05-10-county-dataset-roadmap.md`) and link it from the plans index for quick execution against county priorities. | working tree |
 | docs | hermes | Update README + CHANGELOG to reflect the new map-first county workflow: county choropleths lead analytics and water, while other charts remain user-directed correlation lanes. | commit `6edd23f` |

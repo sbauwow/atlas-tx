@@ -427,17 +427,17 @@ export default async function AnalyticsPage({
             County workspace
           </Link>
           <Link href="/water" className="rounded-full border border-white/10 px-4 py-2 text-slate-200 transition-colors hover:border-white/20 hover:bg-white/5">
-            Water explorer
+            Water map
           </Link>
           <Link href="/watchlists" className="rounded-full border border-white/10 px-4 py-2 text-slate-200 transition-colors hover:border-white/20 hover:bg-white/5">
             Saved watchlists
           </Link>
         </div>
         <div className="space-y-3">
-          <div className="text-[11px] font-medium uppercase tracking-[0.28em] text-cyan-300/80">Statewide analytics terminal</div>
-          <h1 className="text-4xl font-semibold tracking-tight text-white sm:text-5xl">Texas statewide analytics terminal</h1>
+          <div className="text-[11px] font-medium uppercase tracking-[0.28em] text-cyan-300/80">Statewide analytics</div>
+          <h1 className="text-4xl font-semibold tracking-tight text-white sm:text-5xl">Statewide analytics</h1>
           <p className="max-w-4xl text-base leading-7 text-slate-400 sm:text-lg sm:leading-8">
-            Start on the county map, hunt statewide correlations, then verify in the ranked lanes and scatter. Atlas only uses committed analytics snapshots — never invented history.
+            Map first, then movers and scatter. Built only on committed snapshots — never invented history.
           </p>
           <div className="text-xs font-medium uppercase tracking-[0.18em] text-slate-500">Refreshed {formatTimestamp(analytics.generatedAt)}</div>
         </div>
@@ -446,10 +446,10 @@ export default async function AnalyticsPage({
       <section id="analytics-map" className="rounded-3xl border border-white/10 bg-slate-950/85 p-6 shadow-[0_0_0_1px_rgba(255,255,255,0.02)]">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <div className="text-[11px] font-medium uppercase tracking-[0.22em] text-cyan-300/80">Map-first correlation workflow</div>
-            <h2 className="mt-2 text-3xl font-semibold text-white">County map is the statewide headliner</h2>
+            <div className="text-[11px] font-medium uppercase tracking-[0.22em] text-cyan-300/80">County map</div>
+            <h2 className="mt-2 text-3xl font-semibold text-white">Start on the map.</h2>
             <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-400">
-              Start with the map, switch between county risk and permit-pressure emphasis, then jump into movers, scatter, and county pages to prove or reject the pattern. This keeps the workflow anchored to counties instead of making charts the first stop.
+              Switch between county risk and permit pressure, then drill into movers, scatter, or a county page to confirm the pattern.
             </p>
           </div>
           <div className="rounded-full border border-white/10 px-3 py-1 text-xs text-slate-400">Scatter-backed counties: {analytics.scatterCount}</div>

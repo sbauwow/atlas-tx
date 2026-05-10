@@ -12,12 +12,12 @@ export default async function CountiesOverviewPage() {
       <section className="space-y-5">
         <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-medium uppercase tracking-[0.18em] text-slate-300 backdrop-blur">
           <span aria-hidden="true" className="size-1.5 rounded-full bg-accent" />
-          County workspace overview
+          County index
         </span>
         <div className="space-y-3">
-          <h1 className="text-5xl font-semibold tracking-tight text-white">County workspace overview</h1>
-          <p className="max-w-3xl text-lg leading-8 text-slate-400">Statewide ranked entry into county intelligence, permit workflow, and water workflow.</p>
-          <div className="text-sm uppercase tracking-[0.18em] text-cyan-300">{overview.countyCount} ranked counties</div>
+          <h1 className="text-5xl font-semibold tracking-tight text-white">Texas counties, ranked.</h1>
+          <p className="max-w-3xl text-lg leading-8 text-slate-400">Every county Atlas covers, sorted by composite signal across the lanes already ingested. Click in for permits and water.</p>
+          <div className="text-sm uppercase tracking-[0.18em] text-cyan-300">{overview.countyCount} counties</div>
         </div>
       </section>
 
@@ -31,7 +31,7 @@ export default async function CountiesOverviewPage() {
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
             <h2 className="text-2xl font-semibold text-white">Top counties</h2>
-            <p className="mt-1 max-w-2xl text-sm text-slate-400">Ranked by composite score across the active source lanes. Open a county to inspect its intelligence, permit pressure, and water profile side-by-side.</p>
+            <p className="mt-1 max-w-2xl text-sm text-slate-400">Composite score across the active source lanes. Open a county to see permits and water side-by-side.</p>
           </div>
           <div className="text-xs font-medium uppercase tracking-[0.18em] text-slate-500">Composite score</div>
         </div>
@@ -93,7 +93,7 @@ export default async function CountiesOverviewPage() {
           </div>
         ) : (
           <div className="mt-5 rounded-xl border border-dashed border-white/10 bg-white/[0.02] px-5 py-8 text-sm text-slate-400">
-            No ranked counties available yet. The composite ranking activates once Wave 1 source lanes commit their cached snapshots to the explorer.
+            No ranked counties yet — composite ranking activates once the source-lane snapshots land.
           </div>
         )}
       </section>

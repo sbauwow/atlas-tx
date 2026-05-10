@@ -17,9 +17,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Atlas TX",
+  title: "Atlas TX — Texas OSINT maps from open data",
   description:
-    "Texas county intelligence for environment, social strain, and local fiscal capacity.",
+    "County-level Texas maps built from public datasets. Water and water quality first; more lanes on the way.",
 };
 
 export default function RootLayout({
@@ -37,7 +37,7 @@ export default function RootLayout({
         {children}
         <footer className="mt-12 border-t border-white/5 px-6 py-6 text-sm text-slate-400">
           <div className="mx-auto flex w-full max-w-7xl flex-wrap items-center justify-between gap-3">
-            <div>Atlas TX public-interest county intelligence</div>
+            <div>Atlas TX · Texas OSINT maps from open data</div>
             <div className="flex flex-wrap items-center gap-4">
               <Link href="/analytics" className="transition-colors hover:text-white">Analytics</Link>
               <Link href="/watchlists" className="transition-colors hover:text-white">Watchlists</Link>
