@@ -21,8 +21,9 @@ export default function CitizenPage() {
         <p className="max-w-3xl text-base leading-7 text-slate-300">
           Atlas TX&apos;s public-record stack (SDWIS, TCEQ, EJScreen, ACS) remains the authoritative
           water-risk source. This lane is a separate community-observation layer for prototyping
-          smartphone-strip submissions. It does not feed the Drinking Water Risk Score and is not
-          a compliance or diagnostic instrument.
+          smartphone-strip submissions. The current default profile targets a JED Pool Tools 5-way
+          pool/spa strip and stores approximate banded observations only. It does not feed the
+          Drinking Water Risk Score and is not a compliance or diagnostic instrument.
         </p>
         <p className="text-sm text-slate-400">
           See{" "}
@@ -43,7 +44,7 @@ export default function CitizenPage() {
       <section className="grid gap-4 md:grid-cols-2">
         <MethodCard
           name="Color test strips"
-          summary="9-pad freshwater strip — pH, chlorine, hardness, alkalinity, nitrate, nitrite, iron, copper."
+          summary="JED Pool Tools 5-way pool/spa strip — free chlorine, alkalinity, pH, total hardness (plus bromine-equivalent chart labels)."
           enabled
         />
         <MethodCard

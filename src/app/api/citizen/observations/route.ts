@@ -14,7 +14,7 @@ import {
 } from "@/lib/observations/persistence";
 import { runImageQa } from "@/lib/observations/qa";
 import { decideStatus } from "@/lib/observations/status";
-import { GENERIC_9PAD_CHART } from "@/lib/observations/strips/reference-chart-9pad";
+import { getReferenceChart } from "@/lib/observations/strips/chart-registry";
 import type { ClientReading, ObservationRow, QaFlag } from "@/lib/observations/types";
 import { OBSERVATION_SCHEMA_VERSION } from "@/lib/observations/types";
 import { analyzeStripImage } from "@/lib/observations/vision";
@@ -64,6 +64,7 @@ export async function POST(request: Request) {
   if (!clientReading) {
     return NextResponse.json({ error: "invalid clientReading json" }, { status: 400 });
   }
+  const chart = getReferenceChart(clientReading.chartId);
 
   const buffer = Buffer.from(await image.arrayBuffer());
   const hash = createHash("sha256").update(buffer).digest("hex");
@@ -94,11 +95,11 @@ export async function POST(request: Request) {
   const llmReading = await analyzeStripImage({
     imageBase64: buffer.toString("base64"),
     mediaType: mime as AllowedMime,
-    chart: GENERIC_9PAD_CHART,
+    chart,
   }).catch(() => null);
 
   const decision = decideStatus({
-    chart: GENERIC_9PAD_CHART,
+    chart,
     clientReading,
     llmReading,
     serverQaFlags: qa.flags,

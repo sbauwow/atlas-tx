@@ -33,6 +33,8 @@ type CountyInfo = {
   centroid: CountyCentroid;
 };
 
+export type CountyMonthLookupKey = `${string}__${string}`;
+
 type CountyMonthKey = {
   county_fips: string;
   county_name: string;
@@ -205,6 +207,10 @@ function toYearMonth(value: string | null | undefined): string | null {
   return date.toISOString().slice(0, 7);
 }
 
+export function buildCountyMonthLookupKey(countyName: string, yearMonth: string): CountyMonthLookupKey {
+  return `${countyName}__${yearMonth}`;
+}
+
 function monthToParts(yearMonth: string): { year: number; month: number } {
   return {
     year: Number(yearMonth.slice(0, 4)),
@@ -311,7 +317,7 @@ export function aggregateSdwisMonthlyOutcomes(rows: SdwisRow[]): Map<string, Sdw
     const eventKey = sdwisEventKey(row);
     if (!countyName || !yearMonth || !eventKey) continue;
 
-    const key = `${countyName}__${yearMonth}`;
+    const key = buildCountyMonthLookupKey(countyName, yearMonth);
     const events = eventsByCountyMonth.get(key) ?? new Set<string>();
     events.add(eventKey);
     eventsByCountyMonth.set(key, events);
@@ -364,7 +370,7 @@ export function summarizeOverflowRows(rows: OverflowRawRow[]): {
       return [];
     }
     const gallons = toGallons(row.amount, row.amount_unit);
-    const key = `${countyName}__${yearMonth}`;
+    const key = buildCountyMonthLookupKey(countyName, yearMonth);
     incidentRows.push({ key, gallons });
     return [{ row, key, gallons }];
   });
@@ -540,19 +546,19 @@ export async function buildCountyMonthWaterRiskPanel(options?: {
   const hydrologyContextScores = summarizeHydrologyContextScores(hydrologyRows, counties);
   const overflowSummary = summarizeOverflowRows(overflowRows);
   const precipitationByCountyMonth = new Map(
-    (precipitationSnapshot?.rows ?? []).map((row) => [`${row.countyName}__${row.yearMonth}`, row] as const),
+    (precipitationSnapshot?.rows ?? []).map((row) => [buildCountyMonthLookupKey(row.countyName, row.yearMonth), row] as const),
   );
   const nwsFloodByCountyMonth = new Map(
-    (nwsFloodSnapshot?.rows ?? []).map((row) => [`${row.countyName}__${row.yearMonth}`, row] as const),
+    (nwsFloodSnapshot?.rows ?? []).map((row) => [buildCountyMonthLookupKey(row.countyName, row.yearMonth), row] as const),
   );
   const streamflowByCountyMonth = new Map(
-    (streamflowSnapshot?.rows ?? []).map((row) => [`${row.countyName}__${row.yearMonth}`, row] as const),
+    (streamflowSnapshot?.rows ?? []).map((row) => [buildCountyMonthLookupKey(row.countyName, row.yearMonth), row] as const),
   );
   const droughtByCountyMonth = new Map(
-    (droughtSnapshot?.rows ?? []).map((row) => [`${row.countyName}__${row.yearMonth}`, row] as const),
+    (droughtSnapshot?.rows ?? []).map((row) => [buildCountyMonthLookupKey(row.countyName, row.yearMonth), row] as const),
   );
   const temperatureByCountyMonth = new Map(
-    (temperatureSnapshot?.rows ?? []).map((row) => [`${row.countyName}__${row.yearMonth}`, row] as const),
+    (temperatureSnapshot?.rows ?? []).map((row) => [buildCountyMonthLookupKey(row.countyName, row.yearMonth), row] as const),
   );
 
   const surfaceSnapshot = await readJsonIfExists<{ generatedAt: string }>("public/cache/surface-water-quality-tx.json");
@@ -564,7 +570,7 @@ export async function buildCountyMonthWaterRiskPanel(options?: {
   ].join("|");
 
   const rows = skeleton.map((baseRow) => {
-    const countyMonthKey = `${baseRow.county_name}__${baseRow.year_month}` as `${string}__${string}`;
+    const countyMonthKey = buildCountyMonthLookupKey(baseRow.county_name, baseRow.year_month);
     const sdwis = sdwisMonthly.get(countyMonthKey) ?? { sdwis_event_any: 0, sdwis_event_count: 0 };
     const overflow = overflowSummary.monthly.get(countyMonthKey) ?? {
       overflow_any: 0,

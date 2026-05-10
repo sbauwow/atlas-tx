@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   buildCountyInfoIndex,
+  buildCountyMonthLookupKey,
   buildCountyMonthSkeleton,
   aggregateSdwisMonthlyOutcomes,
   summarizeOverflowRows,
@@ -13,6 +14,10 @@ import type { SurfaceWaterQualityRow } from "@/lib/datasets/surface-water-qualit
 import type { TwdbHydrologyRow } from "@/lib/datasets/twdb-hydrology";
 
 describe("build_county_month_water_risk_panel helpers", () => {
+  it("builds a typed county-month lookup key", () => {
+    expect(buildCountyMonthLookupKey("Bell County", "2024-01")).toBe("Bell County__2024-01");
+  });
+
   it("builds a county-month skeleton across the requested monthly window", () => {
     const counties = buildCountyInfoIndex().slice(0, 2);
     const rows = buildCountyMonthSkeleton(counties, "2020-01", "2020-03");

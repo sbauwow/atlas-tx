@@ -55,6 +55,7 @@ vi.mock("@/lib/observations/vision", () => ({
 }));
 
 import { GENERIC_9PAD_CHART } from "@/lib/observations/strips/reference-chart-9pad";
+import { JED_POOL_TOOLS_5WAY_CHART } from "@/lib/observations/strips/reference-chart-jed-5way";
 import { OBSERVATION_SCHEMA_VERSION } from "@/lib/observations/types";
 
 function fakeImage(): File {
@@ -66,11 +67,11 @@ function fakeImage(): File {
   return new File([png], "strip.png", { type: "image/png" });
 }
 
-function fakeClientReading(): ClientReading {
+function fakeClientReading(chart = GENERIC_9PAD_CHART): ClientReading {
   return {
     schemaVersion: OBSERVATION_SCHEMA_VERSION,
-    chartId: GENERIC_9PAD_CHART.id,
-    perAnalyte: GENERIC_9PAD_CHART.analytes.map((a) => ({
+    chartId: chart.id,
+    perAnalyte: chart.analytes.map((a) => ({
       analyteId: a.id,
       bandIndex: 0,
       distance: 5,
@@ -127,6 +128,32 @@ describe("POST /api/citizen/observations", () => {
     expect(body.observation.status).toBe("review");
     expect(body.observation.id).toBe("obs_test_id");
     expect(body.observation.llmModel).toBeNull();
+  });
+
+  it("routes JED 5-way observations through the matching reference chart", async () => {
+    const vision = await import("@/lib/observations/vision");
+    (vision.analyzeStripImage as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+      schemaVersion: OBSERVATION_SCHEMA_VERSION,
+      chartId: JED_POOL_TOOLS_5WAY_CHART.id,
+      perAnalyte: JED_POOL_TOOLS_5WAY_CHART.analytes.map((a) => ({
+        analyteId: a.id,
+        bandIndex: 0,
+        confidence: 0.95,
+      })),
+      qaFlags: [],
+    });
+
+    const { POST } = await import("@/app/api/citizen/observations/route");
+    const fd = new FormData();
+    fd.append("image", fakeImage());
+    fd.append("clientReading", JSON.stringify(fakeClientReading(JED_POOL_TOOLS_5WAY_CHART)));
+    fd.append("stripBrand", "JED Pool Tools 5-way");
+
+    const res = await POST(new Request("http://localhost/api/citizen/observations", { method: "POST", body: fd }));
+    expect(res.status).toBe(201);
+    expect(vision.analyzeStripImage).toHaveBeenCalledWith(
+      expect.objectContaining({ chart: JED_POOL_TOOLS_5WAY_CHART }),
+    );
   });
 
   it("dedupes by image hash on replay", async () => {

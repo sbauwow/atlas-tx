@@ -1,6 +1,6 @@
 "use client";
 
-import { GENERIC_9PAD_CHART } from "@/lib/observations/strips/reference-chart-9pad";
+import { getReferenceChart } from "@/lib/observations/strips/chart-registry";
 import type {
   ClientReading,
   LlmReading,
@@ -62,7 +62,7 @@ export function ResultsCard({
   const llmByAnalyte = new Map<string, PerAnalyteLlmReading>(
     (observation.llmReading?.perAnalyte ?? []).map((p) => [p.analyteId, p]),
   );
-  const chart = GENERIC_9PAD_CHART;
+  const chart = getReferenceChart(observation.clientReading.chartId);
 
   return (
     <div className="space-y-4">

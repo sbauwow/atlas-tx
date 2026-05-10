@@ -3,12 +3,14 @@
 import { useCallback, useRef, useState } from "react";
 
 import { sampleAndBuildReading, type StripRoi } from "@/lib/observations/strips/sampling.client";
-import { GENERIC_9PAD_CHART } from "@/lib/observations/strips/reference-chart-9pad";
+import { DEFAULT_REFERENCE_CHART } from "@/lib/observations/strips/chart-registry";
 import type { ClientReading } from "@/lib/observations/types";
 
 import { ResultsCard, type ObservationView } from "./ResultsCard";
 
 type Phase = "pick" | "frame" | "submitting" | "result";
+
+const DEFAULT_STRIP_BRAND = "JED Pool Tools 5-way";
 
 interface CanvasDims {
   readonly width: number;
@@ -74,7 +76,7 @@ export function StripCapture() {
 
     let clientReading: ClientReading;
     try {
-      clientReading = sampleAndBuildReading(ctx, roi, GENERIC_9PAD_CHART);
+      clientReading = sampleAndBuildReading(ctx, roi, DEFAULT_REFERENCE_CHART);
     } catch (e) {
       setError(`Sampling failed: ${(e as Error).message}`);
       setPhase("frame");
@@ -84,6 +86,7 @@ export function StripCapture() {
     const fd = new FormData();
     fd.append("image", file);
     fd.append("clientReading", JSON.stringify(clientReading));
+    fd.append("stripBrand", DEFAULT_STRIP_BRAND);
 
     try {
       const res = await fetch("/api/citizen/observations", { method: "POST", body: fd });
@@ -293,7 +296,7 @@ function CanvasFrame({ canvasRef, dims, roi, setRoi }: CanvasFrameProps) {
             onPointerUp={onPointerUp}
           />
           <div className="pointer-events-none absolute inset-0 flex flex-col">
-            {Array.from({ length: GENERIC_9PAD_CHART.analytes.length }).map((_, i) => (
+            {Array.from({ length: DEFAULT_REFERENCE_CHART.analytes.length }).map((_, i) => (
               <div key={i} className="flex-1 border-b border-cyan-400/30 last:border-b-0" />
             ))}
           </div>

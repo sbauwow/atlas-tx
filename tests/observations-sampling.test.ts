@@ -7,6 +7,7 @@ import {
   medianRgb,
   rgbToLab,
 } from "@/lib/observations/strips/sampling-shared";
+import { JED_POOL_TOOLS_5WAY_CHART } from "@/lib/observations/strips/reference-chart-jed-5way";
 import { GENERIC_9PAD_CHART } from "@/lib/observations/strips/reference-chart-9pad";
 import type { LabColor, RgbColor } from "@/lib/observations/types";
 
@@ -75,6 +76,13 @@ describe("matchBand", () => {
     ];
     const m = matchBand(mid, ph);
     expect([0, 1]).toContain(m.bandIndex);
+  });
+});
+
+describe("JED_POOL_TOOLS_5WAY_CHART", () => {
+  it("uses the full confirmed pH scale from the bottle chart", () => {
+    const ph = JED_POOL_TOOLS_5WAY_CHART.analytes.find((a) => a.id === "ph");
+    expect(ph?.bands.map((band) => band.label)).toEqual(["6.2", "6.8", "7.2", "7.8", "8.4", "9.0"]);
   });
 });
 
