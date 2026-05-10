@@ -4,6 +4,7 @@ import GlossaryTooltip, { GlossaryInlineList } from "@/app/components/glossary-t
 import { CountyWorkspaceHeader } from "@/app/components/county-workspace-header";
 import { buildCountyAnalyticsViewModel, type CountyAnalyticsViewModel } from "@/app/counties/county-analytics";
 import { getOperatorIntelligencePageData } from "@/app/operators/operator-page-data";
+import { AddToWatchlistControl } from "@/app/watchlists/watchlist-client";
 import { getDefaultAtlasCountyExplorerService } from "@/lib/atlas-county-explorer";
 import { getAdjacentCountyRefs } from "@/lib/water/county-lookup";
 
@@ -41,6 +42,18 @@ export default async function CountyIntelligencePage({ params }: { params: Promi
           <p className="mt-2 max-w-3xl text-slate-400">
             Cross-source county ranking context from the Atlas county explorer service, with committed Wave 1 analytics overlays to help answer what changed and why.
           </p>
+          <AddToWatchlistControl
+            className="mt-4"
+            item={{
+              id: `county:${county.slug}`,
+              kind: "County",
+              label: county.name,
+              href: `/counties/${county.slug}`,
+              summary: `${formatDecimal(breakdown.overview.compositeScore)} composite · ${analytics.riskRank ? `risk rank #${analytics.riskRank}` : "risk rank unavailable"}`,
+              detail: `${String(breakdown.highlights.length)} highlight lanes and ${String(countyOperators.length)} visible operators on the current county intelligence page.`,
+              surface: "analytics",
+            }}
+          />
         </div>
       </section>
 
@@ -197,6 +210,18 @@ export default async function CountyIntelligencePage({ params }: { params: Promi
                       County permits
                     </Link>
                   </div>
+                  <AddToWatchlistControl
+                    className="mt-4"
+                    item={{
+                      id: `operator:${operator.slug}`,
+                      kind: "Operator",
+                      label: operator.operatorName,
+                      href: `/operators/${operator.slug}`,
+                      summary: `${operator.countyPermitCount} county permits · ${operator.countyCaseCount} cases · ${operator.countyProceduralPressureScore} procedural pressure in ${county.name}`,
+                      detail: `${operator.countyCount} counties statewide with ${operator.filingCounts.hearingRequests} hearing requests, ${operator.filingCounts.publicMeetingRequests} public meeting requests, and ${operator.filingCounts.comments} comments across visible cases.`,
+                      surface: "operators",
+                    }}
+                  />
                   <div className="mt-4 text-xs text-slate-500">
                     Current record mix: {operator.filingCounts.hearingRequests} hearing requests · {operator.filingCounts.publicMeetingRequests} public meeting requests · {operator.filingCounts.comments} comments across visible cases.
                   </div>

@@ -2,6 +2,7 @@ export const WATCHLIST_STORAGE_KEY = "atlas-tx-watchlists-v1";
 export const DEFAULT_WATCHLIST_ID = "shared-triage";
 
 export type WatchlistSurface = "analytics" | "operators" | "operator-detail" | "watchlists";
+export type PersistedWatchlistItemType = "county" | "operator";
 
 export type WatchlistItem = {
   id: string;
@@ -12,6 +13,7 @@ export type WatchlistItem = {
   detail: string;
   surface: WatchlistSurface;
   addedAt: string;
+  persistedItemId?: string;
 };
 
 export type Watchlist = {
@@ -24,6 +26,40 @@ export type Watchlist = {
   items: WatchlistItem[];
 };
 
+export type ApiWatchlistSummary = {
+  id: string;
+  label: string;
+  notes: string | null;
+  createdAt: string;
+  updatedAt: string;
+  itemCount: number;
+};
+
+export type ApiWatchlistItem = {
+  id: string;
+  watchlistId: string;
+  itemType: PersistedWatchlistItemType;
+  itemKey: string;
+  displayLabel: string | null;
+  notes: string | null;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type ApiWatchlistDetail = ApiWatchlistSummary & {
+  items: ApiWatchlistItem[];
+};
+
+type PersistedWatchlistItemMetadata = {
+  version: 1;
+  sourceId: string;
+  kind: string;
+  href: string;
+  summary: string;
+  detail: string;
+  surface: WatchlistSurface;
+};
+
 export function nowIso() {
   return new Date().toISOString();
 }
@@ -32,8 +68,8 @@ export function createDefaultWatchlist(timestamp = nowIso()): Watchlist {
   return {
     id: DEFAULT_WATCHLIST_ID,
     name: "Shared triage",
-    description: "Default local/shared queue for counties, operators, and permit lanes until sign-in exists.",
-    scopeLabel: "Local/shared in this browser",
+    description: "Default shared workspace queue for counties and operators. Atlas persists to the watchlists API when available and falls back to this browser when it is not.",
+    scopeLabel: "Shared workspace",
     createdAt: timestamp,
     updatedAt: timestamp,
     items: [],
@@ -76,7 +112,7 @@ function normalizeWatchlist(value: unknown): Watchlist | null {
     id,
     name,
     description: typeof record.description === "string" ? record.description : "",
-    scopeLabel: typeof record.scopeLabel === "string" && record.scopeLabel.trim() ? record.scopeLabel : "Local/shared in this browser",
+    scopeLabel: typeof record.scopeLabel === "string" && record.scopeLabel.trim() ? record.scopeLabel : "Shared workspace",
     createdAt: typeof record.createdAt === "string" ? record.createdAt : timestamp,
     updatedAt: timestamp,
     items: Array.isArray(record.items)
@@ -108,6 +144,7 @@ function normalizeWatchlistItem(value: unknown): WatchlistItem | null {
     detail: typeof record.detail === "string" ? record.detail : "",
     surface: normalizeSurface(record.surface),
     addedAt: typeof record.addedAt === "string" ? record.addedAt : nowIso(),
+    persistedItemId: typeof record.persistedItemId === "string" ? record.persistedItemId : undefined,
   };
 }
 
@@ -181,8 +218,8 @@ export function createWatchlist(watchlists: Watchlist[], name: string, descripti
     {
       id: slug,
       name: trimmedName,
-      description: trimmedDescription || "Custom local/shared watchlist.",
-      scopeLabel: "Local/shared in this browser",
+      description: trimmedDescription || "Local fallback watchlist.",
+      scopeLabel: "Shared workspace",
       createdAt: timestamp,
       updatedAt: timestamp,
       items: [],
@@ -264,4 +301,147 @@ export function formatWatchlistDate(value: string) {
     minute: "2-digit",
     timeZone: "UTC",
   }).format(parsed);
+}
+
+export function buildPersistedWatchlistItemInput(item: Omit<WatchlistItem, "addedAt" | "persistedItemId">) {
+  const itemType = inferPersistedWatchlistItemType(item);
+  if (!itemType) {
+    return null;
+  }
+
+  return {
+    itemType,
+    itemKey: inferPersistedWatchlistItemKey(item, itemType),
+    displayLabel: item.label,
+    notes: JSON.stringify({
+      version: 1,
+      sourceId: item.id,
+      kind: item.kind,
+      href: item.href,
+      summary: item.summary,
+      detail: item.detail,
+      surface: item.surface,
+    } satisfies PersistedWatchlistItemMetadata),
+  };
+}
+
+export function hydrateWatchlistFromApi(watchlist: ApiWatchlistDetail): Watchlist {
+  return {
+    id: watchlist.id,
+    name: watchlist.label,
+    description: watchlist.notes ?? "Persisted Atlas watchlist.",
+    scopeLabel: "Shared workspace",
+    createdAt: watchlist.createdAt,
+    updatedAt: watchlist.updatedAt,
+    items: watchlist.items.map(hydrateWatchlistItemFromApi),
+  };
+}
+
+export function buildWatchlistFromSummary(summary: ApiWatchlistSummary): Watchlist {
+  return {
+    id: summary.id,
+    name: summary.label,
+    description: summary.notes ?? "Persisted Atlas watchlist.",
+    scopeLabel: "Shared workspace",
+    createdAt: summary.createdAt,
+    updatedAt: summary.updatedAt,
+    items: [],
+  };
+}
+
+function hydrateWatchlistItemFromApi(item: ApiWatchlistItem): WatchlistItem {
+  const metadata = parsePersistedWatchlistItemMetadata(item.notes);
+  const label = item.displayLabel ?? item.itemKey;
+  const kind = metadata?.kind ?? defaultKindForItemType(item.itemType);
+  const href = metadata?.href ?? defaultHrefForItemType(item.itemType, item.itemKey);
+
+  return {
+    id: metadata?.sourceId ?? `${item.itemType}:${item.itemKey}`,
+    kind,
+    label,
+    href,
+    summary: metadata?.summary ?? `${label} is saved in the shared workspace watchlist.`,
+    detail: metadata?.detail ?? "Persisted via the Atlas watchlists API.",
+    surface: metadata?.surface ?? "watchlists",
+    addedAt: item.createdAt,
+    persistedItemId: item.id,
+  };
+}
+
+function parsePersistedWatchlistItemMetadata(value: string | null): PersistedWatchlistItemMetadata | null {
+  if (!value) {
+    return null;
+  }
+
+  try {
+    const parsed = JSON.parse(value) as unknown;
+    if (!parsed || typeof parsed !== "object") {
+      return null;
+    }
+
+    const record = parsed as Record<string, unknown>;
+    if (
+      record.version !== 1 ||
+      typeof record.sourceId !== "string" ||
+      typeof record.kind !== "string" ||
+      typeof record.href !== "string" ||
+      typeof record.summary !== "string" ||
+      typeof record.detail !== "string"
+    ) {
+      return null;
+    }
+
+    return {
+      version: 1,
+      sourceId: record.sourceId,
+      kind: record.kind,
+      href: record.href,
+      summary: record.summary,
+      detail: record.detail,
+      surface: normalizeSurface(record.surface),
+    };
+  } catch {
+    return null;
+  }
+}
+
+function inferPersistedWatchlistItemType(item: Pick<WatchlistItem, "id" | "kind" | "href">): PersistedWatchlistItemType | null {
+  const kind = item.kind.toLowerCase();
+  if (kind.includes("county") || item.id.startsWith("county:") || item.id.startsWith("county-") || item.href.startsWith("/counties/")) {
+    return "county";
+  }
+
+  if (kind.includes("operator") || item.id.startsWith("operator:") || item.href.startsWith("/operators/")) {
+    return "operator";
+  }
+
+  return null;
+}
+
+function inferPersistedWatchlistItemKey(item: Pick<WatchlistItem, "id" | "href" | "label">, itemType: PersistedWatchlistItemType) {
+  const hrefMatch = itemType === "county"
+    ? item.href.match(/^\/counties\/([^/?#]+)/)
+    : item.href.match(/^\/operators\/([^/?#]+)/);
+  if (hrefMatch?.[1]) {
+    return decodeURIComponent(hrefMatch[1]);
+  }
+
+  const idMatch = item.id.match(/^[^:]+:(.+)$/);
+  if (idMatch?.[1]) {
+    return idMatch[1];
+  }
+
+  if (itemType === "county" && item.id.startsWith("county-")) {
+    return item.id.slice("county-".length);
+  }
+
+  return item.label;
+}
+
+function defaultKindForItemType(itemType: PersistedWatchlistItemType) {
+  return itemType === "county" ? "County" : "Operator";
+}
+
+function defaultHrefForItemType(itemType: PersistedWatchlistItemType, itemKey: string) {
+  return itemType === "county" ? `/counties/${itemKey}` : `/operators/${itemKey}`;
 }

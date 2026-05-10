@@ -293,6 +293,9 @@ describe("county intelligence page", () => {
 
     expect(text).toContain("County workspace");
     expect(text).toContain("Travis County county intelligence");
+    expect(text).toContain("Add to watchlist");
+    expect(text).toContain('id="watchlist-county:travis-county"');
+    expect(text).toContain('href="/watchlists"');
     expect(text).toContain("Texas Water Development Board");
     expect(text).toContain("Hydrologic Unit Code");
     expect(text).toContain('title="Texas Water Development Board"');
@@ -313,6 +316,8 @@ describe("county intelligence page", () => {
     expect(text).toContain("Operators visible in this county snapshot");
     expect(text).toContain("Alpha Water LLC");
     expect(text).toContain("Beta Utility District");
+    expect(text).toContain("1 permits · 1 cases · 10 procedural pressure in Travis County");
+    expect(text).toContain('id="watchlist-operator:alpha-water-llc"');
     expect(text).toContain('href=\"/operators/alpha-water-llc\"');
     expect(text).toContain('href=\"/operators/beta-utility-district\"');
     expect(text).toContain("Move from county stress to named operators");

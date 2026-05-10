@@ -15,10 +15,10 @@ export default function WatchlistsPage() {
           </Link>
         </div>
         <div className="space-y-3">
-          <div className="text-[11px] font-medium uppercase tracking-[0.28em] text-cyan-300/80">Wave 6B · Watchlists</div>
+          <div className="text-[11px] font-medium uppercase tracking-[0.28em] text-cyan-300/80">Wave 7A · Watchlists</div>
           <h1 className="text-4xl font-semibold tracking-tight text-white">Saved watchlists</h1>
           <p className="max-w-4xl text-base leading-7 text-slate-400">
-            Atlas now lets you save counties, operators, and permit lanes into local/shared watchlists. Until auth exists, these lists stay in this browser and act like a shared workstation queue rather than a synced personal account.
+            Atlas now saves counties and operators into a persisted shared watchlist workspace backed by the watchlists API, with browser fallback when that API is unavailable.
           </p>
         </div>
       </section>

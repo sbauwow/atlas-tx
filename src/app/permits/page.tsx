@@ -3,6 +3,7 @@ import Link from "next/link";
 import GlossaryTooltip, { GlossaryInlineList } from "@/app/components/glossary-tooltip";
 import { CountyWorkspaceHeader } from "@/app/components/county-workspace-header";
 import { TexasCountyChoropleth } from "@/app/components/texas-county-choropleth";
+import { AddToWatchlistControl } from "@/app/watchlists/watchlist-client";
 import type { CidCaseRow, CidProtestRow } from "@/lib/datasets/cid";
 import { buildStatewideOperatorSummaryRows } from "@/lib/operator-intelligence";
 import { getAdjacentCountyRefs, getCountyBySlugOrName } from "@/lib/water/county-lookup";
@@ -186,14 +187,28 @@ export default async function PermitsPage({
           {data.countyFilter ? <p className="mt-2 text-sm text-slate-400">{data.countyFilter}</p> : null}
           <div className="mt-5 space-y-3">
             {data.summary.topCounties.map((row) => (
-              <div key={row.county} className="flex items-center justify-between rounded-xl border border-white/5 bg-white/[0.03] px-4 py-3">
-                <div className="text-sm text-slate-200">{row.county}</div>
-                <div className="flex items-center gap-3">
-                  <Link href={`/counties/${row.county.toLowerCase().replace(/\s+/g, "-")}`} className="text-xs font-medium uppercase tracking-[0.18em] text-slate-400 transition-colors hover:text-cyan-300">
-                    County intelligence
-                  </Link>
-                  <div className="rounded-full bg-white/5 px-3 py-1 text-sm font-medium text-cyan-300">{row.count}</div>
+              <div key={row.county} className="rounded-xl border border-white/5 bg-white/[0.03] px-4 py-3">
+                <div className="flex items-center justify-between gap-3">
+                  <div className="text-sm text-slate-200">{row.county}</div>
+                  <div className="flex items-center gap-3">
+                    <Link href={`/counties/${toCountySlug(row.county)}`} className="text-xs font-medium uppercase tracking-[0.18em] text-slate-400 transition-colors hover:text-cyan-300">
+                      County intelligence
+                    </Link>
+                    <div className="rounded-full bg-white/5 px-3 py-1 text-sm font-medium text-cyan-300">{row.count}</div>
+                  </div>
                 </div>
+                <AddToWatchlistControl
+                  className="mt-3"
+                  item={{
+                    id: `county:${toCountySlug(row.county)}`,
+                    kind: "County",
+                    label: row.county,
+                    href: `/permits?county=${toCountySlug(row.county)}`,
+                    summary: `${row.count} pending permit${row.count === 1 ? "" : "s"} in the current statewide queue`,
+                    detail: `Open the county-filtered permit view or county intelligence page for ${row.county}.`,
+                    surface: "analytics",
+                  }}
+                />
               </div>
             ))}
           </div>
@@ -213,14 +228,12 @@ export default async function PermitsPage({
         {topOperatorRows.length ? (
           <div className="mt-5 grid gap-4 lg:grid-cols-2 xl:grid-cols-5">
             {topOperatorRows.map((row) => (
-              <Link
-                key={row.slug}
-                href={`/operators/${row.slug}`}
-                className="rounded-2xl border border-white/10 bg-white/[0.03] p-4 transition-colors hover:border-cyan-300/40 hover:bg-white/[0.05]"
-              >
+              <article key={row.slug} className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
                 <div className="flex items-start justify-between gap-3">
                   <div>
-                    <div className="text-sm font-semibold text-white">{row.operatorName}</div>
+                    <Link href={`/operators/${row.slug}`} className="text-sm font-semibold text-white transition-colors hover:text-cyan-300">
+                      {row.operatorName}
+                    </Link>
                     <div className="mt-1 text-[11px] uppercase tracking-[0.18em] text-slate-500">
                       {row.countyCount} count{row.countyCount === 1 ? "y" : "ies"}
                     </div>
@@ -253,7 +266,21 @@ export default async function PermitsPage({
                     ? `${formatShare(row.concentration.caseShareStatewide)} of visible CID cases and ${formatShare(row.concentration.proceduralPressureShareStatewide)} of visible procedural pressure.`
                     : "No CID case overlap is visible for this operator in the current dataset."}
                 </p>
-              </Link>
+                <AddToWatchlistControl
+                  className="mt-4"
+                  item={{
+                    id: `operator:${row.slug}`,
+                    kind: "Operator",
+                    label: row.operatorName,
+                    href: `/operators/${row.slug}`,
+                    summary: `${row.permitCount} pending permits · ${row.caseCount} CID cases · ${row.proceduralPressureScore} procedural pressure`,
+                    detail: row.concentration.topPermitCounty
+                      ? `${row.concentration.topPermitCounty.county} holds ${row.concentration.topPermitCounty.permitCount} permit${row.concentration.topPermitCounty.permitCount === 1 ? "" : "s"} (${formatShare(row.concentration.topPermitCounty.share)} of this operator's pending lane).`
+                      : "No county concentration could be computed from the current permit roster.",
+                    surface: "operators",
+                  }}
+                />
+              </article>
             ))}
           </div>
         ) : (
@@ -361,6 +388,10 @@ function StatTile({ value, label }: { value: string; label: string }) {
       <div className="mt-2 text-sm leading-6 text-slate-400">{label}</div>
     </div>
   );
+}
+
+function toCountySlug(county: string) {
+  return county.toLowerCase().replace(/\s+/g, "-");
 }
 
 function synthesizeCidRowsFromSummary(

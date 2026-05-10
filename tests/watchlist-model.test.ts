@@ -2,8 +2,10 @@ import { describe, expect, it } from "vitest";
 
 import {
   DEFAULT_WATCHLIST_ID,
+  buildPersistedWatchlistItemInput,
   buildWatchlistExport,
   createWatchlist,
+  hydrateWatchlistFromApi,
   loadWatchlistsFromStorage,
   removeWatchlist,
   removeWatchlistItem,
@@ -74,7 +76,7 @@ describe("watchlist model", () => {
             id: "briefing",
             name: "Briefing",
             description: "Shared briefing queue",
-            scopeLabel: "Local/shared in this browser",
+            scopeLabel: "Shared workspace",
             createdAt: "2026-05-10T00:00:00.000Z",
             updatedAt: "2026-05-10T00:00:00.000Z",
             items: [
@@ -99,5 +101,94 @@ describe("watchlist model", () => {
 
     const exportValue = buildWatchlistExport(watchlists.find((entry) => entry.id === "briefing")?.items ?? []);
     expect(exportValue).toContain("county | Harris County | /counties/harris-county | Risk +3.6 · pressure 100 | Opened from analytics");
+  });
+
+  it("builds persisted API payloads for county and operator lanes and rejects unsupported kinds", () => {
+    expect(
+      buildPersistedWatchlistItemInput({
+        id: "county:harris-county",
+        kind: "County",
+        label: "Harris County",
+        href: "/counties/harris-county",
+        summary: "Risk +3.6 · pressure 100",
+        detail: "Opened from analytics",
+        surface: "analytics",
+      }),
+    ).toMatchObject({
+      itemType: "county",
+      itemKey: "harris-county",
+      displayLabel: "Harris County",
+    });
+
+    expect(
+      buildPersistedWatchlistItemInput({
+        id: "operator:alpha-water-llc",
+        kind: "Operator",
+        label: "Alpha Water LLC",
+        href: "/operators/alpha-water-llc",
+        summary: "2 permits · 1 case · 10 pressure",
+        detail: "Travis County · Hays County",
+        surface: "operators",
+      }),
+    ).toMatchObject({
+      itemType: "operator",
+      itemKey: "alpha-water-llc",
+      displayLabel: "Alpha Water LLC",
+    });
+
+    expect(
+      buildPersistedWatchlistItemInput({
+        id: "permit:WQ0001",
+        kind: "Permit lane",
+        label: "WQ0001",
+        href: "/permits?county=travis-county",
+        summary: "IND WW · Travis County",
+        detail: "Austin",
+        surface: "operator-detail",
+      }),
+    ).toBeNull();
+  });
+
+  it("hydrates persisted API watchlists back into rich UI cards", () => {
+    const watchlist = hydrateWatchlistFromApi({
+      id: "wl_1",
+      label: "Priority counties",
+      notes: "Persisted queue",
+      createdAt: "2026-05-09T19:00:00.000Z",
+      updatedAt: "2026-05-09T19:05:00.000Z",
+      itemCount: 1,
+      items: [
+        {
+          id: "item_1",
+          watchlistId: "wl_1",
+          itemType: "county",
+          itemKey: "harris-county",
+          displayLabel: "Harris County",
+          notes: JSON.stringify({
+            version: 1,
+            sourceId: "county:harris-county",
+            kind: "County",
+            href: "/counties/harris-county",
+            summary: "Risk +3.6 · pressure 100",
+            detail: "Opened from analytics",
+            surface: "analytics",
+          }),
+          createdAt: "2026-05-09T19:00:00.000Z",
+          updatedAt: "2026-05-09T19:00:00.000Z",
+        },
+      ],
+    });
+
+    expect(watchlist.name).toBe("Priority counties");
+    expect(watchlist.scopeLabel).toBe("Shared workspace");
+    expect(watchlist.items[0]).toMatchObject({
+      id: "county:harris-county",
+      persistedItemId: "item_1",
+      label: "Harris County",
+      href: "/counties/harris-county",
+      summary: "Risk +3.6 · pressure 100",
+      detail: "Opened from analytics",
+      surface: "analytics",
+    });
   });
 });

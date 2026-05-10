@@ -113,6 +113,7 @@ describe("permits page", () => {
     expect(text).toContain("Fresh");
     expect(text).toContain("border-emerald-400/20 bg-emerald-400/10");
     expect(text).toContain("County permit map");
+    expect(text).toContain("Add to watchlist");
     expect(text).toContain("Click a highlighted county to open its filtered permit view.");
     expect(text).toContain("data-county-map-path=\"travis-county\"");
     expect(text).toContain("data-county-map-path=\"hays-county\"");
@@ -122,12 +123,14 @@ describe("permits page", () => {
     expect(text).toContain("County intelligence");
     expect(text).toContain("Open county pages");
     expect(text).toContain("Filings that need scrutiny");
+    expect(text).toContain('id="watchlist-county:travis-county"');
     expect(text).toContain("Top permittees and applicants");
     expect(text).toContain("Concentration lane for who is carrying the most pending-permit volume");
     expect(text).toContain('href=\"/operators/alpha-water-llc\"');
     expect(text).toContain("66.7%");
     expect(text).toContain("Pending permits");
     expect(text).toContain("CID cases");
+    expect(text).toContain('id="watchlist-operator:alpha-water-llc"');
     expect(text).toContain("Travis County holds 2 permits (100% of this operator&#x27;s pending lane).");
     expect(text).toContain("100% of visible CID cases and 100% of visible procedural pressure.");
     expect(text).toContain("State Office of Administrative Hearings");
