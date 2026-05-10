@@ -26,6 +26,7 @@ _(empty)_
 
 | workstream | agent | intent | ref |
 |---|---|---|---|
+| docs | hermes | Expand the Atlas TX judge pack with spoken presenter notes, a one-page judge handout, and a backup demo path if the live water-strip test fails. | branch `docs/launch-copy-and-demo` |
 | docs | hermes | Add judge-facing launch copy pack: announcement post, GitHub pinned/social copy variants, and a 3–5 minute demo script that starts at `atlastexas.org`, moves through MCP + skill, and optionally ends with a live Android water-strip screening demo. | branch `docs/launch-copy-and-demo` |
 | docs | hermes | Prepare Atlas TX v1.0.0 public-launch surfaces: root README/release notes/changelog refresh, MIT license + version metadata, stronger `atlastexas.org` callouts in `docs/wiki/`, and GitHub homepage/topics aligned for release + Freshcrate discovery. | branch `docs/public-launch-v1` |
 | data | hermes | Refresh Texas county-month weather artifacts: precipitation (Open-Meteo), streamflow (USGS), drought (USDM), and NWS flood alerts (OpenFEMA IPAWS) all rerun successfully into `data/`. Temperature rerun hit upstream Open-Meteo 429s after partially resuming to 129/254 counties, so the prior full snapshot remains in place alongside `data/county-month-temperature-open-meteo.partial.json` for resume. | working tree |

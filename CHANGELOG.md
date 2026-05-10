@@ -22,6 +22,7 @@ What shipped:
 - added a reusable judge announcement post centered on `atlastexas.org`, the MCP server, the Atlas TX skill, and the Android field-verification lane
 - added GitHub pinned blurb / social copy variants for launch, judges, technical audiences, and Freshcrate reuse
 - added a 3–5 minute judge demo script that starts with the live site, moves through MCP + skill, and optionally ends with a live water strip screening demo
+- added a spoken presenter version, a judge one-pager, and a backup demo path if the live strip moment fails in-room
 - kept the demo framing explicit that field observations are additive screening signals, not regulatory truth
 
 ### docs: prepare Atlas TX v1.0.0 public launch surfaces
