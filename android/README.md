@@ -72,9 +72,18 @@ gradle wrapper --gradle-version 8.10.2
 Or just open `android/` in Android Studio Hedgehog (or newer); it will
 download Gradle and AGP automatically.
 
-The default base URL is `http://10.0.2.2:3000`, which targets the host
-machine's `localhost:3000` from the Android emulator. Change it in
-**Settings** if you point the app at a deployed Atlas TX instance.
+The default base URL is `https://atlastexas.org`. Change it in **Settings** to:
+
+- `http://10.0.2.2:3000` — host machine's `localhost:3000` from the Android emulator
+- `http://<host-LAN-IP>:3000` — physical device on the same LAN as a `npm run dev` server
+- any other deployed Atlas TX instance
+
+`network_security_config.xml` permits cleartext only to `10.0.2.2` and
+`localhost`; HTTPS is enforced for everything else.
+
+The app build is shown at the bottom of the Settings screen as
+`<versionName> (<versionCode>) · <git short sha>`, so you can tell at a
+glance which commit is on a given device.
 
 ## API contract
 

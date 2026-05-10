@@ -13,11 +13,12 @@
 
     <string name="settings_title">Settings</string>
     <string name="settings_base_url">Atlas TX server URL</string>
-    <string name="settings_base_url_hint">https://atlas-tx.example or http://10.0.2.2:3000 for emulator</string>
+    <string name="settings_base_url_hint">Default https://atlastexas.org. Use http://10.0.2.2:3000 for the Android emulator or your host LAN IP for a local dev server.</string>
     <string name="settings_device_id">Anonymous device ID</string>
     <string name="settings_reset_device_id">Regenerate device ID</string>
     <string name="settings_attach_location">Attach approximate location</string>
     <string name="settings_strip_brand">Default strip brand</string>
+    <string name="settings_app_version">App build</string>
 
     <string name="result_pending">Pending</string>
     <string name="result_status_label">Status</string>

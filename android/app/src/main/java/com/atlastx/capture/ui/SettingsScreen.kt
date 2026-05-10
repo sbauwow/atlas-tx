@@ -31,6 +31,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.atlastx.capture.BuildConfig
 import com.atlastx.capture.R
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -114,6 +115,18 @@ fun SettingsScreen(
                 modifier = Modifier.fillMaxWidth(),
             ) {
                 Text(stringResource(R.string.settings_reset_device_id))
+            }
+
+            Column {
+                Text(
+                    stringResource(R.string.settings_app_version),
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                Text(
+                    "${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE}) · ${BuildConfig.GIT_SHA}",
+                    style = MaterialTheme.typography.bodySmall,
+                )
             }
         }
     }

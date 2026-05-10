@@ -5,6 +5,11 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
 }
 
+val gitShortSha: String = providers.exec {
+    commandLine("git", "rev-parse", "--short=12", "HEAD")
+    isIgnoreExitValue = true
+}.standardOutput.asText.get().trim().ifEmpty { "unknown" }
+
 android {
     namespace = "com.atlastx.capture"
     compileSdk = 35
@@ -13,8 +18,10 @@ android {
         applicationId = "com.atlastx.capture"
         minSdk = 31
         targetSdk = 35
-        versionCode = 1
-        versionName = "0.1.0"
+        versionCode = 2
+        versionName = "0.2.0"
+
+        buildConfigField("String", "GIT_SHA", "\"$gitShortSha\"")
     }
 
     buildTypes {
