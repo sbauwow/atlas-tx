@@ -1,18 +1,20 @@
-import MapShell from "./map-shell";
+import { redirect } from "next/navigation";
 
 export const metadata = {
-  title: "Map · Atlas TX",
-  description:
-    "Interactive Texas map with counties, TCEQ pending permits, and USGS stream gauges.",
+  title: "Atlas TX — Map",
 };
 
-export default function MapPage() {
-  return (
-    <main className="relative w-full" style={{ height: "calc(100vh - 3.5rem)" }}>
-      <MapShell />
-      <p className="pointer-events-none absolute bottom-2 right-2 z-10 rounded-md bg-slate-950/70 px-2 py-1 text-[10px] text-slate-300 backdrop-blur">
-        Sources: TIGER county boundaries · TCEQ permits · USGS stream sites · OpenFreeMap / OSM
-      </p>
-    </main>
-  );
+export default async function MapRedirect({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const params = await searchParams;
+  const qs = new URLSearchParams();
+  for (const [k, v] of Object.entries(params)) {
+    if (typeof v === "string") qs.set(k, v);
+    else if (Array.isArray(v)) qs.set(k, v[0] ?? "");
+  }
+  const search = qs.toString();
+  redirect(search ? `/maps?${search}` : "/maps");
 }

@@ -146,7 +146,7 @@ export default async function Home() {
         <div className="max-w-3xl space-y-2">
           <h2 className="text-3xl font-semibold tracking-tight text-white">One map per question.</h2>
           <p className="text-sm leading-7 text-slate-400">
-            <Link href="/map" className="text-cyan-300 transition-colors hover:text-cyan-200">The interactive map</Link> stacks layers across themes; these are the single-question views.
+            <Link href="/maps" className="text-cyan-300 transition-colors hover:text-cyan-200">The interactive map at /maps</Link> stacks layers across themes; these are the single-question views.
           </p>
         </div>
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
