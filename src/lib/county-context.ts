@@ -1,4 +1,6 @@
-import { countySlug } from "@/lib/counties";
+import { countySlug, normalizeCountyName } from "@/lib/counties";
+import { loadAcsCountyPopulationFromSnapshot } from "@/lib/datasets/acs";
+import { loadSdwisSnapshot, type SdwisRow } from "@/lib/datasets/sdwis";
 import { loadSurfaceWaterQualityFromSnapshot, type SurfaceWaterQualityRow } from "@/lib/datasets/surface-water-quality";
 import { loadTwdbHydrologyFromSnapshot, type TwdbHydrologyRow } from "@/lib/datasets/twdb-hydrology";
 import { TEXAS_COUNTY_CENTROIDS, type CountyCentroid } from "@/lib/texas-county-centroids";
@@ -23,10 +25,21 @@ export type CountyContextHydrologySummary = {
   layerCounts: Record<string, number>;
 };
 
+export type CountyContextDrinkingWaterSummary = {
+  violationCount: number;
+  pwsCount: number;
+  populationExposed: number;
+  topViolatingPws: { pwsName: string; populationServed: number; violationCount: number } | null;
+  topContaminantCode: string | null;
+  acsCountyPopulation: number | null;
+  populationExposureRate: number | null;
+};
+
 export type CountyContextSnapshot = {
   countySlug: string;
   surfaceWater: CountyContextSurfaceWaterSummary;
   hydrology: CountyContextHydrologySummary;
+  drinkingWater: CountyContextDrinkingWaterSummary;
 };
 
 const IMPAIRMENT_LABELS: Record<keyof SurfaceWaterQualityRow["impairmentFlags"], string> = {
@@ -48,9 +61,11 @@ function impairmentFlagList(flags: SurfaceWaterQualityRow["impairmentFlags"]): s
 
 export async function loadCountyContext(rawSlug: string): Promise<CountyContextSnapshot> {
   const slug = countySlug(rawSlug);
-  const [swqRows, hydrologyRows] = await Promise.all([
+  const [swqRows, hydrologyRows, sdwis, acsByCounty] = await Promise.all([
     loadSurfaceWaterQualityFromSnapshot(),
     loadTwdbHydrologyFromSnapshot(),
+    loadSdwisSnapshot(),
+    loadAcsCountyPopulationFromSnapshot().catch(() => ({}) as Record<string, number>),
   ]);
 
   const swqMatches = swqRows.filter((row) => row.countyName && countySlug(row.countyName) === slug);
@@ -98,6 +113,47 @@ export async function loadCountyContext(rawSlug: string): Promise<CountyContextS
     }
   }
 
+  const sdwisMatches: SdwisRow[] = sdwis.rows.filter((row) => row.county && countySlug(row.county) === slug);
+  const pwsTotals = new Map<string, { pwsName: string; populationServed: number; violationCount: number }>();
+  const contaminantCounts = new Map<string, number>();
+  for (const row of sdwisMatches) {
+    const key = row.pwsid;
+    const tracker = pwsTotals.get(key);
+    if (tracker) {
+      tracker.violationCount += 1;
+    } else {
+      pwsTotals.set(key, {
+        pwsName: row.pwsName ?? row.pwsid,
+        populationServed: row.populationServed ?? 0,
+        violationCount: 1,
+      });
+    }
+    if (row.contaminantCode) {
+      contaminantCounts.set(row.contaminantCode, (contaminantCounts.get(row.contaminantCode) ?? 0) + 1);
+    }
+  }
+  let topViolatingPws: CountyContextDrinkingWaterSummary["topViolatingPws"] = null;
+  for (const tracker of pwsTotals.values()) {
+    if (!topViolatingPws || tracker.violationCount > topViolatingPws.violationCount) {
+      topViolatingPws = { ...tracker };
+    }
+  }
+  const populationExposed = [...pwsTotals.values()].reduce((sum, tracker) => sum + tracker.populationServed, 0);
+  let topContaminantCode: string | null = null;
+  let topContaminantHits = 0;
+  for (const [code, hits] of contaminantCounts.entries()) {
+    if (hits > topContaminantHits) {
+      topContaminantHits = hits;
+      topContaminantCode = code;
+    }
+  }
+
+  const countyNameForAcs = normalizeCountyName(slug.replace(/-/g, " ") + " county");
+  const acsCountyPopulation = acsByCounty[countyNameForAcs] ?? null;
+  const populationExposureRate = acsCountyPopulation && acsCountyPopulation > 0
+    ? Math.min(1, populationExposed / acsCountyPopulation)
+    : null;
+
   return {
     countySlug: slug,
     surfaceWater: {
@@ -109,6 +165,15 @@ export async function loadCountyContext(rawSlug: string): Promise<CountyContextS
     hydrology: {
       features: [...featuresByCode.values()].slice(0, 8),
       layerCounts,
+    },
+    drinkingWater: {
+      violationCount: sdwisMatches.length,
+      pwsCount: pwsTotals.size,
+      populationExposed,
+      topViolatingPws,
+      topContaminantCode,
+      acsCountyPopulation,
+      populationExposureRate,
     },
   };
 }

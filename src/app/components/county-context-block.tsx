@@ -32,7 +32,7 @@ export function CountyContextBlock({
         </div>
       </div>
 
-      <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+      <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         <ContextPanel
           tone="hazard"
           eyebrow="Active hazard footprint"
@@ -63,6 +63,18 @@ export function CountyContextBlock({
             ? `${impairedShare}% of cached TCEQ surface segments in this county carry at least one impairment flag.`
             : "No TCEQ-classified surface segments in this county for the cached assessment year."}
           footnote={surfaceWater.basins.length > 0 ? `Basin: ${surfaceWater.basins.slice(0, 2).join(", ")}${surfaceWater.basins.length > 2 ? "+" : ""}` : null}
+        />
+
+        <ContextPanel
+          tone="dwrs"
+          eyebrow="Drinking-water exposure"
+          title={context.drinkingWater.violationCount > 0
+            ? `${context.drinkingWater.violationCount.toLocaleString("en-US")} SDWIS violations`
+            : "No SDWIS violations cached"}
+          body={context.drinkingWater.violationCount > 0
+            ? `${context.drinkingWater.pwsCount} public water system${context.drinkingWater.pwsCount === 1 ? "" : "s"} with cached health-based violations since 2023-04-01. ${context.drinkingWater.populationExposed.toLocaleString("en-US")} people served by those systems.`
+            : "No cached SDWIS health-based violation rows in this county since 2023-04-01."}
+          footnote={dwrsFootnote(context.drinkingWater)}
         />
 
         <ContextPanel
@@ -100,18 +112,34 @@ function layerSummary(layerCounts: Record<string, number>): string | null {
   return entries.slice(0, 3).map(([layer, count]) => `${count} ${layer}`).join(" · ");
 }
 
-const TONE_RING: Record<"hazard" | "hydrology" | "surface" | "infra", string> = {
+function dwrsFootnote(dw: { topViolatingPws: { pwsName: string; violationCount: number } | null; topContaminantCode: string | null; populationExposureRate: number | null; acsCountyPopulation: number | null }): string | null {
+  const parts: string[] = [];
+  if (dw.topViolatingPws) {
+    parts.push(`Top PWS: ${dw.topViolatingPws.pwsName} (${dw.topViolatingPws.violationCount} viol.)`);
+  }
+  if (dw.topContaminantCode) {
+    parts.push(`Top contaminant code: ${dw.topContaminantCode}`);
+  }
+  if (dw.populationExposureRate !== null && dw.acsCountyPopulation !== null) {
+    parts.push(`${Math.round(dw.populationExposureRate * 100)}% of ACS county pop served by violating PWSs`);
+  }
+  return parts.length ? parts.join(" · ") : null;
+}
+
+const TONE_RING: Record<"hazard" | "hydrology" | "surface" | "infra" | "dwrs", string> = {
   hazard: "ring-amber-400/15 bg-amber-400/[0.04]",
   hydrology: "ring-cyan-400/15 bg-cyan-400/[0.04]",
   surface: "ring-emerald-400/15 bg-emerald-400/[0.04]",
   infra: "ring-slate-300/10 bg-white/[0.03]",
+  dwrs: "ring-fuchsia-400/15 bg-fuchsia-400/[0.04]",
 };
 
-const TONE_EYEBROW: Record<"hazard" | "hydrology" | "surface" | "infra", string> = {
+const TONE_EYEBROW: Record<"hazard" | "hydrology" | "surface" | "infra" | "dwrs", string> = {
   hazard: "text-amber-200",
   hydrology: "text-cyan-200",
   surface: "text-emerald-200",
   infra: "text-slate-300",
+  dwrs: "text-fuchsia-200",
 };
 
 function ContextPanel({
@@ -121,7 +149,7 @@ function ContextPanel({
   body,
   footnote,
 }: {
-  tone: "hazard" | "hydrology" | "surface" | "infra";
+  tone: "hazard" | "hydrology" | "surface" | "infra" | "dwrs";
   eyebrow: string;
   title: string;
   body: string;
