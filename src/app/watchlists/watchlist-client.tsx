@@ -27,6 +27,31 @@ import {
 
 type WatchlistStoreMode = "api" | "fallback-local";
 
+type WatchlistFeedSource = "loading" | "api" | "derived-items" | "unavailable";
+
+export type WatchlistFeedEntry = {
+  id: string;
+  action: "saved" | "updated" | "removed" | "created" | "deleted";
+  timestamp: string;
+  watchlistId: string;
+  watchlistLabel: string;
+  itemLabel: string;
+  itemKind: string;
+  href: string | null;
+  headline: string;
+  summary: string;
+  detail: string;
+  badgeLabel: string;
+  surface: WatchlistSurface;
+  sourceLabel: string;
+};
+
+type WatchlistFeedState = {
+  entries: WatchlistFeedEntry[];
+  source: WatchlistFeedSource;
+  status: string;
+};
+
 export function AddToWatchlistControl({
   item,
   className = "",
@@ -176,12 +201,17 @@ export function WatchlistsDashboard() {
   const [draftDescription, setDraftDescription] = useState("");
   const [mode, setMode] = useState<WatchlistStoreMode>("api");
   const [message, setMessage] = useState("Loading shared watchlists…");
+  const [feed, setFeed] = useState<WatchlistFeedState>({
+    entries: [],
+    source: "loading",
+    status: "Loading recent changes…",
+  });
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
 
-    void hydrateWatchlists().then((result) => {
+    void hydrateWatchlists().then(async (result) => {
       if (cancelled) {
         return;
       }
@@ -195,6 +225,13 @@ export function WatchlistsDashboard() {
             : "No shared watchlists are persisted yet. Create one or keep using the shared triage queue."
           : "Watchlist API unavailable. Atlas is showing browser fallback data saved on this device.",
       );
+
+      const nextFeed = await loadWatchlistFeed(result.watchlists, result.mode);
+      if (cancelled) {
+        return;
+      }
+
+      setFeed(nextFeed);
     });
 
     return () => {
@@ -452,6 +489,75 @@ export function WatchlistsDashboard() {
           <MiniStat label="Storage" value={mode === "api" ? "Atlas API" : "Browser fallback"} />
           <MiniStat label="Scope" value={mode === "api" ? "Shared workspace" : "This device"} />
         </div>
+      </section>
+
+      <section className="rounded-3xl border border-white/10 bg-slate-950/80 p-6 shadow-[0_0_0_1px_rgba(255,255,255,0.02)]">
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <div className="text-[11px] font-medium uppercase tracking-[0.22em] text-amber-300/80">Recent changes</div>
+            <h2 className="mt-2 text-2xl font-semibold text-white">Saved-screen change feed</h2>
+            <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-400">
+              Track what changed across saved counties, operators, and permit lanes without leaving the watchlist workspace.
+            </p>
+          </div>
+          <div className="rounded-full border border-white/10 px-3 py-1 text-xs text-slate-400">
+            {feed.source === "api"
+              ? "Feed API live"
+              : feed.source === "derived-items"
+                ? "Derived from saved lanes"
+                : feed.source === "loading"
+                  ? "Loading feed"
+                  : "Feed unavailable"}
+          </div>
+        </div>
+
+        <p className="mt-3 text-sm leading-6 text-slate-500">{feed.status}</p>
+
+        {feed.entries.length ? (
+          <div className="mt-5 grid gap-3 xl:grid-cols-2">
+            {feed.entries.map((entry) => (
+              <article key={entry.id} className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <div className="space-y-2">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="rounded-full border border-cyan-400/20 bg-cyan-400/10 px-2.5 py-1 text-[11px] uppercase tracking-[0.18em] text-cyan-100">
+                        {entry.badgeLabel}
+                      </span>
+                      <span className="rounded-full border border-white/10 px-2.5 py-1 text-[11px] uppercase tracking-[0.18em] text-slate-400">
+                        {surfaceLabel(entry.surface)}
+                      </span>
+                    </div>
+                    <h2 className="text-lg font-semibold text-white">{entry.headline}</h2>
+                  </div>
+                  <div className="text-right text-xs text-slate-500">
+                    <div>{formatWatchlistDate(entry.timestamp)}</div>
+                    <div className="mt-1">{entry.sourceLabel}</div>
+                  </div>
+                </div>
+                <p className="mt-3 text-sm text-slate-200">{entry.summary}</p>
+                <p className="mt-2 text-sm leading-6 text-slate-400">{entry.detail}</p>
+                <div className="mt-4 flex flex-wrap items-center gap-2 text-sm text-slate-400">
+                  <span>Watchlist: {entry.watchlistLabel}</span>
+                  <span aria-hidden="true">•</span>
+                  <span>{entry.itemLabel}</span>
+                  <span aria-hidden="true">•</span>
+                  <span>{entry.itemKind}</span>
+                </div>
+                {entry.href ? (
+                  <div className="mt-4">
+                    <Link href={entry.href} className="rounded-full border border-white/10 px-3 py-1.5 text-sm text-slate-200 transition-colors hover:border-white/20 hover:bg-white/5">
+                      Open lane
+                    </Link>
+                  </div>
+                ) : null}
+              </article>
+            ))}
+          </div>
+        ) : (
+          <div className="mt-5 rounded-2xl border border-dashed border-white/10 bg-white/[0.02] px-5 py-8 text-sm leading-6 text-slate-400">
+            No recent watchlist changes yet. Saved lanes will land here when the feed API reports movement or when this workspace has fresh saved items to show.
+          </div>
+        )}
       </section>
 
       <section className="rounded-3xl border border-white/10 bg-slate-950/80 p-6 shadow-[0_0_0_1px_rgba(255,255,255,0.02)]">
@@ -769,6 +875,396 @@ function persistWatchlistsToLocalStorage(nextWatchlists: Watchlist[]) {
   }
 
   return saveWatchlistsToStorage(nextWatchlists, window.localStorage);
+}
+
+async function loadWatchlistFeed(watchlists: Watchlist[], mode: WatchlistStoreMode): Promise<WatchlistFeedState> {
+  try {
+    const response = await fetchWatchlistFeedFromApi();
+    if (response.length) {
+      return {
+        entries: response,
+        source: "api",
+        status: "Recent watchlist changes loaded from the feed API.",
+      };
+    }
+
+    return {
+      entries: [],
+      source: "api",
+      status: "Feed API returned no recent watchlist changes.",
+    };
+  } catch {
+    const derivedEntries = deriveFallbackFeedEntries(watchlists);
+    if (derivedEntries.length) {
+      return {
+        entries: derivedEntries,
+        source: "derived-items",
+        status:
+          mode === "api"
+            ? "Feed API unavailable. Showing the most recent saved lanes already in this workspace."
+            : "Feed API unavailable. Showing the most recent lanes saved on this device.",
+      };
+    }
+
+    return {
+      entries: [],
+      source: "unavailable",
+      status:
+        mode === "api"
+          ? "Feed API unavailable. Recent changes will appear here when the endpoint comes online."
+          : "Feed API unavailable. Recent changes will appear here after lanes are saved in browser fallback mode.",
+    };
+  }
+}
+
+async function fetchWatchlistFeedFromApi() {
+  for (const endpoint of ["/api/watchlists/feed", "/api/watchlists/activity", "/api/watchlists/changes"]) {
+    const response = await fetch(endpoint, { cache: "no-store" });
+    if (!response.ok) {
+      if (response.status === 404) {
+        continue;
+      }
+
+      throw new Error(`watchlist feed fetch failed: ${response.status}`);
+    }
+
+    const body = (await response.json()) as unknown;
+    return normalizeWatchlistFeedPayload(body);
+  }
+
+  throw new Error("watchlist feed endpoint unavailable");
+}
+
+export function normalizeWatchlistFeedPayload(payload: unknown): WatchlistFeedEntry[] {
+  if (payload && typeof payload === "object") {
+    const nested = normalizeNestedWatchlistFeedPayload(payload as Record<string, unknown>);
+    if (nested.length) {
+      return nested;
+    }
+  }
+
+  const rawEntries = Array.isArray(payload)
+    ? payload
+    : payload && typeof payload === "object"
+      ? readArrayRecord(payload as Record<string, unknown>, ["items", "feed", "changes", "events"])
+      : [];
+
+  return rawEntries
+    .map((entry, index) => normalizeWatchlistFeedEntry(entry, index))
+    .filter((entry): entry is WatchlistFeedEntry => entry !== null)
+    .sort((left, right) => compareDesc(right.timestamp, left.timestamp))
+    .slice(0, 8);
+}
+
+function normalizeNestedWatchlistFeedPayload(payload: Record<string, unknown>) {
+  const watchlists = readArrayRecord(payload, ["watchlists"]);
+
+  return watchlists
+    .flatMap((watchlistEntry, watchlistIndex) => {
+      if (!watchlistEntry || typeof watchlistEntry !== "object") {
+        return [];
+      }
+
+      const watchlist = watchlistEntry as Record<string, unknown>;
+      const watchlistId = readStringRecord(watchlist, ["id"]) ?? `${watchlistIndex}`;
+      const watchlistLabel = readStringRecord(watchlist, ["label", "name"]) ?? "Shared triage";
+
+      return readArrayRecord(watchlist, ["entries"]).map((entry, entryIndex) =>
+        normalizeNestedWatchlistFeedEntry(entry, entryIndex, {
+          watchlistId,
+          watchlistLabel,
+          generatedAt: readStringRecord(payload, ["generatedAt"]),
+        }),
+      );
+    })
+    .filter((entry): entry is WatchlistFeedEntry => entry !== null)
+    .sort((left, right) => compareDesc(right.timestamp, left.timestamp))
+    .slice(0, 8);
+}
+
+function normalizeNestedWatchlistFeedEntry(
+  entry: unknown,
+  index: number,
+  context: { watchlistId: string; watchlistLabel: string; generatedAt: string | null },
+): WatchlistFeedEntry | null {
+  if (!entry || typeof entry !== "object") {
+    return null;
+  }
+
+  const record = entry as Record<string, unknown>;
+  const itemLabel = readStringRecord(record, ["label"]) ?? readStringRecord(record, ["headline"]) ?? null;
+  const href = readStringRecord(record, ["href"]);
+  const timestamp =
+    readStringRecord(record, ["updatedAt", "createdAt"]) ?? context.generatedAt ?? null;
+
+  if (!itemLabel || !timestamp) {
+    return null;
+  }
+
+  return {
+    id: readStringRecord(record, ["id"]) ?? `${context.watchlistId}:${itemLabel}:${timestamp}:${index}`,
+    action: "updated",
+    timestamp,
+    watchlistId: context.watchlistId,
+    watchlistLabel: context.watchlistLabel,
+    itemLabel,
+    itemKind: normalizeFeedItemKind(readStringRecord(record, ["itemType"]) ?? "Item"),
+    href,
+    headline: readStringRecord(record, ["headline"]) ?? `${itemLabel} refreshed in ${context.watchlistLabel}.`,
+    summary: readStringRecord(record, ["summary"]) ?? "Watchlist signal refreshed.",
+    detail: readStringRecord(record, ["detail"]) ?? "Atlas did not receive extra feed detail for this entry.",
+    badgeLabel: normalizeFeedStatusLabel(readStringRecord(record, ["status"])),
+    surface: href ? inferSurfaceFromHref(href) : "watchlists",
+    sourceLabel: normalizeFeedSourceLabel(readStringRecord(record, ["signalType"])),
+  };
+}
+
+function normalizeWatchlistFeedEntry(entry: unknown, index: number): WatchlistFeedEntry | null {
+  if (!entry || typeof entry !== "object") {
+    return null;
+  }
+
+  const record = entry as Record<string, unknown>;
+  const watchlist = readRecord(record, ["watchlist"]);
+  const item = readRecord(record, ["item", "artifact"]);
+  const metadata = parseFeedMetadata(record.notes ?? item?.notes ?? null);
+  const timestamp =
+    readStringRecord(record, ["timestamp", "changedAt", "createdAt", "updatedAt", "occurredAt"]) ??
+    readStringRecord(item, ["createdAt", "updatedAt"]) ??
+    readStringRecord(watchlist, ["updatedAt", "createdAt"]);
+
+  if (!timestamp) {
+    return null;
+  }
+
+  const watchlistId =
+    readStringRecord(record, ["watchlistId"]) ?? readStringRecord(watchlist, ["id"]) ?? DEFAULT_WATCHLIST_ID;
+  const watchlistLabel =
+    readStringRecord(record, ["watchlistLabel", "watchlistName"]) ??
+    readStringRecord(watchlist, ["label", "name"]) ??
+    "Shared triage";
+  const itemLabel =
+    readStringRecord(record, ["itemLabel", "displayLabel", "label"]) ??
+    readStringRecord(item, ["displayLabel", "label", "itemKey"]) ??
+    metadata?.label ??
+    null;
+
+  if (!itemLabel) {
+    return null;
+  }
+
+  const itemKind =
+    readStringRecord(record, ["itemKind", "itemType", "kind"]) ??
+    readStringRecord(item, ["itemType", "kind"]) ??
+    metadata?.kind ??
+    "Item";
+  const surface = normalizeFeedSurface(record.surface ?? item?.surface ?? metadata?.surface);
+  const action = normalizeFeedAction(
+    readStringRecord(record, ["action", "eventType", "changeType", "type"]) ??
+      readStringRecord(item, ["eventType", "action"]),
+  );
+  const href =
+    readStringRecord(record, ["href", "url"]) ?? readStringRecord(item, ["href", "url"]) ?? metadata?.href ?? null;
+
+  return {
+    id: readStringRecord(record, ["id"]) ?? `${watchlistId}:${itemLabel}:${timestamp}:${index}`,
+    action,
+    timestamp,
+    watchlistId,
+    watchlistLabel,
+    itemLabel,
+    itemKind: normalizeFeedItemKind(itemKind),
+    href,
+    headline: readStringRecord(record, ["headline"]) ?? buildFeedHeadline({ action, itemLabel, watchlistLabel }),
+    summary: readStringRecord(record, ["summary"]) ?? buildFeedDetail({ action, itemLabel, watchlistLabel }),
+    detail: readStringRecord(record, ["detail"]) ?? buildFeedDetail({ action, itemLabel, watchlistLabel }),
+    badgeLabel: feedActionLabel(action),
+    surface,
+    sourceLabel: "Feed API",
+  };
+}
+
+export function deriveFallbackFeedEntries(watchlists: Watchlist[]): WatchlistFeedEntry[] {
+  return watchlists
+    .flatMap((watchlist) =>
+      watchlist.items.map((item, index) => ({
+        id: `${watchlist.id}:${item.persistedItemId ?? item.id}:${item.addedAt}:${index}`,
+        action: "saved" as const,
+        timestamp: item.addedAt,
+        watchlistId: watchlist.id,
+        watchlistLabel: watchlist.name,
+        itemLabel: item.label,
+        itemKind: item.kind,
+        href: item.href,
+        headline: `${item.label} saved in ${watchlist.name}.`,
+        summary: item.summary,
+        detail: item.detail,
+        badgeLabel: "Saved lane",
+        surface: item.surface,
+        sourceLabel: "Saved lanes",
+      })),
+    )
+    .sort((left, right) => compareDesc(right.timestamp, left.timestamp))
+    .slice(0, 8);
+}
+
+function buildFeedHeadline({
+  action,
+  itemLabel,
+  watchlistLabel,
+}: {
+  action: WatchlistFeedEntry["action"];
+  itemLabel: string;
+  watchlistLabel: string;
+}) {
+  if (action === "removed") return `${itemLabel} removed from ${watchlistLabel}.`;
+  if (action === "updated") return `${itemLabel} refreshed in ${watchlistLabel}.`;
+  if (action === "created") return `${watchlistLabel} created with ${itemLabel}.`;
+  if (action === "deleted") return `${itemLabel} deleted from ${watchlistLabel}.`;
+  return `${itemLabel} saved to ${watchlistLabel}.`;
+}
+
+function buildFeedDetail({
+  action,
+  itemLabel,
+  watchlistLabel,
+}: {
+  action: WatchlistFeedEntry["action"];
+  itemLabel: string;
+  watchlistLabel: string;
+}) {
+  if (action === "removed") return `${itemLabel} was removed from ${watchlistLabel}.`;
+  if (action === "updated") return `${itemLabel} was updated inside ${watchlistLabel}.`;
+  if (action === "created") return `${watchlistLabel} was created and ${itemLabel} was added to it.`;
+  if (action === "deleted") return `${itemLabel} was deleted from ${watchlistLabel}.`;
+  return `${itemLabel} was saved to ${watchlistLabel}.`;
+}
+
+function compareDesc(left: string, right: string) {
+  return new Date(left).getTime() - new Date(right).getTime();
+}
+
+function normalizeFeedAction(value: string | null): WatchlistFeedEntry["action"] {
+  if (!value) return "saved";
+
+  const normalized = value.trim().toLowerCase();
+  if (["remove", "removed"].includes(normalized)) return "removed";
+  if (["delete", "deleted"].includes(normalized)) return "deleted";
+  if (["update", "updated", "edited", "edit", "patch"].includes(normalized)) return "updated";
+  if (["create", "created"].includes(normalized)) return "created";
+  return "saved";
+}
+
+function normalizeFeedSurface(value: unknown): WatchlistSurface {
+  return value === "analytics" || value === "operators" || value === "operator-detail" || value === "permits" || value === "watchlists"
+    ? value
+    : "watchlists";
+}
+
+function normalizeFeedItemKind(value: string) {
+  if (value === "county") return "County";
+  if (value === "operator") return "Operator";
+  if (value === "permit") return "Permit";
+  return value;
+}
+
+function normalizeFeedStatusLabel(value: string | null) {
+  if (!value) return "Signal update";
+  if (value === "matched") return "Matched";
+  if (value === "no-model") return "No model";
+  if (value === "unmatched") return "Unmatched";
+  if (value === "artifact-unavailable") return "Artifact unavailable";
+  return value.replace(/-/g, " ");
+}
+
+function normalizeFeedSourceLabel(value: string | null) {
+  if (!value) return "Feed API";
+  if (value === "county-analytics") return "County analytics";
+  if (value === "operator-watchlist-metadata") return "Operator metadata";
+  if (value === "permit-watchlist-metadata") return "Permit metadata";
+  return value.replace(/-/g, " ");
+}
+
+function inferSurfaceFromHref(href: string): WatchlistSurface {
+  if (href.startsWith("/analytics")) return "analytics";
+  if (href.startsWith("/operators/")) return "operator-detail";
+  if (href.startsWith("/operators")) return "operators";
+  if (href.startsWith("/permits")) return "permits";
+  return "watchlists";
+}
+
+function feedActionLabel(action: WatchlistFeedEntry["action"]) {
+  if (action === "removed") return "Removed";
+  if (action === "updated") return "Updated";
+  if (action === "created") return "Created";
+  if (action === "deleted") return "Deleted";
+  return "Saved";
+}
+
+type FeedMetadata = {
+  label: string | null;
+  kind: string | null;
+  href: string | null;
+  surface: WatchlistSurface | null;
+};
+
+function parseFeedMetadata(value: unknown): FeedMetadata | null {
+  if (typeof value !== "string" || !value.trim()) {
+    return null;
+  }
+
+  try {
+    const parsed = JSON.parse(value) as Record<string, unknown>;
+    return {
+      label: typeof parsed.displayLabel === "string" ? parsed.displayLabel : null,
+      kind: typeof parsed.kind === "string" ? parsed.kind : null,
+      href: typeof parsed.href === "string" ? parsed.href : null,
+      surface: normalizeFeedSurface(parsed.surface),
+    };
+  } catch {
+    return null;
+  }
+}
+
+function readRecord(value: Record<string, unknown> | null | undefined, keys: string[]) {
+  if (!value) {
+    return null;
+  }
+
+  for (const key of keys) {
+    const candidate = value[key];
+    if (candidate && typeof candidate === "object" && !Array.isArray(candidate)) {
+      return candidate as Record<string, unknown>;
+    }
+  }
+
+  return null;
+}
+
+function readArrayRecord(value: Record<string, unknown>, keys: string[]) {
+  for (const key of keys) {
+    const candidate = value[key];
+    if (Array.isArray(candidate)) {
+      return candidate;
+    }
+  }
+
+  return [];
+}
+
+function readStringRecord(value: Record<string, unknown> | null | undefined, keys: string[]) {
+  if (!value) {
+    return null;
+  }
+
+  for (const key of keys) {
+    const candidate = value[key];
+    if (typeof candidate === "string" && candidate.trim()) {
+      return candidate.trim();
+    }
+  }
+
+  return null;
 }
 
 function MiniStat({ label, value }: { label: string; value: string }) {

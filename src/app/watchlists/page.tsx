@@ -15,7 +15,7 @@ export default function WatchlistsPage() {
           </Link>
         </div>
         <div className="space-y-3">
-          <div className="text-[11px] font-medium uppercase tracking-[0.28em] text-cyan-300/80">Wave 8B · Watchlists</div>
+          <div className="text-[11px] font-medium uppercase tracking-[0.28em] text-cyan-300/80">Wave 9B · Watchlists</div>
           <h1 className="text-4xl font-semibold tracking-tight text-white">Saved watchlists</h1>
           <p className="max-w-4xl text-base leading-7 text-slate-400">
             Atlas saves counties, operators, and permit lanes into the shared watchlist workspace, with browser fallback when the API is unavailable.
