@@ -142,51 +142,25 @@ export default async function WaterPage({
           <ApiPill href="/api/water/gbra/hydrology/gvhs-lakes" label="GBRA GVHS lakes API" />
           <ApiPill href="/api/water/gbra/hydrology/watersheds" label="GBRA watersheds API" />
           <ApiPill href="/api/water/gbra/quality/sites" label="GBRA quality sites API" />
+          <RoutePill href="/water/network" label="County dependency map" />
         </div>
       </section>
 
       <GlossaryInlineList label="Common water terms" terms={["NFHL", "LCRA", "GBRA", "TWDB", "PWS"]} />
 
-      <section className="rounded-2xl bg-white/[0.02] p-5 ring-1 ring-white/5 sm:p-6">
-        <div className="flex flex-wrap items-end justify-between gap-3">
-          <div>
-            <h2 className="text-lg font-semibold tracking-tight text-white">Source freshness</h2>
-            <p className="mt-1 text-sm text-slate-400">Current cache windows for live water feeds used by this view.</p>
-          </div>
-          <ApiPill href="/api/water/fema/nfhl/levees-by-county" label="Levees by county API" />
-        </div>
-        <div className="mt-5 grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
-          {Object.entries(overview.freshness.sources).map(([sourceId, freshness]) => {
-            const state = freshnessFromCacheMeta(freshness);
-            return (
-              <div key={sourceId} className="flex items-start justify-between gap-3 rounded-xl bg-white/[0.03] px-4 py-3 ring-1 ring-white/5">
-                <div className="min-w-0">
-                  <div className="truncate font-mono text-xs text-slate-200">{sourceId}</div>
-                  <div className="mt-1 truncate text-xs text-slate-500">{formatFreshnessLabel(freshness.expiresAt)}</div>
-                </div>
-                <div className="flex shrink-0 flex-col items-end gap-1">
-                  <span aria-hidden="true" className={`text-sm leading-none ${FRESHNESS_TEXT_CLASS[state]}`} title={state}>
-                    {FRESHNESS_GLYPH[state]}
-                  </span>
-                  <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-slate-500 tabular-nums">
-                    TTL {formatNumber(freshness.ttlMs ? Math.round(freshness.ttlMs / 60000) : undefined)}m
-                  </span>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </section>
-
-      <section className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
+      <section id="water-map" className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
         <div className="rounded-2xl bg-white/[0.02] p-5 ring-1 ring-white/5 sm:p-6">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
-              <h2 className="text-lg font-semibold tracking-tight text-white">County risk map</h2>
-              <p className="mt-1 text-sm leading-6 text-slate-400">
+              <div className="text-[11px] font-medium uppercase tracking-[0.18em] text-cyan-300/80">Map-first county workflow</div>
+              <h2 className="mt-2 text-2xl font-semibold tracking-tight text-white">County risk map</h2>
+              <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-400">
+                Start on the county map, switch between operational risk and mismatch severity, then open the selected county detail and table row to test your own correlation hunt. Atlas stays grounded to the cached county water overview and county breakdown feeds.
+              </p>
+              <p className="mt-2 text-sm leading-6 text-slate-500">
                 {mapMode === "mismatch"
                   ? "Mismatch mode · Counties are colored by contradiction severity rather than operational load."
-                  : "Operational risk mode · County centroid map using NFHL footprint intensity, active alerts, sewer overflow pressure, and gauge coverage."}
+                  : "Operational risk mode · Counties are colored from NFHL footprint intensity, active alerts, sewer overflow pressure, and gauge coverage already present in the overview."}
               </p>
             </div>
           </div>
@@ -194,10 +168,17 @@ export default async function WaterPage({
           <div className="mt-5 flex flex-wrap items-center gap-3 text-sm">
             <span className="text-xs font-medium uppercase tracking-[0.14em] text-slate-500">Map mode</span>
             <div className="inline-flex rounded-full bg-white/[0.04] p-1 ring-1 ring-white/5" role="group" aria-label="Map mode">
-              <ModeToggle href={`/water?county=${selectedSlug ?? ""}&mode=risk`} active={mapMode === "risk"} label="Operational risk" />
-              <ModeToggle href={`/water?county=${selectedSlug ?? ""}&mode=mismatch`} active={mapMode === "mismatch"} label="Mismatch severity" />
+              <ModeToggle href={`/water?county=${selectedSlug ?? ""}&mode=risk#water-map`} active={mapMode === "risk"} label="Operational risk" />
+              <ModeToggle href={`/water?county=${selectedSlug ?? ""}&mode=mismatch#water-map`} active={mapMode === "mismatch"} label="Mismatch severity" />
             </div>
             <span className="text-xs text-slate-500">Current mode: {mapMode === "mismatch" ? "mismatch severity" : "operational risk"}</span>
+          </div>
+
+          <div className="mt-4 flex flex-wrap gap-2 text-xs">
+            <WorkflowToggle href="#water-map" label="1. Start on the map" />
+            <WorkflowToggle href="#water-county-detail" label="2. Inspect county detail" />
+            <WorkflowToggle href="#water-county-table" label="3. Compare in county table" />
+            {selectedSlug ? <WorkflowToggle href={`/water/counties/${selectedSlug}`} label="4. Open county page" /> : null}
           </div>
 
           <div className="mt-5 grid gap-3 lg:grid-cols-[1fr_auto]">
@@ -209,7 +190,7 @@ export default async function WaterPage({
                   return (
                     <Link
                       key={county.county.slug}
-                      href={`/water?county=${county.county.slug}&mode=${mapMode}`}
+                      href={`/water?county=${county.county.slug}&mode=${mapMode}#water-map`}
                       className="inline-flex items-center gap-1.5 rounded-full bg-white/[0.04] px-2.5 py-1 text-xs text-slate-200 ring-1 ring-white/10 transition-colors hover:bg-white/10 hover:ring-white/20"
                     >
                       <span aria-hidden="true" className={SEVERITY_TEXT_CLASS[lvl]}>{SEVERITY_GLYPH[lvl]}</span>
@@ -221,7 +202,7 @@ export default async function WaterPage({
               </div>
             </div>
             <div className="rounded-xl bg-white/[0.02] p-4 ring-1 ring-white/5">
-              <div className="text-xs font-medium uppercase tracking-[0.14em] text-slate-500">{mapMode === "mismatch" ? "Mismatch mode" : "Mismatch legend"}</div>
+              <div className="text-xs font-medium uppercase tracking-[0.14em] text-slate-500">{mapMode === "mismatch" ? "Mismatch mode" : "Operational legend"}</div>
               <ul className="mt-2.5 space-y-1.5 text-xs text-slate-300">
                 {mapMode === "mismatch" ? (
                   <>
@@ -252,11 +233,12 @@ export default async function WaterPage({
           </div>
         </div>
 
-        <aside className="rounded-2xl bg-white/[0.02] p-5 ring-1 ring-white/5 sm:p-6">
+        <aside id="water-county-detail" className="rounded-2xl bg-white/[0.02] p-5 ring-1 ring-white/5 sm:p-6">
           <div className="flex items-baseline justify-between gap-3">
             <div>
-              <h2 className="text-lg font-semibold tracking-tight text-white">{breakdown?.county.county.name ?? "County detail"}</h2>
-              <p className="mt-1 text-xs text-slate-500">Selected county detail for the current water slice.</p>
+              <div className="text-[11px] font-medium uppercase tracking-[0.18em] text-slate-500">Selected county detail</div>
+              <h2 className="mt-2 text-lg font-semibold tracking-tight text-white">{breakdown?.county.county.name ?? "County detail"}</h2>
+              <p className="mt-1 text-xs text-slate-500">Map-driven county detail for the current water slice.</p>
             </div>
             {breakdown ? (
               <span
@@ -310,7 +292,38 @@ export default async function WaterPage({
         </aside>
       </section>
 
-      <section>
+      <section className="rounded-2xl bg-white/[0.02] p-5 ring-1 ring-white/5 sm:p-6">
+        <div className="flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <h2 className="text-lg font-semibold tracking-tight text-white">Source freshness</h2>
+            <p className="mt-1 text-sm text-slate-400">Current cache windows for live water feeds used by this view.</p>
+          </div>
+          <ApiPill href="/api/water/fema/nfhl/levees-by-county" label="Levees by county API" />
+        </div>
+        <div className="mt-5 grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
+          {Object.entries(overview.freshness.sources).map(([sourceId, freshness]) => {
+            const state = freshnessFromCacheMeta(freshness);
+            return (
+              <div key={sourceId} className="flex items-start justify-between gap-3 rounded-xl bg-white/[0.03] px-4 py-3 ring-1 ring-white/5">
+                <div className="min-w-0">
+                  <div className="truncate font-mono text-xs text-slate-200">{sourceId}</div>
+                  <div className="mt-1 truncate text-xs text-slate-500">{formatFreshnessLabel(freshness.expiresAt)}</div>
+                </div>
+                <div className="flex shrink-0 flex-col items-end gap-1">
+                  <span aria-hidden="true" className={`text-sm leading-none ${FRESHNESS_TEXT_CLASS[state]}`} title={state}>
+                    {FRESHNESS_GLYPH[state]}
+                  </span>
+                  <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-slate-500 tabular-nums">
+                    TTL {formatNumber(freshness.ttlMs ? Math.round(freshness.ttlMs / 60000) : undefined)}m
+                  </span>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </section>
+
+      <section id="water-county-table">
         <div className="overflow-hidden rounded-2xl bg-white/[0.02] ring-1 ring-white/5">
           <div className="flex flex-wrap items-end justify-between gap-3 px-5 pb-3 pt-5 sm:px-6">
             <div>
@@ -424,6 +437,17 @@ function ModeToggle({ href, active, label }: { href: string; active: boolean; la
         active ? "bg-white/10 text-white" : "text-slate-400 hover:text-white"
       }`}
       aria-pressed={active}
+    >
+      {label}
+    </Link>
+  );
+}
+
+function WorkflowToggle({ href, label }: { href: string; label: string }) {
+  return (
+    <Link
+      href={href}
+      className="rounded-full border border-white/10 px-3 py-1.5 text-xs font-medium text-slate-300 transition-colors hover:border-white/20 hover:bg-white/5 hover:text-white"
     >
       {label}
     </Link>

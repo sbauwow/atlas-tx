@@ -4,7 +4,7 @@ Open-source Texas drinking-water-risk and environmental-justice explorer for new
 
 Atlas TX joins state Texas water permits + water districts with federal SDWIS, EJScreen, ACS, and Texas water-quality context to surface Public Water Systems and counties where drinking-water risk, environmental burden indicators, and official signals disagree — outliers and contradictions that exist in raw public data but no one ships pre-computed.
 
-Built for the [Brainforge / Vicinity Texas Open Data Track](docs/plans/2026-05-08-water-risk-refocus.md). MCP server + agent skill are the centerpiece; the web UI exists to make the agent's output legible to humans.
+Built for the [Brainforge / Vicinity Texas Open Data Track](docs/plans/2026-05-08-water-risk-refocus.md). MCP server + agent skill are the centerpiece, but Atlas now also ships map-first county workflows so humans can start on the statewide county view, drill into counties, and test their own correlations against the same cached evidence the agent uses.
 
 ## Who it's for
 
@@ -55,6 +55,12 @@ Current anomaly directions to build toward:
 - **Distributed submission / tip intake** — treat community-reported or reporter-submitted outliers as a first-class workflow, especially when they contradict the baseline data stack.
 
 Spec lives in `docs/contracts/dataset-registry.md`.
+
+## Map-first analyst workflows
+
+- `/analytics` is now county-map first. The choropleth is the headliner, and decomposition bars, movers tables, and scatterplots act as correlation-hunting follow-on views rather than the first surface.
+- `/water` is also county-map first. Users can switch between operational risk and mismatch severity, then move from the statewide map into county detail and county table views.
+- County maps are meant to empower user-led pattern discovery, not force a single narrative. Atlas surfaces grounded county evidence and lets the user test relationships across pressure, risk, mismatch, hydrology, permits, and operator concentration.
 
 ## Whitepaper and research artifacts
 

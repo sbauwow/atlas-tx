@@ -34,6 +34,9 @@ export default async function WaterCountyPage({ params }: { params: Promise<{ sl
           <Link href={`/permits?county=${county.county.slug}`} className="rounded-full bg-white px-4 py-2 font-medium text-slate-950 transition-colors hover:bg-slate-200">
             Open permit view
           </Link>
+          <Link href={`/water/sources/${county.county.slug}`} className="rounded-full border border-cyan-400/30 bg-cyan-500/10 px-4 py-2 font-medium text-cyan-200 transition-colors hover:bg-cyan-500/15">
+            Water source timeline
+          </Link>
         </div>
         <div>
           <h1 className="text-4xl font-semibold tracking-tight text-white">{county.county.name} water profile</h1>

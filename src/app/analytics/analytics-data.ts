@@ -145,6 +145,27 @@ export type StatewideAnalyticsViewModel = {
     tone: "accent" | "warning" | "neutral";
   }>;
   quadrantBars: QuadrantSummary[];
+  correlationGapBars: Array<{
+    id: string;
+    label: string;
+    value: number;
+    secondaryValue: number;
+    change: number;
+    note: string;
+    tone: "accent" | "warning" | "neutral";
+  }>;
+  correlationCards: Array<{
+    id: string;
+    label: string;
+    href: string;
+    quadrantLabel: string;
+    pressureScore: number;
+    riskScore: number;
+    gap: number;
+    violationCount: number;
+    systemCount: number;
+    note: string;
+  }>;
   scatterPoints: Array<{
     id: string;
     label: string;
@@ -616,6 +637,44 @@ export async function loadStatewideAnalyticsViewModel(): Promise<StatewideAnalyt
     };
   });
 
+  const correlationGapBars: StatewideAnalyticsViewModel["correlationGapBars"] = [...points]
+    .map((point) => {
+      const tone: "accent" | "warning" | "neutral" = point.x > point.y ? "accent" : point.y > point.x ? "warning" : "neutral";
+
+      return {
+        id: point.county.slug,
+        label: point.county.name,
+        value: point.x,
+        secondaryValue: point.y,
+        change: Number((point.x - point.y).toFixed(2)),
+        note: `${QUADRANT_LABELS[point.quadrant]} · ${formatCompactInteger(point.violationCount)} violations · ${formatCompactInteger(point.systemCount)} systems`,
+        tone,
+      };
+    })
+    .sort((left, right) => Math.abs(right.change) - Math.abs(left.change) || right.value - left.value)
+    .slice(0, 6);
+
+  const correlationCards: StatewideAnalyticsViewModel["correlationCards"] = [...points]
+    .map((point) => ({
+      id: point.county.slug,
+      label: point.county.name,
+      href: `/counties/${point.county.slug}`,
+      quadrantLabel: QUADRANT_LABELS[point.quadrant],
+      pressureScore: point.x,
+      riskScore: point.y,
+      gap: Number((point.x - point.y).toFixed(2)),
+      violationCount: point.violationCount,
+      systemCount: point.systemCount,
+      note:
+        Math.abs(point.x - point.y) < 1
+          ? "Pressure and risk scores are closely aligned in the current statewide snapshot."
+          : point.x > point.y
+            ? "Pressure is currently running ahead of risk in the statewide snapshot, making this a useful county page to compare signals."
+            : "Risk is currently running ahead of pressure in the statewide snapshot, making this a useful county page to compare signals.",
+    }))
+    .sort((left, right) => Math.abs(right.gap) - Math.abs(left.gap) || right.riskScore - left.riskScore)
+    .slice(0, 4);
+
   const scatterPoints = points
     .sort((left, right) => right.y - left.y || right.x - left.x)
     .map((point) => ({
@@ -665,6 +724,8 @@ export async function loadStatewideAnalyticsViewModel(): Promise<StatewideAnalyt
     screeningLanes,
     pressureBars: topPressurePoints,
     quadrantBars,
+    correlationGapBars,
+    correlationCards,
     scatterPoints,
     sourceSummary,
     operatorConcentrationSummary: operatorConcentrationLane.operatorConcentrationSummary,

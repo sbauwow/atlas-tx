@@ -1,11 +1,176 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
+
+import { CustomProjection } from "@visx/geo";
+import { geoAlbers } from "d3-geo";
+import type { Feature, FeatureCollection, Geometry } from "geojson";
 import Link from "next/link";
+import { feature } from "topojson-client";
+import type { GeometryCollection, Topology } from "topojson-specification";
 
 import { DecompositionBarsPanel, MoversTable, ScatterplotPanel } from "@/app/components/charts";
+import { ACCENT_HEX, SEVERITY_HEX, SEVERITY_LABEL, type SeverityLevel } from "@/app/design/states";
 import { AddToWatchlistControl } from "@/app/watchlists/watchlist-client";
+import { TEXAS_COUNTY_CENTROIDS } from "@/lib/texas-county-centroids";
 
 import { formatNumber, formatTimestamp, loadStatewideAnalyticsViewModel } from "./analytics-data";
 
-function StatTile({ label, value, detail }: { label: string; value: string; detail: string }) {
+const MAP_WIDTH = 900;
+const MAP_HEIGHT = 520;
+
+type CountyProps = { name?: string; fips: string };
+type CountyTopology = Topology<{ counties: GeometryCollection<{ name?: string }> }>;
+
+let cachedAnalyticsCountyFeatures: FeatureCollection<Geometry, CountyProps> | null = null;
+
+function loadTexasCountyFeatures(): FeatureCollection<Geometry, CountyProps> {
+  if (cachedAnalyticsCountyFeatures) return cachedAnalyticsCountyFeatures;
+  const topoPath = join(process.cwd(), "public", "cache", "tx-counties-topo.json");
+  const topo = JSON.parse(readFileSync(topoPath, "utf8")) as CountyTopology;
+  const fc = feature(topo, topo.objects.counties) as unknown as FeatureCollection<Geometry, { name?: string }>;
+  const geometries = topo.objects.counties.geometries;
+  cachedAnalyticsCountyFeatures = {
+    type: "FeatureCollection",
+    features: fc.features.map((currentFeature, index) => ({
+      ...currentFeature,
+      properties: {
+        fips: String(geometries[index]?.id ?? currentFeature.id ?? ""),
+        name: currentFeature.properties?.name ?? "",
+      },
+    })),
+  };
+  return cachedAnalyticsCountyFeatures;
+}
+
+function projectionFor(width: number, height: number) {
+  return geoAlbers().rotate([99, 0]).center([0, 31.3]).parallels([28, 36]).scale(Math.min(width, height) * 5.2).translate([width / 2, height / 2]);
+}
+
+function analyticsMapSeverity(value: number, mode: "risk" | "pressure"): SeverityLevel {
+  if (mode === "pressure") {
+    if (value >= 50) return 4;
+    if (value >= 20) return 3;
+    if (value >= 10) return 2;
+    if (value >= 1) return 1;
+    return 0;
+  }
+
+  if (value >= 50) return 4;
+  if (value >= 15) return 3;
+  if (value >= 8) return 2;
+  if (value >= 1) return 1;
+  return 0;
+}
+
+function AnalyticsWorkflowToggle({ href, active, label }: { href: string; active: boolean; label: string }) {
+  return (
+    <Link
+      href={href}
+      className={`rounded-full px-4 py-1.5 text-xs font-medium transition-colors ${active ? "bg-white/10 text-white" : "text-slate-400 hover:text-white"}`}
+      aria-pressed={active}
+    >
+      {label}
+    </Link>
+  );
+}
+
+function AnalyticsAnchorPill({ href, label }: { href: string; label: string }) {
+  return (
+    <Link href={href} className="rounded-full border border-white/10 px-3 py-1 text-xs text-slate-300 transition-colors hover:border-white/20 hover:bg-white/5">
+      {label}
+    </Link>
+  );
+}
+
+function AnalyticsLegendRow({ level, text }: { level: SeverityLevel; text: string }) {
+  return (
+    <li className="flex items-center gap-2.5">
+      <span aria-hidden="true" className="inline-block size-2.5 rounded-full" style={{ backgroundColor: SEVERITY_HEX[level] }} />
+      <span className="text-slate-300">{text}</span>
+    </li>
+  );
+}
+
+function AnalyticsCountyCorrelationMap({
+  counties,
+  selectedSlug,
+  mode,
+}: {
+  counties: Array<{
+    slug: string;
+    name: string;
+    fips?: string;
+    pressureScore: number;
+    riskScore: number;
+    movementLabel: string;
+    quadrantDetail: string;
+  }>;
+  selectedSlug: string | null;
+  mode: "risk" | "pressure";
+}) {
+  const features = loadTexasCountyFeatures();
+  const bySlug = new Map(counties.map((county) => [county.slug, county]));
+  const byFips = new Map(counties.filter((county) => county.fips).map((county) => [county.fips as string, county]));
+  const projection = projectionFor(MAP_WIDTH, MAP_HEIGHT);
+  const selectedCounty = selectedSlug ? bySlug.get(selectedSlug) ?? null : null;
+  const selectedFips = selectedCounty?.fips;
+
+  return (
+    <div className="relative overflow-hidden rounded-xl bg-slate-950 ring-1 ring-white/5">
+      <svg viewBox={`0 0 ${MAP_WIDTH} ${MAP_HEIGHT}`} className="h-[420px] w-full" role="img" aria-label="Texas county analytics correlation map">
+        <defs>
+          <radialGradient id="analyticsMapVignette" cx="50%" cy="40%" r="60%">
+            <stop offset="0%" stopColor="#0f172a" />
+            <stop offset="100%" stopColor="#020617" />
+          </radialGradient>
+        </defs>
+        <rect x="0" y="0" width={MAP_WIDTH} height={MAP_HEIGHT} fill="url(#analyticsMapVignette)" />
+
+        <CustomProjection<Feature<Geometry, CountyProps>> projection={() => projection} data={features.features}>
+          {(map) => (
+            <g>
+              {map.features.map(({ feature: currentFeature, path }) => {
+                const county = byFips.get(currentFeature.properties.fips);
+                if (!path) return null;
+                const focusValue = mode === "pressure" ? county?.pressureScore ?? 0 : county?.riskScore ?? 0;
+                const severity = analyticsMapSeverity(focusValue, mode);
+                const isSelected = county?.slug === selectedSlug;
+                return (
+                  <path
+                    key={currentFeature.properties.fips}
+                    d={path}
+                    fill={isSelected ? ACCENT_HEX : SEVERITY_HEX[severity]}
+                    stroke={county ? "#f8fafc" : "#0f172a"}
+                    strokeWidth={county ? 0.9 : 0.55}
+                    fillOpacity={county ? 1 : 0.28}
+                    data-county-slug={county?.slug ?? `fips-${currentFeature.properties.fips}`}
+                    data-mode={mode}
+                  >
+                    <title>
+                      {county
+                        ? `${county.name}: risk ${formatNumber(county.riskScore)}, pressure ${formatNumber(county.pressureScore)} — ${county.movementLabel}. ${county.quadrantDetail}`
+                        : `${currentFeature.properties.name} County (no statewide analytics point)`}
+                    </title>
+                  </path>
+                );
+              })}
+
+              {selectedCounty && selectedFips
+                ? (() => {
+                    const selectedFeature = map.features.find((entry) => entry.feature.properties.fips === selectedFips);
+                    if (!selectedFeature?.path) return null;
+                    return <path d={selectedFeature.path} fill="none" stroke={ACCENT_HEX} strokeOpacity={0.75} strokeWidth={2} pointerEvents="none" />;
+                  })()
+                : null}
+            </g>
+          )}
+        </CustomProjection>
+      </svg>
+    </div>
+  );
+}
+
+ function StatTile({ label, value, detail }: { label: string; value: string; detail: string }) {
   return (
     <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
       <div className="text-[11px] font-medium uppercase tracking-[0.22em] text-cyan-300/80">{label}</div>
@@ -121,8 +286,16 @@ function WatchQueuePanel({
   );
 }
 
-export default async function AnalyticsPage() {
+export default async function AnalyticsPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ mode?: string | string[]; county?: string | string[] }>;
+} = {}) {
   const analytics = await loadStatewideAnalyticsViewModel();
+  const params = searchParams ? await searchParams : undefined;
+  const requestedMode = Array.isArray(params?.mode) ? params?.mode[0] : params?.mode;
+  const requestedCounty = Array.isArray(params?.county) ? params?.county[0] : params?.county;
+  const mapMode: "risk" | "pressure" = requestedMode === "pressure" ? "pressure" : "risk";
 
   const chipToneClassName: Record<"accent" | "warning" | "neutral", string> = {
     accent: "border-cyan-400/20 bg-cyan-400/10 text-cyan-100",
@@ -163,6 +336,24 @@ export default async function AnalyticsPage() {
 
   const statewideWatchEntries = [...countyWatchEntries, ...operatorWatchEntries].slice(0, 6);
 
+  const moversBySlug = new Map(analytics.moversRows.map((row) => [row.href.replace("/counties/", ""), row]));
+  const countyMapRows = analytics.scatterPoints
+    .map((point) => ({
+      slug: point.href.replace("/counties/", ""),
+      name: point.label,
+      fips: TEXAS_COUNTY_CENTROIDS[point.href.replace("/counties/", "")]?.fips,
+      pressureScore: point.x,
+      riskScore: point.y,
+      movementLabel: moversBySlug.get(point.href.replace("/counties/", ""))?.movementLabel ?? "Present in the current statewide scatter",
+      quadrantDetail: point.detail,
+      href: point.href,
+    }))
+    .filter((county) => county.fips);
+  const selectedCounty = countyMapRows.find((county) => county.slug === requestedCounty) ?? countyMapRows[0] ?? null;
+  const comparisonCounties = [...countyMapRows]
+    .sort((left, right) => (mapMode === "pressure" ? right.pressureScore - left.pressureScore : right.riskScore - left.riskScore))
+    .slice(0, 3);
+
   return (
     <main className="mx-auto flex w-full max-w-7xl flex-1 flex-col gap-8 px-6 py-16">
       <section className="space-y-5">
@@ -181,10 +372,125 @@ export default async function AnalyticsPage() {
           <div className="text-[11px] font-medium uppercase tracking-[0.28em] text-cyan-300/80">Wave 2 · Stream F</div>
           <h1 className="text-4xl font-semibold tracking-tight text-white">Texas statewide analytics terminal</h1>
           <p className="max-w-4xl text-base leading-7 text-slate-400">
-            Screen county movers, compare pressure versus risk, and jump straight into county intelligence pages using only committed Wave 1 analytics artifacts.
-            This surface does not invent trend history when caches are sparse.
+            Start on the county map, hunt your own statewide correlations, then use the ranked lanes and scatter to verify what you see. Atlas only uses committed Wave 1 analytics artifacts and does not invent missing history.
           </p>
           <div className="text-sm text-slate-500">Latest statewide analytics refresh: {formatTimestamp(analytics.generatedAt)}</div>
+        </div>
+      </section>
+
+      <section id="analytics-map" className="rounded-3xl border border-white/10 bg-slate-950/85 p-6 shadow-[0_0_0_1px_rgba(255,255,255,0.02)]">
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <div className="text-[11px] font-medium uppercase tracking-[0.22em] text-cyan-300/80">Map-first correlation workflow</div>
+            <h2 className="mt-2 text-3xl font-semibold text-white">County map is the statewide headliner</h2>
+            <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-400">
+              Start with the map, switch between county risk and permit-pressure emphasis, then jump into movers, scatter, and county pages to prove or reject the pattern. This keeps the workflow anchored to counties instead of making charts the first stop.
+            </p>
+          </div>
+          <div className="rounded-full border border-white/10 px-3 py-1 text-xs text-slate-400">Scatter-backed counties: {analytics.scatterCount}</div>
+        </div>
+
+        <div className="mt-5 flex flex-wrap items-center gap-3 text-sm">
+          <span className="text-xs font-medium uppercase tracking-[0.14em] text-slate-500">Map emphasis</span>
+          <div className="inline-flex rounded-full bg-white/[0.04] p-1 ring-1 ring-white/5" role="group" aria-label="Analytics map emphasis">
+            <AnalyticsWorkflowToggle href={`/analytics?mode=risk${selectedCounty ? `&county=${selectedCounty.slug}` : ""}#analytics-map`} active={mapMode === "risk"} label="County risk" />
+            <AnalyticsWorkflowToggle href={`/analytics?mode=pressure${selectedCounty ? `&county=${selectedCounty.slug}` : ""}#analytics-map`} active={mapMode === "pressure"} label="Permit pressure" />
+          </div>
+          <span className="text-xs text-slate-500">Current emphasis: {mapMode === "pressure" ? "permit pressure" : "county risk"}</span>
+        </div>
+
+        <div className="mt-5 flex flex-wrap gap-2">
+          <AnalyticsAnchorPill href="#analytics-map" label="1. Start on the map" />
+          <AnalyticsAnchorPill href="#county-movers" label="2. Check ranked movers" />
+          <AnalyticsAnchorPill href="#statewide-scatter" label="3. Validate in scatter" />
+          {selectedCounty ? <AnalyticsAnchorPill href={selectedCounty.href} label={`4. Open ${selectedCounty.name}`} /> : null}
+        </div>
+
+        <div className="mt-6 grid gap-6 xl:grid-cols-[1.3fr_0.7fr]">
+          <AnalyticsCountyCorrelationMap counties={countyMapRows} selectedSlug={selectedCounty?.slug ?? null} mode={mapMode} />
+
+          <aside className="space-y-4 rounded-2xl border border-white/10 bg-white/[0.03] p-5">
+            <div>
+              <div className="text-xs font-medium uppercase tracking-[0.18em] text-slate-500">Selected county</div>
+              <h3 className="mt-2 text-2xl font-semibold text-white">{selectedCounty?.name ?? "County detail"}</h3>
+              <p className="mt-2 text-sm leading-6 text-slate-400">
+                {selectedCounty
+                  ? `${selectedCounty.movementLabel}. ${selectedCounty.quadrantDetail}`
+                  : "The county map will activate once pressure-risk-scatter.json exposes counties with mappable FIPS coverage."}
+              </p>
+            </div>
+
+            {selectedCounty ? (
+              <>
+                <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
+                  <div className="rounded-2xl border border-white/10 bg-slate-950/60 p-4">
+                    <div className="text-[11px] font-medium uppercase tracking-[0.18em] text-slate-500">County risk score</div>
+                    <div className="mt-2 text-3xl font-semibold text-white">{formatNumber(selectedCounty.riskScore)}</div>
+                    <div className="mt-1 text-xs text-slate-500">Severity {SEVERITY_LABEL[analyticsMapSeverity(selectedCounty.riskScore, "risk")]}</div>
+                  </div>
+                  <div className="rounded-2xl border border-white/10 bg-slate-950/60 p-4">
+                    <div className="text-[11px] font-medium uppercase tracking-[0.18em] text-slate-500">Permit pressure</div>
+                    <div className="mt-2 text-3xl font-semibold text-white">{formatNumber(selectedCounty.pressureScore)}</div>
+                    <div className="mt-1 text-xs text-slate-500">Severity {SEVERITY_LABEL[analyticsMapSeverity(selectedCounty.pressureScore, "pressure")]}</div>
+                  </div>
+                </div>
+
+                <div className="rounded-2xl border border-white/10 bg-slate-950/60 p-4">
+                  <div className="text-[11px] font-medium uppercase tracking-[0.18em] text-slate-500">Open this county next</div>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    <Link href={selectedCounty.href} className="rounded-full border border-cyan-400/20 bg-cyan-400/10 px-3 py-1.5 text-xs text-cyan-100 transition-colors hover:border-cyan-300/40 hover:bg-cyan-400/15">
+                      County intelligence page
+                    </Link>
+                    <Link href={`/analytics?mode=${mapMode}&county=${selectedCounty.slug}#county-movers`} className="rounded-full border border-white/10 px-3 py-1.5 text-xs text-slate-300 transition-colors hover:border-white/20 hover:bg-white/5">
+                      Compare in movers
+                    </Link>
+                    <Link href={`/analytics?mode=${mapMode}&county=${selectedCounty.slug}#statewide-scatter`} className="rounded-full border border-white/10 px-3 py-1.5 text-xs text-slate-300 transition-colors hover:border-white/20 hover:bg-white/5">
+                      Compare in scatter
+                    </Link>
+                  </div>
+                </div>
+              </>
+            ) : null}
+
+            <div className="rounded-2xl border border-white/10 bg-slate-950/60 p-4">
+              <div className="text-[11px] font-medium uppercase tracking-[0.18em] text-slate-500">Top counties in this view</div>
+              <div className="mt-3 space-y-2">
+                {comparisonCounties.length ? comparisonCounties.map((county) => (
+                  <Link
+                    key={county.slug}
+                    href={`/analytics?mode=${mapMode}&county=${county.slug}#analytics-map`}
+                    className="flex items-center justify-between gap-3 rounded-xl border border-white/10 px-3 py-2 text-sm text-slate-200 transition-colors hover:border-white/20 hover:bg-white/5"
+                  >
+                    <span>{county.name}</span>
+                    <span className="font-mono text-xs text-slate-400">
+                      {mapMode === "pressure" ? `Pressure ${formatNumber(county.pressureScore)}` : `Risk ${formatNumber(county.riskScore)}`}
+                    </span>
+                  </Link>
+                )) : <div className="text-sm leading-6 text-slate-500">No statewide scatter counties are available yet.</div>}
+              </div>
+            </div>
+
+            <div className="rounded-2xl border border-white/10 bg-slate-950/60 p-4">
+              <div className="text-[11px] font-medium uppercase tracking-[0.18em] text-slate-500">Map legend</div>
+              <ul className="mt-3 space-y-2 text-xs text-slate-300">
+                {mapMode === "pressure" ? (
+                  <>
+                    <AnalyticsLegendRow level={4} text="50+ highest permit pressure in the statewide scatter" />
+                    <AnalyticsLegendRow level={3} text="20–49 strong pressure" />
+                    <AnalyticsLegendRow level={2} text="10–19 visible pressure" />
+                    <AnalyticsLegendRow level={0} text="No mapped statewide point" />
+                  </>
+                ) : (
+                  <>
+                    <AnalyticsLegendRow level={4} text="50+ highest statewide county risk" />
+                    <AnalyticsLegendRow level={3} text="15–49 elevated county risk" />
+                    <AnalyticsLegendRow level={2} text="8–14 visible county risk" />
+                    <AnalyticsLegendRow level={0} text="No mapped statewide point" />
+                  </>
+                )}
+              </ul>
+            </div>
+          </aside>
         </div>
       </section>
 
@@ -284,7 +590,7 @@ export default async function AnalyticsPage() {
         )}
       </section>
 
-      <section className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
+      <section id="county-movers" className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
         <MoversTable
           title="County movers"
           eyebrow="Ranked movers lane"
@@ -309,7 +615,7 @@ export default async function AnalyticsPage() {
         <DecompositionBarsPanel
           title="Pressure outliers"
           eyebrow="Comparative lane"
-          subtitle="Counties with the strongest current pressure scores in the statewide scatter artifact. Baseline values show the paired county risk score."
+          subtitle="Use these bars after the map to see which counties pair the strongest current pressure scores with their current risk baseline."
           bars={analytics.pressureBars}
           formatValue={(value) => formatNumber(value)}
           emptyMessage="Pressure outlier bars will appear when pressure-risk-scatter.json contains points."
@@ -319,11 +625,11 @@ export default async function AnalyticsPage() {
         />
       </section>
 
-      <section className="grid gap-6 xl:grid-cols-[1.25fr_0.75fr]">
+      <section id="statewide-scatter" className="grid gap-6 xl:grid-cols-[1.25fr_0.75fr]">
         <ScatterplotPanel
           title="Pressure vs risk statewide scatter"
           eyebrow="Scatter analysis"
-          subtitle="Each point is a Texas county from pressure-risk-scatter.json. Bubble size scales with violations and systems, and every point links into its county page."
+          subtitle="Use the scatter after the map to validate whether a county sits alone or inside a broader statewide cluster. Each point links into its county page."
           points={analytics.scatterPoints}
           xLabel="Pressure score"
           yLabel="County risk score"

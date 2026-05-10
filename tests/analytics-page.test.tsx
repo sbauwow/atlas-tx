@@ -268,6 +268,23 @@ describe("statewide analytics page", () => {
 
     expect(text).toContain("Texas statewide analytics terminal");
     expect(text).toContain("County workspace");
+    expect(text).toContain("Map-first correlation workflow");
+    expect(text).toContain("County map is the statewide headliner");
+    expect(text).toContain("Start on the county map, hunt your own statewide correlations");
+    expect(text).toContain("Analytics map emphasis");
+    expect(text).toContain("Current emphasis: county risk");
+    expect(text).toContain("Texas county analytics correlation map");
+    expect(text).toContain("1. Start on the map");
+    expect(text).toContain("2. Check ranked movers");
+    expect(text).toContain("3. Validate in scatter");
+    expect(text).toContain("County risk score");
+    expect(text).toContain("Permit pressure");
+    expect(text).toContain("Open this county next");
+    expect(text).toContain("Top counties in this view");
+    expect(text).toContain('href="/analytics?mode=pressure&amp;county=harris-county#analytics-map"');
+    expect(text).toContain('href="/analytics?mode=risk&amp;county=harris-county#statewide-scatter"');
+    expect(text).toContain('href="/analytics?mode=risk&amp;county=orange-county#analytics-map"');
+    expect(text).toContain("Harris County: risk 100, pressure 100 — Up 2 rank slots.");
     expect(text).toContain("What changed");
     expect(text).toContain("Recent movement across committed snapshots");
     expect(text).toContain("Recent movement across committed snapshots: 1 up, 0 down, 1 new.");
@@ -343,6 +360,9 @@ describe("statewide analytics page", () => {
     const text = renderToStaticMarkup(page);
 
     expect(text).toContain("Texas statewide analytics terminal");
+    expect(text).toContain("County map is the statewide headliner");
+    expect(text).toContain("The county map will activate once pressure-risk-scatter.json exposes counties with mappable FIPS coverage.");
+    expect(text).toContain("No statewide scatter counties are available yet.");
     expect(text).toContain("What changed will activate once Atlas has at least two committed statewide snapshots.");
     expect(text).toContain("Wave 1 comparison snapshots are not available yet.");
     expect(text).toContain("Atlas only shows this lane when committed artifacts support a real comparison window.");

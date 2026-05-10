@@ -104,16 +104,22 @@ describe("water page map", () => {
     const text = renderToStaticMarkup(page);
 
     expect(text).toContain("County risk map");
+    expect(text).toContain("Map-first county workflow");
     expect(text).toContain("Map mode");
     expect(text).toContain("Operational risk");
     expect(text).toContain("Current mode: operational risk");
+    expect(text).toContain("1. Start on the map");
+    expect(text).toContain("2. Inspect county detail");
+    expect(text).toContain("3. Compare in county table");
     expect(text).toContain("Top mismatch counties");
-    expect(text).toContain("Mismatch legend");
+    expect(text).toContain("Operational legend");
+    expect(text).toContain("Map-driven county detail for the current water slice.");
     expect(text).toContain("mismatch 75");
     expect(text).toContain("mismatch 50");
     expect(text).toContain("fill=\"#f97316\"");
-    expect(text).toContain("href=\"/water?county=travis-county&amp;mode=risk\"");
-    expect(text).toContain("href=\"/water?county=bexar-county&amp;mode=risk\"");
+    expect(text).toContain("href=\"/water?county=travis-county&amp;mode=risk#water-map\"");
+    expect(text).toContain("href=\"/water?county=bexar-county&amp;mode=risk#water-map\"");
+    expect(text).toContain("href=\"/water/counties/travis-county\"");
   });
 
   it("preserves mismatch mode in internal county links", async () => {
@@ -126,8 +132,9 @@ describe("water page map", () => {
     expect(text).toContain("Current mode: mismatch severity");
     expect(text).toContain("Mismatch mode");
     expect(text).toContain("Counties are colored by contradiction severity rather than operational load.");
-    expect(text).toContain("href=\"/water?county=travis-county&amp;mode=risk\"");
-    expect(text).toContain("href=\"/water?county=travis-county&amp;mode=mismatch\"");
-    expect(text).toContain("href=\"/water?county=bexar-county&amp;mode=mismatch\"");
+    expect(text).toContain("href=\"/water?county=travis-county&amp;mode=risk#water-map\"");
+    expect(text).toContain("href=\"/water?county=travis-county&amp;mode=mismatch#water-map\"");
+    expect(text).toContain("href=\"/water?county=bexar-county&amp;mode=mismatch#water-map\"");
+    expect(text).toContain("href=\"/water/counties/travis-county\"");
   });
 });
