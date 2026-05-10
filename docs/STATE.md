@@ -10,7 +10,7 @@ Schema for every row: `workstream | agent | branch | intent | started | ref`
 
 | workstream | agent | branch | intent | started | ref |
 |---|---|---|---|---|---|
-| docs | hermes | web/color-tokens | Review all plan docs, align additive weather/community roadmap to current repo state, and add coordination-aware implementation checklist around active feynman/UI work | 2026-05-09T05:52:00Z | working tree |
+| _(empty)_ |  |  |  |  |  |
 
 ---
 
@@ -24,6 +24,7 @@ _(empty)_
 
 | workstream | agent | intent | ref |
 |---|---|---|---|
+| docs | hermes | Update README + CHANGELOG to reflect the new map-first county workflow: county choropleths lead analytics and water, while other charts remain user-directed correlation lanes. | commit `6edd23f` |
 | data (cross: docs) | hermes | Add first JED Pool Tools 5-way strip support to the citizen observation prototype: new chart file/registry, route-side chart resolution by `clientReading.chartId`, and JED-default citizen capture/results wiring. Verified with `tests/observations-route.test.ts`, `tests/observations-sampling.test.ts`, and `tests/observations-status.test.ts`. `npm run build` still fails on a pre-existing type error in `experiments/build_county_month_water_risk_panel.ts` unrelated to the citizen-strip changes. | working tree |
 | cross (web→data) | claude-opus-4-7 | Fix prod /water 500: wrap every external fetcher in `getWaterOverview` and `getCountyWaterBreakdown` with the existing `safeLoad` helper so a single rejecting fetcher (e.g. live Socrata `8kc5-95uk` sewer-overflows or `6pm5-am5m` general-permits) degrades that one layer instead of failing the entire page. Added `EMPTY_FLOODPLAIN_COVERAGE` fallback so the floodplain coverage type stays satisfied. Added `tests/water-summary-service-fail-soft.test.ts` regression. Branch `cross/water-overview-fail-soft`. NOTE for **data**: the underlying live-Socrata calls (sewer-overflows + general-permits) need cached snapshots — both Socrata dataset IDs return "does not support resource API access". Cert-validation errors on the dev box also surfaced; production Vercel runtime should be fine. | working tree |
 | cross (web→data) | hermes | Back /permits with a true Texas county choropleth using county polygons from `us-atlas`, permit-count color bands, CID hatch overlays, clickable county drill-down into filtered permits, a new `/water/counties/[slug]` profile page, a shared county workspace header with next/prev county navigation across views, a new `/counties/[slug]` county intelligence page backed by the Atlas explorer service, direct county-intelligence links from permit county chips/footer, a statewide `/counties` ranked overview page as the county-workspace entry surface, top-nav/homepage links so county workflow is directly discoverable, and a homepage entry-paths module for Water / Counties / Permits. | working tree |

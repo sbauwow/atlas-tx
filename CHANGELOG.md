@@ -1,5 +1,14 @@
 # Changelog
 
+## 2026-05-10
+
+### docs: record map-first county analytics direction
+
+What shipped:
+- updated README positioning so Atlas explicitly describes the statewide county map as the headliner workflow on analytics and water surfaces
+- documented the supporting role of scatterplots, decomposition bars, and other follow-on views as user-directed correlation tools rather than the primary surface
+- recorded the user goal directly: empower analysts to find their own correlations from grounded county evidence
+
 ## 2026-05-09
 
 ### research: final polish pass on paper draft prose and structure
