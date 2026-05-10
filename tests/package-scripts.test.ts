@@ -37,4 +37,8 @@ describe("package scripts", () => {
   it("exposes a heat ablation analysis script for the thesis robustness pass", () => {
     expect(pkg.scripts["analyze:heat-ablation"]).toBe("tsx experiments/heat_ablation.ts");
   });
+
+  it("exposes a seasonality robustness analysis script for the thesis robustness pass", () => {
+    expect(pkg.scripts["analyze:seasonality-robustness"]).toBe("tsx experiments/seasonality_robustness.ts");
+  });
 });

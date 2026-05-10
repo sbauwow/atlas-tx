@@ -2,6 +2,35 @@
 
 ## 2026-05-09
 
+### research: add related-work positioning and repo whitepaper section
+
+What shipped:
+- added a related-work positioning subsection to the paper draft covering water-quality prediction, empirical-Bayes small-area stabilization, and open-data environmental monitoring
+- expanded the paper's sources with direct URLs for the related-work items referenced in that new section
+- added a `Whitepaper and research artifacts` section to `README.md` so the paper-style track is visible from the repo root
+
+### research: add source/proxy table and threat-to-validity framing to paper draft
+
+What shipped:
+- added a compact source/proxy table to the paper draft to make the Texas open-data backbone and federal enrichment stack more legible
+- converted the limitations section into a clearer threats-to-validity framing with measurement, temporal, model-specification, interpretive, and external-validity subsections
+- renumbered downstream tables in the draft accordingly
+
+### research: seasonality robustness pass for temperature-seasonality thesis claim
+
+What shipped:
+- added `experiments/seasonality_robustness.ts` to pressure-test the temperature result with explicit month-of-year controls
+- added package/test coverage for the new robustness analysis entry point
+- generated `outputs/thesis-status/2026-05-10-seasonality-robustness-memo.md` and matching JSON output
+- updated the paper draft and thesis status memo to reflect the stronger finding that broad month-of-year seasonality is a major predictor and temperature features add only a smaller residual gain after season controls
+
+### research: reviewer-style critique and revision punch list for paper draft
+
+What shipped:
+- added a reviewer-style critique of the county-month paper draft with likely objections, section-by-section weaknesses, and a prioritized revision punch list
+- identified the highest-value next experiment as a seasonality robustness check on the temperature-seasonality result
+- saved the review artifact to `outputs/reviews/2026-05-10-county-month-paper-draft-review.md`
+
 ### research: final polish pass on paper draft prose and structure
 
 What shipped:

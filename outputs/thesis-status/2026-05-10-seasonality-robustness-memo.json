@@ -1,0 +1,2398 @@
+{
+  "generatedAt": "2026-05-10T02:39:30.185Z",
+  "exampleCount": 14490,
+  "pooledRuns": [
+    {
+      "family": "pooled",
+      "model": {
+        "id": "benchmark",
+        "label": "Benchmark: EB trigger stack without temperature",
+        "featureNames": [
+          "sdwis_prior_1m_any",
+          "sdwis_prior_3m_count",
+          "sdwis_prior_12m_count",
+          "sdwis_cumulative_prior_count",
+          "county_eb_baseline",
+          "overflow_any",
+          "overflow_count",
+          "overflow_log_gallons_sum",
+          "overflow_repeat_3m_any",
+          "overflow_severe_any",
+          "precip_total_mm",
+          "precip_anomaly_z",
+          "heavy_rain_days",
+          "precip_max_1d_mm",
+          "flood_warning_any",
+          "flood_warning_count",
+          "flash_flood_warning_any",
+          "streamflow_high_count",
+          "streamflow_low_count",
+          "streamflow_extreme_high_any",
+          "streamflow_extreme_low_any",
+          "drought_fraction_d1plus",
+          "drought_fraction_d3plus",
+          "overflow_x_precip_anomaly",
+          "overflow_x_flood_warning",
+          "overflow_x_streamflow_high",
+          "overflow_x_streamflow_low",
+          "overflow_x_drought"
+        ]
+      },
+      "coefficients": [
+        {
+          "feature": "sdwis_prior_1m_any",
+          "weight": -0.7332514038033908
+        },
+        {
+          "feature": "sdwis_prior_3m_count",
+          "weight": 0.1620838876755883
+        },
+        {
+          "feature": "sdwis_prior_12m_count",
+          "weight": 0.01145417259359903
+        },
+        {
+          "feature": "sdwis_cumulative_prior_count",
+          "weight": -0.09883422380883307
+        },
+        {
+          "feature": "county_eb_baseline",
+          "weight": 1.7481491890954102
+        },
+        {
+          "feature": "overflow_any",
+          "weight": -0.04870431738755673
+        },
+        {
+          "feature": "overflow_count",
+          "weight": 0.021163524438294536
+        },
+        {
+          "feature": "overflow_log_gallons_sum",
+          "weight": 0.0048160713968727065
+        },
+        {
+          "feature": "overflow_repeat_3m_any",
+          "weight": 0.02768537393644692
+        },
+        {
+          "feature": "overflow_severe_any",
+          "weight": -0.03705516520779743
+        },
+        {
+          "feature": "precip_total_mm",
+          "weight": 0.0006515147369397798
+        },
+        {
+          "feature": "precip_anomaly_z",
+          "weight": 0.041765480982020174
+        },
+        {
+          "feature": "heavy_rain_days",
+          "weight": -0.023508891419470025
+        },
+        {
+          "feature": "precip_max_1d_mm",
+          "weight": 0.009234031772427511
+        },
+        {
+          "feature": "flood_warning_any",
+          "weight": -0.10976830118375203
+        },
+        {
+          "feature": "flood_warning_count",
+          "weight": -0.06879127271152177
+        },
+        {
+          "feature": "flash_flood_warning_any",
+          "weight": 0.03282720694739128
+        },
+        {
+          "feature": "streamflow_high_count",
+          "weight": -0.09370929903952809
+        },
+        {
+          "feature": "streamflow_low_count",
+          "weight": 0.04380823866893254
+        },
+        {
+          "feature": "streamflow_extreme_high_any",
+          "weight": 0.09789308721443742
+        },
+        {
+          "feature": "streamflow_extreme_low_any",
+          "weight": 0.07224091836268254
+        },
+        {
+          "feature": "drought_fraction_d1plus",
+          "weight": -0.005867569686477167
+        },
+        {
+          "feature": "drought_fraction_d3plus",
+          "weight": 0.017311518648873512
+        },
+        {
+          "feature": "overflow_x_precip_anomaly",
+          "weight": 0.017989040013823402
+        },
+        {
+          "feature": "overflow_x_flood_warning",
+          "weight": 0.04753611875258053
+        },
+        {
+          "feature": "overflow_x_streamflow_high",
+          "weight": -0.009489053217127244
+        },
+        {
+          "feature": "overflow_x_streamflow_low",
+          "weight": 0.026867559103244436
+        },
+        {
+          "feature": "overflow_x_drought",
+          "weight": -0.01304147093314897
+        }
+      ],
+      "metrics": {
+        "train": {
+          "count": 9534,
+          "positives": 1527,
+          "prevalence": 0.16016362492133418,
+          "auroc": 0.8798360700922384,
+          "auprc": 0.6204897657492118,
+          "brier": 0.08979288029349373,
+          "precisionAtTopDecile": 0.6390346274921301,
+          "liftAtTopDecile": 3.9898861417877987,
+          "meanPredictedProbability": 0.1626317098895482
+        },
+        "validation": {
+          "count": 2446,
+          "positives": 532,
+          "prevalence": 0.21749795584627965,
+          "auroc": 0.7746963411663956,
+          "auprc": 0.5585064215359342,
+          "brier": 0.13826530755226502,
+          "precisionAtTopDecile": 0.6285714285714286,
+          "liftAtTopDecile": 2.8900107411385605,
+          "meanPredictedProbability": 0.1532899344233781
+        },
+        "test": {
+          "count": 2510,
+          "positives": 385,
+          "prevalence": 0.15338645418326693,
+          "auroc": 0.7945191749427044,
+          "auprc": 0.45994019233206923,
+          "brier": 0.10753180710387886,
+          "precisionAtTopDecile": 0.4940239043824701,
+          "liftAtTopDecile": 3.220779220779221,
+          "meanPredictedProbability": 0.159415955892486
+        }
+      }
+    },
+    {
+      "family": "pooled",
+      "model": {
+        "id": "month_controls",
+        "label": "Benchmark + month-of-year controls",
+        "featureNames": [
+          "sdwis_prior_1m_any",
+          "sdwis_prior_3m_count",
+          "sdwis_prior_12m_count",
+          "sdwis_cumulative_prior_count",
+          "county_eb_baseline",
+          "overflow_any",
+          "overflow_count",
+          "overflow_log_gallons_sum",
+          "overflow_repeat_3m_any",
+          "overflow_severe_any",
+          "precip_total_mm",
+          "precip_anomaly_z",
+          "heavy_rain_days",
+          "precip_max_1d_mm",
+          "flood_warning_any",
+          "flood_warning_count",
+          "flash_flood_warning_any",
+          "streamflow_high_count",
+          "streamflow_low_count",
+          "streamflow_extreme_high_any",
+          "streamflow_extreme_low_any",
+          "drought_fraction_d1plus",
+          "drought_fraction_d3plus",
+          "overflow_x_precip_anomaly",
+          "overflow_x_flood_warning",
+          "overflow_x_streamflow_high",
+          "overflow_x_streamflow_low",
+          "overflow_x_drought",
+          "month_is_02",
+          "month_is_03",
+          "month_is_04",
+          "month_is_05",
+          "month_is_06",
+          "month_is_07",
+          "month_is_08",
+          "month_is_09",
+          "month_is_10",
+          "month_is_11",
+          "month_is_12"
+        ]
+      },
+      "coefficients": [
+        {
+          "feature": "sdwis_prior_1m_any",
+          "weight": -0.2944643248265766
+        },
+        {
+          "feature": "sdwis_prior_3m_count",
+          "weight": 0.17277178592564083
+        },
+        {
+          "feature": "sdwis_prior_12m_count",
+          "weight": 0.028758635352069507
+        },
+        {
+          "feature": "sdwis_cumulative_prior_count",
+          "weight": -0.08591795991196516
+        },
+        {
+          "feature": "county_eb_baseline",
+          "weight": 1.931057624861948
+        },
+        {
+          "feature": "overflow_any",
+          "weight": -0.032826739233603346
+        },
+        {
+          "feature": "overflow_count",
+          "weight": 0.022053730335543045
+        },
+        {
+          "feature": "overflow_log_gallons_sum",
+          "weight": 0.012636309961282625
+        },
+        {
+          "feature": "overflow_repeat_3m_any",
+          "weight": -0.009284574023819082
+        },
+        {
+          "feature": "overflow_severe_any",
+          "weight": -0.026734282181914083
+        },
+        {
+          "feature": "precip_total_mm",
+          "weight": 0.04327042497231345
+        },
+        {
+          "feature": "precip_anomaly_z",
+          "weight": -0.03099524583712884
+        },
+        {
+          "feature": "heavy_rain_days",
+          "weight": 0.03741220964998883
+        },
+        {
+          "feature": "precip_max_1d_mm",
+          "weight": 0.056685842258386666
+        },
+        {
+          "feature": "flood_warning_any",
+          "weight": -0.12153776172376071
+        },
+        {
+          "feature": "flood_warning_count",
+          "weight": -0.030957063845372744
+        },
+        {
+          "feature": "flash_flood_warning_any",
+          "weight": 0.024271738888663748
+        },
+        {
+          "feature": "streamflow_high_count",
+          "weight": -0.09501937057197052
+        },
+        {
+          "feature": "streamflow_low_count",
+          "weight": -0.00787157888273553
+        },
+        {
+          "feature": "streamflow_extreme_high_any",
+          "weight": 0.061729068604635055
+        },
+        {
+          "feature": "streamflow_extreme_low_any",
+          "weight": 0.03130998729977504
+        },
+        {
+          "feature": "drought_fraction_d1plus",
+          "weight": -0.033391892361911896
+        },
+        {
+          "feature": "drought_fraction_d3plus",
+          "weight": 0.08907505191107042
+        },
+        {
+          "feature": "overflow_x_precip_anomaly",
+          "weight": 0.01505694157920642
+        },
+        {
+          "feature": "overflow_x_flood_warning",
+          "weight": 0.051792850192789425
+        },
+        {
+          "feature": "overflow_x_streamflow_high",
+          "weight": -0.033231175627297514
+        },
+        {
+          "feature": "overflow_x_streamflow_low",
+          "weight": 0.037422046877637255
+        },
+        {
+          "feature": "overflow_x_drought",
+          "weight": -0.0057356028177072745
+        },
+        {
+          "feature": "month_is_02",
+          "weight": -0.12655127741922753
+        },
+        {
+          "feature": "month_is_03",
+          "weight": 0.7463494084478215
+        },
+        {
+          "feature": "month_is_04",
+          "weight": -0.35125484678880187
+        },
+        {
+          "feature": "month_is_05",
+          "weight": -0.14552081584353516
+        },
+        {
+          "feature": "month_is_06",
+          "weight": 0.7281496096919188
+        },
+        {
+          "feature": "month_is_07",
+          "weight": -0.2760440834452091
+        },
+        {
+          "feature": "month_is_08",
+          "weight": -0.1784291811767283
+        },
+        {
+          "feature": "month_is_09",
+          "weight": 0.7398139972539048
+        },
+        {
+          "feature": "month_is_10",
+          "weight": -0.2916329609989669
+        },
+        {
+          "feature": "month_is_11",
+          "weight": -0.1402358965090102
+        },
+        {
+          "feature": "month_is_12",
+          "weight": 0.6323744358067582
+        }
+      ],
+      "metrics": {
+        "train": {
+          "count": 9534,
+          "positives": 1527,
+          "prevalence": 0.16016362492133418,
+          "auroc": 0.9457356770913204,
+          "auprc": 0.8794492443273758,
+          "brier": 0.047520779222961246,
+          "precisionAtTopDecile": 0.9716684155299056,
+          "liftAtTopDecile": 6.066723427414616,
+          "meanPredictedProbability": 0.16760594434629764
+        },
+        "validation": {
+          "count": 2446,
+          "positives": 532,
+          "prevalence": 0.21749795584627965,
+          "auroc": 0.9313084828057605,
+          "auprc": 0.836781513222122,
+          "brier": 0.08276961970887609,
+          "precisionAtTopDecile": 0.9673469387755103,
+          "liftAtTopDecile": 4.447613932791161,
+          "meanPredictedProbability": 0.17009904207974388
+        },
+        "test": {
+          "count": 2510,
+          "positives": 385,
+          "prevalence": 0.15338645418326693,
+          "auroc": 0.903618640183346,
+          "auprc": 0.6920589800353111,
+          "brier": 0.0749282898379855,
+          "precisionAtTopDecile": 0.7888446215139442,
+          "liftAtTopDecile": 5.142857142857142,
+          "meanPredictedProbability": 0.17160593308025673
+        }
+      }
+    },
+    {
+      "family": "pooled",
+      "model": {
+        "id": "month_controls_freeze",
+        "label": "Benchmark + month-of-year controls + freeze_days",
+        "featureNames": [
+          "sdwis_prior_1m_any",
+          "sdwis_prior_3m_count",
+          "sdwis_prior_12m_count",
+          "sdwis_cumulative_prior_count",
+          "county_eb_baseline",
+          "overflow_any",
+          "overflow_count",
+          "overflow_log_gallons_sum",
+          "overflow_repeat_3m_any",
+          "overflow_severe_any",
+          "precip_total_mm",
+          "precip_anomaly_z",
+          "heavy_rain_days",
+          "precip_max_1d_mm",
+          "flood_warning_any",
+          "flood_warning_count",
+          "flash_flood_warning_any",
+          "streamflow_high_count",
+          "streamflow_low_count",
+          "streamflow_extreme_high_any",
+          "streamflow_extreme_low_any",
+          "drought_fraction_d1plus",
+          "drought_fraction_d3plus",
+          "overflow_x_precip_anomaly",
+          "overflow_x_flood_warning",
+          "overflow_x_streamflow_high",
+          "overflow_x_streamflow_low",
+          "overflow_x_drought",
+          "month_is_02",
+          "month_is_03",
+          "month_is_04",
+          "month_is_05",
+          "month_is_06",
+          "month_is_07",
+          "month_is_08",
+          "month_is_09",
+          "month_is_10",
+          "month_is_11",
+          "month_is_12",
+          "freeze_days"
+        ]
+      },
+      "coefficients": [
+        {
+          "feature": "sdwis_prior_1m_any",
+          "weight": -0.29866178656448356
+        },
+        {
+          "feature": "sdwis_prior_3m_count",
+          "weight": 0.17574256105387867
+        },
+        {
+          "feature": "sdwis_prior_12m_count",
+          "weight": 0.033348668397559296
+        },
+        {
+          "feature": "sdwis_cumulative_prior_count",
+          "weight": -0.08903778254946197
+        },
+        {
+          "feature": "county_eb_baseline",
+          "weight": 1.9264102914935097
+        },
+        {
+          "feature": "overflow_any",
+          "weight": -0.03540858581564697
+        },
+        {
+          "feature": "overflow_count",
+          "weight": 0.02322977886824033
+        },
+        {
+          "feature": "overflow_log_gallons_sum",
+          "weight": 0.012609367517094208
+        },
+        {
+          "feature": "overflow_repeat_3m_any",
+          "weight": -0.00879164440873912
+        },
+        {
+          "feature": "overflow_severe_any",
+          "weight": -0.024470330927350757
+        },
+        {
+          "feature": "precip_total_mm",
+          "weight": 0.025409964535528948
+        },
+        {
+          "feature": "precip_anomaly_z",
+          "weight": -0.016106468578332516
+        },
+        {
+          "feature": "heavy_rain_days",
+          "weight": 0.0370926980122663
+        },
+        {
+          "feature": "precip_max_1d_mm",
+          "weight": 0.047220337071145806
+        },
+        {
+          "feature": "flood_warning_any",
+          "weight": -0.11939741291710218
+        },
+        {
+          "feature": "flood_warning_count",
+          "weight": -0.031173358014589696
+        },
+        {
+          "feature": "flash_flood_warning_any",
+          "weight": 0.021877475095748403
+        },
+        {
+          "feature": "streamflow_high_count",
+          "weight": -0.09484828410858986
+        },
+        {
+          "feature": "streamflow_low_count",
+          "weight": -0.006605918744368281
+        },
+        {
+          "feature": "streamflow_extreme_high_any",
+          "weight": 0.06021573557939167
+        },
+        {
+          "feature": "streamflow_extreme_low_any",
+          "weight": 0.03433051590694087
+        },
+        {
+          "feature": "drought_fraction_d1plus",
+          "weight": -0.02250401167230424
+        },
+        {
+          "feature": "drought_fraction_d3plus",
+          "weight": 0.09594717659322913
+        },
+        {
+          "feature": "overflow_x_precip_anomaly",
+          "weight": 0.013651206991128985
+        },
+        {
+          "feature": "overflow_x_flood_warning",
+          "weight": 0.051236305187297326
+        },
+        {
+          "feature": "overflow_x_streamflow_high",
+          "weight": -0.03227526083991011
+        },
+        {
+          "feature": "overflow_x_streamflow_low",
+          "weight": 0.03720423362592725
+        },
+        {
+          "feature": "overflow_x_drought",
+          "weight": -0.008680968520654513
+        },
+        {
+          "feature": "month_is_02",
+          "weight": -0.08529241333813649
+        },
+        {
+          "feature": "month_is_03",
+          "weight": 0.7274407944111194
+        },
+        {
+          "feature": "month_is_04",
+          "weight": -0.37466935223674486
+        },
+        {
+          "feature": "month_is_05",
+          "weight": -0.16411432342894977
+        },
+        {
+          "feature": "month_is_06",
+          "weight": 0.6986210050127298
+        },
+        {
+          "feature": "month_is_07",
+          "weight": -0.302785388927765
+        },
+        {
+          "feature": "month_is_08",
+          "weight": -0.20447605853100037
+        },
+        {
+          "feature": "month_is_09",
+          "weight": 0.7075198171839532
+        },
+        {
+          "feature": "month_is_10",
+          "weight": -0.3153491597927801
+        },
+        {
+          "feature": "month_is_11",
+          "weight": -0.15467524719035528
+        },
+        {
+          "feature": "month_is_12",
+          "weight": 0.6428585684308404
+        },
+        {
+          "feature": "freeze_days",
+          "weight": -0.14485307030136554
+        }
+      ],
+      "metrics": {
+        "train": {
+          "count": 9534,
+          "positives": 1527,
+          "prevalence": 0.16016362492133418,
+          "auroc": 0.945758741389431,
+          "auprc": 0.8791063671868897,
+          "brier": 0.04751861677097032,
+          "precisionAtTopDecile": 0.9716684155299056,
+          "liftAtTopDecile": 6.066723427414616,
+          "meanPredictedProbability": 0.1676080746161244
+        },
+        "validation": {
+          "count": 2446,
+          "positives": 532,
+          "prevalence": 0.21749795584627965,
+          "auroc": 0.9321717302661041,
+          "auprc": 0.8380068601057846,
+          "brier": 0.08239103604401148,
+          "precisionAtTopDecile": 0.9673469387755103,
+          "liftAtTopDecile": 4.447613932791161,
+          "meanPredictedProbability": 0.17043994855448513
+        },
+        "test": {
+          "count": 2510,
+          "positives": 385,
+          "prevalence": 0.15338645418326693,
+          "auroc": 0.9055657754010695,
+          "auprc": 0.6948340263133337,
+          "brier": 0.07439412912065707,
+          "precisionAtTopDecile": 0.7888446215139442,
+          "liftAtTopDecile": 5.142857142857142,
+          "meanPredictedProbability": 0.17150905677376618
+        }
+      }
+    },
+    {
+      "family": "pooled",
+      "model": {
+        "id": "month_controls_heat_freeze",
+        "label": "Benchmark + month-of-year controls + heat_days + freeze_days",
+        "featureNames": [
+          "sdwis_prior_1m_any",
+          "sdwis_prior_3m_count",
+          "sdwis_prior_12m_count",
+          "sdwis_cumulative_prior_count",
+          "county_eb_baseline",
+          "overflow_any",
+          "overflow_count",
+          "overflow_log_gallons_sum",
+          "overflow_repeat_3m_any",
+          "overflow_severe_any",
+          "precip_total_mm",
+          "precip_anomaly_z",
+          "heavy_rain_days",
+          "precip_max_1d_mm",
+          "flood_warning_any",
+          "flood_warning_count",
+          "flash_flood_warning_any",
+          "streamflow_high_count",
+          "streamflow_low_count",
+          "streamflow_extreme_high_any",
+          "streamflow_extreme_low_any",
+          "drought_fraction_d1plus",
+          "drought_fraction_d3plus",
+          "overflow_x_precip_anomaly",
+          "overflow_x_flood_warning",
+          "overflow_x_streamflow_high",
+          "overflow_x_streamflow_low",
+          "overflow_x_drought",
+          "month_is_02",
+          "month_is_03",
+          "month_is_04",
+          "month_is_05",
+          "month_is_06",
+          "month_is_07",
+          "month_is_08",
+          "month_is_09",
+          "month_is_10",
+          "month_is_11",
+          "month_is_12",
+          "heat_days",
+          "freeze_days"
+        ]
+      },
+      "coefficients": [
+        {
+          "feature": "sdwis_prior_1m_any",
+          "weight": -0.2997490126410707
+        },
+        {
+          "feature": "sdwis_prior_3m_count",
+          "weight": 0.1763215787219127
+        },
+        {
+          "feature": "sdwis_prior_12m_count",
+          "weight": 0.034247440067748686
+        },
+        {
+          "feature": "sdwis_cumulative_prior_count",
+          "weight": -0.09055677838581438
+        },
+        {
+          "feature": "county_eb_baseline",
+          "weight": 1.9268279473982748
+        },
+        {
+          "feature": "overflow_any",
+          "weight": -0.03498668589691801
+        },
+        {
+          "feature": "overflow_count",
+          "weight": 0.023543350054720195
+        },
+        {
+          "feature": "overflow_log_gallons_sum",
+          "weight": 0.012880467348941414
+        },
+        {
+          "feature": "overflow_repeat_3m_any",
+          "weight": -0.008705419155986325
+        },
+        {
+          "feature": "overflow_severe_any",
+          "weight": -0.024465280216231018
+        },
+        {
+          "feature": "precip_total_mm",
+          "weight": 0.02869854150620703
+        },
+        {
+          "feature": "precip_anomaly_z",
+          "weight": -0.013435432911455266
+        },
+        {
+          "feature": "heavy_rain_days",
+          "weight": 0.036841686360167006
+        },
+        {
+          "feature": "precip_max_1d_mm",
+          "weight": 0.04787661727605376
+        },
+        {
+          "feature": "flood_warning_any",
+          "weight": -0.11925110472962847
+        },
+        {
+          "feature": "flood_warning_count",
+          "weight": -0.030981400315363207
+        },
+        {
+          "feature": "flash_flood_warning_any",
+          "weight": 0.02066231137247082
+        },
+        {
+          "feature": "streamflow_high_count",
+          "weight": -0.09415467139812456
+        },
+        {
+          "feature": "streamflow_low_count",
+          "weight": -0.008720484391206543
+        },
+        {
+          "feature": "streamflow_extreme_high_any",
+          "weight": 0.06035046268052534
+        },
+        {
+          "feature": "streamflow_extreme_low_any",
+          "weight": 0.034770629564965815
+        },
+        {
+          "feature": "drought_fraction_d1plus",
+          "weight": -0.02451344949230716
+        },
+        {
+          "feature": "drought_fraction_d3plus",
+          "weight": 0.09229173452649211
+        },
+        {
+          "feature": "overflow_x_precip_anomaly",
+          "weight": 0.013536300816039596
+        },
+        {
+          "feature": "overflow_x_flood_warning",
+          "weight": 0.05109897268824093
+        },
+        {
+          "feature": "overflow_x_streamflow_high",
+          "weight": -0.03262470989327194
+        },
+        {
+          "feature": "overflow_x_streamflow_low",
+          "weight": 0.03752935030000244
+        },
+        {
+          "feature": "overflow_x_drought",
+          "weight": -0.009397142282252817
+        },
+        {
+          "feature": "month_is_02",
+          "weight": -0.08307145214751459
+        },
+        {
+          "feature": "month_is_03",
+          "weight": 0.7321753535847373
+        },
+        {
+          "feature": "month_is_04",
+          "weight": -0.37124779983010936
+        },
+        {
+          "feature": "month_is_05",
+          "weight": -0.16382374784127748
+        },
+        {
+          "feature": "month_is_06",
+          "weight": 0.6898615994573656
+        },
+        {
+          "feature": "month_is_07",
+          "weight": -0.31374928057108736
+        },
+        {
+          "feature": "month_is_08",
+          "weight": -0.2135657198651138
+        },
+        {
+          "feature": "month_is_09",
+          "weight": 0.7062774410951367
+        },
+        {
+          "feature": "month_is_10",
+          "weight": -0.31229319887980495
+        },
+        {
+          "feature": "month_is_11",
+          "weight": -0.1507825813263811
+        },
+        {
+          "feature": "month_is_12",
+          "weight": 0.6463162162631306
+        },
+        {
+          "feature": "heat_days",
+          "weight": 0.036804293238074985
+        },
+        {
+          "feature": "freeze_days",
+          "weight": -0.1395534735040193
+        }
+      ],
+      "metrics": {
+        "train": {
+          "count": 9534,
+          "positives": 1527,
+          "prevalence": 0.16016362492133418,
+          "auroc": 0.9457417294248672,
+          "auprc": 0.8790607914112113,
+          "brier": 0.047508223871062155,
+          "precisionAtTopDecile": 0.9716684155299056,
+          "liftAtTopDecile": 6.066723427414616,
+          "meanPredictedProbability": 0.1676033252061975
+        },
+        "validation": {
+          "count": 2446,
+          "positives": 532,
+          "prevalence": 0.21749795584627965,
+          "auroc": 0.9319625474344168,
+          "auprc": 0.8379304843552631,
+          "brier": 0.08244926064854224,
+          "precisionAtTopDecile": 0.9673469387755103,
+          "liftAtTopDecile": 4.447613932791161,
+          "meanPredictedProbability": 0.17040410565695394
+        },
+        "test": {
+          "count": 2510,
+          "positives": 385,
+          "prevalence": 0.15338645418326693,
+          "auroc": 0.905592666157372,
+          "auprc": 0.6949288924653084,
+          "brier": 0.07436176356533561,
+          "precisionAtTopDecile": 0.7888446215139442,
+          "liftAtTopDecile": 5.142857142857142,
+          "meanPredictedProbability": 0.17095700736273345
+        }
+      }
+    },
+    {
+      "family": "pooled",
+      "model": {
+        "id": "month_controls_full_heat",
+        "label": "Benchmark + month-of-year controls + full temperature stack",
+        "featureNames": [
+          "sdwis_prior_1m_any",
+          "sdwis_prior_3m_count",
+          "sdwis_prior_12m_count",
+          "sdwis_cumulative_prior_count",
+          "county_eb_baseline",
+          "overflow_any",
+          "overflow_count",
+          "overflow_log_gallons_sum",
+          "overflow_repeat_3m_any",
+          "overflow_severe_any",
+          "precip_total_mm",
+          "precip_anomaly_z",
+          "heavy_rain_days",
+          "precip_max_1d_mm",
+          "flood_warning_any",
+          "flood_warning_count",
+          "flash_flood_warning_any",
+          "streamflow_high_count",
+          "streamflow_low_count",
+          "streamflow_extreme_high_any",
+          "streamflow_extreme_low_any",
+          "drought_fraction_d1plus",
+          "drought_fraction_d3plus",
+          "overflow_x_precip_anomaly",
+          "overflow_x_flood_warning",
+          "overflow_x_streamflow_high",
+          "overflow_x_streamflow_low",
+          "overflow_x_drought",
+          "month_is_02",
+          "month_is_03",
+          "month_is_04",
+          "month_is_05",
+          "month_is_06",
+          "month_is_07",
+          "month_is_08",
+          "month_is_09",
+          "month_is_10",
+          "month_is_11",
+          "month_is_12",
+          "temp_mean_anomaly_z",
+          "heat_days",
+          "freeze_days",
+          "overflow_x_heat"
+        ]
+      },
+      "coefficients": [
+        {
+          "feature": "sdwis_prior_1m_any",
+          "weight": -0.3057035369740376
+        },
+        {
+          "feature": "sdwis_prior_3m_count",
+          "weight": 0.1728785527196813
+        },
+        {
+          "feature": "sdwis_prior_12m_count",
+          "weight": 0.032624407488590745
+        },
+        {
+          "feature": "sdwis_cumulative_prior_count",
+          "weight": -0.08530794609057114
+        },
+        {
+          "feature": "county_eb_baseline",
+          "weight": 1.9290811816145244
+        },
+        {
+          "feature": "overflow_any",
+          "weight": -0.036235973988658146
+        },
+        {
+          "feature": "overflow_count",
+          "weight": 0.022668375158002872
+        },
+        {
+          "feature": "overflow_log_gallons_sum",
+          "weight": 0.013808165755673582
+        },
+        {
+          "feature": "overflow_repeat_3m_any",
+          "weight": -0.011149420055789802
+        },
+        {
+          "feature": "overflow_severe_any",
+          "weight": -0.02275588556797612
+        },
+        {
+          "feature": "precip_total_mm",
+          "weight": 0.023446527534303062
+        },
+        {
+          "feature": "precip_anomaly_z",
+          "weight": -0.03159554859413503
+        },
+        {
+          "feature": "heavy_rain_days",
+          "weight": 0.03882734772357513
+        },
+        {
+          "feature": "precip_max_1d_mm",
+          "weight": 0.04279437312603856
+        },
+        {
+          "feature": "flood_warning_any",
+          "weight": -0.11793208852150115
+        },
+        {
+          "feature": "flood_warning_count",
+          "weight": -0.030477435903344525
+        },
+        {
+          "feature": "flash_flood_warning_any",
+          "weight": 0.01817075515424943
+        },
+        {
+          "feature": "streamflow_high_count",
+          "weight": -0.0956052494743589
+        },
+        {
+          "feature": "streamflow_low_count",
+          "weight": -0.0036528404387418823
+        },
+        {
+          "feature": "streamflow_extreme_high_any",
+          "weight": 0.0617692907892501
+        },
+        {
+          "feature": "streamflow_extreme_low_any",
+          "weight": 0.03132199256399604
+        },
+        {
+          "feature": "drought_fraction_d1plus",
+          "weight": -0.022116777916874452
+        },
+        {
+          "feature": "drought_fraction_d3plus",
+          "weight": 0.0929322178597419
+        },
+        {
+          "feature": "overflow_x_precip_anomaly",
+          "weight": 0.016488599815635475
+        },
+        {
+          "feature": "overflow_x_flood_warning",
+          "weight": 0.05142453588097473
+        },
+        {
+          "feature": "overflow_x_streamflow_high",
+          "weight": -0.03211769960556298
+        },
+        {
+          "feature": "overflow_x_streamflow_low",
+          "weight": 0.03838146386319111
+        },
+        {
+          "feature": "overflow_x_drought",
+          "weight": -0.013435599034749194
+        },
+        {
+          "feature": "month_is_02",
+          "weight": -0.08261916345551416
+        },
+        {
+          "feature": "month_is_03",
+          "weight": 0.726494190782434
+        },
+        {
+          "feature": "month_is_04",
+          "weight": -0.37879930486354224
+        },
+        {
+          "feature": "month_is_05",
+          "weight": -0.1653623361619694
+        },
+        {
+          "feature": "month_is_06",
+          "weight": 0.6773547208350754
+        },
+        {
+          "feature": "month_is_07",
+          "weight": -0.3229589698827051
+        },
+        {
+          "feature": "month_is_08",
+          "weight": -0.22415497055413275
+        },
+        {
+          "feature": "month_is_09",
+          "weight": 0.7015509514469541
+        },
+        {
+          "feature": "month_is_10",
+          "weight": -0.32103115467907295
+        },
+        {
+          "feature": "month_is_11",
+          "weight": -0.15596069363861853
+        },
+        {
+          "feature": "month_is_12",
+          "weight": 0.6510838483666219
+        },
+        {
+          "feature": "temp_mean_anomaly_z",
+          "weight": -0.087985246269988
+        },
+        {
+          "feature": "heat_days",
+          "weight": 0.06522824877216134
+        },
+        {
+          "feature": "freeze_days",
+          "weight": -0.16014198817337572
+        },
+        {
+          "feature": "overflow_x_heat",
+          "weight": 0.013501815684788308
+        }
+      ],
+      "metrics": {
+        "train": {
+          "count": 9534,
+          "positives": 1527,
+          "prevalence": 0.16016362492133418,
+          "auroc": 0.9459136484129105,
+          "auprc": 0.8793746686960361,
+          "brier": 0.0474283174965564,
+          "precisionAtTopDecile": 0.968520461699895,
+          "liftAtTopDecile": 6.047068815878716,
+          "meanPredictedProbability": 0.16759685195564827
+        },
+        "validation": {
+          "count": 2446,
+          "positives": 532,
+          "prevalence": 0.21749795584627965,
+          "auroc": 0.9326824113575475,
+          "auprc": 0.8388868889605737,
+          "brier": 0.08234046071018357,
+          "precisionAtTopDecile": 0.9673469387755103,
+          "liftAtTopDecile": 4.447613932791161,
+          "meanPredictedProbability": 0.16944990135490204
+        },
+        "test": {
+          "count": 2510,
+          "positives": 385,
+          "prevalence": 0.15338645418326693,
+          "auroc": 0.9053274255156608,
+          "auprc": 0.6951233370419501,
+          "brier": 0.07438521056049269,
+          "precisionAtTopDecile": 0.7928286852589641,
+          "liftAtTopDecile": 5.1688311688311686,
+          "meanPredictedProbability": 0.16968616144448193
+        }
+      }
+    }
+  ],
+  "fixedEffectRuns": [
+    {
+      "family": "fixed_effects",
+      "model": {
+        "id": "benchmark",
+        "label": "Benchmark: EB trigger stack without temperature",
+        "featureNames": [
+          "sdwis_prior_1m_any",
+          "sdwis_prior_3m_count",
+          "sdwis_prior_12m_count",
+          "sdwis_cumulative_prior_count",
+          "county_eb_baseline",
+          "overflow_any",
+          "overflow_count",
+          "overflow_log_gallons_sum",
+          "overflow_repeat_3m_any",
+          "overflow_severe_any",
+          "precip_total_mm",
+          "precip_anomaly_z",
+          "heavy_rain_days",
+          "precip_max_1d_mm",
+          "flood_warning_any",
+          "flood_warning_count",
+          "flash_flood_warning_any",
+          "streamflow_high_count",
+          "streamflow_low_count",
+          "streamflow_extreme_high_any",
+          "streamflow_extreme_low_any",
+          "drought_fraction_d1plus",
+          "drought_fraction_d3plus",
+          "overflow_x_precip_anomaly",
+          "overflow_x_flood_warning",
+          "overflow_x_streamflow_high",
+          "overflow_x_streamflow_low",
+          "overflow_x_drought"
+        ]
+      },
+      "interceptSummary": {
+        "counties": 207,
+        "meanAbsCountyIntercept": 0.008170618524287838
+      },
+      "coefficients": [
+        {
+          "feature": "sdwis_prior_1m_any",
+          "weight": -0.6730088404878108
+        },
+        {
+          "feature": "sdwis_prior_3m_count",
+          "weight": 0.15223077045225836
+        },
+        {
+          "feature": "sdwis_prior_12m_count",
+          "weight": 0.02485400868529086
+        },
+        {
+          "feature": "sdwis_cumulative_prior_count",
+          "weight": -0.08741263483467417
+        },
+        {
+          "feature": "county_eb_baseline",
+          "weight": 1.6343181726970868
+        },
+        {
+          "feature": "overflow_any",
+          "weight": -0.033703564471730264
+        },
+        {
+          "feature": "overflow_count",
+          "weight": 0.028558049387885743
+        },
+        {
+          "feature": "overflow_log_gallons_sum",
+          "weight": -0.007021917932540715
+        },
+        {
+          "feature": "overflow_repeat_3m_any",
+          "weight": 0.024826572261433314
+        },
+        {
+          "feature": "overflow_severe_any",
+          "weight": -0.03491245179623767
+        },
+        {
+          "feature": "precip_total_mm",
+          "weight": -0.0007028786099974305
+        },
+        {
+          "feature": "precip_anomaly_z",
+          "weight": 0.04043105779496304
+        },
+        {
+          "feature": "heavy_rain_days",
+          "weight": -0.022042675595256977
+        },
+        {
+          "feature": "precip_max_1d_mm",
+          "weight": 0.007538119467590252
+        },
+        {
+          "feature": "flood_warning_any",
+          "weight": -0.10064633037140917
+        },
+        {
+          "feature": "flood_warning_count",
+          "weight": -0.06233850483612035
+        },
+        {
+          "feature": "flash_flood_warning_any",
+          "weight": 0.02922545141700495
+        },
+        {
+          "feature": "streamflow_high_count",
+          "weight": -0.07541966632393007
+        },
+        {
+          "feature": "streamflow_low_count",
+          "weight": 0.04448397355350007
+        },
+        {
+          "feature": "streamflow_extreme_high_any",
+          "weight": 0.08254838662627212
+        },
+        {
+          "feature": "streamflow_extreme_low_any",
+          "weight": 0.0704553031737842
+        },
+        {
+          "feature": "drought_fraction_d1plus",
+          "weight": -0.00778836500329251
+        },
+        {
+          "feature": "drought_fraction_d3plus",
+          "weight": 0.01651550911978961
+        },
+        {
+          "feature": "overflow_x_precip_anomaly",
+          "weight": 0.016924478916724876
+        },
+        {
+          "feature": "overflow_x_flood_warning",
+          "weight": 0.04104719714670854
+        },
+        {
+          "feature": "overflow_x_streamflow_high",
+          "weight": -0.013037448054970757
+        },
+        {
+          "feature": "overflow_x_streamflow_low",
+          "weight": 0.021665875065183547
+        },
+        {
+          "feature": "overflow_x_drought",
+          "weight": -0.007871311059465909
+        }
+      ],
+      "metrics": {
+        "train": {
+          "count": 9534,
+          "positives": 1527,
+          "prevalence": 0.16016362492133418,
+          "auroc": 0.8796771554424915,
+          "auprc": 0.620387610208922,
+          "brier": 0.08989216216063416,
+          "precisionAtTopDecile": 0.6390346274921301,
+          "liftAtTopDecile": 3.9898861417877987,
+          "meanPredictedProbability": 0.164884962213818
+        },
+        "validation": {
+          "count": 2446,
+          "positives": 532,
+          "prevalence": 0.21749795584627965,
+          "auroc": 0.7744311798304538,
+          "auprc": 0.5589719601115632,
+          "brier": 0.13772394750198488,
+          "precisionAtTopDecile": 0.6489795918367347,
+          "liftAtTopDecile": 2.9838422587079942,
+          "meanPredictedProbability": 0.15651392670755662
+        },
+        "test": {
+          "count": 2510,
+          "positives": 385,
+          "prevalence": 0.15338645418326693,
+          "auroc": 0.7960226126814363,
+          "auprc": 0.46245824166115806,
+          "brier": 0.1068280712673501,
+          "precisionAtTopDecile": 0.49800796812749004,
+          "liftAtTopDecile": 3.2467532467532467,
+          "meanPredictedProbability": 0.16279085219343817
+        }
+      }
+    },
+    {
+      "family": "fixed_effects",
+      "model": {
+        "id": "month_controls",
+        "label": "Benchmark + month-of-year controls",
+        "featureNames": [
+          "sdwis_prior_1m_any",
+          "sdwis_prior_3m_count",
+          "sdwis_prior_12m_count",
+          "sdwis_cumulative_prior_count",
+          "county_eb_baseline",
+          "overflow_any",
+          "overflow_count",
+          "overflow_log_gallons_sum",
+          "overflow_repeat_3m_any",
+          "overflow_severe_any",
+          "precip_total_mm",
+          "precip_anomaly_z",
+          "heavy_rain_days",
+          "precip_max_1d_mm",
+          "flood_warning_any",
+          "flood_warning_count",
+          "flash_flood_warning_any",
+          "streamflow_high_count",
+          "streamflow_low_count",
+          "streamflow_extreme_high_any",
+          "streamflow_extreme_low_any",
+          "drought_fraction_d1plus",
+          "drought_fraction_d3plus",
+          "overflow_x_precip_anomaly",
+          "overflow_x_flood_warning",
+          "overflow_x_streamflow_high",
+          "overflow_x_streamflow_low",
+          "overflow_x_drought",
+          "month_is_02",
+          "month_is_03",
+          "month_is_04",
+          "month_is_05",
+          "month_is_06",
+          "month_is_07",
+          "month_is_08",
+          "month_is_09",
+          "month_is_10",
+          "month_is_11",
+          "month_is_12"
+        ]
+      },
+      "interceptSummary": {
+        "counties": 207,
+        "meanAbsCountyIntercept": 0.00925971813282696
+      },
+      "coefficients": [
+        {
+          "feature": "sdwis_prior_1m_any",
+          "weight": -0.2598394465579982
+        },
+        {
+          "feature": "sdwis_prior_3m_count",
+          "weight": 0.15837019451611067
+        },
+        {
+          "feature": "sdwis_prior_12m_count",
+          "weight": 0.03867004000543754
+        },
+        {
+          "feature": "sdwis_cumulative_prior_count",
+          "weight": -0.07003571999557644
+        },
+        {
+          "feature": "county_eb_baseline",
+          "weight": 1.737623912435587
+        },
+        {
+          "feature": "overflow_any",
+          "weight": -0.021579161337429664
+        },
+        {
+          "feature": "overflow_count",
+          "weight": 0.02896547260697842
+        },
+        {
+          "feature": "overflow_log_gallons_sum",
+          "weight": 0.000580167322023629
+        },
+        {
+          "feature": "overflow_repeat_3m_any",
+          "weight": -0.005955144522116139
+        },
+        {
+          "feature": "overflow_severe_any",
+          "weight": -0.02559933450892944
+        },
+        {
+          "feature": "precip_total_mm",
+          "weight": 0.03996978848442958
+        },
+        {
+          "feature": "precip_anomaly_z",
+          "weight": -0.021874390906283986
+        },
+        {
+          "feature": "heavy_rain_days",
+          "weight": 0.031092845440465824
+        },
+        {
+          "feature": "precip_max_1d_mm",
+          "weight": 0.048861045607308355
+        },
+        {
+          "feature": "flood_warning_any",
+          "weight": -0.1087828468908401
+        },
+        {
+          "feature": "flood_warning_count",
+          "weight": -0.026933631213076056
+        },
+        {
+          "feature": "flash_flood_warning_any",
+          "weight": 0.02059936628766805
+        },
+        {
+          "feature": "streamflow_high_count",
+          "weight": -0.0788846599163665
+        },
+        {
+          "feature": "streamflow_low_count",
+          "weight": -0.003963336844271123
+        },
+        {
+          "feature": "streamflow_extreme_high_any",
+          "weight": 0.05124873066809947
+        },
+        {
+          "feature": "streamflow_extreme_low_any",
+          "weight": 0.03247961595466056
+        },
+        {
+          "feature": "drought_fraction_d1plus",
+          "weight": -0.02873989755080935
+        },
+        {
+          "feature": "drought_fraction_d3plus",
+          "weight": 0.07643628747287479
+        },
+        {
+          "feature": "overflow_x_precip_anomaly",
+          "weight": 0.01197082222920556
+        },
+        {
+          "feature": "overflow_x_flood_warning",
+          "weight": 0.04431232644977461
+        },
+        {
+          "feature": "overflow_x_streamflow_high",
+          "weight": -0.03054667401078524
+        },
+        {
+          "feature": "overflow_x_streamflow_low",
+          "weight": 0.03031972237376058
+        },
+        {
+          "feature": "overflow_x_drought",
+          "weight": 0.00137119022758373
+        },
+        {
+          "feature": "month_is_02",
+          "weight": -0.14105864125608333
+        },
+        {
+          "feature": "month_is_03",
+          "weight": 0.6734785600040294
+        },
+        {
+          "feature": "month_is_04",
+          "weight": -0.31937326078168154
+        },
+        {
+          "feature": "month_is_05",
+          "weight": -0.15771616125709356
+        },
+        {
+          "feature": "month_is_06",
+          "weight": 0.6570149069595306
+        },
+        {
+          "feature": "month_is_07",
+          "weight": -0.26038459613407894
+        },
+        {
+          "feature": "month_is_08",
+          "weight": -0.18644165493430592
+        },
+        {
+          "feature": "month_is_09",
+          "weight": 0.6674516071247358
+        },
+        {
+          "feature": "month_is_10",
+          "weight": -0.27455871922057096
+        },
+        {
+          "feature": "month_is_11",
+          "weight": -0.15485977859499367
+        },
+        {
+          "feature": "month_is_12",
+          "weight": 0.5687605947564246
+        }
+      ],
+      "metrics": {
+        "train": {
+          "count": 9534,
+          "positives": 1527,
+          "prevalence": 0.16016362492133418,
+          "auroc": 0.9454948105738193,
+          "auprc": 0.8791024716155903,
+          "brier": 0.04910776241203209,
+          "precisionAtTopDecile": 0.9716684155299056,
+          "liftAtTopDecile": 6.066723427414616,
+          "meanPredictedProbability": 0.171512548712322
+        },
+        "validation": {
+          "count": 2446,
+          "positives": 532,
+          "prevalence": 0.21749795584627965,
+          "auroc": 0.9315618591934381,
+          "auprc": 0.837215661892297,
+          "brier": 0.0827893607977176,
+          "precisionAtTopDecile": 0.9673469387755103,
+          "liftAtTopDecile": 4.447613932791161,
+          "meanPredictedProbability": 0.17442611538823233
+        },
+        "test": {
+          "count": 2510,
+          "positives": 385,
+          "prevalence": 0.15338645418326693,
+          "auroc": 0.9040171122994652,
+          "auprc": 0.6934580557586844,
+          "brier": 0.07488876977707244,
+          "precisionAtTopDecile": 0.7888446215139442,
+          "liftAtTopDecile": 5.142857142857142,
+          "meanPredictedProbability": 0.17621366554074994
+        }
+      }
+    },
+    {
+      "family": "fixed_effects",
+      "model": {
+        "id": "month_controls_freeze",
+        "label": "Benchmark + month-of-year controls + freeze_days",
+        "featureNames": [
+          "sdwis_prior_1m_any",
+          "sdwis_prior_3m_count",
+          "sdwis_prior_12m_count",
+          "sdwis_cumulative_prior_count",
+          "county_eb_baseline",
+          "overflow_any",
+          "overflow_count",
+          "overflow_log_gallons_sum",
+          "overflow_repeat_3m_any",
+          "overflow_severe_any",
+          "precip_total_mm",
+          "precip_anomaly_z",
+          "heavy_rain_days",
+          "precip_max_1d_mm",
+          "flood_warning_any",
+          "flood_warning_count",
+          "flash_flood_warning_any",
+          "streamflow_high_count",
+          "streamflow_low_count",
+          "streamflow_extreme_high_any",
+          "streamflow_extreme_low_any",
+          "drought_fraction_d1plus",
+          "drought_fraction_d3plus",
+          "overflow_x_precip_anomaly",
+          "overflow_x_flood_warning",
+          "overflow_x_streamflow_high",
+          "overflow_x_streamflow_low",
+          "overflow_x_drought",
+          "month_is_02",
+          "month_is_03",
+          "month_is_04",
+          "month_is_05",
+          "month_is_06",
+          "month_is_07",
+          "month_is_08",
+          "month_is_09",
+          "month_is_10",
+          "month_is_11",
+          "month_is_12",
+          "freeze_days"
+        ]
+      },
+      "interceptSummary": {
+        "counties": 207,
+        "meanAbsCountyIntercept": 0.0093205690493638
+      },
+      "coefficients": [
+        {
+          "feature": "sdwis_prior_1m_any",
+          "weight": -0.26325764875760066
+        },
+        {
+          "feature": "sdwis_prior_3m_count",
+          "weight": 0.16096526159157118
+        },
+        {
+          "feature": "sdwis_prior_12m_count",
+          "weight": 0.04255250189657228
+        },
+        {
+          "feature": "sdwis_cumulative_prior_count",
+          "weight": -0.07242331644121375
+        },
+        {
+          "feature": "county_eb_baseline",
+          "weight": 1.7328714179274691
+        },
+        {
+          "feature": "overflow_any",
+          "weight": -0.02369209561974601
+        },
+        {
+          "feature": "overflow_count",
+          "weight": 0.029942859663796707
+        },
+        {
+          "feature": "overflow_log_gallons_sum",
+          "weight": 0.00047936687237006134
+        },
+        {
+          "feature": "overflow_repeat_3m_any",
+          "weight": -0.005927550247028652
+        },
+        {
+          "feature": "overflow_severe_any",
+          "weight": -0.02370485919331471
+        },
+        {
+          "feature": "precip_total_mm",
+          "weight": 0.024209326044235677
+        },
+        {
+          "feature": "precip_anomaly_z",
+          "weight": -0.008836894178661394
+        },
+        {
+          "feature": "heavy_rain_days",
+          "weight": 0.02979876484693742
+        },
+        {
+          "feature": "precip_max_1d_mm",
+          "weight": 0.03976500690515489
+        },
+        {
+          "feature": "flood_warning_any",
+          "weight": -0.10698539179298726
+        },
+        {
+          "feature": "flood_warning_count",
+          "weight": -0.02706273484164158
+        },
+        {
+          "feature": "flash_flood_warning_any",
+          "weight": 0.018087869431823896
+        },
+        {
+          "feature": "streamflow_high_count",
+          "weight": -0.07849763556079777
+        },
+        {
+          "feature": "streamflow_low_count",
+          "weight": -0.0025155277797742986
+        },
+        {
+          "feature": "streamflow_extreme_high_any",
+          "weight": 0.049820295105768235
+        },
+        {
+          "feature": "streamflow_extreme_low_any",
+          "weight": 0.03522114206906306
+        },
+        {
+          "feature": "drought_fraction_d1plus",
+          "weight": -0.018111433033562333
+        },
+        {
+          "feature": "drought_fraction_d3plus",
+          "weight": 0.08257747645121136
+        },
+        {
+          "feature": "overflow_x_precip_anomaly",
+          "weight": 0.011221914575163123
+        },
+        {
+          "feature": "overflow_x_flood_warning",
+          "weight": 0.043914446554866475
+        },
+        {
+          "feature": "overflow_x_streamflow_high",
+          "weight": -0.030009555398001302
+        },
+        {
+          "feature": "overflow_x_streamflow_low",
+          "weight": 0.030191998387463923
+        },
+        {
+          "feature": "overflow_x_drought",
+          "weight": -0.0009523302523211368
+        },
+        {
+          "feature": "month_is_02",
+          "weight": -0.10018305783207485
+        },
+        {
+          "feature": "month_is_03",
+          "weight": 0.6577388819469364
+        },
+        {
+          "feature": "month_is_04",
+          "weight": -0.33923547752367583
+        },
+        {
+          "feature": "month_is_05",
+          "weight": -0.17366897498810674
+        },
+        {
+          "feature": "month_is_06",
+          "weight": 0.6308745134327945
+        },
+        {
+          "feature": "month_is_07",
+          "weight": -0.28325722035571266
+        },
+        {
+          "feature": "month_is_08",
+          "weight": -0.2088875082050709
+        },
+        {
+          "feature": "month_is_09",
+          "weight": 0.638753874426124
+        },
+        {
+          "feature": "month_is_10",
+          "weight": -0.29438907703317974
+        },
+        {
+          "feature": "month_is_11",
+          "weight": -0.16639002998585303
+        },
+        {
+          "feature": "month_is_12",
+          "weight": 0.581350689595481
+        },
+        {
+          "feature": "freeze_days",
+          "weight": -0.1414730412726631
+        }
+      ],
+      "metrics": {
+        "train": {
+          "count": 9534,
+          "positives": 1527,
+          "prevalence": 0.16016362492133418,
+          "auroc": 0.9455438835485224,
+          "auprc": 0.8788099424434885,
+          "brier": 0.04907881299532109,
+          "precisionAtTopDecile": 0.9716684155299056,
+          "liftAtTopDecile": 6.066723427414616,
+          "meanPredictedProbability": 0.17151456004625681
+        },
+        "validation": {
+          "count": 2446,
+          "positives": 532,
+          "prevalence": 0.21749795584627965,
+          "auroc": 0.932617594142095,
+          "auprc": 0.8389657534423767,
+          "brier": 0.08233176796473018,
+          "precisionAtTopDecile": 0.9673469387755103,
+          "liftAtTopDecile": 4.447613932791161,
+          "meanPredictedProbability": 0.17479326948201335
+        },
+        "test": {
+          "count": 2510,
+          "positives": 385,
+          "prevalence": 0.15338645418326693,
+          "auroc": 0.9062111535523301,
+          "auprc": 0.6969824471230929,
+          "brier": 0.07427060677031848,
+          "precisionAtTopDecile": 0.796812749003984,
+          "liftAtTopDecile": 5.194805194805195,
+          "meanPredictedProbability": 0.17604461920342318
+        }
+      }
+    },
+    {
+      "family": "fixed_effects",
+      "model": {
+        "id": "month_controls_heat_freeze",
+        "label": "Benchmark + month-of-year controls + heat_days + freeze_days",
+        "featureNames": [
+          "sdwis_prior_1m_any",
+          "sdwis_prior_3m_count",
+          "sdwis_prior_12m_count",
+          "sdwis_cumulative_prior_count",
+          "county_eb_baseline",
+          "overflow_any",
+          "overflow_count",
+          "overflow_log_gallons_sum",
+          "overflow_repeat_3m_any",
+          "overflow_severe_any",
+          "precip_total_mm",
+          "precip_anomaly_z",
+          "heavy_rain_days",
+          "precip_max_1d_mm",
+          "flood_warning_any",
+          "flood_warning_count",
+          "flash_flood_warning_any",
+          "streamflow_high_count",
+          "streamflow_low_count",
+          "streamflow_extreme_high_any",
+          "streamflow_extreme_low_any",
+          "drought_fraction_d1plus",
+          "drought_fraction_d3plus",
+          "overflow_x_precip_anomaly",
+          "overflow_x_flood_warning",
+          "overflow_x_streamflow_high",
+          "overflow_x_streamflow_low",
+          "overflow_x_drought",
+          "month_is_02",
+          "month_is_03",
+          "month_is_04",
+          "month_is_05",
+          "month_is_06",
+          "month_is_07",
+          "month_is_08",
+          "month_is_09",
+          "month_is_10",
+          "month_is_11",
+          "month_is_12",
+          "heat_days",
+          "freeze_days"
+        ]
+      },
+      "interceptSummary": {
+        "counties": 207,
+        "meanAbsCountyIntercept": 0.00932180428955184
+      },
+      "coefficients": [
+        {
+          "feature": "sdwis_prior_1m_any",
+          "weight": -0.2639430000227557
+        },
+        {
+          "feature": "sdwis_prior_3m_count",
+          "weight": 0.1612761079040526
+        },
+        {
+          "feature": "sdwis_prior_12m_count",
+          "weight": 0.04304495888907378
+        },
+        {
+          "feature": "sdwis_cumulative_prior_count",
+          "weight": -0.07327529592436466
+        },
+        {
+          "feature": "county_eb_baseline",
+          "weight": 1.7331238142173044
+        },
+        {
+          "feature": "overflow_any",
+          "weight": -0.023430546574027388
+        },
+        {
+          "feature": "overflow_count",
+          "weight": 0.030137108075225818
+        },
+        {
+          "feature": "overflow_log_gallons_sum",
+          "weight": 0.0006777517330267485
+        },
+        {
+          "feature": "overflow_repeat_3m_any",
+          "weight": -0.005899564205632292
+        },
+        {
+          "feature": "overflow_severe_any",
+          "weight": -0.02363190597815952
+        },
+        {
+          "feature": "precip_total_mm",
+          "weight": 0.02621930014481911
+        },
+        {
+          "feature": "precip_anomaly_z",
+          "weight": -0.006894734378043935
+        },
+        {
+          "feature": "heavy_rain_days",
+          "weight": 0.03004080455765831
+        },
+        {
+          "feature": "precip_max_1d_mm",
+          "weight": 0.04044904418260879
+        },
+        {
+          "feature": "flood_warning_any",
+          "weight": -0.10680907983370624
+        },
+        {
+          "feature": "flood_warning_count",
+          "weight": -0.026903170940730994
+        },
+        {
+          "feature": "flash_flood_warning_any",
+          "weight": 0.01719550559536486
+        },
+        {
+          "feature": "streamflow_high_count",
+          "weight": -0.07795469447970728
+        },
+        {
+          "feature": "streamflow_low_count",
+          "weight": -0.003990595971362859
+        },
+        {
+          "feature": "streamflow_extreme_high_any",
+          "weight": 0.050027532796334165
+        },
+        {
+          "feature": "streamflow_extreme_low_any",
+          "weight": 0.03547208533787676
+        },
+        {
+          "feature": "drought_fraction_d1plus",
+          "weight": -0.01939411834032894
+        },
+        {
+          "feature": "drought_fraction_d3plus",
+          "weight": 0.07997589854776892
+        },
+        {
+          "feature": "overflow_x_precip_anomaly",
+          "weight": 0.011152772384738755
+        },
+        {
+          "feature": "overflow_x_flood_warning",
+          "weight": 0.04385227547916647
+        },
+        {
+          "feature": "overflow_x_streamflow_high",
+          "weight": -0.03022786535447468
+        },
+        {
+          "feature": "overflow_x_streamflow_low",
+          "weight": 0.0303912000213153
+        },
+        {
+          "feature": "overflow_x_drought",
+          "weight": -0.001400240357026685
+        },
+        {
+          "feature": "month_is_02",
+          "weight": -0.09855808887844272
+        },
+        {
+          "feature": "month_is_03",
+          "weight": 0.661315157093911
+        },
+        {
+          "feature": "month_is_04",
+          "weight": -0.33700392233689425
+        },
+        {
+          "feature": "month_is_05",
+          "weight": -0.17341939505783485
+        },
+        {
+          "feature": "month_is_06",
+          "weight": 0.624751266199986
+        },
+        {
+          "feature": "month_is_07",
+          "weight": -0.2901693919498108
+        },
+        {
+          "feature": "month_is_08",
+          "weight": -0.2145937117708986
+        },
+        {
+          "feature": "month_is_09",
+          "weight": 0.6380102558555891
+        },
+        {
+          "feature": "month_is_10",
+          "weight": -0.2923546339003818
+        },
+        {
+          "feature": "month_is_11",
+          "weight": -0.16388475439045186
+        },
+        {
+          "feature": "month_is_12",
+          "weight": 0.584038789222438
+        },
+        {
+          "feature": "heat_days",
+          "weight": 0.028005980917489508
+        },
+        {
+          "feature": "freeze_days",
+          "weight": -0.13777157757198272
+        }
+      ],
+      "metrics": {
+        "train": {
+          "count": 9534,
+          "positives": 1527,
+          "prevalence": 0.16016362492133418,
+          "auroc": 0.945531288151682,
+          "auprc": 0.878790405571535,
+          "brier": 0.04906839261346543,
+          "precisionAtTopDecile": 0.9706190975865687,
+          "liftAtTopDecile": 6.060171890235983,
+          "meanPredictedProbability": 0.17150792346162982
+        },
+        "validation": {
+          "count": 2446,
+          "positives": 532,
+          "prevalence": 0.21749795584627965,
+          "auroc": 0.9324742106048821,
+          "auprc": 0.8388289225685356,
+          "brier": 0.0823721912184629,
+          "precisionAtTopDecile": 0.9673469387755103,
+          "liftAtTopDecile": 4.447613932791161,
+          "meanPredictedProbability": 0.17476187268112828
+        },
+        "test": {
+          "count": 2510,
+          "positives": 385,
+          "prevalence": 0.15338645418326693,
+          "auroc": 0.9062698242933537,
+          "auprc": 0.6971315928078163,
+          "brier": 0.07423767528703264,
+          "precisionAtTopDecile": 0.7928286852589641,
+          "liftAtTopDecile": 5.1688311688311686,
+          "meanPredictedProbability": 0.1755866068647583
+        }
+      }
+    },
+    {
+      "family": "fixed_effects",
+      "model": {
+        "id": "month_controls_full_heat",
+        "label": "Benchmark + month-of-year controls + full temperature stack",
+        "featureNames": [
+          "sdwis_prior_1m_any",
+          "sdwis_prior_3m_count",
+          "sdwis_prior_12m_count",
+          "sdwis_cumulative_prior_count",
+          "county_eb_baseline",
+          "overflow_any",
+          "overflow_count",
+          "overflow_log_gallons_sum",
+          "overflow_repeat_3m_any",
+          "overflow_severe_any",
+          "precip_total_mm",
+          "precip_anomaly_z",
+          "heavy_rain_days",
+          "precip_max_1d_mm",
+          "flood_warning_any",
+          "flood_warning_count",
+          "flash_flood_warning_any",
+          "streamflow_high_count",
+          "streamflow_low_count",
+          "streamflow_extreme_high_any",
+          "streamflow_extreme_low_any",
+          "drought_fraction_d1plus",
+          "drought_fraction_d3plus",
+          "overflow_x_precip_anomaly",
+          "overflow_x_flood_warning",
+          "overflow_x_streamflow_high",
+          "overflow_x_streamflow_low",
+          "overflow_x_drought",
+          "month_is_02",
+          "month_is_03",
+          "month_is_04",
+          "month_is_05",
+          "month_is_06",
+          "month_is_07",
+          "month_is_08",
+          "month_is_09",
+          "month_is_10",
+          "month_is_11",
+          "month_is_12",
+          "temp_mean_anomaly_z",
+          "heat_days",
+          "freeze_days",
+          "overflow_x_heat"
+        ]
+      },
+      "interceptSummary": {
+        "counties": 207,
+        "meanAbsCountyIntercept": 0.00932119744563903
+      },
+      "coefficients": [
+        {
+          "feature": "sdwis_prior_1m_any",
+          "weight": -0.26824645982853723
+        },
+        {
+          "feature": "sdwis_prior_3m_count",
+          "weight": 0.1586072141423063
+        },
+        {
+          "feature": "sdwis_prior_12m_count",
+          "weight": 0.04184134289006586
+        },
+        {
+          "feature": "sdwis_cumulative_prior_count",
+          "weight": -0.0695313179670165
+        },
+        {
+          "feature": "county_eb_baseline",
+          "weight": 1.734557442604431
+        },
+        {
+          "feature": "overflow_any",
+          "weight": -0.024283475971170525
+        },
+        {
+          "feature": "overflow_count",
+          "weight": 0.02959692144752706
+        },
+        {
+          "feature": "overflow_log_gallons_sum",
+          "weight": 0.001272002801888183
+        },
+        {
+          "feature": "overflow_repeat_3m_any",
+          "weight": -0.007850058295125188
+        },
+        {
+          "feature": "overflow_severe_any",
+          "weight": -0.022459038756139523
+        },
+        {
+          "feature": "precip_total_mm",
+          "weight": 0.021490516794870605
+        },
+        {
+          "feature": "precip_anomaly_z",
+          "weight": -0.021505883259815936
+        },
+        {
+          "feature": "heavy_rain_days",
+          "weight": 0.031126510585161707
+        },
+        {
+          "feature": "precip_max_1d_mm",
+          "weight": 0.03632643944718703
+        },
+        {
+          "feature": "flood_warning_any",
+          "weight": -0.10585345239233772
+        },
+        {
+          "feature": "flood_warning_count",
+          "weight": -0.02643975204595654
+        },
+        {
+          "feature": "flash_flood_warning_any",
+          "weight": 0.015284868360523526
+        },
+        {
+          "feature": "streamflow_high_count",
+          "weight": -0.0792427020653748
+        },
+        {
+          "feature": "streamflow_low_count",
+          "weight": 0.0002194114531795374
+        },
+        {
+          "feature": "streamflow_extreme_high_any",
+          "weight": 0.050713060621690134
+        },
+        {
+          "feature": "streamflow_extreme_low_any",
+          "weight": 0.03276120582488928
+        },
+        {
+          "feature": "drought_fraction_d1plus",
+          "weight": -0.01709044596644029
+        },
+        {
+          "feature": "drought_fraction_d3plus",
+          "weight": 0.08065569099427268
+        },
+        {
+          "feature": "overflow_x_precip_anomaly",
+          "weight": 0.013450873547752236
+        },
+        {
+          "feature": "overflow_x_flood_warning",
+          "weight": 0.044222376431641626
+        },
+        {
+          "feature": "overflow_x_streamflow_high",
+          "weight": -0.029819612967838124
+        },
+        {
+          "feature": "overflow_x_streamflow_low",
+          "weight": 0.031106313079799594
+        },
+        {
+          "feature": "overflow_x_drought",
+          "weight": -0.005048703828018175
+        },
+        {
+          "feature": "month_is_02",
+          "weight": -0.09880074498411923
+        },
+        {
+          "feature": "month_is_03",
+          "weight": 0.6573097944512959
+        },
+        {
+          "feature": "month_is_04",
+          "weight": -0.34226670227223516
+        },
+        {
+          "feature": "month_is_05",
+          "weight": -0.1739346183101051
+        },
+        {
+          "feature": "month_is_06",
+          "weight": 0.6165993411883052
+        },
+        {
+          "feature": "month_is_07",
+          "weight": -0.29538298990352346
+        },
+        {
+          "feature": "month_is_08",
+          "weight": -0.22152299186576938
+        },
+        {
+          "feature": "month_is_09",
+          "weight": 0.63557369438727
+        },
+        {
+          "feature": "month_is_10",
+          "weight": -0.2985882925433273
+        },
+        {
+          "feature": "month_is_11",
+          "weight": -0.1677703163576212
+        },
+        {
+          "feature": "month_is_12",
+          "weight": 0.5879863076450074
+        },
+        {
+          "feature": "temp_mean_anomaly_z",
+          "weight": -0.07524056328131054
+        },
+        {
+          "feature": "heat_days",
+          "weight": 0.04883943302087298
+        },
+        {
+          "feature": "freeze_days",
+          "weight": -0.15264592351945086
+        },
+        {
+          "feature": "overflow_x_heat",
+          "weight": 0.012427904227578886
+        }
+      ],
+      "metrics": {
+        "train": {
+          "count": 9534,
+          "positives": 1527,
+          "prevalence": 0.16016362492133418,
+          "auroc": 0.9456839051030087,
+          "auprc": 0.8791388944618971,
+          "brier": 0.048983918204473155,
+          "precisionAtTopDecile": 0.968520461699895,
+          "liftAtTopDecile": 6.047068815878716,
+          "meanPredictedProbability": 0.17149442605079454
+        },
+        "validation": {
+          "count": 2446,
+          "positives": 532,
+          "prevalence": 0.21749795584627965,
+          "auroc": 0.9331292573125604,
+          "auprc": 0.8398948878043418,
+          "brier": 0.08223589586571871,
+          "precisionAtTopDecile": 0.9673469387755103,
+          "liftAtTopDecile": 4.447613932791161,
+          "meanPredictedProbability": 0.17373106482984213
+        },
+        "test": {
+          "count": 2510,
+          "positives": 385,
+          "prevalence": 0.15338645418326693,
+          "auroc": 0.9058945760122231,
+          "auprc": 0.6972112784887623,
+          "brier": 0.07425247334296486,
+          "precisionAtTopDecile": 0.796812749003984,
+          "liftAtTopDecile": 5.194805194805195,
+          "meanPredictedProbability": 0.1743839124307899
+        }
+      }
+    }
+  ]
+}

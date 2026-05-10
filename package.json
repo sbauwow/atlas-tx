@@ -26,6 +26,7 @@
     "analyze:precipitation-fixed-effects": "tsx experiments/model_precipitation_fixed_effects.ts",
     "analyze:shrinkage-eb-baseline": "tsx experiments/shrinkage_county_baseline.ts",
     "analyze:heat-ablation": "tsx experiments/heat_ablation.ts",
+    "analyze:seasonality-robustness": "tsx experiments/seasonality_robustness.ts",
     "build:tx-counties-topo": "tsx scripts/build-tx-counties-topo.ts",
     "postinstall": "prisma generate",
     "db:migrate": "prisma migrate dev"

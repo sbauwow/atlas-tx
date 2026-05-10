@@ -56,6 +56,26 @@ Current anomaly directions to build toward:
 
 Spec lives in `docs/contracts/dataset-registry.md`.
 
+## Whitepaper and research artifacts
+
+Atlas TX now includes a paper-style research track inside the repo itself. The current whitepaper-oriented artifacts are:
+
+- `papers/2026-05-10-county-month-water-risk-paper-draft.md` — current paper draft for the Texas county-month open-data water-risk study
+- `outputs/thesis-status/2026-05-09-thesis-status-memo.md` — concise thesis-status memo with current empirical read
+- `papers/2026-05-09-panel-spec-and-experiment-plan.md` — panel contract and experiment plan
+- `papers/2026-05-10-grassroots-strip-validation-preregistration-and-schema.md` — separate preregistration/schema for the grassroots validation lane
+- `outputs/thesis-status/2026-05-09-heat-ablation-memo.md` — decomposition of the earlier temperature/heat result
+- `outputs/thesis-status/2026-05-10-seasonality-robustness-memo.md` — month-of-year robustness pass showing broad seasonality as a major predictor
+
+Whitepaper summary, in one paragraph:
+
+- the current county-month study asks what contest-relevant Texas open data can and cannot support for next-month SDWIS risk ranking
+- chronic county baseline risk and broad month-of-year seasonality dominate the predictive signal
+- empirical-Bayes stabilization materially improves county risk ranking
+- precipitation, flood-warning, streamflow, and drought layers add limited incremental value at this resolution
+- compact temperature-seasonality terms add only a smaller residual refinement after explicit month-of-year controls
+- grassroots strip observations remain a separate community-validation lane, not a core supervisory target
+
 ## Architecture
 
 - `src/app/` — Next.js 16 frontend + API routes (UI is decoration; agent is centerpiece — see [`AGENTS.md`](AGENTS.md))

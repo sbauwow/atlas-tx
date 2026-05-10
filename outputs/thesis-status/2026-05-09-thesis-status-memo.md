@@ -9,8 +9,9 @@ The thesis is now **empirically real but not yet paper-finished**.
 We have a reproducible Texas county-month panel, a backtest ladder, and a defensible central result. The strongest current framing is not a broad causal weather thesis. It is an **open-data county-month risk-ranking thesis** in which:
 
 1. **persistent county baseline risk dominates**,
-2. **empirical-Bayes shrinkage materially improves baseline-risk estimation**, and
-3. **temperature / heat context is the first trigger layer that clearly adds incremental predictive value** beyond precipitation, flood-warning, streamflow, and drought proxies.
+2. **empirical-Bayes shrinkage materially improves baseline-risk estimation**,
+3. **broad month-of-year seasonality is a major predictive component**, and
+4. **temperature-seasonality features add only a smaller residual gain once explicit month controls are present**.
 
 ---
 
@@ -35,7 +36,7 @@ We have a reproducible Texas county-month panel, a backtest ladder, and a defens
 ### What is not complete
 
 - final thesis/paper draft
-- focused heat ablation and interpretation section
+- related-work positioning and source/proxy table
 - partial-pooling / hierarchical follow-on model
 - PWS-month extension
 - final polished limitations / reviewer-objection section
@@ -89,15 +90,18 @@ Interpretation:
 - those layers are still useful as explanatory context
 - but they did not overturn the chronic-baseline-risk story
 
-## 4. Heat is the first trigger layer that clearly improved the ladder
+## 4. Broad seasonality is a major predictor, and temperature adds only a smaller residual gain
 
-The latest pass added county-centroid temperature/heat features:
-- `temp_mean_anomaly_z`
-- `heat_days`
-- `freeze_days`
-- `overflow_x_heat`
+The latest robustness pass added explicit month-of-year controls on top of the non-temperature EB trigger benchmark, then layered compact temperature terms back in.
 
-This produced the clearest incremental gain of the trigger stack so far.
+Main read:
+- month controls alone raised pooled validation/test AUPRC from **0.559 / 0.460** to **0.837 / 0.692**
+- the analogous county-intercept-style model rose from **0.559 / 0.462** to **0.837 / 0.693**
+- adding `freeze_days` or `heat_days + freeze_days` on top of month controls still helped, but only modestly
+
+Interpretation:
+- the earlier heat result was real, but it partly reflected broad seasonal timing
+- the reviewer-safe claim is now that **temperature-seasonality features provide a small residual refinement beyond broad month-of-year seasonality**, not that they define a large standalone trigger layer
 
 ---
 
@@ -105,7 +109,7 @@ This produced the clearest incremental gain of the trigger stack so far.
 
 ## Pooled ladder
 
-Best current pooled model:
+Best pre-robustness pooled temperature model:
 
 **Persistence + EB baseline + overflow + precipitation + NWS flood + streamflow + drought + heat**
 
@@ -113,16 +117,18 @@ Metrics:
 - Validation AUPRC: **0.578**
 - Test AUPRC: **0.475**
 
-Relevant comparisons:
-- Persistence + EB county baseline: validation **0.559**, test **0.461**
-- Prior strongest pooled non-heat model: validation **0.570**, test **0.461**
+Seasonality-robustness comparison:
+- Benchmark + month-of-year controls: validation **0.837**, test **0.692**
+- Benchmark + month-of-year controls + `freeze_days`: validation **0.838**, test **0.695**
+- Benchmark + month-of-year controls + `heat_days + freeze_days`: validation **0.838**, test **0.695**
 
 Read:
-- heat improved the pooled model beyond the earlier trigger stack
+- broad annual timing is doing far more work than the earlier unconstrained heat gain alone suggested
+- compact temperature features still add a small residual improvement after month controls
 
 ## County fixed-effects-style ladder
 
-Best current FE-style model:
+Best pre-robustness county-intercept-style temperature model:
 
 **County FE + persistence + EB baseline + overflow + precipitation + NWS flood + streamflow + drought + heat**
 
@@ -130,12 +136,14 @@ Metrics:
 - Validation AUPRC: **0.578**
 - Test AUPRC: **0.478**
 
-Relevant comparisons:
-- County FE + persistence + EB baseline: validation **0.559**, test **0.463**
-- Prior strongest FE validation model before heat: validation **0.567**, test **0.459**
+Seasonality-robustness comparison:
+- Benchmark + month-of-year controls: validation **0.837**, test **0.693**
+- Benchmark + month-of-year controls + `freeze_days`: validation **0.839**, test **0.697**
+- Benchmark + month-of-year controls + `heat_days + freeze_days`: validation **0.839**, test **0.697**
 
 Read:
-- the heat gain survives the county-FE-style pass, which makes it harder to dismiss as pure between-county confounding
+- the month-control result survives the county-intercept-style pass too, so the paper should no longer treat the earlier temperature gain as a large standalone effect
+- the remaining thermal signal is smaller but still directionally consistent across both model families
 
 ---
 
@@ -143,7 +151,7 @@ Read:
 
 The strongest current thesis statement is:
 
-> Using contest-relevant Texas open data plus adjacent public environmental context, a Texas county-month backtest of SDWIS health-based event occurrence shows that persistent county-level baseline risk is the dominant predictive component, empirical-Bayes shrinkage improves baseline-risk estimation, and county-month temperature-seasonality context adds measurable incremental ranking value beyond precipitation, flood-warning, streamflow, and drought proxy layers.
+> Using contest-relevant Texas open data plus adjacent public environmental context, a Texas county-month backtest of SDWIS health-based event occurrence shows that persistent county-level baseline risk and broad month-of-year seasonality are the dominant predictive components, empirical-Bayes shrinkage improves baseline-risk estimation, and county-month temperature-seasonality features add only modest residual ranking value beyond those stronger baselines and the non-temperature trigger stack.
 
 That framing is:
 - predictive rather than causal
@@ -177,7 +185,8 @@ Now the thesis is stronger because it has:
 - a stable panel contract
 - a reproducible build chain
 - a negative result that sharpened the chronic-risk narrative
-- a positive result from heat that gives the trigger section real traction
+- a seasonality robustness pass that exposed a stronger annual-timing component instead of leaving the thermal story under-tested
+- a narrower but more defensible residual temperature-seasonality result
 - a clear methodological contribution through EB stabilization
 
 That is enough for a credible thesis spine.
@@ -186,13 +195,12 @@ That is enough for a credible thesis spine.
 
 ## Remaining gaps before this is submission-ready
 
-## A. Heat ablation
+## A. Better paper framing after the seasonality check
 
-We still need to isolate which heat terms are actually doing the work:
-- `heat_days`
-- `temp_mean_anomaly_z`
-- `freeze_days`
-- `overflow_x_heat`
+We now need the paper to state clearly that:
+- broad month-of-year seasonality is a major predictor
+- the earlier heat gain was partly a seasonality story
+- `freeze_days` and `heat_days + freeze_days` still add only a smaller residual refinement after month controls
 
 ## B. Better model form
 
@@ -223,15 +231,13 @@ The paper still needs:
 
 Highest-value immediate next artifact:
 
-**Heat ablation / interpretation memo**
+**Related-work + source/proxy table + threat-to-validity pass**
 
-Questions to answer:
-1. Is the gain mostly from `heat_days` or `temp_mean_anomaly_z`?
-2. Does `overflow_x_heat` matter?
-3. Does heat help more in high-baseline-risk counties than low-risk ones?
-4. Is the gain concentrated in summer holdout months?
-
-After that, the project should move into a real thesis draft.
+Questions to answer next:
+1. How should the paper position itself relative to open-data monitoring, water-risk surveillance, and small-area prediction work?
+2. Which source/proxy table best explains the Texas-open-data backbone versus federal enrichments?
+3. How should the discussion explicitly distinguish chronic baseline risk, broad seasonality, and residual temperature-seasonality refinement?
+4. Do we want one additional warm-season vs cool-season descriptive cut, or is the month-control robustness pass enough?
 
 ---
 
@@ -248,7 +254,7 @@ After that, the project should move into a real thesis draft.
 
 Most honest one-sentence status:
 
-> We now have a real thesis result: chronic county baseline risk is the main predictive signal, EB shrinkage materially improves risk estimation, and heat is the first weather context layer that clearly adds incremental next-month SDWIS ranking value, but the final writeup and heat-focused robustness pass are still unfinished.
+> We now have a real thesis result: chronic county baseline risk and broad month-of-year seasonality are the main predictive signals, EB shrinkage materially improves risk estimation, and compact temperature-seasonality terms add only a smaller residual next-month SDWIS ranking gain after explicit season controls, but the final paper framing is still unfinished.
 
 ---
 
@@ -260,6 +266,8 @@ Most honest one-sentence status:
 - `outputs/panel-summary/county-month-water-risk-coverage.md`
 - `outputs/model-results/2026-05-09-precipitation-aware-model-ladder.md`
 - `outputs/model-results/2026-05-09-fixed-effects-precipitation-backtest.md`
+- `outputs/thesis-status/2026-05-09-heat-ablation-memo.md`
+- `outputs/thesis-status/2026-05-10-seasonality-robustness-memo.md`
 
 ## Sources
 
