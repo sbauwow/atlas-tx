@@ -268,6 +268,38 @@ function AddressLookupResult({
           )}
         </ResultBlock>
 
+        <ResultBlock title="Water governance (MUDs, SUDs, utilities)">
+          {data.governance.totalCount === 0 ? (
+            <p className="text-slate-400">No districts or PUCT-registered utilities for this county.</p>
+          ) : (
+            <>
+              <p className="text-xs text-slate-400">
+                {data.governance.totalCount} entit{data.governance.totalCount === 1 ? "y" : "ies"} in county
+                {Object.entries(data.governance.byCode)
+                  .sort((a, b) => b[1] - a[1])
+                  .slice(0, 4)
+                  .map(([code, count]) => ` · ${count} ${code}`)
+                  .join("")}
+              </p>
+              <ul className="mt-2 space-y-1.5">
+                {data.governance.entities.map((entity) => (
+                  <li key={`${entity.sourceId}-${entity.entityId}`} className="text-slate-200">
+                    <span className="font-medium text-white">{entity.entityName}</span>
+                    <span className="ml-2 rounded-md border border-white/10 bg-white/5 px-1.5 py-0.5 text-[10px] uppercase tracking-[0.16em] text-slate-300">
+                      {entity.code}
+                    </span>
+                    <span className="block text-xs text-slate-400">
+                      {entity.typeLabel}
+                      {entity.city ? ` · ${entity.city}` : ""}
+                      {entity.activityStatus ? ` · ${entity.activityStatus}` : ""}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </>
+          )}
+        </ResultBlock>
+
         <ResultBlock title="County water summary">
           {summary ? (
             <ul className="space-y-1 text-slate-300">

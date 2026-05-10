@@ -17,14 +17,20 @@ import type {
   CountyWaterSummary,
   StreamGauge,
   WaterAlert,
+  WaterGovernanceEntity,
   SewerOverflowEvent,
   SurfaceWaterQualitySegment,
 } from "@/lib/water/types";
+import {
+  classifyDistrictType,
+  type DistrictTypeCode,
+} from "@/lib/water/district-type";
 
 const PROXIMITY_PERMIT_LIMIT = 5;
 const PROXIMITY_GAUGE_LIMIT = 3;
 const PROXIMITY_PWS_LIMIT = 5;
 const PROXIMITY_OVERFLOW_LIMIT = 5;
+const GOVERNANCE_LIMIT = 8;
 
 export type AddressLookupRequest = {
   address: string;
@@ -58,6 +64,24 @@ export type AddressLookupPws = {
   latestViolationEnd: string | null;
 };
 
+export type AddressLookupGovernanceEntity = {
+  entityId: string;
+  entityName: string;
+  rawType: string | null;
+  code: DistrictTypeCode;
+  typeLabel: string;
+  typeDescription: string;
+  city: string | null;
+  activityStatus: string | null;
+  sourceId: WaterGovernanceEntity["sourceId"];
+};
+
+export type AddressLookupGovernance = {
+  totalCount: number;
+  byCode: Record<string, number>;
+  entities: AddressLookupGovernanceEntity[];
+};
+
 export type AddressLookupData = {
   query: string;
   matchedAddress: string;
@@ -78,6 +102,7 @@ export type AddressLookupData = {
     nearest: AddressLookupNearbyPermit[];
   };
   pws: AddressLookupPws[];
+  governance: AddressLookupGovernance;
   countyProfile: CountyBreakdown | null;
 };
 
@@ -99,6 +124,9 @@ const STATIC_SOURCES = [
   "epa-sdwis-violations",
   "acs-county-population-tx",
   "tceq-water-quality-individual-permits",
+  "tceq-water-districts",
+  "puct-water-iou",
+  "puct-water-submeter",
   "atlas-county-explorer",
   "atlas-water-summary",
 ];
@@ -247,6 +275,43 @@ function rankPwsForCounty(rows: SdwisRow[], countyName: string): AddressLookupPw
     .slice(0, PROXIMITY_PWS_LIMIT);
 }
 
+function summarizeGovernance(
+  records: WaterGovernanceEntity[],
+): AddressLookupGovernance {
+  const enriched: AddressLookupGovernanceEntity[] = records.map((record) => {
+    const info = classifyDistrictType(record.entityType);
+    return {
+      entityId: record.entityId,
+      entityName: record.entityName,
+      rawType: record.entityType ?? null,
+      code: info.code,
+      typeLabel: info.label,
+      typeDescription: info.description,
+      city: record.city ?? null,
+      activityStatus: record.activityStatus ?? null,
+      sourceId: record.sourceId,
+    };
+  });
+  const byCode: Record<string, number> = {};
+  for (const entity of enriched) {
+    byCode[entity.code] = (byCode[entity.code] ?? 0) + 1;
+  }
+  const ranked = enriched
+    .slice()
+    .sort((a, b) => {
+      const aActive = a.activityStatus?.toLowerCase().startsWith("active") ? 0 : 1;
+      const bActive = b.activityStatus?.toLowerCase().startsWith("active") ? 0 : 1;
+      if (aActive !== bActive) return aActive - bActive;
+      return a.entityName.localeCompare(b.entityName);
+    })
+    .slice(0, GOVERNANCE_LIMIT);
+  return {
+    totalCount: enriched.length,
+    byCode,
+    entities: ranked,
+  };
+}
+
 function recentSewerOverflows(
   overflows: SewerOverflowEvent[],
   countyName: string,
@@ -323,6 +388,7 @@ export async function lookupAddress(
   const allGauges = waterBreakdown?.layers.gauges ?? [];
   const allOverflows = waterBreakdown?.layers.sewerOverflows ?? [];
   const segments = waterBreakdown?.layers.surfaceWaterQuality ?? [];
+  const governanceRecords = waterBreakdown?.layers.governance ?? [];
 
   const permitsRanked = county
     ? rankNearbyPermits(permits, county.name, point)
@@ -351,6 +417,7 @@ export async function lookupAddress(
     },
     permits: permitsRanked,
     pws: county ? rankPwsForCounty(sdwisRows, county.name) : [],
+    governance: summarizeGovernance(governanceRecords),
     countyProfile: countyBreakdown,
   };
 
