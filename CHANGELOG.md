@@ -2,6 +2,13 @@
 
 ## 2026-05-09
 
+### research: add practical deployment section to paper draft
+
+What shipped:
+- added a practical deployment and use subsection to the paper draft clarifying Atlas TX as a screening and triage workflow rather than an automated enforcement or causal diagnosis system
+- made the deployment language more honest by stating that the workflow was assembled in a short weekend-scale sprint and is not yet fully field-tested or production-ready
+- tightened the conclusion to state the deployment lesson directly: use the model to prioritize deeper follow-up, not to adjudicate compliance on its own
+
 ### research: add related-work positioning and repo whitepaper section
 
 What shipped:

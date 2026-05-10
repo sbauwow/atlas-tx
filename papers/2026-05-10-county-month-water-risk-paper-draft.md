@@ -415,6 +415,21 @@ The county-month unit is coarse, but it remains analytically useful for three re
 
 The fact that temperature-seasonality context still helps at this coarse level strengthens the case for testing finer-resolution system-month models later.
 
+## 5.4 Practical deployment and use
+
+The most plausible near-term use of this system is **screening and triage**, not automated enforcement or causal diagnosis. In that role, Atlas TX would function as an open-data monitoring layer that helps journalists, civic-tech analysts, and public-interest investigators decide where to look next.
+
+At the same time, this deployment story should be stated conservatively. The current workflow was assembled rapidly over a short development cycle and has **not yet been fully field-tested, externally validated, or operationally hardened**. It should therefore be described as a promising prototype monitoring workflow rather than a production-ready decision system.
+
+A practical workflow would be:
+
+1. **Rank counties monthly** using the chronic baseline, persistence, and selected contextual features.
+2. **Separate signal classes** by labeling whether a county appears elevated mainly because of chronic baseline risk, broad seasonal timing, or additional contextual triggers.
+3. **Trigger follow-up review** only for the highest-ranked counties or for counties where contextual signals appear inconsistent with the usual baseline pattern.
+4. **Escalate to finer evidence** such as PWS-level records, notices, operator histories, local reporting, or future grassroots validation observations.
+
+Under that interpretation, the main design lesson is conservative but actionable: stabilize chronic county risk first, account for broad annual timing explicitly, and only then add contextual layers that survive holdout comparison. That makes the system more useful as a public-interest monitoring workflow because it discourages overreaction to noisy one-off trigger signals while still preserving a mechanism for surfacing unusual county-month combinations that deserve investigation. But the honest current status is still pre-deployment: the workflow was derived over a weekend-scale research sprint and remains a paper/prototype artifact until it has undergone fuller robustness checks, user testing, and operational validation.
+
 ---
 
 ## 6. Threats to Validity and Limitations
@@ -457,7 +472,7 @@ The main limitations should be foregrounded explicitly. A contest-facing version
 
 This paper presents a reproducible Texas county-month panel for ranking next-month SDWIS health-based event risk from contest-relevant open data plus adjacent public federal environmental context. Its main empirical result is that **persistent county baseline risk dominates most short-run trigger layers**, and that a simple **empirical-Bayes county baseline** materially improves ranking performance. Precipitation, flood-warning, streamflow, and drought context add limited value beyond that stabilized baseline. A seasonality robustness pass further shows that **broad month-of-year timing is itself a major predictor**. Temperature-seasonality context still adds a smaller residual gain, with heat-focused ablations and month-control tests pointing most consistently to `freeze_days` and the `heat_days + freeze_days` bundle.
 
-The contribution is therefore best framed as open-data systems, predictive, and methodological at the same time. A practical statewide water-risk ranking pipeline can be built from public/open data, but not all open-data layers contribute equally: some mainly encode chronic structure, some capture broad annual timing, some mainly improve interpretation, and only a smaller subset materially improves holdout ranking performance beyond those stronger baselines. The next research step should be either a formal partial-pooling county model or a finer-resolution PWS-month design, followed by a separate grassroots validation layer for testing where open-data ranking and community-observed anomalies align or diverge.
+The contribution is therefore best framed as open-data systems, predictive, and methodological at the same time. A practical statewide water-risk ranking pipeline can be built from public/open data, but not all open-data layers contribute equally: some mainly encode chronic structure, some capture broad annual timing, some mainly improve interpretation, and only a smaller subset materially improves holdout ranking performance beyond those stronger baselines. In deployment terms, the system is best understood as a triage layer for deciding where deeper county- or PWS-level investigation should start, not as a standalone adjudicator of causation or compliance. Just as importantly, the current implementation should still be described as an early prototype derived in a short research sprint rather than a fully tested production workflow. The next research step should be either a formal partial-pooling county model or a finer-resolution PWS-month design, followed by a separate grassroots validation layer for testing where open-data ranking and community-observed anomalies align or diverge.
 
 ---
 
