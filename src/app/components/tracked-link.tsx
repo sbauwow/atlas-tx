@@ -1,20 +1,24 @@
 "use client";
 
 import type { AnchorHTMLAttributes } from "react";
-import { track } from "./track";
+import { trackTelemetryEvent } from "@/lib/telemetry/client";
 
 type Props = AnchorHTMLAttributes<HTMLAnchorElement> & {
   event: string;
   eventTarget?: string;
 };
 
-export default function TrackedLink({ event, eventTarget, onClick, children, ...rest }: Props) {
+export default function TrackedLink({ event, eventTarget, onClick, children, href, ...rest }: Props) {
   return (
     <a
       {...rest}
+      href={href}
       onClick={(eventArg) => {
         try {
-          track(event, eventTarget);
+          trackTelemetryEvent(event, {
+            target: eventTarget ?? null,
+            href: href ?? null,
+          });
         } catch {
           // Telemetry never blocks navigation.
         }

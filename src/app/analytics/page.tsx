@@ -11,6 +11,7 @@ import type { GeometryCollection, Topology } from "topojson-specification";
 import { DecompositionBarsPanel, MoversTable, ScatterplotPanel } from "@/app/components/charts";
 import { ACCENT_HEX, SEVERITY_HEX, SEVERITY_LABEL, type SeverityLevel } from "@/app/design/states";
 import { AddToWatchlistControl } from "@/app/watchlists/watchlist-client";
+import { parseEnumQueryParam, resolveAllowedQueryParam } from "@/lib/query-params";
 import { TEXAS_COUNTY_CENTROIDS } from "@/lib/texas-county-centroids";
 import { getDefaultHydrologyDependencyService } from "@/lib/water/hydrology-dependencies";
 import { getDefaultCountyDependencyNetworkService } from "@/lib/water/source-network";
@@ -337,9 +338,7 @@ export default async function AnalyticsPage({
   const analytics = await loadStatewideAnalyticsViewModel();
   const waterOverview = await getDefaultAtlasWaterSummaryService().getWaterOverview().catch(() => null);
   const params = searchParams ? await searchParams : undefined;
-  const requestedMode = Array.isArray(params?.mode) ? params?.mode[0] : params?.mode;
-  const requestedCounty = Array.isArray(params?.county) ? params?.county[0] : params?.county;
-  const mapMode: "risk" | "pressure" | "oil" = requestedMode === "pressure" ? "pressure" : requestedMode === "oil" ? "oil" : "risk";
+  const mapMode = parseEnumQueryParam(params?.mode, ["risk", "pressure", "oil"] as const, "risk");
 
   const chipToneClassName: Record<"accent" | "warning" | "neutral", string> = {
     accent: "border-cyan-400/20 bg-cyan-400/10 text-cyan-100",
@@ -397,7 +396,11 @@ export default async function AnalyticsPage({
       href: point.href,
     }))
     .filter((county) => county.fips);
-  const selectedCounty = countyMapRows.find((county) => county.slug === requestedCounty) ?? countyMapRows[0] ?? null;
+  const selectedCountySlug = resolveAllowedQueryParam(
+    params?.county,
+    countyMapRows.map((county) => county.slug),
+  );
+  const selectedCounty = countyMapRows.find((county) => county.slug === selectedCountySlug) ?? countyMapRows[0] ?? null;
   const comparisonCounties = [...countyMapRows]
     .sort((left, right) => (
       mapMode === "pressure"

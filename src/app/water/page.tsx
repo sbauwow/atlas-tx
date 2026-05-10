@@ -1,6 +1,7 @@
 import Link from "next/link";
 import GlossaryTooltip, { GlossaryInlineList } from "@/app/components/glossary-tooltip";
 import { countySlug } from "@/lib/counties";
+import { parseEnumQueryParam, resolveAllowedQueryParam } from "@/lib/query-params";
 import { TEXAS_COUNTY_CENTROIDS } from "@/lib/texas-county-centroids";
 import { getDefaultAtlasWaterSummaryService } from "@/lib/water/water-summary-service";
 import TexasChoropleth, { type ChoroplethCounty, type ChoroplethGauge } from "@/app/water/components/texas-choropleth";
@@ -88,12 +89,12 @@ export default async function WaterPage({
   const service = getDefaultAtlasWaterSummaryService();
   const overview = await service.getWaterOverview();
   const params = searchParams ? await searchParams : undefined;
-  const requestedCounty = Array.isArray(params?.county) ? params?.county[0] : params?.county;
-  const requestedMode = Array.isArray(params?.mode) ? params?.mode[0] : params?.mode;
-  const mapMode: "risk" | "mismatch" = requestedMode === "mismatch" ? "mismatch" : "risk";
-  const selectedSlug = requestedCounty && overview.counties.some((county) => county.county.slug === countySlug(requestedCounty))
-    ? countySlug(requestedCounty)
-    : overview.counties[0]?.county.slug;
+  const mapMode = parseEnumQueryParam(params?.mode, ["risk", "mismatch"] as const, "risk");
+  const selectedSlug = resolveAllowedQueryParam(
+    params?.county,
+    overview.counties.map((county) => county.county.slug),
+    countySlug,
+  ) ?? overview.counties[0]?.county.slug;
   const breakdown = selectedSlug ? await service.getCountyWaterBreakdown(selectedSlug) : null;
 
   const choroplethCounties: ChoroplethCounty[] = overview.counties.map((county) => {
