@@ -147,6 +147,8 @@ It is a governed county-intelligence workspace that helps users:
 - `/operators` — operator index
 - `/operators/[slug]` — operator detail
 - `/watchlists` — saved watchlists
+- `/data` — dataset registry
+- `/data/botnet` — ingest botnet operator view
 - `/map` — interactive map client
 - `/citizen` — isolated citizen observation prototype lane
 - `/glossary` — term definitions
@@ -158,6 +160,7 @@ It is a governed county-intelligence workspace that helps users:
 - `/api/event` — structured telemetry event ingest
 - `/api/counties/overview`
 - `/api/counties/[slug]`
+- `/api/ops/botnet`
 - `/api/permits/locations`
 - `/api/tiles/[z]/[x]/[y]`
 - `/api/watchlists`, `/api/watchlists/*`
@@ -302,9 +305,12 @@ Atlas treats these as evidence layers, not final causal verdicts.
 | `/operators` | `src/app/operators/page.tsx` | operator index |
 | `/operators/[slug]` | `src/app/operators/[slug]/page.tsx` | operator detail |
 | `/watchlists` | `src/app/watchlists/page.tsx` | saved watchlists |
+| `/data` | `src/app/data/page.tsx` | dataset registry |
+| `/data/botnet` | `src/app/data/botnet/page.tsx` | ingest botnet operator view |
 | `/map` | `src/app/map/page.tsx` | map shell entry |
 | `/api/event` | `src/app/api/event/route.ts` | structured telemetry ingest |
 | `/api/beacon` | `src/app/api/beacon/route.ts` | pixel telemetry ingest |
+| `/api/ops/botnet` | `src/app/api/ops/botnet/route.ts` | botnet health + queue summary |
 | `/api/water/overview` | `src/app/api/water/overview/route.ts` | statewide water summary |
 | `/api/water/oil-gas-extraction` | `src/app/api/water/oil-gas-extraction/route.ts` | TXG31 permit lane |
 | local MCP server | `packages/mcp-server/src/index.js` | command entrypoint |
@@ -371,6 +377,7 @@ npm run mcp -- get_permit_filing_detail '{"tceq_id":"WQ0000447000"}'
 npm run mcp -- build_permit_protest_prep '{"tceq_id":"WQ0000447000"}'
 npm run mcp -- list_county_pending_fights '{"county":"Travis County","limit":5}'
 npm run mcp -- get_pipeline_health
+npm run mcp -- get_roadmap_open_data_queue
 ```
 
 See:

@@ -44,6 +44,10 @@ export default function DataPage() {
           Every Atlas TX map cell traces back to one of these public sources. State and federal — TCEQ, TWDB, EPA, Census, USGS, NOAA, FEMA. No scraped-then-resold data. The wiki at <Link href="/wiki" className="text-cyan-300 hover:text-cyan-200">docs/wiki/</Link> documents schemas, gotchas, and lineage in depth.
         </p>
         <div className="flex flex-wrap gap-2 text-xs text-slate-300">
+          <Link href="/data/botnet" className="inline-flex items-center gap-1.5 rounded-full border border-cyan-400/30 bg-cyan-400/10 px-2.5 py-1 text-cyan-200 transition-colors hover:bg-cyan-400/15">
+            Ingest botnet status
+            <span className="font-mono text-cyan-100">ops</span>
+          </Link>
           {categories.map(([categoryRaw, list]) => {
             const category = categoryRaw as keyof typeof DATASET_CATEGORY_LABEL;
             const token = DATASET_CATEGORY_TOKEN[category];

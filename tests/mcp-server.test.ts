@@ -825,6 +825,80 @@ describe("Atlas TX MCP handlers", () => {
     expect(dispatched.data[0]?.tceq_id).toBe("WQ0000447000");
   });
 
+  it("returns pipeline health and roadmap queue state from committed artifacts", async () => {
+    const deps = {
+      loadPipelineHealthReport: async () => ({
+        generatedAt: "2026-05-10T00:00:00.000Z",
+        overallStatus: "degraded",
+        steps: [
+          {
+            stepId: "refresh-cid",
+            status: "failed",
+            startedAt: "2026-05-10T00:00:00.000Z",
+            endedAt: "2026-05-10T00:05:00.000Z",
+            durationMs: 300000,
+            outputPath: "public/cache/pipeline-health.json",
+            notes: ["browser fallback used", "CID Search One returned the upstream error page"],
+          },
+        ],
+      }),
+      loadRoadmapOpenDataQueue: async () => ({
+        generatedAt: "2026-05-10T01:00:00.000Z",
+        scope: "atlas-tx-roadmap-open-data-botnet",
+        candidateCount: 2,
+        waves: { "wave-3": 1, "wave-4": 1 },
+        candidates: [
+          {
+            executionUnitId: "boil-water-notices",
+            name: "Boil-water notices",
+            roadmapWave: "wave-3",
+            roadmapPhaseLabel: "later",
+            strategicPriority: "very-high",
+            evidenceClass: "authoritative",
+            thesisLane: "contradiction-detection",
+            upstreamType: "manual-discovery",
+            grain: "pws-event",
+            geographicJoinStrategy: "pws-to-county",
+            downstreamConsumers: ["water-ui"],
+            activationCriteria: ["upstream_source_verified"],
+            nextAction: "verify-upstream-source",
+          },
+          {
+            executionUnitId: "citizen-water-observations",
+            name: "Citizen water observations",
+            roadmapWave: "wave-4",
+            roadmapPhaseLabel: "future-community",
+            strategicPriority: "high",
+            evidenceClass: "community",
+            thesisLane: "community-verification",
+            upstreamType: "app-capture",
+            grain: "site-observation",
+            geographicJoinStrategy: "point-in-county",
+            downstreamConsumers: ["citizen-ui"],
+            activationCriteria: ["community_data_isolated"],
+            nextAction: "verify-upstream-source",
+          },
+        ],
+      }),
+    };
+    const handlers = createAtlasTxMcpHandlers(deps);
+
+    const health = await handlers.get_pipeline_health({});
+    expect(health.data.overall_status).toBe("degraded");
+    expect(health.data.cid.browser_fallback_used).toBe(true);
+    expect(health.data.cid.last_error).toContain("upstream error page");
+
+    const queue = await handlers.get_roadmap_open_data_queue({});
+    expect(queue.generated_at).toBe("2026-05-10T01:00:00.000Z");
+    expect(queue.data.scope).toBe("atlas-tx-roadmap-open-data-botnet");
+    expect(queue.data.candidate_count).toBe(2);
+    expect(queue.data.candidates[0]?.execution_unit_id).toBe("boil-water-notices");
+    expect(queue.data.candidates[0]?.execution_unit_status).toBe("planned");
+
+    const dispatched = await runAtlasTxTool("get_roadmap_open_data_queue", {}, deps);
+    expect(dispatched.data.candidates).toHaveLength(2);
+  });
+
   it("composes a county water-risk summary with DWRS + analytics + optional APD", async () => {
     const sdwisRows = [
       {

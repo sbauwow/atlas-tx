@@ -138,6 +138,11 @@ const TOOLS = [
     inputSchema: {},
   },
   {
+    name: 'get_roadmap_open_data_queue',
+    description: 'Future-source queue state from public/cache/roadmap-open-data-botnet.json plus execution-registry status.',
+    inputSchema: {},
+  },
+  {
     name: 'summarize_water_risk_for_county',
     description: 'Composite county-level summary: DWRS top PWS + analytics snapshot + optional APD. Returns a sourced screening surface, not a regulatory finding.',
     inputSchema: {

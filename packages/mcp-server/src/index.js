@@ -81,6 +81,19 @@ async function loadPipelineHealthReportFromSnapshot() {
   return JSON.parse(raw);
 }
 
+async function loadRoadmapOpenDataQueueFromSnapshot() {
+  const queuePath = path.join(process.cwd(), 'public', 'cache', 'roadmap-open-data-botnet.json');
+  const raw = await fs.readFile(queuePath, 'utf8');
+  return JSON.parse(raw);
+}
+
+async function loadExecutionRegistryHelpers() {
+  const mod = await import('../../../src/lib/execution/execution-registry.ts');
+  return {
+    listAtlasExecutionUnits: mod.listAtlasExecutionUnits,
+  };
+}
+
 async function loadAnalyticsArtifact(filename) {
   const artifactPath = path.join(process.cwd(), 'public', 'cache', 'analytics', filename);
   const raw = await fs.readFile(artifactPath, 'utf8');
@@ -220,6 +233,33 @@ function buildPipelineHealthSummary(report) {
   };
 }
 
+async function buildRoadmapOpenDataQueueSummary(queue) {
+  const { listAtlasExecutionUnits } = await loadExecutionRegistryHelpers();
+  const executionUnits = listAtlasExecutionUnits();
+  return {
+    scope: queue.scope,
+    generated_at: queue.generatedAt,
+    candidate_count: queue.candidateCount,
+    waves: queue.waves,
+    candidates: queue.candidates.map((candidate) => ({
+      execution_unit_id: candidate.executionUnitId,
+      name: candidate.name,
+      roadmap_wave: candidate.roadmapWave,
+      roadmap_phase_label: candidate.roadmapPhaseLabel,
+      strategic_priority: candidate.strategicPriority,
+      evidence_class: candidate.evidenceClass,
+      thesis_lane: candidate.thesisLane,
+      upstream_type: candidate.upstreamType,
+      grain: candidate.grain,
+      geographic_join_strategy: candidate.geographicJoinStrategy,
+      downstream_consumers: candidate.downstreamConsumers,
+      activation_criteria: candidate.activationCriteria,
+      next_action: candidate.nextAction,
+      execution_unit_status: executionUnits.find((unit) => unit.id === candidate.executionUnitId)?.status ?? null,
+    })),
+  };
+}
+
 function aggregatePermitRows(cases, protests, params = {}) {
   const protestsById = new Map();
   for (const protest of protests) {
@@ -281,6 +321,7 @@ export function createAtlasTxMcpHandlers(deps = {}) {
     return normalizePermitContext(await helpers.getTceqPendingPermitsPageData());
   });
   const loadPipelineHealthReport = deps.loadPipelineHealthReport ?? loadPipelineHealthReportFromSnapshot;
+  const loadRoadmapOpenDataQueue = deps.loadRoadmapOpenDataQueue ?? loadRoadmapOpenDataQueueFromSnapshot;
   const loadAnalyticsArtifacts = deps.loadAnalyticsArtifacts ?? loadAnalyticsArtifactsFromSnapshot;
 
   return {
@@ -828,6 +869,19 @@ export function createAtlasTxMcpHandlers(deps = {}) {
         caveats: [
           'Pipeline health reflects the latest staged refresh artifact, not a live check against upstream sources.',
           'CID remains the most failure-prone source; browser fallback usage is inferred from recorded step notes.',
+        ],
+      });
+    },
+
+    async get_roadmap_open_data_queue() {
+      const queue = await loadRoadmapOpenDataQueue();
+      return envelope(await buildRoadmapOpenDataQueueSummary(queue), {
+        generatedAt: queue.generatedAt,
+        cacheState: 'snapshot',
+        sources: [],
+        caveats: [
+          'Roadmap queue state comes from the committed roadmap-open-data botnet artifact, not a live probe of every future source.',
+          'Execution unit status is joined from the local execution registry so operators can distinguish active, partial, and planned lanes.',
         ],
       });
     },

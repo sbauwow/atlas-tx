@@ -1,8 +1,9 @@
 # Contract — MCP Tool Surface
 
-> Contract version: **0.7.0** — bump on any breaking change to tool name, params, or response shape. Notify `skill` workstream in `STATE.md` when bumping.
+> Contract version: **0.8.0** — bump on any breaking change to tool name, params, or response shape. Notify `skill` workstream in `STATE.md` when bumping.
 >
 > Changelog:
+> - 0.8.0 (2026-05-10): add `get_roadmap_open_data_queue` so MCP can inspect the committed roadmap-open-data botnet artifact and join candidate lanes against execution-registry status.
 > - 0.7.0 (2026-05-10): wire a real stdio MCP transport via `@modelcontextprotocol/sdk` (`packages/mcp-server/src/server.js`, run with `npm run mcp:stdio`); ship the contract-promised `summarize_water_risk_for_county` composite (DWRS top PWS + analytics snapshot + optional APD); existing JSON CLI dispatch (`npm run mcp <tool> '<json>'`) stays as a back-door for scripts.
 > - 0.6.0 (2026-05-10): add Wave 3 analytics-spine MCP tools `get_county_analytics_summary`, `list_county_movers`, `get_pressure_risk_scatter`, and `get_county_score_decomposition` over the committed Wave 1/2 analytics artifacts.
 > - 0.5.0 (2026-05-10): add `get_permit_filing_detail` and `list_county_pending_fights` so MCP exposes the permit-detail workspace and county-level pending-fights lane.
@@ -37,7 +38,7 @@ type Source = {
 
 Tools never return naked data. The skill relies on `sources` and `caveats` to satisfy attribution + safety guardrails.
 
-## Tool catalog (v0.7.0)
+## Tool catalog (v0.8.0)
 
 ### `discover_datasets`
 Lists registered datasets with category + use-case + access type.
@@ -93,6 +94,61 @@ data: Array<{
   score: number;
   components: { demographic_burden: number; permit_density: number };
 }>;
+```
+
+### `get_pipeline_health`
+Returns the latest staged refresh status from the committed `public/cache/pipeline-health.json` artifact.
+
+```ts
+params: {};
+data: {
+  overall_status: "ok" | "degraded" | "failed";
+  last_successful_run_at: string | null;
+  stale_steps: string[];
+  cid: {
+    status: string;
+    browser_fallback_used: boolean;
+    last_error: string | null;
+  };
+  steps: Array<{
+    step_id: string;
+    status: "ok" | "failed" | "skipped";
+    started_at: string;
+    ended_at: string;
+    duration_ms: number;
+    output_path: string | null;
+    notes: string[];
+  }>;
+};
+```
+
+### `get_roadmap_open_data_queue`
+Returns the committed roadmap-open-data botnet queue and joins each candidate lane against the local execution registry.
+
+```ts
+params: {};
+data: {
+  scope: "atlas-tx-roadmap-open-data-botnet";
+  generated_at: string;
+  candidate_count: number;
+  waves: Record<string, number>;
+  candidates: Array<{
+    execution_unit_id: string;
+    name: string;
+    roadmap_wave: string;
+    roadmap_phase_label: string;
+    strategic_priority: string;
+    evidence_class: string;
+    thesis_lane: string;
+    upstream_type: string;
+    grain: string;
+    geographic_join_strategy: string;
+    downstream_consumers: string[];
+    activation_criteria: string[];
+    next_action: "verify-upstream-source" | "define-county-join" | "productize-existing-module";
+    execution_unit_status: string | null;
+  }>;
+};
 ```
 
 ### `summarize_water_risk_for_county`

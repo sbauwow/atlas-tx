@@ -56,6 +56,7 @@ describe("Atlas TX MCP stdio server", () => {
         "get_permit_filing_detail",
         "list_county_pending_fights",
         "get_pipeline_health",
+        "get_roadmap_open_data_queue",
         "summarize_water_risk_for_county",
       ]),
     );

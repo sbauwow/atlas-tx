@@ -36,8 +36,8 @@ export default function Ticker({
   useEffect(() => {
     const reduce = typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
     if (reduce) {
-      setDisplay(value);
-      return;
+      const raf = requestAnimationFrame(() => setDisplay(value));
+      return () => cancelAnimationFrame(raf);
     }
     fromRef.current = display;
     startedAtRef.current = null;
