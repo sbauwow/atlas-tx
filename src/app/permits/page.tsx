@@ -2,7 +2,9 @@ import Link from "next/link";
 
 import GlossaryTooltip, { GlossaryInlineList } from "@/app/components/glossary-tooltip";
 import { CountyWorkspaceHeader } from "@/app/components/county-workspace-header";
+import { MareyChart, type MareySegment } from "@/app/components/data-viz";
 import { TexasCountyChoropleth } from "@/app/components/texas-county-choropleth";
+import { SEVERITY_HEX } from "@/app/design/states";
 import { AddToWatchlistControl } from "@/app/watchlists/watchlist-client";
 import type { CidCaseRow, CidProtestRow } from "@/lib/datasets/cid";
 import { buildStatewideOperatorSummaryRows } from "@/lib/operator-intelligence";
@@ -35,6 +37,36 @@ export default async function PermitsPage({
     cidProtests,
   });
   const topOperatorRows = operatorRows.slice(0, 5);
+
+  // Marey lanes: top counties by ACTIVE-permit volume; cap segments per lane to keep the
+  // chart legible without misrepresenting tail behavior.
+  const tenureCountyCounts = new Map<string, number>();
+  for (const row of data.activeTenure) {
+    if (!row.county) continue;
+    tenureCountyCounts.set(row.county, (tenureCountyCounts.get(row.county) ?? 0) + 1);
+  }
+  const tenureLaneOrder = Array.from(tenureCountyCounts.entries())
+    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+    .slice(0, data.countyFilter ? 32 : 14)
+    .map(([county]) => county);
+  const tenureLaneSet = new Set(tenureLaneOrder);
+  const tenureSegments: MareySegment[] = data.activeTenure
+    .filter((row) => row.county && tenureLaneSet.has(row.county))
+    .map((row) => ({
+      id: row.permitNumber,
+      lane: row.county!,
+      detail: `${row.permitteeName} · ${row.authorizationType}`,
+      startAt: row.coverageBeganAt,
+      endAt: null,
+      color: SEVERITY_HEX[2],
+    }));
+  // Stable lane ordering by passing a synthetic placeholder per lane so the chart respects ranking.
+  const orderedSegments: MareySegment[] = [
+    ...tenureLaneOrder.flatMap((lane) => {
+      const inLane = tenureSegments.filter((s) => s.lane === lane);
+      return inLane.length ? inLane : [];
+    }),
+  ];
 
   return (
     <main className="relative mx-auto flex w-full max-w-6xl flex-1 flex-col gap-16 px-6 py-16">
@@ -143,6 +175,32 @@ export default async function PermitsPage({
               </span>
             ))}
           </div>
+        </div>
+      </section>
+
+      <section className="rounded-2xl bg-slate-900/40 p-6 ring-1 ring-white/5">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <div className="text-[11px] font-medium uppercase tracking-[0.18em] text-cyan-300/80">Marey · permit coverage tenure</div>
+            <h2 className="mt-2 text-2xl font-semibold text-white">How long each county has been carrying its active permits</h2>
+            <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-400">
+              Each diagonal = one ACTIVE permit, drawn from <span className="font-mono">date_coverage_began</span> on the right toward today. Steep concentration on the right means recent issuance; segments stretching to the left mean decades-old coverage still in force. Open dot = still active.
+            </p>
+          </div>
+          <div className="rounded-full border border-white/10 px-3 py-1 text-xs text-slate-400">{orderedSegments.length} segments · {tenureLaneOrder.length} counties</div>
+        </div>
+        <div className="mt-5 overflow-x-auto">
+          {orderedSegments.length ? (
+            <MareyChart
+              segments={orderedSegments}
+              caption={`Source: TCEQ 7fq8-wig2 · field date_coverage_began · pending permits omitted (no filing-date column)`}
+              ariaLabel="Active permit coverage tenure by county"
+            />
+          ) : (
+            <div className="rounded-xl bg-white/[0.02] px-4 py-8 text-sm text-slate-500 ring-1 ring-white/5">
+              No active-permit tenure rows for this filter.
+            </div>
+          )}
         </div>
       </section>
 

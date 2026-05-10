@@ -1,11 +1,37 @@
 import Link from "next/link";
 
+import { MicroBar } from "@/app/components/data-viz";
 import { getDefaultAtlasCountyExplorerService } from "@/lib/atlas-county-explorer";
+
+type MicroMetricSpec = {
+  key: string;
+  label: string;
+  read: (metrics: Record<string, Record<string, number | string | null>>) => number;
+};
+
+const MICRO_METRICS: MicroMetricSpec[] = [
+  { key: "permits", label: "Permits", read: (m) => Number(m.permits?.permitCount ?? 0) },
+  { key: "water-districts", label: "Water districts", read: (m) => Number(m["water-districts"]?.districtCount ?? 0) },
+  { key: "cpi", label: "CPI investigations", read: (m) => Number(m["cpi-investigations"]?.totalCompletedInvestigations ?? 0) },
+  { key: "returns", label: "County returns ($)", read: (m) => Number(m["county-returns"]?.totalDue ?? 0) },
+];
+
+function computeMedian(values: number[]): number {
+  if (!values.length) return 0;
+  const sorted = [...values].sort((a, b) => a - b);
+  const mid = Math.floor(sorted.length / 2);
+  return sorted.length % 2 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
+}
 
 export default async function CountiesOverviewPage() {
   const service = getDefaultAtlasCountyExplorerService();
   const overview = await service.getCountyOverview();
   const topCounties = overview.counties.slice(0, 25);
+
+  const metricStats = MICRO_METRICS.map((spec) => {
+    const values = overview.counties.map((c) => spec.read(c.metrics));
+    return { spec, max: Math.max(...values, 1), median: computeMedian(values.filter((v) => v > 0)) };
+  });
 
   return (
     <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-10 px-6 py-16">
@@ -31,9 +57,9 @@ export default async function CountiesOverviewPage() {
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
             <h2 className="text-2xl font-semibold text-white">Top counties</h2>
-            <p className="mt-1 max-w-2xl text-sm text-slate-400">Composite score across the active source lanes. Open a county to see permits and water side-by-side.</p>
+            <p className="mt-1 max-w-2xl text-sm text-slate-400">Composite score across the active source lanes. Each row shows the county vs the state median (dashed tick) on four signals.</p>
           </div>
-          <div className="text-xs font-medium uppercase tracking-[0.18em] text-slate-500">Composite score</div>
+          <div className="text-xs font-medium uppercase tracking-[0.18em] text-slate-500">Composite score · ┊ state median</div>
         </div>
         {topCounties.length ? (
           <div className="mt-5 space-y-3">
@@ -87,6 +113,24 @@ export default async function CountiesOverviewPage() {
                       </Link>
                     </div>
                   </div>
+                  <dl className="mt-3 grid gap-x-5 gap-y-1.5 text-[11px] text-slate-400 sm:grid-cols-4">
+                    {metricStats.map(({ spec, max, median }) => {
+                      const value = spec.read(county.metrics);
+                      return (
+                        <div key={spec.key} className="flex items-center gap-2">
+                          <span className="w-32 shrink-0 truncate uppercase tracking-[0.1em] text-slate-500">{spec.label}</span>
+                          <MicroBar
+                            value={value}
+                            median={median}
+                            max={max}
+                            severity={value >= median * 2 ? 3 : value >= median ? 2 : 1}
+                            label={`${county.county.name} ${spec.label}: ${value}, state median ${median}`}
+                          />
+                          <span className="font-mono tabular-nums text-slate-300">{value.toLocaleString("en-US")}</span>
+                        </div>
+                      );
+                    })}
+                  </dl>
                 </article>
               );
             })}
