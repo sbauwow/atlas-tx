@@ -5,7 +5,7 @@ import Ticker from "@/app/components/ticker";
 import TopographicBackground from "@/app/components/topographic-background";
 import TrackedLink from "@/app/components/tracked-link";
 import { GlossaryInlineList } from "@/app/components/glossary-tooltip";
-import { CATEGORY_BORDER_CLASS, CATEGORY_TEXT_CLASS, DATASET_CATEGORY_GLYPH, DATASET_CATEGORY_LABEL, DATASET_CATEGORY_TOKEN } from "@/app/design/categories";
+import { CATEGORY_BORDER_CLASS, CATEGORY_TEXT_CLASS } from "@/app/design/categories";
 import { surfaceVsGroundwater, texasWaterDiagram, waterPrimerCards } from "@/app/education/content";
 import { getDefaultAtlasCountyExplorerService } from "@/lib/atlas-county-explorer";
 import { MAP_ENTRIES } from "@/lib/map-entries";
@@ -170,7 +170,7 @@ export default async function Home() {
       <section className="grid gap-px overflow-hidden rounded-2xl bg-white/5 ring-1 ring-white/10 sm:grid-cols-3">
         <StatTile value="254" animate={254} label="Texas counties" />
         <StatTile value={`${MAP_ENTRIES.length}`} animate={MAP_ENTRIES.length} label="Themed map views" />
-        <StatTile value={`${MVP_DATASETS.length}`} animate={MVP_DATASETS.length} label="Open datasets" />
+        <StatTile value={`${MVP_DATASETS.length}`} animate={MVP_DATASETS.length} label="Open datasets" href="/data" />
       </section>
 
       <section id="education-primer" className="space-y-6">
@@ -225,75 +225,27 @@ export default async function Home() {
         </div>
       </section>
 
-      <section id="dataset-registry" className="space-y-6">
-        <div className="flex items-end justify-between gap-6">
-          <div className="space-y-2">
-            <h2 className="text-3xl font-semibold tracking-tight text-white">Open datasets behind the maps</h2>
-            <p className="max-w-2xl text-sm leading-7 text-slate-400">
-              Every map cell traces back to one of these public sources. No proprietary feeds, no scraped-then-resold data.
-            </p>
-          </div>
-          <span className="hidden text-xs font-medium uppercase tracking-[0.18em] text-slate-500 sm:block">{MVP_DATASETS.length} sources</span>
-        </div>
-        <div className="grid gap-4 md:grid-cols-2">
-          {MVP_DATASETS.map((dataset) => {
-            const token = DATASET_CATEGORY_TOKEN[dataset.category];
-            return (
-              <article
-                key={dataset.id}
-                className="group relative overflow-hidden rounded-2xl bg-slate-900/40 p-5 ring-1 ring-white/5 transition-all duration-200 hover:bg-slate-900/70 hover:ring-white/15"
-              >
-                <div className="flex items-start justify-between gap-4">
-                  <div className="min-w-0 space-y-2.5">
-                    <div
-                      className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-[0.18em] ${CATEGORY_BORDER_CLASS[token]} ${CATEGORY_TEXT_CLASS[token]}`}
-                      aria-label={`Category: ${DATASET_CATEGORY_LABEL[dataset.category]}`}
-                    >
-                      <span aria-hidden="true">{DATASET_CATEGORY_GLYPH[dataset.category]}</span>
-                      {DATASET_CATEGORY_LABEL[dataset.category]}
-                    </div>
-                    <h3 className="text-lg font-semibold leading-snug text-white">{dataset.name}</h3>
-                  </div>
-                  <code className="shrink-0 rounded-md bg-white/5 px-2 py-1 font-mono text-[11px] text-slate-400">
-                    {dataset.id}
-                  </code>
-                </div>
-                <p className="mt-3 text-sm leading-7 text-slate-300">{dataset.summary}</p>
-                <dl className="mt-5 grid gap-2 text-sm">
-                  <div className="flex gap-2">
-                    <dt className="w-20 shrink-0 text-xs font-medium uppercase tracking-[0.12em] text-slate-500">Publisher</dt>
-                    <dd className="text-slate-300">{dataset.publisher}</dd>
-                  </div>
-                  <div className="flex gap-2">
-                    <dt className="w-20 shrink-0 text-xs font-medium uppercase tracking-[0.12em] text-slate-500">Use case</dt>
-                    <dd className="text-slate-200">{dataset.useCase}</dd>
-                  </div>
-                </dl>
-                <div className="mt-4 flex flex-wrap gap-1.5">
-                  {dataset.keyFields.slice(0, 4).map((field) => (
-                    <span key={field} className="rounded-md bg-white/5 px-2 py-0.5 font-mono text-[11px] text-slate-300 ring-1 ring-white/5">
-                      {field}
-                    </span>
-                  ))}
-                </div>
-              </article>
-            );
-          })}
-        </div>
-      </section>
     </main>
   );
 }
 
-function StatTile({ value, label, animate }: { value: string; label: string; animate?: number }) {
-  return (
-    <div className="bg-slate-950/40 p-6">
+function StatTile({ value, label, animate, href }: { value: string; label: string; animate?: number; href?: string }) {
+  const inner = (
+    <>
       <div className="text-4xl font-semibold tabular-nums tracking-tight text-white">
         {animate !== undefined ? <Ticker value={animate} /> : value}
       </div>
       <div className="mt-2 text-sm leading-6 text-slate-400">{label}</div>
-    </div>
+    </>
   );
+  if (href) {
+    return (
+      <Link href={href} className="block bg-slate-950/40 p-6 transition-colors hover:bg-slate-900/60">
+        {inner}
+      </Link>
+    );
+  }
+  return <div className="bg-slate-950/40 p-6">{inner}</div>;
 }
 
 function SecondaryCard({

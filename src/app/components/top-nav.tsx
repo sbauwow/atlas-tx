@@ -8,6 +8,7 @@ const NAV_LINKS: Array<{ label: string; href: string }> = [
   { label: "Analytics", href: "/analytics" },
   { label: "Permits", href: "/permits" },
   { label: "Education", href: "/education" },
+  { label: "Data", href: "/data" },
 ];
 
 export default function TopNav() {
