@@ -1,6 +1,8 @@
 import Link from "next/link";
 
+import { CountyContextBlock } from "@/app/components/county-context-block";
 import { CountyWorkspaceHeader } from "@/app/components/county-workspace-header";
+import { loadCountyContext } from "@/lib/county-context";
 import { getAdjacentCountyRefs } from "@/lib/water/county-lookup";
 import { getDefaultAtlasWaterSummaryService } from "@/lib/water/water-summary-service";
 
@@ -11,7 +13,10 @@ function statValue(value: number | undefined) {
 export default async function WaterCountyPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const service = getDefaultAtlasWaterSummaryService();
-  const breakdown = await service.getCountyWaterBreakdown(slug);
+  const [breakdown, context] = await Promise.all([
+    service.getCountyWaterBreakdown(slug),
+    loadCountyContext(slug),
+  ]);
   const county = breakdown.county;
   const adjacent = getAdjacentCountyRefs(county.county.slug);
 
@@ -50,6 +55,14 @@ export default async function WaterCountyPage({ params }: { params: Promise<{ sl
         <StatTile value={statValue(county.metrics.sewerOverflowCount30d)} label="Sewer overflows (30d)" />
         <StatTile value={statValue(county.metrics.generalPermitCount)} label="General permits" />
       </section>
+
+      <CountyContextBlock
+        context={context}
+        countyName={county.county.name}
+        alertsCount={county.metrics.activeWaterAlertCount ?? 0}
+        gaugeCount={county.metrics.streamGaugeCount ?? 0}
+        sewerOverflowCount={county.metrics.sewerOverflowCount30d ?? 0}
+      />
 
       {county.mismatch ? (
         <section className="rounded-2xl bg-slate-900/40 p-6 ring-1 ring-white/5">

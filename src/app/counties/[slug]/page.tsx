@@ -1,21 +1,31 @@
 import Link from "next/link";
 
 import GlossaryTooltip, { GlossaryInlineList } from "@/app/components/glossary-tooltip";
+import { CountyContextBlock } from "@/app/components/county-context-block";
 import { CountyWorkspaceHeader } from "@/app/components/county-workspace-header";
 import { buildCountyAnalyticsViewModel, type CountyAnalyticsViewModel } from "@/app/counties/county-analytics";
 import { getOperatorIntelligencePageData } from "@/app/operators/operator-page-data";
 import { AddToWatchlistControl } from "@/app/watchlists/watchlist-client";
 import { getDefaultAtlasCountyExplorerService } from "@/lib/atlas-county-explorer";
+import { loadCountyContext } from "@/lib/county-context";
+import { getDefaultAtlasWaterSummaryService } from "@/lib/water/water-summary-service";
 import { getAdjacentCountyRefs } from "@/lib/water/county-lookup";
 
 export default async function CountyIntelligencePage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const service = getDefaultAtlasCountyExplorerService();
-  const [breakdown, operatorDataset] = await Promise.all([service.getCountyBreakdown(slug), getOperatorIntelligencePageData()]);
+  const waterService = getDefaultAtlasWaterSummaryService();
+  const [breakdown, operatorDataset, context, waterBreakdown] = await Promise.all([
+    service.getCountyBreakdown(slug),
+    getOperatorIntelligencePageData(),
+    loadCountyContext(slug),
+    waterService.getCountyWaterBreakdown(slug).catch(() => null),
+  ]);
   const county = breakdown.overview.county;
   const adjacent = getAdjacentCountyRefs(county.slug);
   const analytics = await buildCountyAnalyticsViewModel(breakdown);
   const countyOperators = getCountyOperatorRows(operatorDataset.detailRows, county.slug);
+  const waterMetrics = waterBreakdown?.county.metrics;
 
   return (
     <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-10 px-6 py-16">
@@ -65,6 +75,14 @@ export default async function CountyIntelligencePage({ params }: { params: Promi
         <StatTile value={String(breakdown.highlights.length)} label="Highlight lanes" />
         <StatTile value={analytics.riskRank ? `#${analytics.riskRank}` : "–"} label="Wave 1 risk rank" />
       </section>
+
+      <CountyContextBlock
+        context={context}
+        countyName={county.name}
+        alertsCount={waterMetrics?.activeWaterAlertCount ?? 0}
+        gaugeCount={waterMetrics?.streamGaugeCount ?? 0}
+        sewerOverflowCount={waterMetrics?.sewerOverflowCount30d ?? 0}
+      />
 
       <section className="grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
         <article className="rounded-2xl bg-slate-900/40 p-6 ring-1 ring-white/5">
@@ -256,10 +274,11 @@ export default async function CountyIntelligencePage({ params }: { params: Promi
         </article>
       </section>
 
-      <section className="grid gap-6 lg:grid-cols-2">
+      <section>
         <article className="rounded-2xl bg-slate-900/40 p-6 ring-1 ring-white/5">
           <h2 className="text-2xl font-semibold text-white">Highlights</h2>
-          <div className="mt-4 space-y-3 text-sm text-slate-300">
+          <p className="mt-1 text-sm text-slate-400">Top-ranked source lanes per the cached county overview.</p>
+          <div className="mt-4 grid gap-3 text-sm text-slate-300 md:grid-cols-2">
             {breakdown.highlights.map((item) => (
               <div key={item.sourceId} className="rounded-xl border border-white/5 bg-white/[0.03] px-4 py-3">
                 <div className="font-medium text-white">{item.label}</div>
@@ -267,20 +286,7 @@ export default async function CountyIntelligencePage({ params }: { params: Promi
               </div>
             ))}
           </div>
-        </article>
-
-        <article className="rounded-2xl bg-slate-900/40 p-6 ring-1 ring-white/5">
-          <h2 className="text-2xl font-semibold text-white">Hydrology context</h2>
-          <div className="mt-4 space-y-3 text-sm text-slate-300">
-            <p className="text-slate-400">Built from <GlossaryTooltip term="TWDB" expand /> hydrology layers and <GlossaryTooltip term="HUC" expand /> geography.</p>
-            {breakdown.hydrologyContext.matches.map((item) => (
-              <div key={`${item.layerId}-${item.primaryCode ?? item.name ?? "match"}`} className="rounded-xl border border-white/5 bg-white/[0.03] px-4 py-3">
-                <div className="font-medium text-white">{item.name ?? item.layerName}</div>
-                <div className="mt-1 text-slate-400">{item.layerName}</div>
-              </div>
-            ))}
-            <div className="text-slate-500">{breakdown.hydrologyContext.caveat}</div>
-          </div>
+          <p className="mt-4 text-xs text-slate-500">Hydrology and surface-water condition fold into the investigation context block above; <GlossaryTooltip term="TWDB" expand /> + <GlossaryTooltip term="HUC" expand /> features are shared with the water county profile.</p>
         </article>
       </section>
     </main>
