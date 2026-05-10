@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { DecompositionBarsPanel, MoversTable, ScatterplotPanel } from "@/app/components/charts";
+import { AddToWatchlistControl } from "@/app/watchlists/watchlist-client";
 
 import { formatNumber, formatTimestamp, loadStatewideAnalyticsViewModel } from "./analytics-data";
 
@@ -58,10 +59,15 @@ function WatchQueuePanel({
           <h2 className="mt-2 text-2xl font-semibold text-white">{title}</h2>
           <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-400">{description}</p>
           <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-500">
-            This is a current-session public-record queue only. Atlas does not save or sync watchlists yet, so copy the lines below into your own notes or handoff doc.
+            Atlas now saves these lanes into local/shared browser watchlists. If storage is blocked or you need a handoff outside this machine, the copyable queue still works as a fallback.
           </p>
         </div>
-        <div className="rounded-full border border-white/10 px-3 py-1 text-xs text-slate-400">{sourceLabel}</div>
+        <div className="flex flex-wrap items-center gap-2">
+          <Link href="/watchlists" className="rounded-full border border-white/10 px-3 py-1 text-xs text-slate-300 transition-colors hover:border-white/20 hover:bg-white/5">
+            Open saved watchlists
+          </Link>
+          <div className="rounded-full border border-white/10 px-3 py-1 text-xs text-slate-400">{sourceLabel}</div>
+        </div>
       </div>
 
       {entries.length ? (
@@ -77,6 +83,18 @@ function WatchQueuePanel({
                 </div>
                 <p className="mt-3 text-sm text-slate-200">{entry.headline}</p>
                 <p className="mt-2 text-sm leading-6 text-slate-400">{entry.detail}</p>
+                <AddToWatchlistControl
+                  className="mt-4"
+                  item={{
+                    id: entry.id,
+                    kind: entry.kind,
+                    label: entry.label,
+                    href: entry.href,
+                    summary: entry.headline,
+                    detail: entry.detail,
+                    surface: "analytics",
+                  }}
+                />
                 <Link href={entry.href} className="mt-4 inline-flex text-sm font-medium text-cyan-300 transition-colors hover:text-cyan-200">
                   Open next →
                 </Link>
@@ -154,6 +172,9 @@ export default async function AnalyticsPage() {
           </Link>
           <Link href="/water" className="rounded-full border border-white/10 px-4 py-2 text-slate-200 transition-colors hover:border-white/20 hover:bg-white/5">
             Water explorer
+          </Link>
+          <Link href="/watchlists" className="rounded-full border border-white/10 px-4 py-2 text-slate-200 transition-colors hover:border-white/20 hover:bg-white/5">
+            Saved watchlists
           </Link>
         </div>
         <div className="space-y-3">

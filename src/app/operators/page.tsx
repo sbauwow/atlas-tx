@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { getOperatorIntelligencePageData } from "@/app/operators/operator-page-data";
+import { AddToWatchlistControl } from "@/app/watchlists/watchlist-client";
 
 function WatchQueueSection({
   title,
@@ -27,10 +28,15 @@ function WatchQueueSection({
           <h2 className="mt-2 text-2xl font-semibold text-white">{title}</h2>
           <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-400">{description}</p>
           <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-500">
-            This queue is session-only and grounded to the current public-record snapshot. Atlas does not save operator watchlists yet.
+            Atlas now saves these operator lanes into local/shared browser watchlists. If browser storage is unavailable, you can still copy the queue into notes.
           </p>
         </div>
-        <div className="rounded-full border border-white/10 px-3 py-1 text-xs text-slate-400">Copy into notes</div>
+        <div className="flex flex-wrap items-center gap-2">
+          <Link href="/watchlists" className="rounded-full border border-white/10 px-3 py-1 text-xs text-slate-300 transition-colors hover:border-white/20 hover:bg-white/5">
+            Open saved watchlists
+          </Link>
+          <div className="rounded-full border border-white/10 px-3 py-1 text-xs text-slate-400">Copy into notes</div>
+        </div>
       </div>
 
       {entries.length ? (
@@ -46,6 +52,18 @@ function WatchQueueSection({
                 </div>
                 <p className="mt-3 text-sm text-slate-200">{entry.headline}</p>
                 <p className="mt-2 text-sm leading-6 text-slate-400">{entry.detail}</p>
+                <AddToWatchlistControl
+                  className="mt-4"
+                  item={{
+                    id: `operator:${entry.slug}`,
+                    kind: "Operator",
+                    label: entry.operatorName,
+                    href: `/operators/${entry.slug}`,
+                    summary: entry.headline,
+                    detail: entry.detail,
+                    surface: "operators",
+                  }}
+                />
                 <Link href={`/operators/${entry.slug}`} className="mt-4 inline-flex text-sm font-medium text-cyan-300 transition-colors hover:text-cyan-200">
                   Open operator detail →
                 </Link>
@@ -127,6 +145,9 @@ export default async function OperatorsDirectoryPage() {
             </Link>
             <Link href="/counties" className="rounded-full border border-white/10 px-5 py-2.5 font-medium text-slate-200 transition-colors hover:border-white/20 hover:bg-white/5">
               Browse counties
+            </Link>
+            <Link href="/watchlists" className="rounded-full border border-white/10 px-5 py-2.5 font-medium text-slate-200 transition-colors hover:border-white/20 hover:bg-white/5">
+              Saved watchlists
             </Link>
           </div>
         </div>
@@ -226,6 +247,21 @@ export default async function OperatorsDirectoryPage() {
                   Open operator detail
                 </Link>
               </div>
+              <AddToWatchlistControl
+                className="mt-4"
+                item={{
+                  id: `operator:${row.slug}`,
+                  kind: "Operator",
+                  label: row.operatorName,
+                  href: `/operators/${row.slug}`,
+                  summary: `${row.permitCount} permits · ${row.caseCount} cases · ${row.proceduralPressureScore} pressure`,
+                  detail:
+                    row.counties.length > 0
+                      ? `${row.counties.slice(0, 2).map((county) => county.county).join(" · ")} ${row.counties.length > 2 ? `+${row.counties.length - 2} more counties` : ""}`.trim()
+                      : "No county footprint attached in the current snapshot.",
+                  surface: "operators",
+                }}
+              />
             </article>
           ))}
         </div>

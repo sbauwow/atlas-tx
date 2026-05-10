@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { getOperatorDetailPageData } from "@/app/operators/operator-page-data";
+import { AddToWatchlistControl } from "@/app/watchlists/watchlist-client";
 
 function DetailWatchQueueSection({
   title,
@@ -29,10 +30,15 @@ function DetailWatchQueueSection({
           <h2 className="mt-2 text-2xl font-semibold text-white">{title}</h2>
           <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-400">{description}</p>
           <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-500">
-            This queue is built from the current public-record operator snapshot only. Atlas does not save personal watchlists yet.
+            Atlas now saves these county and permit lanes into local/shared browser watchlists. If storage is blocked, the queue still exports cleanly.
           </p>
         </div>
-        <div className="rounded-full border border-white/10 px-3 py-1 text-xs text-slate-400">Current session only</div>
+        <div className="flex flex-wrap items-center gap-2">
+          <Link href="/watchlists" className="rounded-full border border-white/10 px-3 py-1 text-xs text-slate-300 transition-colors hover:border-white/20 hover:bg-white/5">
+            Open saved watchlists
+          </Link>
+          <div className="rounded-full border border-white/10 px-3 py-1 text-xs text-slate-400">Current session + local storage</div>
+        </div>
       </div>
 
       {entries.length ? (
@@ -48,6 +54,18 @@ function DetailWatchQueueSection({
                 </div>
                 <p className="mt-3 text-sm text-slate-200">{entry.headline}</p>
                 <p className="mt-2 text-sm leading-6 text-slate-400">{entry.detail}</p>
+                <AddToWatchlistControl
+                  className="mt-4"
+                  item={{
+                    id: entry.id,
+                    kind: entry.id.startsWith("county-") ? "County" : "Permit lane",
+                    label: entry.label,
+                    href: entry.href,
+                    summary: entry.headline,
+                    detail: entry.detail,
+                    surface: "operator-detail",
+                  }}
+                />
                 <Link href={entry.href} className="mt-4 inline-flex text-sm font-medium text-cyan-300 transition-colors hover:text-cyan-200">
                   Open next →
                 </Link>
@@ -133,6 +151,9 @@ export default async function OperatorDetailPage({
           <Link href="/permits" className="rounded-full bg-white px-4 py-2 font-medium text-slate-950 transition-colors hover:bg-slate-200">
             Open statewide permits
           </Link>
+          <Link href="/watchlists" className="rounded-full border border-white/10 px-4 py-2 text-slate-200 transition-colors hover:border-white/20 hover:bg-white/5">
+            Saved watchlists
+          </Link>
         </div>
         <div>
           <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-medium uppercase tracking-[0.18em] text-slate-300 backdrop-blur">
@@ -143,6 +164,18 @@ export default async function OperatorDetailPage({
           <p className="mt-3 max-w-3xl text-slate-400">
             Atlas groups this operator from permittee and applicant names visible in pending permit and CID records. The page shows public-record footprint and procedural activity only; it does not infer a broader corporate hierarchy.
           </p>
+          <AddToWatchlistControl
+            className="mt-4"
+            item={{
+              id: `operator:${operator.slug}`,
+              kind: "Operator",
+              label: operator.operatorName,
+              href: `/operators/${operator.slug}`,
+              summary: `${operator.permitCount} permits · ${operator.caseCount} cases · ${operator.proceduralPressureScore} pressure`,
+              detail: `Operator detail page across ${operator.countyCount} counties. Latest filing ${formatDate(operator.latestFiledAt)}.`,
+              surface: "operator-detail",
+            }}
+          />
         </div>
       </section>
 
@@ -275,6 +308,18 @@ export default async function OperatorDetailPage({
                     Water
                   </Link>
                 </div>
+                <AddToWatchlistControl
+                  className="mt-4"
+                  item={{
+                    id: `operator:${operator.slug}:county:${county.countySlug}`,
+                    kind: "County",
+                    label: county.county,
+                    href: `/counties/${county.countySlug}`,
+                    summary: `${county.permitCount} permits · ${county.caseCount} cases · ${county.proceduralPressureScore} pressure`,
+                    detail: `County lane from ${operator.operatorName}. Latest filing ${formatDate(county.latestFiledAt)}.`,
+                    surface: "operator-detail",
+                  }}
+                />
                 <div className="mt-4 text-xs text-slate-500">
                   Filings: {county.filingCounts.hearingRequests} hearing requests · {county.filingCounts.publicMeetingRequests} public meeting requests · {county.filingCounts.comments} comments
                 </div>

@@ -132,6 +132,25 @@ export default async function Home() {
         />
       </section>
 
+      <section className="rounded-2xl border border-white/10 bg-slate-900/40 p-5 ring-1 ring-white/5">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <div className="space-y-2">
+            <div className="text-xs font-medium uppercase tracking-[0.18em] text-slate-500">Saved screen</div>
+            <h2 className="text-2xl font-semibold text-white">Watchlists</h2>
+            <p className="max-w-3xl text-sm leading-7 text-slate-300">
+              Keep the counties, operators, and permits you want to reopen in one saved screen.
+            </p>
+          </div>
+          <Link
+            href="/watchlists"
+            className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-slate-950/60 px-5 py-2.5 text-sm font-medium text-slate-100 transition-colors hover:border-white/20 hover:bg-slate-950"
+          >
+            Open watchlists
+            <span aria-hidden="true">→</span>
+          </Link>
+        </div>
+      </section>
+
       <section className="rounded-2xl border border-cyan-400/15 bg-cyan-400/5 p-5 ring-1 ring-cyan-400/10">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div className="space-y-2">

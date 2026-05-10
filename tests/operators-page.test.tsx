@@ -106,7 +106,9 @@ describe("operators directory page", () => {
     expect(text).toContain("Procedural pressure score");
     expect(text).toContain("Watchlist-ready lane");
     expect(text).toContain("Operators to monitor next");
-    expect(text).toContain("This queue is session-only and grounded to the current public-record snapshot.");
+    expect(text).toContain("Atlas now saves these operator lanes into local/shared browser watchlists.");
+    expect(text).toContain("Open saved watchlists");
+    expect(text).toContain("Add to watchlist");
     expect(text).toContain("operator | Alpha Water LLC | /operators/alpha-water-llc | permits 2 | cases 1 | pressure 10");
     expect(text).toContain('aria-label="Operators to monitor next copyable queue"');
     expect(text).toContain("Operator leaderboard");

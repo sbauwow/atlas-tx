@@ -108,7 +108,9 @@ describe("operator detail page", () => {
     expect(text).toContain("Elevated procedural pressure is visible in current CID filings.");
     expect(text).toContain("Watchlist-ready lane");
     expect(text).toContain("Watch next from this operator");
-    expect(text).toContain("This queue is built from the current public-record operator snapshot only.");
+    expect(text).toContain("Atlas now saves these county and permit lanes into local/shared browser watchlists.");
+    expect(text).toContain("Open saved watchlists");
+    expect(text).toContain("Add to watchlist");
     expect(text).toContain("county | Travis County | /counties/travis-county | permits 1 | cases 1 | pressure 10");
     expect(text).toContain("permit-lane | WQ0001 | /permits?county=travis-county | IND WW | Travis County");
     expect(text).toContain('aria-label="Watch next from this operator copyable queue"');

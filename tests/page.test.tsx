@@ -46,6 +46,7 @@ describe("Home landing page", () => {
     expect(html).toContain("Journalists, policy analysts, and civic-tech teams");
     expect(html).toContain('href=\"/counties\"');
     expect(html).toContain('href=\"/analytics\"');
+    expect(html).toContain('href=\"/watchlists\"');
     expect(html).toContain('href=\"/operators\"');
     expect(html).toContain("Statewide analytics terminal");
     expect(html).toContain("Operator directory");
@@ -92,6 +93,16 @@ describe("Home landing page", () => {
     expect(html).toContain("permittee and applicant footprints");
     expect(html).toContain("Open operators");
     expect(html).toContain('href="/operators"');
+  });
+
+  it("adds a compact saved-watchlists callout", async () => {
+    const html = renderToStaticMarkup(await Home());
+
+    expect(html).toContain("Saved screen");
+    expect(html).toContain("Watchlists");
+    expect(html).toContain("counties, operators, and permits");
+    expect(html).toContain("Open watchlists");
+    expect(html).toContain('href="/watchlists"');
   });
 
   it("describes the refocused product thesis and signals", async () => {

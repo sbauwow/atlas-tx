@@ -278,7 +278,9 @@ describe("statewide analytics page", () => {
     expect(text).toContain("Counties to open next");
     expect(text).toContain("Watchlist-ready lane");
     expect(text).toContain("Statewide open-next queue");
-    expect(text).toContain("This is a current-session public-record queue only.");
+    expect(text).toContain("Atlas now saves these lanes into local/shared browser watchlists.");
+    expect(text).toContain("Open saved watchlists");
+    expect(text).toContain("Add to watchlist");
     expect(text).toContain("Copyable queue");
     expect(text).toContain("county | Harris County | /counties/harris-county | Riser");
     expect(text).toContain("operator | Alpha Water LLC | /operators/alpha-water-llc | Largest share");

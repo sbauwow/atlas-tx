@@ -40,3 +40,43 @@ model WaterObservation {
   @@index([kind])
   @@index([countySlug])
 }
+
+model WatchlistWorkspace {
+  id        String      @id @default(cuid())
+  slug      String      @unique
+  label     String
+  notes     String?
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  watchlists Watchlist[]
+}
+
+model Watchlist {
+  id          String             @id @default(cuid())
+  workspaceId String
+  label       String
+  notes       String?
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+  workspace   WatchlistWorkspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  items       WatchlistItem[]
+
+  @@index([workspaceId])
+  @@index([createdAt])
+}
+
+model WatchlistItem {
+  id           String    @id @default(cuid())
+  watchlistId  String
+  itemType     String
+  itemKey      String
+  displayLabel String?
+  notes        String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  watchlist    Watchlist @relation(fields: [watchlistId], references: [id], onDelete: Cascade)
+
+  @@unique([watchlistId, itemType, itemKey])
+  @@index([watchlistId])
+  @@index([itemType, itemKey])
+}
