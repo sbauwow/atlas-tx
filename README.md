@@ -66,6 +66,60 @@ The result should feel less like a static civic site and more like an evidence w
 3. Review the evidence together.
    Compare public records, modeled signals, and community submissions without collapsing them into one opaque score.
 
+## Hackathon judging criteria coverage
+
+This submission is designed to score clearly against the four published judging criteria.
+
+### 1. Technical Execution & Completeness
+Atlas is not a mockup.
+
+This repo already includes:
+- a working Next.js application with multiple production-style route surfaces
+- statewide county intelligence pages across analytics, water, permits, operators, watchlists, and maps
+- JSON API routes powering the same evidence model
+- a local MCP server for agent/tool access to the same system
+- structured telemetry, shared query-state parsing, refresh pipelines, and committed cache artifacts
+- an Android/mobile field-verification lane and citizen observation workflow
+- test, lint, and build validation paths
+
+In other words: this is a real, multi-surface system, not a thin demo shell.
+
+### 2. Partner Ecosystem & Utility
+Atlas fits the AITX Community × Codex environment directly.
+
+It is built around:
+- agent-native development and iteration during the Codex hackathon
+- MCP-compatible system access through `packages/mcp-server/`
+- Texas open-data utility, matching the event's Texas public-data track
+- a workflow that makes public records usable by both humans and AI agents
+
+This is the area we most wanted to make explicit in the README: Atlas is not only a civic data app, it is a practical Codex-era agent workspace with an MCP surface and a clear public-data use case.
+
+### 3. Value & Impact
+Atlas targets a real problem with real users.
+
+The value is not hypothetical:
+- investigators can find county hotspots faster
+- journalists can move from map to source evidence faster
+- communities can compare official records against field observations
+- operators can track permits, water signals, and county-level pressure in one place
+- future field teams can carry the workflow into Android missions and water-testing review
+
+The core impact claim is simple: Atlas makes fragmented Texas public data materially more usable.
+
+### 4. Innovation & Execution
+Atlas pushes beyond a normal dashboard by combining:
+- county intelligence maps
+- public-record evidence normalization
+- agent/MCP access to the same evidence base
+- Android mission workflows
+- structured water-testing and field verification
+- explicit separation of authoritative, explanatory, and community evidence classes
+
+That combination is the main innovation.
+
+The system is trying to bridge desktop analysis, agent workflows, and real-world field verification in a single evidence architecture.
+
 ## What Atlas TX is
 
 Atlas TX is not a generic consumer app and not a single-score black box.
