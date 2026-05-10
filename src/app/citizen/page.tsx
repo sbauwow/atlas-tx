@@ -35,6 +35,22 @@ export default function CitizenPage() {
           </Link>
           {" "}for the project&apos;s framing and the non-negotiables that govern this layer.
         </p>
+        <div className="flex flex-wrap items-center gap-3 pt-2 text-sm">
+          <Link
+            href="https://github.com/sbauwow/atlas-tx/blob/main/android/README.md"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 rounded-full border border-cyan-300/30 bg-cyan-300/10 px-3.5 py-1.5 text-xs font-medium text-cyan-100 transition-colors hover:border-cyan-300/50 hover:bg-cyan-300/15"
+          >
+            <svg aria-hidden="true" viewBox="0 0 16 16" className="size-3.5">
+              <rect x="4" y="2" width="8" height="12" rx="1.4" fill="none" stroke="currentColor" strokeWidth="1.3" />
+              <circle cx="8" cy="11.4" r="0.7" fill="currentColor" />
+            </svg>
+            Android app: Atlas TX Capture
+            <span aria-hidden="true" className="text-[0.7em] text-cyan-200/80">↗</span>
+          </Link>
+          <span className="text-xs text-slate-500">Same flow, native camera. Build from source — no APK released yet.</span>
+        </div>
       </header>
 
       <section>
