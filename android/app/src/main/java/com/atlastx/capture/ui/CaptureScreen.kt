@@ -2,6 +2,7 @@ package com.atlastx.capture.ui
 
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -57,10 +58,12 @@ fun CaptureScreen(
     val captured by viewModel.capturedFile.collectAsStateWithLifecycle()
     val upload by viewModel.upload.collectAsStateWithLifecycle()
     val countySlug by viewModel.countySlug.collectAsStateWithLifecycle()
+    val importError by viewModel.importError.collectAsStateWithLifecycle()
 
     var pendingFile by remember { mutableStateOf<File?>(null) }
     var pendingUri by remember { mutableStateOf<Uri?>(null) }
     var autoLaunched by remember { mutableStateOf(false) }
+    var pickerCanceled by remember { mutableStateOf(false) }
 
     val cameraLauncher = rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { ok ->
         val f = pendingFile
@@ -68,13 +71,29 @@ fun CaptureScreen(
             viewModel.setCapturedFromCamera(f)
         } else {
             f?.takeIf { it.exists() }?.delete()
+            if (initialSource == CaptureSource.CAMERA && captured == null) {
+                pickerCanceled = true
+            }
         }
         pendingFile = null
         pendingUri = null
     }
 
-    val galleryLauncher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
-        if (uri != null) viewModel.importGalleryUri(uri)
+    val galleryLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.PickVisualMedia(),
+    ) { uri ->
+        if (uri != null) {
+            viewModel.importGalleryUri(uri)
+        } else if (initialSource == CaptureSource.GALLERY && captured == null) {
+            pickerCanceled = true
+        }
+    }
+
+    LaunchedEffect(pickerCanceled) {
+        if (pickerCanceled) {
+            pickerCanceled = false
+            onBack()
+        }
     }
 
     LaunchedEffect(upload) {
@@ -86,7 +105,9 @@ fun CaptureScreen(
         when (initialSource) {
             CaptureSource.GALLERY -> {
                 autoLaunched = true
-                galleryLauncher.launch("image/*")
+                galleryLauncher.launch(
+                    PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly),
+                )
             }
             CaptureSource.CAMERA -> {
                 autoLaunched = true
@@ -116,7 +137,14 @@ fun CaptureScreen(
             captured = captured,
             upload = upload,
             countySlug = countySlug,
-            onPickGallery = { galleryLauncher.launch("image/*") },
+            importError = importError,
+            onDismissImportError = viewModel::clearImportError,
+            onPickGallery = {
+                viewModel.clearImportError()
+                galleryLauncher.launch(
+                    PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly),
+                )
+            },
             onShoot = {
                 val (file, uri) = viewModel.newCaptureFile()
                 pendingFile = file
@@ -124,7 +152,10 @@ fun CaptureScreen(
                 cameraLauncher.launch(uri)
             },
             onCountySlugChange = viewModel::setCountySlug,
-            onRetake = viewModel::reset,
+            onRetake = {
+                viewModel.reset()
+                viewModel.clearImportError()
+            },
             onSubmit = viewModel::submit,
         )
     }
@@ -136,6 +167,8 @@ private fun CaptureBody(
     captured: File?,
     upload: UploadState,
     countySlug: String?,
+    importError: String?,
+    onDismissImportError: () -> Unit,
     onPickGallery: () -> Unit,
     onShoot: () -> Unit,
     onCountySlugChange: (String) -> Unit,
@@ -184,6 +217,32 @@ private fun CaptureBody(
                         color = Color.Gray,
                         style = MaterialTheme.typography.bodyMedium,
                     )
+                }
+            }
+        }
+
+        if (importError != null) {
+            Card {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(12.dp),
+                    verticalArrangement = Arrangement.spacedBy(6.dp),
+                ) {
+                    Text(
+                        "Could not import image",
+                        style = MaterialTheme.typography.labelLarge,
+                        fontWeight = FontWeight.SemiBold,
+                        color = MaterialTheme.colorScheme.error,
+                    )
+                    Text(
+                        importError,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.error,
+                    )
+                    OutlinedButton(onClick = onDismissImportError, modifier = Modifier.fillMaxWidth()) {
+                        Text("Dismiss")
+                    }
                 }
             }
         }
