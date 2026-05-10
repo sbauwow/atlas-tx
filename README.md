@@ -2,7 +2,29 @@
 
 Atlas TX is an open-source Texas county intelligence platform for public-interest data work.
 
-It combines permit, water, hydrology, governance, environmental, and county-level context into map-first analytical workflows, APIs, cached research artifacts, and a local MCP server. The product is designed for investigators, civic-tech analysts, policy operators, and agentic workflows that need grounded Texas county evidence rather than generic dashboards.
+It is designed to become a map-first operating system for Texas county evidence: permits, water, hydrology, governance, operators, environmental burden, and field verification in one system that both humans and agents can use.
+
+The platform combines:
+- county intelligence maps and analytical workspaces
+- public-record ingestion and normalization
+- API and MCP access to the same evidence
+- watchlist and queue workflows for operators and investigators
+- a mobile/field-verification path for water testing and community observation
+
+The goal is not another static dashboard. The goal is a system that helps investigators, civic-tech analysts, policy operators, and field teams find what matters first, drill into evidence fast, and separate official record, inferred risk, and community observation without collapsing them into a black box.
+
+## Why Atlas TX is compelling
+
+Atlas TX sits at the intersection of three things that are rarely built together well:
+- public-record county intelligence
+- field-ready water and infrastructure verification workflows
+- agent-native analytical tooling
+
+That means Atlas can evolve into more than a website:
+- a county intelligence workspace for researchers and journalists
+- a structured permit/water operator watch system
+- a field-missions product for Android-based evidence capture
+- a patent-pending system for linking public-record intelligence, map workflows, and structured field verification
 
 ## What Atlas TX is
 
@@ -360,19 +382,52 @@ Covered here:
 
 Canonical deeper docs live in `docs/`, `skills/`, and `AGENTS.md`.
 
-## Citizen observation lane
+## Citizen observation and Android field lane
 
-Atlas includes a separate, non-regulatory citizen observation prototype at `/citizen`.
+Atlas includes a separate, non-regulatory citizen observation prototype at `/citizen`, and the broader system roadmap includes a mission-driven Android application for field verification.
+
+The Android/mobile direction is not a generic upload app. It is intended to support:
+- mission-based field collection
+- guided water-strip capture
+- site-context notes and corroborating photos
+- repeat monitoring loops
+- confidence-aware evidence submission
+- later integration with map, county, and source workflows
+
+The current mobile/field product direction is documented in:
+- `docs/design/android-missions-mobile-flow.md`
+- `docs/contracts/community-observation.md`
+- `docs/research/smartphone-colorimetry.md`
+
+### Water testing and field verification
+
+A major Atlas system lane is structured water testing and field verification.
+
+That lane is designed around:
+- smartphone-assisted strip/colorimetry workflows
+- constrained capture rather than arbitrary photo uploads
+- confidence scoring and QA flags
+- explicit separation between community screening and regulatory/public-record evidence
+- county/watershed aggregation as additive context rather than silent score modification
 
 Important constraints:
 - it is isolated from the main scoring stack
-- it does not feed county risk scoring or water mismatch scoring
+- it does not feed county risk scoring or water mismatch scoring by default
 - it is a prototype workflow for strip-photo observation capture and review
 - it should not be interpreted as a compliance, diagnostic, or regulatory measurement system
+- it is best framed as screening, verification, and lead-generation evidence
 
-See:
-- `docs/contracts/community-observation.md`
-- `docs/research/smartphone-colorimetry.md`
+## Patent-pending system framing
+
+Atlas TX is being developed as part of a broader patent-pending system concept spanning:
+- map-first county intelligence
+- public-record permit and water evidence integration
+- mobile mission workflows
+- structured community water-testing capture
+- confidence-scored field verification
+- explicit separation of authoritative, explanatory, and community evidence classes
+
+This repository is the open technical platform layer for that system. It should describe the product honestly and compellingly, while avoiding unsupported legal, medical, or regulatory claims.
 
 ## Development workflow
 

@@ -7,7 +7,8 @@ This document explains how Atlas TX has been built with Hermes Agent as the orch
 Atlas TX has been developed through a multi-agent workflow centered on:
 - Hermes Agent for orchestration, repo inspection, planning, testing, and verification
 - Codex for implementation slices, edits, and iterative code changes
-- additional agent/model assistance where useful for bounded subtasks, review loops, and alternative implementation paths
+- Claude-assisted passes for bounded review, alternative implementation paths, and cross-checking on difficult slices
+- additional agent/model assistance where useful for narrow subtasks
 
 The important thing is the workflow shape, not the branding:
 - inspect first
