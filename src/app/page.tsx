@@ -52,36 +52,30 @@ export default async function Home() {
               <span aria-hidden="true" className="transition-transform group-hover:translate-x-0.5">→</span>
             </Link>
             <Link
-              href="/education"
-              className="rounded-full border border-white/10 px-5 py-2.5 font-medium text-slate-200 transition-colors hover:border-white/20 hover:bg-white/5"
-            >
-              Water system primer
-            </Link>
-            <Link
               href="/counties"
               className="rounded-full border border-white/10 px-5 py-2.5 font-medium text-slate-200 transition-colors hover:border-white/20 hover:bg-white/5"
             >
-              County workspace overview
+              County workspace
             </Link>
             <Link
               href="/analytics"
               className="rounded-full border border-white/10 px-5 py-2.5 font-medium text-slate-200 transition-colors hover:border-white/20 hover:bg-white/5"
             >
-              Statewide analytics terminal
+              Statewide analytics
             </Link>
-            <Link
-              href="/operators"
-              className="rounded-full border border-white/10 px-5 py-2.5 font-medium text-slate-200 transition-colors hover:border-white/20 hover:bg-white/5"
-            >
-              Operator directory
-            </Link>
+          </div>
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs text-slate-500">
+            <span className="text-[11px] font-medium uppercase tracking-[0.18em] text-slate-600">Also</span>
+            <Link href="/education" className="transition-colors hover:text-cyan-300">Water system primer</Link>
+            <Link href="/operators" className="transition-colors hover:text-cyan-300">Operator directory</Link>
+            <Link href="/permits" className="transition-colors hover:text-cyan-300">Permit tracker</Link>
             <TrackedLink
               event="outbound"
               eventTarget="repo:github.com/sbauwow/atlas-tx@home"
               href="https://github.com/sbauwow/atlas-tx"
-              className="rounded-full border border-white/10 px-5 py-2.5 font-medium text-slate-200 transition-colors hover:border-white/20 hover:bg-white/5"
+              className="transition-colors hover:text-cyan-300"
             >
-              GitHub repo
+              GitHub
             </TrackedLink>
           </div>
         </div>

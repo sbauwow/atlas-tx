@@ -434,12 +434,12 @@ export default async function AnalyticsPage({
           </Link>
         </div>
         <div className="space-y-3">
-          <div className="text-[11px] font-medium uppercase tracking-[0.28em] text-cyan-300/80">Wave 2 · Stream F</div>
-          <h1 className="text-4xl font-semibold tracking-tight text-white">Texas statewide analytics terminal</h1>
-          <p className="max-w-4xl text-base leading-7 text-slate-400">
-            Start on the county map, hunt your own statewide correlations, then use the ranked lanes and scatter to verify what you see. Atlas only uses committed Wave 1 analytics artifacts and does not invent missing history.
+          <div className="text-[11px] font-medium uppercase tracking-[0.28em] text-cyan-300/80">Statewide analytics terminal</div>
+          <h1 className="text-4xl font-semibold tracking-tight text-white sm:text-5xl">Texas statewide analytics terminal</h1>
+          <p className="max-w-4xl text-base leading-7 text-slate-400 sm:text-lg sm:leading-8">
+            Start on the county map, hunt statewide correlations, then verify in the ranked lanes and scatter. Atlas only uses committed analytics snapshots — never invented history.
           </p>
-          <div className="text-sm text-slate-500">Latest statewide analytics refresh: {formatTimestamp(analytics.generatedAt)}</div>
+          <div className="text-xs font-medium uppercase tracking-[0.18em] text-slate-500">Refreshed {formatTimestamp(analytics.generatedAt)}</div>
         </div>
       </section>
 

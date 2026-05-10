@@ -132,18 +132,27 @@ export default async function WaterPage({
           First-pass water lane for Atlas Texas: active flood alerts, stream gauge coverage, sewer overflow pressure, permit counts, governance structure, and <GlossaryTooltip term="FEMA" expand /> <GlossaryTooltip term="NFHL" expand /> coverage by county.
         </p>
         <div className="flex flex-wrap gap-2 text-xs">
-          <ApiPill href="/api/water/overview" label="Overview API" />
-          <ApiPill href="/api/water/alerts" label="Alerts API" />
-          <ApiPill href="/api/water/gauges" label="Gauges API" />
           <RoutePill href="/permits" label="Pending permits" />
-          <ApiPill href="/api/water/fema/nfhl/counties" label="FEMA counties API" />
-          <ApiPill href="/api/water/lcra/hydromet/stage-flow" label="LCRA Hydromet stage-flow API" />
-          <ApiPill href="/api/water/lcra/arrp/outfalls" label="LCRA ARRP outfalls API" />
-          <ApiPill href="/api/water/gbra/hydrology/gvhs-lakes" label="GBRA GVHS lakes API" />
-          <ApiPill href="/api/water/gbra/hydrology/watersheds" label="GBRA watersheds API" />
-          <ApiPill href="/api/water/gbra/quality/sites" label="GBRA quality sites API" />
           <RoutePill href="/water/network" label="County dependency map" />
         </div>
+        <details className="group rounded-xl border border-white/5 bg-white/[0.02] open:bg-white/[0.03]">
+          <summary className="flex cursor-pointer list-none items-center gap-2 px-4 py-2.5 text-xs font-medium uppercase tracking-[0.14em] text-slate-500 transition-colors hover:text-slate-300">
+            <span aria-hidden="true" className="text-slate-600 transition-transform group-open:rotate-90">›</span>
+            Source APIs · developer reference
+            <span className="text-[10px] text-slate-600">(9 endpoints)</span>
+          </summary>
+          <div className="flex flex-wrap gap-2 px-4 pb-4 pt-1 text-xs">
+            <ApiPill href="/api/water/overview" label="Overview API" />
+            <ApiPill href="/api/water/alerts" label="Alerts API" />
+            <ApiPill href="/api/water/gauges" label="Gauges API" />
+            <ApiPill href="/api/water/fema/nfhl/counties" label="FEMA counties API" />
+            <ApiPill href="/api/water/lcra/hydromet/stage-flow" label="LCRA Hydromet stage-flow API" />
+            <ApiPill href="/api/water/lcra/arrp/outfalls" label="LCRA ARRP outfalls API" />
+            <ApiPill href="/api/water/gbra/hydrology/gvhs-lakes" label="GBRA GVHS lakes API" />
+            <ApiPill href="/api/water/gbra/hydrology/watersheds" label="GBRA watersheds API" />
+            <ApiPill href="/api/water/gbra/quality/sites" label="GBRA quality sites API" />
+          </div>
+        </details>
       </section>
 
       <GlossaryInlineList label="Common water terms" terms={["NFHL", "LCRA", "GBRA", "TWDB", "PWS"]} />

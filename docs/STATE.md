@@ -25,6 +25,7 @@ _(empty)_
 
 | workstream | agent | intent | ref |
 |---|---|---|---|
+| web | claude-opus-4-7 | Demo-prep visual + copy + empty-state polish across `/`, `/water`, `/counties`, `/permits`, `/analytics`: hero CTA pruning on home (6→3 + secondary row), 9 debug API pills wrapped in `<details>` disclosure on `/water`, podium ranks + empty state + hover affordance on `/counties`, hero anchor jumps on `/permits`, terminal eyebrow demoted on `/analytics`. Stays clear of `src/app/design/` color-token lane. | branch `web/demo-polish` |
 | docs | hermes | Add county dataset roadmap (`docs/plans/2026-05-10-county-dataset-roadmap.md`) and link it from the plans index for quick execution against county priorities. | working tree |
 | docs | hermes | Update README + CHANGELOG to reflect the new map-first county workflow: county choropleths lead analytics and water, while other charts remain user-directed correlation lanes. | commit `6edd23f` |
 | data (cross: docs) | hermes | Add first JED Pool Tools 5-way strip support to the citizen observation prototype: new chart file/registry, route-side chart resolution by `clientReading.chartId`, and JED-default citizen capture/results wiring. Verified with `tests/observations-route.test.ts`, `tests/observations-sampling.test.ts`, and `tests/observations-status.test.ts`. `npm run build` still fails on a pre-existing type error in `experiments/build_county_month_water_risk_panel.ts` unrelated to the citizen-strip changes. | working tree |
