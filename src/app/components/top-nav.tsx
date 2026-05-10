@@ -48,11 +48,24 @@ export default function TopNav() {
               {link.label}
             </Link>
           ))}
+          <Link
+            href="/citizen"
+            className="ml-2 inline-flex items-center gap-1.5 rounded-full border border-cyan-300/30 bg-cyan-300/10 px-3 py-1.5 font-medium text-cyan-100 transition-colors hover:border-cyan-300/50 hover:bg-cyan-300/15"
+          >
+            <svg aria-hidden="true" viewBox="0 0 16 16" className="size-3.5">
+              <rect x="4" y="2" width="8" height="12" rx="1.4" fill="none" stroke="currentColor" strokeWidth="1.4" />
+              <rect x="5.5" y="3.5" width="5" height="1.8" rx="0.4" fill="currentColor" opacity="0.45" />
+              <rect x="5.5" y="6" width="5" height="1.8" rx="0.4" fill="currentColor" opacity="0.7" />
+              <rect x="5.5" y="8.5" width="5" height="1.8" rx="0.4" fill="currentColor" opacity="0.95" />
+              <rect x="5.5" y="11" width="5" height="1.8" rx="0.4" fill="currentColor" opacity="0.55" />
+            </svg>
+            Submit a strip
+          </Link>
           <TrackedLink
             event="outbound"
             eventTarget="repo:github.com/sbauwow/atlas-tx@nav"
             href="https://github.com/sbauwow/atlas-tx"
-            className="ml-2 rounded-full border border-white/10 px-3 py-1.5 text-slate-200 transition-colors hover:border-white/20 hover:bg-white/5 hover:text-white"
+            className="ml-1 rounded-full border border-white/10 px-3 py-1.5 text-slate-200 transition-colors hover:border-white/20 hover:bg-white/5 hover:text-white"
           >
             GitHub
           </TrackedLink>

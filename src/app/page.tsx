@@ -142,6 +142,37 @@ export default async function Home() {
         />
       </section>
 
+      <section className="atlas-card-shimmer relative overflow-hidden rounded-2xl border border-cyan-300/20 bg-gradient-to-br from-cyan-300/[0.06] via-slate-900/40 to-slate-950/40 p-7 ring-1 ring-cyan-300/15">
+        <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+          <div className="space-y-3">
+            <span className="inline-flex items-center gap-2 rounded-full border border-amber-300/30 bg-amber-300/10 px-3 py-1 text-[11px] font-medium uppercase tracking-[0.18em] text-amber-100">
+              <PulseDot size={6} color="#fbbf24" />
+              Contribute · prototype lane
+            </span>
+            <h2 className="text-2xl font-semibold tracking-tight text-white sm:text-3xl">
+              Have a water test strip? Add it to the map.
+            </h2>
+            <p className="max-w-2xl text-sm leading-7 text-slate-300">
+              Photograph any pool, well, or tap-water test strip and Atlas reads the bands client-side. Submissions populate a separate community-observation layer — never the regulated water-risk score. You stay in control of what gets shared.
+            </p>
+          </div>
+          <Link
+            href="/citizen"
+            className="group inline-flex shrink-0 items-center gap-2 self-start rounded-full bg-cyan-300 px-5 py-2.5 text-sm font-medium text-slate-950 transition-colors hover:bg-cyan-200 lg:self-center"
+          >
+            <svg aria-hidden="true" viewBox="0 0 16 16" className="size-4">
+              <rect x="4" y="2" width="8" height="12" rx="1.4" fill="none" stroke="currentColor" strokeWidth="1.4" />
+              <rect x="5.5" y="3.5" width="5" height="1.8" rx="0.4" fill="currentColor" opacity="0.45" />
+              <rect x="5.5" y="6" width="5" height="1.8" rx="0.4" fill="currentColor" opacity="0.7" />
+              <rect x="5.5" y="8.5" width="5" height="1.8" rx="0.4" fill="currentColor" opacity="0.95" />
+              <rect x="5.5" y="11" width="5" height="1.8" rx="0.4" fill="currentColor" opacity="0.55" />
+            </svg>
+            Submit a strip
+            <span aria-hidden="true" className="transition-transform group-hover:translate-x-0.5">→</span>
+          </Link>
+        </div>
+      </section>
+
       <section id="themed-maps" className="space-y-6">
         <div className="max-w-3xl space-y-2">
           <h2 className="text-3xl font-semibold tracking-tight text-white">One map per question.</h2>
