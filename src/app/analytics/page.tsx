@@ -458,42 +458,30 @@ export default async function AnalyticsPage({
           </Link>
         </div>
         <div className="space-y-3">
-          <div className="text-[11px] font-medium uppercase tracking-[0.28em] text-cyan-300/80">Statewide analytics</div>
           <h1 className="text-4xl font-semibold tracking-tight text-white sm:text-5xl">Statewide analytics</h1>
           <p className="max-w-4xl text-base leading-7 text-slate-400 sm:text-lg sm:leading-8">
             Map first, then movers and scatter. Built only on committed snapshots — never invented history.
           </p>
-          <div className="text-xs font-medium uppercase tracking-[0.18em] text-slate-500">Refreshed {formatTimestamp(analytics.generatedAt)}</div>
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-500">
+            <span>Refreshed {formatTimestamp(analytics.generatedAt)}</span>
+            <span aria-hidden="true">·</span>
+            <span>{analytics.scatterCount} scatter-backed counties</span>
+          </div>
         </div>
       </section>
 
       <section id="analytics-map" className="rounded-3xl border border-white/10 bg-slate-950/85 p-6 shadow-[0_0_0_1px_rgba(255,255,255,0.02)]">
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <div>
-            <div className="text-[11px] font-medium uppercase tracking-[0.22em] text-cyan-300/80">County map</div>
-            <h2 className="mt-2 text-3xl font-semibold text-white">Start on the map.</h2>
-            <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-400">
-              Start with the map, switch between county risk, permit-pressure, and oil extraction emphasis, then jump into movers, scatter, and county pages to prove or reject the pattern. This keeps the workflow anchored to counties instead of making charts the first stop.
-            </p>
-          </div>
-          <div className="rounded-full border border-white/10 px-3 py-1 text-xs text-slate-400">Scatter-backed counties: {analytics.scatterCount}</div>
-        </div>
-
-        <div className="mt-5 flex flex-wrap items-center gap-3 text-sm">
-          <span className="text-xs font-medium uppercase tracking-[0.14em] text-slate-500">Map emphasis</span>
-          <div className="inline-flex rounded-full bg-white/[0.04] p-1 ring-1 ring-white/5" role="group" aria-label="Analytics map emphasis">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="inline-flex rounded-full bg-white/[0.04] p-1 ring-1 ring-white/5" role="group" aria-label="Map emphasis">
             <AnalyticsWorkflowToggle href={`/analytics?mode=risk${selectedCounty ? `&county=${selectedCounty.slug}` : ""}#analytics-map`} active={mapMode === "risk"} label="County risk" />
             <AnalyticsWorkflowToggle href={`/analytics?mode=pressure${selectedCounty ? `&county=${selectedCounty.slug}` : ""}#analytics-map`} active={mapMode === "pressure"} label="Permit pressure" />
-            <AnalyticsWorkflowToggle href={`/analytics?mode=oil${selectedCounty ? `&county=${selectedCounty.slug}` : ""}#analytics-map`} active={mapMode === "oil"} label="Oil view" />
+            <AnalyticsWorkflowToggle href={`/analytics?mode=oil${selectedCounty ? `&county=${selectedCounty.slug}` : ""}#analytics-map`} active={mapMode === "oil"} label="Oil extraction" />
           </div>
-          <span className="text-xs text-slate-500">Current emphasis: {mapMode === "pressure" ? "permit pressure" : mapMode === "oil" ? "oil extraction" : "county risk"}</span>
-        </div>
-
-        <div className="mt-5 flex flex-wrap gap-2">
-          <AnalyticsAnchorPill href="#analytics-map" label="1. Start on the map" />
-          <AnalyticsAnchorPill href="#county-movers" label="2. Check ranked movers" />
-          <AnalyticsAnchorPill href="#statewide-scatter" label="3. Validate in scatter" />
-          {selectedCounty ? <AnalyticsAnchorPill href={selectedCounty.href} label={`4. Open ${selectedCounty.name}`} /> : null}
+          <div className="flex flex-wrap gap-2">
+            <AnalyticsAnchorPill href="#county-movers" label="Movers" />
+            <AnalyticsAnchorPill href="#statewide-scatter" label="Scatter" />
+            {selectedCounty ? <AnalyticsAnchorPill href={selectedCounty.href} label={`Open ${selectedCounty.name}`} /> : null}
+          </div>
         </div>
 
         <div className="mt-6 grid gap-6 xl:grid-cols-[1.3fr_0.7fr]">
@@ -509,15 +497,12 @@ export default async function AnalyticsPage({
                   : "The county map will activate once pressure-risk-scatter.json exposes counties with mappable FIPS coverage."}
               </p>
               {selectedOverlayLabels.length ? (
-                <div className="mt-3 space-y-2 text-xs text-slate-300">
-                  <div>{selectedOverlayLabels.join(" — ")}</div>
-                  <div className="flex flex-wrap gap-2">
-                    {selectedOverlayLabels.map((label) => (
-                      <span key={label} className="rounded-full border border-white/10 bg-white/[0.04] px-2.5 py-1">
-                        {label}
-                      </span>
-                    ))}
-                  </div>
+                <div className="mt-3 flex flex-wrap gap-2 text-xs text-slate-300">
+                  {selectedOverlayLabels.map((label) => (
+                    <span key={label} className="rounded-full border border-white/10 bg-white/[0.04] px-2.5 py-1">
+                      {label}
+                    </span>
+                  ))}
                 </div>
               ) : null}
             </div>
