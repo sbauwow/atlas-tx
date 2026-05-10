@@ -9,6 +9,7 @@ import {
   DuplicateWatchlistItemError,
   type AddWatchlistItemInput,
   type CreateWatchlistInput,
+  type UpdateWatchlistInput,
   type WatchlistDetailRow,
   type WatchlistItemRow,
   type WatchlistSummaryRow,
@@ -45,15 +46,7 @@ export async function listWatchlists(): Promise<readonly WatchlistSummaryRow[]> 
     orderBy: [{ updatedAt: "desc" }, { createdAt: "desc" }],
   });
 
-  return rows.map((row) => ({
-    id: row.id,
-    workspaceId: row.workspaceId,
-    label: row.label,
-    notes: row.notes,
-    createdAt: row.createdAt,
-    updatedAt: row.updatedAt,
-    itemCount: row._count.items,
-  }));
+  return rows.map(rehydrateSummary);
 }
 
 export async function createWatchlist(input: CreateWatchlistInput): Promise<WatchlistSummaryRow> {
@@ -71,15 +64,52 @@ export async function createWatchlist(input: CreateWatchlistInput): Promise<Watc
     },
   });
 
-  return {
-    id: row.id,
-    workspaceId: row.workspaceId,
-    label: row.label,
-    notes: row.notes,
-    createdAt: row.createdAt,
-    updatedAt: row.updatedAt,
-    itemCount: row._count.items,
-  };
+  return rehydrateSummary(row);
+}
+
+export async function updateWatchlist(id: string, input: UpdateWatchlistInput): Promise<WatchlistSummaryRow> {
+  const existingWatchlist = await prisma.watchlist.findUnique({
+    where: { id },
+    select: { id: true },
+  });
+
+  if (!existingWatchlist) {
+    throw new WatchlistNotFoundError();
+  }
+
+  const row = await prisma.watchlist.update({
+    where: { id },
+    data: {
+      ...(typeof input.label === "string" ? { label: input.label.trim() } : {}),
+      ...("notes" in input ? { notes: normalizeWatchlistText(input.notes) } : {}),
+    },
+    include: {
+      _count: {
+        select: { items: true },
+      },
+    },
+  });
+
+  return rehydrateSummary(row);
+}
+
+export async function deleteWatchlist(id: string): Promise<WatchlistSummaryRow | null> {
+  const row = await prisma.watchlist.findUnique({
+    where: { id },
+    include: {
+      _count: {
+        select: { items: true },
+      },
+    },
+  });
+
+  if (!row) {
+    return null;
+  }
+
+  await prisma.watchlist.delete({ where: { id } });
+
+  return rehydrateSummary(row);
 }
 
 export async function getWatchlistDetail(id: string): Promise<WatchlistDetailRow | null> {
@@ -183,5 +213,19 @@ function rehydrateItem(
     notes: row.notes,
     createdAt: row.createdAt,
     updatedAt: row.updatedAt,
+  };
+}
+
+function rehydrateSummary(
+  row: Awaited<ReturnType<typeof prisma.watchlist.create>> & { _count: { items: number } },
+): WatchlistSummaryRow {
+  return {
+    id: row.id,
+    workspaceId: row.workspaceId,
+    label: row.label,
+    notes: row.notes,
+    createdAt: row.createdAt,
+    updatedAt: row.updatedAt,
+    itemCount: row._count.items,
   };
 }

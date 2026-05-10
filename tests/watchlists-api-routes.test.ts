@@ -3,6 +3,8 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const listWatchlists = vi.fn();
 const createWatchlist = vi.fn();
 const getWatchlistDetail = vi.fn();
+const updateWatchlist = vi.fn();
+const deleteWatchlist = vi.fn();
 const addWatchlistItem = vi.fn();
 const removeWatchlistItem = vi.fn();
 
@@ -10,6 +12,8 @@ vi.mock("@/lib/watchlists/persistence", () => ({
   listWatchlists,
   createWatchlist,
   getWatchlistDetail,
+  updateWatchlist,
+  deleteWatchlist,
   addWatchlistItem,
   removeWatchlistItem,
 }));
@@ -99,13 +103,59 @@ describe("watchlist API routes", () => {
     expect(body.watchlist.items[0].itemType).toBe("county");
   });
 
-  it("adds items and maps duplicate conflicts to 409", async () => {
+  it("updates a watchlist label and notes", async () => {
+    updateWatchlist.mockResolvedValueOnce({
+      id: "wl_3",
+      workspaceId: "ws_1",
+      label: "Permits",
+      notes: "Fresh queue",
+      createdAt: new Date("2026-05-09T19:00:00Z"),
+      updatedAt: new Date("2026-05-09T19:06:00Z"),
+      itemCount: 1,
+    });
+
+    const { PATCH } = await import("@/app/api/watchlists/[id]/route");
+    const res = await PATCH(
+      new Request("http://localhost/api/watchlists/wl_3", {
+        method: "PATCH",
+        body: JSON.stringify({ label: " Permits ", notes: "Fresh queue" }),
+        headers: { "content-type": "application/json" },
+      }) as never,
+      { params: Promise.resolve({ id: "wl_3" }) },
+    );
+
+    expect(res.status).toBe(200);
+    expect(updateWatchlist).toHaveBeenCalledWith("wl_3", { label: "Permits", notes: "Fresh queue" });
+  });
+
+  it("deletes a watchlist", async () => {
+    deleteWatchlist.mockResolvedValueOnce({
+      id: "wl_6",
+      workspaceId: "ws_1",
+      label: "Retired queue",
+      notes: null,
+      createdAt: new Date("2026-05-09T19:00:00Z"),
+      updatedAt: new Date("2026-05-09T19:06:00Z"),
+      itemCount: 0,
+    });
+
+    const { DELETE } = await import("@/app/api/watchlists/[id]/route");
+    const res = await DELETE(new Request("http://localhost/api/watchlists/wl_6") as never, {
+      params: Promise.resolve({ id: "wl_6" }),
+    });
+
+    expect(res.status).toBe(200);
+    expect(deleteWatchlist).toHaveBeenCalledWith("wl_6");
+    expect(await res.json()).toEqual({ deleted: { id: "wl_6", workspaceId: "ws_1" } });
+  });
+
+  it("adds permit items and maps duplicate conflicts to 409", async () => {
     addWatchlistItem.mockResolvedValueOnce({
       id: "item_2",
       watchlistId: "wl_4",
-      itemType: "operator",
-      itemKey: "acme midstream",
-      displayLabel: "ACME Midstream",
+      itemType: "permit",
+      itemKey: "wq0001",
+      displayLabel: "WQ0001",
       notes: null,
       createdAt: new Date("2026-05-09T19:00:00Z"),
       updatedAt: new Date("2026-05-09T19:00:00Z"),
@@ -115,7 +165,7 @@ describe("watchlist API routes", () => {
     const createdRes = await POST(
       new Request("http://localhost/api/watchlists/wl_4/items", {
         method: "POST",
-        body: JSON.stringify({ itemType: "operator", itemKey: "ACME Midstream" }),
+        body: JSON.stringify({ itemType: "permit", itemKey: "WQ0001", displayLabel: "WQ0001" }),
         headers: { "content-type": "application/json" },
       }) as never,
       { params: Promise.resolve({ id: "wl_4" }) },
@@ -124,9 +174,9 @@ describe("watchlist API routes", () => {
     expect(createdRes.status).toBe(201);
     expect(addWatchlistItem).toHaveBeenCalledWith({
       watchlistId: "wl_4",
-      itemType: "operator",
-      itemKey: "ACME Midstream",
-      displayLabel: null,
+      itemType: "permit",
+      itemKey: "WQ0001",
+      displayLabel: "WQ0001",
       notes: null,
     });
 
@@ -135,7 +185,7 @@ describe("watchlist API routes", () => {
     const conflictRes = await POST(
       new Request("http://localhost/api/watchlists/wl_4/items", {
         method: "POST",
-        body: JSON.stringify({ itemType: "operator", itemKey: "ACME Midstream" }),
+        body: JSON.stringify({ itemType: "permit", itemKey: "WQ0001" }),
         headers: { "content-type": "application/json" },
       }) as never,
       { params: Promise.resolve({ id: "wl_4" }) },

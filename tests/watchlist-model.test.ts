@@ -9,6 +9,7 @@ import {
   loadWatchlistsFromStorage,
   removeWatchlist,
   removeWatchlistItem,
+  updateWatchlistDetails,
   upsertWatchlistItem,
 } from "@/app/watchlists/watchlist-model";
 
@@ -103,7 +104,7 @@ describe("watchlist model", () => {
     expect(exportValue).toContain("county | Harris County | /counties/harris-county | Risk +3.6 · pressure 100 | Opened from analytics");
   });
 
-  it("builds persisted API payloads for county and operator lanes and rejects unsupported kinds", () => {
+  it("builds persisted API payloads for county, operator, and permit lanes", () => {
     expect(
       buildPersistedWatchlistItemInput({
         id: "county:harris-county",
@@ -139,14 +140,49 @@ describe("watchlist model", () => {
     expect(
       buildPersistedWatchlistItemInput({
         id: "permit:WQ0001",
-        kind: "Permit lane",
+        kind: "Permit",
         label: "WQ0001",
         href: "/permits?county=travis-county",
-        summary: "IND WW · Travis County",
-        detail: "Austin",
-        surface: "operator-detail",
+        summary: "IND WW · Alpha Water LLC · Travis County",
+        detail: "Austin is the nearest city in the current public-record row for this permit lane.",
+        surface: "permits",
       }),
-    ).toBeNull();
+    ).toMatchObject({
+      itemType: "permit",
+      itemKey: "WQ0001",
+      displayLabel: "WQ0001",
+    });
+  });
+
+  it("updates watchlist names and descriptions without dropping items", () => {
+    const seed = createWatchlist([], "Weekly queue", "Original notes", "2026-05-10T00:00:00.000Z");
+    const withItem = upsertWatchlistItem(
+      seed,
+      "weekly-queue",
+      {
+        id: "permit:WQ0001",
+        kind: "Permit",
+        label: "WQ0001",
+        href: "/permits?county=travis-county",
+        summary: "IND WW · Alpha Water LLC · Travis County",
+        detail: "Austin is the nearest city in the current public-record row for this permit lane.",
+        surface: "permits",
+      },
+      "2026-05-10T00:05:00.000Z",
+    );
+
+    const updated = updateWatchlistDetails(
+      withItem.watchlists,
+      "weekly-queue",
+      { name: "Weekly permit queue", description: "Updated notes" },
+      "2026-05-10T00:06:00.000Z",
+    );
+
+    expect(updated.find((entry) => entry.id === "weekly-queue")).toMatchObject({
+      name: "Weekly permit queue",
+      description: "Updated notes",
+    });
+    expect(updated.find((entry) => entry.id === "weekly-queue")?.items).toHaveLength(1);
   });
 
   it("hydrates persisted API watchlists back into rich UI cards", () => {

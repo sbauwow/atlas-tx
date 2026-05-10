@@ -27,7 +27,7 @@ export async function POST(
   const notes = normalizeWatchlistText(readString(body, "notes"));
 
   if (!itemType || !isWatchlistItemType(itemType)) {
-    return NextResponse.json({ error: "itemType must be county or operator" }, { status: 400 });
+    return NextResponse.json({ error: "itemType must be county, operator, or permit" }, { status: 400 });
   }
 
   if (!itemKey) {

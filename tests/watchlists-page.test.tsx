@@ -8,13 +8,17 @@ describe("watchlists page", () => {
     const text = renderToStaticMarkup(page);
 
     expect(text).toContain("Saved watchlists");
-    expect(text).toContain("persisted shared watchlist workspace");
+    expect(text).toContain("permit lanes");
     expect(text).toContain("Create watchlist");
     expect(text).toContain("Shared triage");
     expect(text).toContain("Nothing is saved in this watchlist yet.");
     expect(text).toContain("analytics");
     expect(text).toContain("operators");
+    expect(text).toContain("permits");
     expect(text).toContain('href="/analytics"');
     expect(text).toContain('href="/operators"');
+    expect(text).toContain('href="/permits"');
+    expect(text).toContain("Edit details");
+    expect(text).toContain("API-backed with edit and delete controls");
   });
 });

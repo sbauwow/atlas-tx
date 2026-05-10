@@ -65,6 +65,9 @@ export default async function PermitsPage({
               Open water explorer
               <span aria-hidden="true" className="transition-transform group-hover:translate-x-0.5">→</span>
             </Link>
+            <Link href="/watchlists" className="rounded-full border border-white/10 px-5 py-2.5 font-medium text-slate-200 transition-colors hover:border-white/20 hover:bg-white/5">
+              Open watchlists
+            </Link>
             <Link href="/" className="rounded-full border border-white/10 px-5 py-2.5 font-medium text-slate-200 transition-colors hover:border-white/20 hover:bg-white/5">
               Back to homepage
             </Link>
@@ -76,6 +79,7 @@ export default async function PermitsPage({
           <ul className="mt-4 space-y-3.5 text-sm leading-7 text-slate-300">
             <li className="flex gap-3"><span aria-hidden="true" className="mt-2.5 size-1 shrink-0 rounded-full bg-cat-3" />This page tracks pending water-quality individual permits, not every <GlossaryTooltip term="TCEQ" /> program workflow.</li>
             <li className="flex gap-3"><span aria-hidden="true" className="mt-2.5 size-1 shrink-0 rounded-full bg-cat-2" />County clustering helps show where permit pressure is concentrating.</li>
+            <li className="flex gap-3"><span aria-hidden="true" className="mt-2.5 size-1 shrink-0 rounded-full bg-cat-1" />Permit rows can be saved directly into shared watchlists, with browser fallback when the API is unavailable.</li>
             <li className="flex gap-3"><span aria-hidden="true" className="mt-2.5 size-1 shrink-0 rounded-full bg-cat-4" />Pending status is procedural context, not proof of harm or permit outcome.</li>
           </ul>
         </aside>
@@ -302,6 +306,7 @@ export default async function PermitsPage({
                   <th className="pb-3 pr-4">Type</th>
                   <th className="pb-3 pr-4">County</th>
                   <th className="pb-3 pr-4">Nearest city</th>
+                  <th className="pb-3">Watchlist</th>
                 </tr>
               </thead>
               <tbody>
@@ -312,6 +317,19 @@ export default async function PermitsPage({
                     <td className="py-3 pr-4">{permit.authorizationType}</td>
                     <td className="py-3 pr-4">{permit.county ?? "Unknown"}</td>
                     <td className="py-3 pr-4">{permit.nearestCity ?? "Unknown"}</td>
+                    <td className="py-3">
+                      <AddToWatchlistControl
+                        item={{
+                          id: `permit:${permit.permitNumber}`,
+                          kind: "Permit",
+                          label: permit.permitNumber,
+                          href: permit.county ? `/permits?county=${toCountySlug(permit.county)}` : "/permits",
+                          summary: `${permit.authorizationType} · ${permit.permitteeName} · ${permit.county ?? "Unknown county"}`,
+                          detail: `${permit.nearestCity ?? "Unknown city"} is the nearest city in the current public-record row for this permit lane.`,
+                          surface: "permits",
+                        }}
+                      />
+                    </td>
                   </tr>
                 ))}
               </tbody>

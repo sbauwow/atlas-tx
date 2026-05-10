@@ -21,6 +21,7 @@ import {
   removeWatchlist,
   removeWatchlistItem,
   saveWatchlistsToStorage,
+  updateWatchlistDetails,
   upsertWatchlistItem,
 } from "./watchlist-model";
 
@@ -76,7 +77,7 @@ export function AddToWatchlistControl({
         const persistedInput = buildPersistedWatchlistItemInput(item);
         if (!persistedInput) {
           setTone("error");
-          setMessage("This lane is not supported by the shared watchlist API yet. Save a county or operator lane, or copy the queue for now.");
+          setMessage("This lane could not be prepared for the shared watchlist workspace. Try again or keep a browser fallback copy for now.");
           return;
         }
 
@@ -170,6 +171,9 @@ export function WatchlistsDashboard() {
   const [watchlists, setWatchlists] = useState<Watchlist[]>([createDefaultWatchlist()]);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [draftName, setDraftName] = useState("");
+  const [draftDescription, setDraftDescription] = useState("");
   const [mode, setMode] = useState<WatchlistStoreMode>("api");
   const [message, setMessage] = useState("Loading shared watchlists…");
   const [busy, setBusy] = useState(false);
@@ -302,15 +306,124 @@ export function WatchlistsDashboard() {
     }
   }
 
-  function handleRemoveWatchlist(watchlistId: string, watchlistName: string) {
-    const nextWatchlists = removeWatchlist(watchlists, watchlistId);
-    if (!persistWatchlistsToLocalStorage(nextWatchlists)) {
-      setMessage("Atlas could not update browser fallback storage. Keep a manual copy of critical lanes for now.");
+  function startEditingWatchlist(watchlist: Watchlist) {
+    setEditingId(watchlist.id);
+    setDraftName(watchlist.name);
+    setDraftDescription(watchlist.description);
+  }
+
+  function cancelEditingWatchlist() {
+    setEditingId(null);
+    setDraftName("");
+    setDraftDescription("");
+  }
+
+  async function handleSaveWatchlist(watchlistId: string, originalName: string) {
+    const trimmedName = draftName.trim();
+    const trimmedDescription = draftDescription.trim();
+    if (!trimmedName) {
+      setMessage("Give the watchlist a name first.");
       return;
     }
 
-    setWatchlists(nextWatchlists);
-    setMessage(`Removed ${watchlistName} from browser fallback storage.`);
+    setBusy(true);
+
+    try {
+      if (mode === "api" && watchlistId !== DEFAULT_WATCHLIST_ID) {
+        const response = await fetch(`/api/watchlists/${watchlistId}`, {
+          method: "PATCH",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ label: trimmedName, notes: trimmedDescription || null }),
+        });
+
+        if (!response.ok) {
+          throw new Error(`watchlist update failed: ${response.status}`);
+        }
+
+        const updatedWatchlist = await fetchWatchlistDetail(watchlistId);
+        setWatchlists((current) => replaceWatchlist(current, updatedWatchlist));
+        setMessage(`Updated ${trimmedName}.`);
+        cancelEditingWatchlist();
+        return;
+      }
+
+      const nextWatchlists = updateWatchlistDetails(watchlists, watchlistId, {
+        name: trimmedName,
+        description: trimmedDescription,
+      });
+      if (!persistWatchlistsToLocalStorage(nextWatchlists)) {
+        setMessage("Atlas could not update browser fallback storage. Keep a manual copy of critical lanes for now.");
+        return;
+      }
+
+      setWatchlists(nextWatchlists);
+      setMessage(`Updated ${trimmedName}. Browser fallback is active until the API comes back.`);
+      cancelEditingWatchlist();
+    } catch {
+      const nextWatchlists = updateWatchlistDetails(watchlists, watchlistId, {
+        name: trimmedName,
+        description: trimmedDescription,
+      });
+      if (!persistWatchlistsToLocalStorage(nextWatchlists)) {
+        setMessage(`Atlas could not save local fallback edits for ${originalName}.`);
+        return;
+      }
+
+      setMode("fallback-local");
+      setWatchlists(nextWatchlists);
+      setMessage(`Watchlist API unavailable. Saved ${trimmedName} in browser fallback storage on this device.`);
+      cancelEditingWatchlist();
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function handleRemoveWatchlist(watchlistId: string, watchlistName: string) {
+    setBusy(true);
+
+    try {
+      if (mode === "api" && watchlistId !== DEFAULT_WATCHLIST_ID) {
+        const response = await fetch(`/api/watchlists/${watchlistId}`, { method: "DELETE" });
+        if (!response.ok && response.status !== 404) {
+          throw new Error(`watchlist delete failed: ${response.status}`);
+        }
+
+        const nextWatchlists = removeWatchlist(watchlists, watchlistId);
+        setWatchlists(nextWatchlists);
+        setMessage(`Deleted ${watchlistName}.`);
+        if (editingId === watchlistId) {
+          cancelEditingWatchlist();
+        }
+        return;
+      }
+
+      const nextWatchlists = removeWatchlist(watchlists, watchlistId);
+      if (!persistWatchlistsToLocalStorage(nextWatchlists)) {
+        setMessage("Atlas could not update browser fallback storage. Keep a manual copy of critical lanes for now.");
+        return;
+      }
+
+      setWatchlists(nextWatchlists);
+      setMessage(`Removed ${watchlistName} from browser fallback storage.`);
+      if (editingId === watchlistId) {
+        cancelEditingWatchlist();
+      }
+    } catch {
+      const nextWatchlists = removeWatchlist(watchlists, watchlistId);
+      if (!persistWatchlistsToLocalStorage(nextWatchlists)) {
+        setMessage(`Watchlist API unavailable, and browser fallback storage could not remove ${watchlistName}.`);
+        return;
+      }
+
+      setMode("fallback-local");
+      setWatchlists(nextWatchlists);
+      setMessage(`Watchlist API unavailable. Removed ${watchlistName} from browser fallback storage on this device.`);
+      if (editingId === watchlistId) {
+        cancelEditingWatchlist();
+      }
+    } finally {
+      setBusy(false);
+    }
   }
 
   return (
@@ -318,9 +431,9 @@ export function WatchlistsDashboard() {
       <section className="grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
         <div className="rounded-3xl border border-white/10 bg-slate-950/80 p-6 shadow-[0_0_0_1px_rgba(255,255,255,0.02)]">
           <div className="text-[11px] font-medium uppercase tracking-[0.22em] text-cyan-300/80">Saved watchlists</div>
-          <h2 className="mt-2 text-2xl font-semibold text-white">Persisted shared workspace with browser fallback</h2>
+          <h2 className="mt-2 text-2xl font-semibold text-white">Shared workspace with browser fallback</h2>
           <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-400">
-            Save counties and operators from analytics and operator surfaces into the shared Atlas workspace. When the watchlist API is unreachable, Atlas falls back to this browser so the queue still stays usable.
+            Save counties, operators, and permit lanes into the shared Atlas workspace. When the watchlist API is unreachable, Atlas falls back to this browser so the queue still stays usable.
           </p>
           <p className="mt-3 text-sm leading-6 text-slate-500">{message}</p>
           <div className="mt-5 flex flex-wrap gap-3 text-sm">
@@ -387,13 +500,14 @@ export function WatchlistsDashboard() {
             <h2 className="mt-2 text-2xl font-semibold text-white">Review, open, and trim saved lanes</h2>
           </div>
           <div className="rounded-full border border-white/10 px-3 py-1 text-xs text-slate-400">
-            {mode === "api" ? "API-backed with browser fallback copy" : "Graceful browser fallback mode"}
+            {mode === "api" ? "API-backed with edit and delete controls" : "Graceful browser fallback mode"}
           </div>
         </div>
 
         {watchlists.map((watchlist) => {
           const exportValue = buildWatchlistExport(watchlist.items);
-          const canDeleteFromFallback = mode === "fallback-local" && watchlist.id !== DEFAULT_WATCHLIST_ID;
+          const isEditing = editingId === watchlist.id;
+          const canDelete = watchlist.id !== DEFAULT_WATCHLIST_ID;
 
           return (
             <article key={watchlist.id} className="rounded-3xl border border-white/10 bg-slate-950/80 p-6 shadow-[0_0_0_1px_rgba(255,255,255,0.02)]">
@@ -412,21 +526,68 @@ export function WatchlistsDashboard() {
                   <span className="rounded-full border border-white/10 px-3 py-1 text-xs text-slate-400">
                     {watchlist.items.length} saved {watchlist.items.length === 1 ? "lane" : "lanes"}
                   </span>
-                  {canDeleteFromFallback ? (
+                  <button
+                    type="button"
+                    disabled={busy}
+                    onClick={() => startEditingWatchlist(watchlist)}
+                    className="rounded-full border border-white/10 px-3 py-1 text-xs text-slate-300 transition-colors hover:border-white/20 hover:bg-white/5 disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    Edit details
+                  </button>
+                  {canDelete ? (
                     <button
                       type="button"
-                      onClick={() => handleRemoveWatchlist(watchlist.id, watchlist.name)}
-                      className="rounded-full border border-white/10 px-3 py-1 text-xs text-slate-300 transition-colors hover:border-white/20 hover:bg-white/5"
+                      disabled={busy}
+                      onClick={() => {
+                        void handleRemoveWatchlist(watchlist.id, watchlist.name);
+                      }}
+                      className="rounded-full border border-white/10 px-3 py-1 text-xs text-slate-300 transition-colors hover:border-white/20 hover:bg-white/5 disabled:cursor-not-allowed disabled:opacity-60"
                     >
                       Delete list
                     </button>
-                  ) : mode === "api" && watchlist.id !== DEFAULT_WATCHLIST_ID ? (
-                    <span className="rounded-full border border-white/10 px-3 py-1 text-xs text-slate-500">
-                      List delete not exposed on /api/watchlists yet
-                    </span>
                   ) : null}
                 </div>
               </div>
+
+              {isEditing ? (
+                <form
+                  onSubmit={(event) => {
+                    event.preventDefault();
+                    void handleSaveWatchlist(watchlist.id, watchlist.name);
+                  }}
+                  className="mt-5 grid gap-4 rounded-2xl border border-white/10 bg-white/[0.03] p-4 lg:grid-cols-[0.8fr_1.2fr_auto] lg:items-end"
+                >
+                  <label className="space-y-2 text-sm text-slate-300">
+                    <span>Name</span>
+                    <input
+                      value={draftName}
+                      onChange={(event) => setDraftName(event.target.value)}
+                      className="w-full rounded-2xl border border-white/10 bg-slate-950/80 px-4 py-3 text-white"
+                    />
+                  </label>
+                  <label className="space-y-2 text-sm text-slate-300">
+                    <span>Description</span>
+                    <input
+                      value={draftDescription}
+                      onChange={(event) => setDraftDescription(event.target.value)}
+                      className="w-full rounded-2xl border border-white/10 bg-slate-950/80 px-4 py-3 text-white"
+                    />
+                  </label>
+                  <div className="flex flex-wrap gap-2">
+                    <button type="submit" disabled={busy} className="rounded-2xl bg-white px-4 py-3 text-sm font-medium text-slate-950 transition-colors hover:bg-slate-200 disabled:cursor-not-allowed disabled:opacity-60">
+                      {busy ? "Saving…" : "Save changes"}
+                    </button>
+                    <button
+                      type="button"
+                      disabled={busy}
+                      onClick={cancelEditingWatchlist}
+                      className="rounded-2xl border border-white/10 px-4 py-3 text-sm text-slate-200 transition-colors hover:border-white/20 hover:bg-white/5 disabled:cursor-not-allowed disabled:opacity-60"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </form>
+              ) : null}
 
               {watchlist.items.length ? (
                 <>
@@ -476,7 +637,7 @@ export function WatchlistsDashboard() {
                 </>
               ) : (
                 <div className="mt-5 rounded-2xl border border-dashed border-white/10 bg-white/[0.02] px-5 py-8 text-sm leading-6 text-slate-400">
-                  Nothing is saved in this watchlist yet. Add counties or operators from <Link href="/analytics" className="text-cyan-300 hover:text-cyan-200">analytics</Link> or <Link href="/operators" className="text-cyan-300 hover:text-cyan-200">operators</Link> and they will show up here.
+                  Nothing is saved in this watchlist yet. Add counties from <Link href="/analytics" className="text-cyan-300 hover:text-cyan-200">analytics</Link>, operators from <Link href="/operators" className="text-cyan-300 hover:text-cyan-200">operators</Link>, or permit lanes from <Link href="/permits" className="text-cyan-300 hover:text-cyan-200">permits</Link> and they will show up here.
                 </div>
               )}
             </article>
@@ -621,6 +782,7 @@ function MiniStat({ label, value }: { label: string; value: string }) {
 
 function surfaceLabel(surface: WatchlistSurface) {
   if (surface === "analytics") return "Analytics";
+  if (surface === "permits") return "Permits";
   if (surface === "operators") return "Operators";
   if (surface === "operator-detail") return "Operator detail";
   return "Watchlists";

@@ -52,31 +52,32 @@ describe("watchlist persistence", () => {
     expect(detail?.items).toEqual([]);
   });
 
-  it("adds and removes normalized items and rejects duplicates", async () => {
+  it("adds permit items, removes them, and rejects duplicates", async () => {
     const persistence = await import("@/lib/watchlists/persistence");
     const created = await persistence.createWatchlist({ label: "Operators" });
 
     const item = await persistence.addWatchlistItem({
       watchlistId: created.id,
-      itemType: "operator",
-      itemKey: "  ACME Midstream  ",
-      displayLabel: "ACME Midstream",
+      itemType: "permit",
+      itemKey: "  WQ0001  ",
+      displayLabel: "WQ0001",
       notes: "Track permit activity",
     });
 
-    expect(item.itemKey).toBe("acme midstream");
+    expect(item.itemKey).toBe("wq0001");
 
     await expect(
       persistence.addWatchlistItem({
         watchlistId: created.id,
-        itemType: "operator",
-        itemKey: "acme midstream",
+        itemType: "permit",
+        itemKey: "wq0001",
       }),
     ).rejects.toMatchObject({ name: "DuplicateWatchlistItemError" });
 
     const detail = await persistence.getWatchlistDetail(created.id);
     expect(detail?.itemCount).toBe(1);
-    expect(detail?.items[0]?.displayLabel).toBe("ACME Midstream");
+    expect(detail?.items[0]?.displayLabel).toBe("WQ0001");
+    expect(detail?.items[0]?.itemType).toBe("permit");
 
     const removed = await persistence.removeWatchlistItem(created.id, item.id);
     expect(removed?.id).toBe(item.id);
@@ -84,5 +85,30 @@ describe("watchlist persistence", () => {
     const afterRemove = await persistence.getWatchlistDetail(created.id);
     expect(afterRemove?.itemCount).toBe(0);
     expect(afterRemove?.items).toEqual([]);
+  });
+
+  it("updates and deletes watchlists", async () => {
+    const persistence = await import("@/lib/watchlists/persistence");
+    const created = await persistence.createWatchlist({
+      label: "Priority counties",
+      notes: "South Texas",
+    });
+
+    const updated = await persistence.updateWatchlist(created.id, {
+      label: "Priority permits",
+      notes: "  ",
+    });
+
+    expect(updated.label).toBe("Priority permits");
+    expect(updated.notes).toBeNull();
+
+    const deleted = await persistence.deleteWatchlist(created.id);
+    expect(deleted?.id).toBe(created.id);
+
+    const detail = await persistence.getWatchlistDetail(created.id);
+    expect(detail).toBeNull();
+
+    const listed = await persistence.listWatchlists();
+    expect(listed.find((entry) => entry.id === created.id)).toBeUndefined();
   });
 });

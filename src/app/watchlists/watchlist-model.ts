@@ -1,8 +1,8 @@
 export const WATCHLIST_STORAGE_KEY = "atlas-tx-watchlists-v1";
 export const DEFAULT_WATCHLIST_ID = "shared-triage";
 
-export type WatchlistSurface = "analytics" | "operators" | "operator-detail" | "watchlists";
-export type PersistedWatchlistItemType = "county" | "operator";
+export type WatchlistSurface = "analytics" | "operators" | "operator-detail" | "permits" | "watchlists";
+export type PersistedWatchlistItemType = "county" | "operator" | "permit";
 
 export type WatchlistItem = {
   id: string;
@@ -68,7 +68,7 @@ export function createDefaultWatchlist(timestamp = nowIso()): Watchlist {
   return {
     id: DEFAULT_WATCHLIST_ID,
     name: "Shared triage",
-    description: "Default shared workspace queue for counties and operators. Atlas persists to the watchlists API when available and falls back to this browser when it is not.",
+    description: "Default shared workspace queue for counties, operators, and permit lanes. Atlas persists to the watchlists API when available and falls back to this browser when it is not.",
     scopeLabel: "Shared workspace",
     createdAt: timestamp,
     updatedAt: timestamp,
@@ -149,7 +149,7 @@ function normalizeWatchlistItem(value: unknown): WatchlistItem | null {
 }
 
 function normalizeSurface(value: unknown): WatchlistSurface {
-  return value === "analytics" || value === "operators" || value === "operator-detail" || value === "watchlists"
+  return value === "analytics" || value === "operators" || value === "operator-detail" || value === "permits" || value === "watchlists"
     ? value
     : "watchlists";
 }
@@ -281,6 +281,32 @@ export function removeWatchlist(watchlists: Watchlist[], watchlistId: string): W
   }
 
   return normalizeWatchlists(watchlists).filter((entry) => entry.id !== watchlistId);
+}
+
+export function updateWatchlistDetails(
+  watchlists: Watchlist[],
+  watchlistId: string,
+  updates: { name: string; description: string },
+  timestamp = nowIso(),
+): Watchlist[] {
+  const trimmedName = updates.name.trim();
+  const trimmedDescription = updates.description.trim();
+  if (!trimmedName) {
+    return normalizeWatchlists(watchlists);
+  }
+
+  return normalizeWatchlists(watchlists).map((entry) => {
+    if (entry.id !== watchlistId) {
+      return entry;
+    }
+
+    return {
+      ...entry,
+      name: trimmedName,
+      description: trimmedDescription || entry.description,
+      updatedAt: timestamp,
+    };
+  });
 }
 
 export function buildWatchlistExport(items: WatchlistItem[]) {
@@ -415,13 +441,19 @@ function inferPersistedWatchlistItemType(item: Pick<WatchlistItem, "id" | "kind"
     return "operator";
   }
 
+  if (kind.includes("permit") || item.id.startsWith("permit:") || item.href.startsWith("/permits")) {
+    return "permit";
+  }
+
   return null;
 }
 
 function inferPersistedWatchlistItemKey(item: Pick<WatchlistItem, "id" | "href" | "label">, itemType: PersistedWatchlistItemType) {
   const hrefMatch = itemType === "county"
     ? item.href.match(/^\/counties\/([^/?#]+)/)
-    : item.href.match(/^\/operators\/([^/?#]+)/);
+    : itemType === "operator"
+      ? item.href.match(/^\/operators\/([^/?#]+)/)
+      : item.href.match(/^\/permits\/([^/?#]+)/);
   if (hrefMatch?.[1]) {
     return decodeURIComponent(hrefMatch[1]);
   }
@@ -439,9 +471,13 @@ function inferPersistedWatchlistItemKey(item: Pick<WatchlistItem, "id" | "href" 
 }
 
 function defaultKindForItemType(itemType: PersistedWatchlistItemType) {
-  return itemType === "county" ? "County" : "Operator";
+  return itemType === "county" ? "County" : itemType === "operator" ? "Operator" : "Permit";
 }
 
 function defaultHrefForItemType(itemType: PersistedWatchlistItemType, itemKey: string) {
-  return itemType === "county" ? `/counties/${itemKey}` : `/operators/${itemKey}`;
+  return itemType === "county"
+    ? `/counties/${itemKey}`
+    : itemType === "operator"
+      ? `/operators/${itemKey}`
+      : `/permits/${itemKey}`;
 }

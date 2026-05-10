@@ -1,6 +1,6 @@
 export const DEFAULT_WATCHLIST_WORKSPACE_SLUG = "default";
 
-export type WatchlistItemType = "county" | "operator";
+export type WatchlistItemType = "county" | "operator" | "permit";
 
 export interface WatchlistWorkspaceRow {
   readonly id: string;
@@ -41,6 +41,11 @@ export interface CreateWatchlistInput {
   readonly notes?: string | null;
 }
 
+export interface UpdateWatchlistInput {
+  readonly label?: string;
+  readonly notes?: string | null;
+}
+
 export interface AddWatchlistItemInput {
   readonly watchlistId: string;
   readonly itemType: WatchlistItemType;
@@ -64,7 +69,7 @@ export class WatchlistNotFoundError extends Error {
 }
 
 export function isWatchlistItemType(value: string): value is WatchlistItemType {
-  return value === "county" || value === "operator";
+  return value === "county" || value === "operator" || value === "permit";
 }
 
 export function normalizeWatchlistText(value: string | null | undefined): string | null {

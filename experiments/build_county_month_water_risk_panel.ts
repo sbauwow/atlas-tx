@@ -564,7 +564,7 @@ export async function buildCountyMonthWaterRiskPanel(options?: {
   ].join("|");
 
   const rows = skeleton.map((baseRow) => {
-    const countyMonthKey = `${baseRow.county_name}__${baseRow.year_month}`;
+    const countyMonthKey = `${baseRow.county_name}__${baseRow.year_month}` as `${string}__${string}`;
     const sdwis = sdwisMonthly.get(countyMonthKey) ?? { sdwis_event_any: 0, sdwis_event_count: 0 };
     const overflow = overflowSummary.monthly.get(countyMonthKey) ?? {
       overflow_any: 0,
