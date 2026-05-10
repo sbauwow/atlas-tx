@@ -117,6 +117,7 @@ function AnalyticsCountyCorrelationMap({
   selectedSlug,
   mode,
   overlays,
+  buildSelectHref,
 }: {
   counties: Array<{
     slug: string;
@@ -132,6 +133,7 @@ function AnalyticsCountyCorrelationMap({
   selectedSlug: string | null;
   mode: "risk" | "pressure" | "oil";
   overlays: AnalyticsMapOverlay[];
+  buildSelectHref: (slug: string) => string;
 }) {
   const features = loadTexasCountyFeatures();
   const bySlug = new Map(counties.map((county) => [county.slug, county]));
@@ -191,7 +193,7 @@ function AnalyticsCountyCorrelationMap({
                   </g>
                 );
                 return county ? (
-                  <a key={county.slug} href={county.href} aria-label={`Open ${county.name}`}>
+                  <a key={county.slug} href={buildSelectHref(county.slug)} aria-label={`Select ${county.name}`}>
                     {countyShape}
                   </a>
                 ) : (
@@ -400,7 +402,9 @@ export default async function AnalyticsPage({
     params?.county,
     countyMapRows.map((county) => county.slug),
   );
-  const selectedCounty = countyMapRows.find((county) => county.slug === selectedCountySlug) ?? countyMapRows[0] ?? null;
+  const selectedCounty = selectedCountySlug
+    ? countyMapRows.find((county) => county.slug === selectedCountySlug) ?? null
+    : null;
   const comparisonCounties = [...countyMapRows]
     .sort((left, right) => (
       mapMode === "pressure"
@@ -485,16 +489,22 @@ export default async function AnalyticsPage({
         </div>
 
         <div className="mt-6 grid gap-6 xl:grid-cols-[1.3fr_0.7fr]">
-          <AnalyticsCountyCorrelationMap counties={countyMapRows} selectedSlug={selectedCounty?.slug ?? null} mode={mapMode} overlays={mapOverlays} />
+          <AnalyticsCountyCorrelationMap
+            counties={countyMapRows}
+            selectedSlug={selectedCounty?.slug ?? null}
+            mode={mapMode}
+            overlays={mapOverlays}
+            buildSelectHref={(slug) => `/analytics?mode=${mapMode}&county=${slug}#analytics-map`}
+          />
 
           <aside className="space-y-4 rounded-2xl border border-white/10 bg-white/[0.03] p-5">
             <div>
               <div className="text-xs font-medium uppercase tracking-[0.18em] text-slate-500">Selected county</div>
-              <h3 className="mt-2 text-2xl font-semibold text-white">{selectedCounty?.name ?? "County detail"}</h3>
+              <h3 className="mt-2 text-2xl font-semibold text-white">{selectedCounty?.name ?? "Pick a county"}</h3>
               <p className="mt-2 text-sm leading-6 text-slate-400">
                 {selectedCounty
                   ? `${selectedCounty.movementLabel}. ${selectedCounty.quadrantDetail}`
-                  : "The county map will activate once pressure-risk-scatter.json exposes counties with mappable FIPS coverage."}
+                  : "Click a county on the map to see its risk, pressure, and oil scores here."}
               </p>
               {selectedOverlayLabels.length ? (
                 <div className="mt-3 flex flex-wrap gap-2 text-xs text-slate-300">
