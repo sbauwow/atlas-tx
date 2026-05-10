@@ -92,11 +92,12 @@ export async function POST(request: Request) {
   const imagePath = path.join(UPLOAD_DIR, `${created.id}.${ext}`);
   await writeFile(imagePath, buffer);
 
-  const llmReading = await analyzeStripImage({
+  const analysis = await analyzeStripImage({
     imageBase64: buffer.toString("base64"),
     mediaType: mime as AllowedMime,
     chart,
   }).catch(() => null);
+  const llmReading = analysis?.reading ?? null;
 
   const decision = decideStatus({
     chart,
@@ -108,7 +109,7 @@ export async function POST(request: Request) {
   const updated = await updateAfterAnalysis({
     id: created.id,
     llmReading,
-    llmModel: llmReading ? "claude-opus-4-7" : null,
+    llmModel: analysis?.modelLabel ?? null,
     agreement: decision.agreement,
     qaFlags: decision.mergedQaFlags,
     status: decision.status,

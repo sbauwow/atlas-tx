@@ -12,17 +12,27 @@ import { OBSERVATION_SCHEMA_VERSION } from "./types";
 
 /**
  * Server-side vision sanity-check. The client has already produced a candidate
- * reading by sampling pixels. This pass asks an OpenAI vision model to grade
- * the strip against its in-frame reference chart and emit per-analyte bands.
- * Disagreement with the client reading is the signal that the photo is
- * unreliable.
+ * reading by sampling pixels. This pass asks a vision model to grade the strip
+ * against its in-frame reference chart and emit per-analyte bands. Disagreement
+ * with the client reading is the signal that the photo is unreliable.
  *
- * Returns null when OPENAI_API_KEY is unset so dev / tests can run without
- * burning the budget. Callers must treat null as "no LLM signal" and mark the
+ * Two providers are supported through the OpenAI-compatible chat completions
+ * shape:
+ *   - Featherless (preferred when FEATHERLESS_API_KEY is set). Uses
+ *     `response_format: { type: "json_object" }` because tool-calling support
+ *     varies across the open-source vision models on Featherless.
+ *   - OpenAI (fallback when only OPENAI_API_KEY is set). Uses tool_choice
+ *     forcing the analyzer function — same path as before this module became
+ *     provider-aware.
+ *
+ * Returns null when neither key is set so dev / tests can run without burning
+ * the budget. Callers must treat null as "no LLM signal" and mark the
  * observation `review` rather than auto-accepting.
  */
 
-const MODEL = "gpt-4o-mini";
+const FEATHERLESS_BASE_URL = "https://api.featherless.ai/v1";
+const DEFAULT_FEATHERLESS_MODEL = "meta-llama/Llama-4-Scout-17B-16E-Instruct";
+const DEFAULT_OPENAI_MODEL = "gpt-4o-mini";
 const MAX_COMPLETION_TOKENS = 1024;
 const TOOL_NAME = "report_strip_reading";
 
@@ -32,29 +42,71 @@ export interface AnalyzeStripParams {
   readonly chart: ReferenceChart;
 }
 
+export interface AnalysisResult {
+  readonly reading: LlmReading;
+  readonly modelLabel: string;
+}
+
+type Provider =
+  | { kind: "featherless"; client: OpenAI; model: string; modelLabel: string }
+  | { kind: "openai"; client: OpenAI; model: string; modelLabel: string };
+
+function pickProvider(): Provider | null {
+  const featherlessKey = process.env.FEATHERLESS_API_KEY;
+  if (featherlessKey) {
+    const model = process.env.FEATHERLESS_MODEL?.trim() || DEFAULT_FEATHERLESS_MODEL;
+    return {
+      kind: "featherless",
+      client: new OpenAI({ apiKey: featherlessKey, baseURL: FEATHERLESS_BASE_URL }),
+      model,
+      modelLabel: `featherless:${model}`,
+    };
+  }
+  const openaiKey = process.env.OPENAI_API_KEY;
+  if (openaiKey) {
+    const model = DEFAULT_OPENAI_MODEL;
+    return {
+      kind: "openai",
+      client: new OpenAI({ apiKey: openaiKey }),
+      model,
+      modelLabel: `openai:${model}`,
+    };
+  }
+  return null;
+}
+
+export function getActiveInferenceModelLabel(): string | null {
+  return pickProvider()?.modelLabel ?? null;
+}
+
 export async function analyzeStripImage(
   params: AnalyzeStripParams,
-): Promise<LlmReading | null> {
-  const apiKey = process.env.OPENAI_API_KEY;
-  if (!apiKey) return null;
+): Promise<AnalysisResult | null> {
+  const provider = pickProvider();
+  if (!provider) return null;
 
-  const client = new OpenAI({ apiKey });
+  if (provider.kind === "featherless") {
+    return analyzeWithJsonObject(provider, params);
+  }
+  return analyzeWithToolCalling(provider, params);
+}
 
+async function analyzeWithToolCalling(
+  provider: Provider,
+  params: AnalyzeStripParams,
+): Promise<AnalysisResult | null> {
   const tool = buildAnalyzerTool(params.chart);
   const systemText = buildSystemPrompt(params.chart);
 
-  const response = await client.chat.completions.create({
-    model: MODEL,
+  const response = await provider.client.chat.completions.create({
+    model: provider.model,
     max_completion_tokens: MAX_COMPLETION_TOKENS,
     messages: [
       { role: "system", content: systemText },
       {
         role: "user",
         content: [
-          {
-            type: "text",
-            text: "Analyze this photo. The user has dipped a freshwater test strip and laid it next to its bottle's color reference chart in the same frame. Match each pad against the in-frame chart (NOT against absolute color memory) and call the analyzer tool with one band index per analyte.",
-          },
+          { type: "text", text: USER_INSTRUCTION },
           {
             type: "image_url",
             image_url: {
@@ -86,13 +138,69 @@ export async function analyzeStripImage(
   if (!parsed) return null;
 
   return {
-    schemaVersion: OBSERVATION_SCHEMA_VERSION,
-    chartId: params.chart.id,
-    perAnalyte: parsed.perAnalyte,
-    qaFlags: parsed.qaFlags,
-    modelResponseId: response.id,
+    reading: {
+      schemaVersion: OBSERVATION_SCHEMA_VERSION,
+      chartId: params.chart.id,
+      perAnalyte: parsed.perAnalyte,
+      qaFlags: parsed.qaFlags,
+      modelResponseId: response.id,
+    },
+    modelLabel: provider.modelLabel,
   };
 }
+
+async function analyzeWithJsonObject(
+  provider: Provider,
+  params: AnalyzeStripParams,
+): Promise<AnalysisResult | null> {
+  const systemText = buildSystemPrompt(params.chart) + "\n\n" + buildJsonShapePrompt(params.chart);
+
+  const response = await provider.client.chat.completions.create({
+    model: provider.model,
+    max_completion_tokens: MAX_COMPLETION_TOKENS,
+    response_format: { type: "json_object" },
+    messages: [
+      { role: "system", content: systemText },
+      {
+        role: "user",
+        content: [
+          { type: "text", text: USER_INSTRUCTION + " Respond as JSON only — no prose, no markdown fences." },
+          {
+            type: "image_url",
+            image_url: { url: `data:${params.mediaType};base64,${params.imageBase64}` },
+          },
+        ],
+      },
+    ],
+  });
+
+  const content = response.choices[0]?.message?.content;
+  if (typeof content !== "string" || content.trim().length === 0) return null;
+
+  let input: unknown;
+  try {
+    input = JSON.parse(content);
+  } catch {
+    return null;
+  }
+
+  const parsed = parseToolInput(input, params.chart);
+  if (!parsed) return null;
+
+  return {
+    reading: {
+      schemaVersion: OBSERVATION_SCHEMA_VERSION,
+      chartId: params.chart.id,
+      perAnalyte: parsed.perAnalyte,
+      qaFlags: parsed.qaFlags,
+      modelResponseId: response.id,
+    },
+    modelLabel: provider.modelLabel,
+  };
+}
+
+const USER_INSTRUCTION =
+  "Analyze this photo. The user has dipped a freshwater test strip and laid it next to its bottle's color reference chart in the same frame. Match each pad against the in-frame chart (NOT against absolute color memory) and return one band index per analyte.";
 
 function buildSystemPrompt(chart: ReferenceChart): string {
   const chartSpec = chart.analytes
@@ -117,6 +225,20 @@ function buildSystemPrompt(chart: ReferenceChart): string {
     "Reference chart spec (band indices the user expects):",
     "",
     chartSpec,
+  ].join("\n");
+}
+
+function buildJsonShapePrompt(chart: ReferenceChart): string {
+  const analyteIds = chart.analytes.map((a) => `"${a.id}"`).join(", ");
+  return [
+    "Output strict JSON with this exact shape:",
+    "{",
+    "  \"perAnalyte\": [",
+    "    { \"analyteId\": <one of: " + analyteIds + ">, \"bandIndex\": <integer ≥0>, \"confidence\": <0..1>, \"note\": <optional string> }",
+    "  ],",
+    "  \"qaFlags\": [<zero or more of: \"blur\", \"glare\", \"low-light\", \"saturation-clip\", \"no-chart-detected\", \"underfill\">]",
+    "}",
+    "Emit one perAnalyte entry for every analyte id listed above. No extra keys.",
   ].join("\n");
 }
 
@@ -228,6 +350,10 @@ function clamp01(x: number): number {
 export const __TEST_ONLY__ = {
   buildAnalyzerTool,
   buildSystemPrompt,
+  buildJsonShapePrompt,
   parseToolInput,
-  MODEL,
+  pickProvider,
+  DEFAULT_FEATHERLESS_MODEL,
+  DEFAULT_OPENAI_MODEL,
+  FEATHERLESS_BASE_URL,
 };

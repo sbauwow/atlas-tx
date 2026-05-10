@@ -1,9 +1,18 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
-import { __TEST_ONLY__ } from "@/lib/observations/vision";
+import { __TEST_ONLY__, getActiveInferenceModelLabel } from "@/lib/observations/vision";
 import { GENERIC_9PAD_CHART } from "@/lib/observations/strips/reference-chart-9pad";
 
-const { buildAnalyzerTool, buildSystemPrompt, parseToolInput, MODEL } = __TEST_ONLY__;
+const {
+  buildAnalyzerTool,
+  buildSystemPrompt,
+  buildJsonShapePrompt,
+  parseToolInput,
+  pickProvider,
+  DEFAULT_FEATHERLESS_MODEL,
+  DEFAULT_OPENAI_MODEL,
+  FEATHERLESS_BASE_URL,
+} = __TEST_ONLY__;
 
 describe("vision tool schema", () => {
   it("constrains analyteId to chart-defined ids", () => {
@@ -23,6 +32,15 @@ describe("vision tool schema", () => {
     const prompt = buildSystemPrompt(GENERIC_9PAD_CHART);
     expect(prompt).toContain("non-regulatory");
     expect(prompt).toContain("Reference chart spec");
+  });
+
+  it("JSON shape prompt enumerates allowed analyte ids", () => {
+    const prompt = buildJsonShapePrompt(GENERIC_9PAD_CHART);
+    for (const a of GENERIC_9PAD_CHART.analytes) {
+      expect(prompt).toContain(`"${a.id}"`);
+    }
+    expect(prompt).toContain("\"qaFlags\"");
+    expect(prompt).toContain("strict JSON");
   });
 });
 
@@ -95,8 +113,60 @@ describe("parseToolInput", () => {
   });
 });
 
-describe("model id", () => {
-  it("uses the OpenAI vision model", () => {
-    expect(MODEL).toBe("gpt-4o-mini");
+describe("provider selection", () => {
+  const original = {
+    featherless: process.env.FEATHERLESS_API_KEY,
+    featherlessModel: process.env.FEATHERLESS_MODEL,
+    openai: process.env.OPENAI_API_KEY,
+  };
+
+  beforeEach(() => {
+    delete process.env.FEATHERLESS_API_KEY;
+    delete process.env.FEATHERLESS_MODEL;
+    delete process.env.OPENAI_API_KEY;
+  });
+
+  afterEach(() => {
+    if (original.featherless) process.env.FEATHERLESS_API_KEY = original.featherless;
+    else delete process.env.FEATHERLESS_API_KEY;
+    if (original.featherlessModel) process.env.FEATHERLESS_MODEL = original.featherlessModel;
+    else delete process.env.FEATHERLESS_MODEL;
+    if (original.openai) process.env.OPENAI_API_KEY = original.openai;
+    else delete process.env.OPENAI_API_KEY;
+  });
+
+  it("returns null when neither key is set", () => {
+    expect(pickProvider()).toBeNull();
+    expect(getActiveInferenceModelLabel()).toBeNull();
+  });
+
+  it("prefers Featherless when its key is set", () => {
+    process.env.FEATHERLESS_API_KEY = "fl_test";
+    process.env.OPENAI_API_KEY = "sk_test";
+    const provider = pickProvider();
+    expect(provider?.kind).toBe("featherless");
+    expect(provider?.model).toBe(DEFAULT_FEATHERLESS_MODEL);
+    expect(provider?.modelLabel).toBe(`featherless:${DEFAULT_FEATHERLESS_MODEL}`);
+    expect(getActiveInferenceModelLabel()).toBe(`featherless:${DEFAULT_FEATHERLESS_MODEL}`);
+  });
+
+  it("honors FEATHERLESS_MODEL override", () => {
+    process.env.FEATHERLESS_API_KEY = "fl_test";
+    process.env.FEATHERLESS_MODEL = "Qwen/Qwen2.5-VL-72B-Instruct";
+    const provider = pickProvider();
+    expect(provider?.model).toBe("Qwen/Qwen2.5-VL-72B-Instruct");
+    expect(provider?.modelLabel).toBe("featherless:Qwen/Qwen2.5-VL-72B-Instruct");
+  });
+
+  it("falls back to OpenAI when only its key is set", () => {
+    process.env.OPENAI_API_KEY = "sk_test";
+    const provider = pickProvider();
+    expect(provider?.kind).toBe("openai");
+    expect(provider?.model).toBe(DEFAULT_OPENAI_MODEL);
+    expect(provider?.modelLabel).toBe(`openai:${DEFAULT_OPENAI_MODEL}`);
+  });
+
+  it("points the Featherless client at the documented base URL", () => {
+    expect(FEATHERLESS_BASE_URL).toBe("https://api.featherless.ai/v1");
   });
 });
