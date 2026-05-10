@@ -4,6 +4,8 @@ Master catalog of `docs/wiki/`. Grouped by tier and category. Add a row when you
 
 For schema and conventions see [CLAUDE.md](CLAUDE.md). For ops history see [log.md](log.md). For the living synthesis see [overview.md](overview.md).
 
+Judge-facing shortcut: the live Atlas TX product is at https://atlastexas.org. If someone lands in the wiki first, send them there before walking them back into the supporting documentation.
+
 ---
 
 ## Tier 4 — Procedural

@@ -2,6 +2,18 @@
 
 ## 2026-05-10
 
+### docs: prepare Atlas TX v1.0.0 public launch surfaces
+
+What shipped:
+- positioned `atlastexas.org` as the primary live destination for judges and public users
+- elevated the Atlas TX MCP server and repo-local Atlas TX skill as first-class release surfaces in the root README
+- bumped repo version metadata from `0.1.0` to `1.0.0` for the public launch candidate
+- added a dedicated public-launch release note under `docs/releases/` for GitHub release drafting and announcement reuse
+- prepared the repo for Freshcrate positioning as an MCP-enabled open-source agent package with a live public web surface
+- added stronger wiki callouts so judges encountering the repo docs are pulled toward `atlastexas.org` first
+
+## 2026-05-10
+
 ### docs: record map-first county analytics direction
 
 What shipped:

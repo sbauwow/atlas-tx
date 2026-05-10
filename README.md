@@ -2,6 +2,14 @@
 
 Atlas TX is a map-first intelligence system for Texas public-interest evidence.
 
+Public launch surfaces:
+- Live site: https://atlastexas.org
+- GitHub repo: https://github.com/sbauwow/atlas-tx
+- Atlas TX MCP server: `packages/mcp-server/` via `npm run mcp:stdio`
+- Atlas TX agent skill: `skills/atlas-tx/SKILL.md`
+
+Atlas TX v1.0.0 is the public launch candidate aimed at judges, newsroom investigators, civic-tech analysts, and AI-agent workflows. The fastest way to understand the project is: open atlastexas.org, inspect the county maps, then use the MCP + skill surfaces to query the same evidence stack programmatically.
+
 It is built to help people find, verify, and act on county-level signals across permits, water, hydrology, operators, governance, environmental burden, and field observations.
 
 This is not another passive dashboard.
@@ -65,6 +73,32 @@ The result should feel less like a static civic site and more like an evidence w
    Use the Android workflow to capture strip results, photos, notes, and site context in a constrained evidence flow.
 3. Review the evidence together.
    Compare public records, modeled signals, and community submissions without collapsing them into one opaque score.
+
+## Public launch highlights
+
+Atlas TX is now being prepared as a public-facing release, not just a hackathon prototype. The launch story has four visible entry points:
+
+- `atlastexas.org` for judges and public users who need the live product first
+- county-map-first web workflows for exploration and drilldown
+- a local MCP server for agent-native access to the same evidence
+- repo-local Atlas TX skills that make the MCP surface usable from external agents
+
+### Why the MCP and skill matter
+
+Atlas TX is not only a website. It is also a reusable evidence system for AI-native workflows.
+
+- The MCP server exposes read-only, source-attributed Atlas TX tools over stdio and JSON dispatch.
+- The Atlas TX skill packages the right activation behavior, guardrails, and example invocation flow for external agents.
+- Judges can see the same product two ways: a live public site at `atlastexas.org` and an agent/tool path driven by MCP + skill.
+
+### Freshcrate positioning
+
+Atlas TX should be presented to Freshcrate as:
+- an open-source Texas public-interest intelligence system
+- a working MCP-enabled agent package / project
+- a repo with a live public destination (`atlastexas.org`) and a programmatic interface (`packages/mcp-server/`)
+
+That means release messaging should explicitly call out the web product, the MCP surface, and the repo-local skill set together rather than treating them as separate side projects.
 
 ## Hackathon judging criteria coverage
 

@@ -20,6 +20,8 @@ stale: false
 
 Living synthesis of the data sources Atlas TX touches. Update when the picture shifts. Keep dense.
 
+Judge note: the live public product is https://atlastexas.org. This wiki explains the evidence stack behind that site; it is not the primary entry surface for judges.
+
 ## What Atlas TX is, in one paragraph
 
 Atlas TX is a Texas water-risk + environmental-justice intelligence platform. The unit of analysis is the **county**. Counties get **derived signals** — most centrally a Drinking Water Risk Score ([DWRS](concepts/dwrs-score.md)) and an Active Protest Density score ([APD](concepts/apd-score.md)) — composed from federal compliance data ([SDWIS violations](datasets/epa-sdwis-violations.md)), exposure indicators ([EJScreen 2024](datasets/epa-ejscreen-2024.md)), demographic context ([ACS](datasets/census-acs5-2023-county.md)), and state-side regulatory friction ([TCEQ CID Search One](datasets/tceq-cid-search-one.md) / [Two](datasets/tceq-cid-search-two.md)). State-side context comes from [TCEQ](agencies/tceq.md) (water quality permits, CID, surface-water impairment) and [TWDB](agencies/twdb.md) (hydrology / aquifers / HUCs / planning regions). All of it is **indicator-grade**, not measurement-grade — see [Burden vs Harm](concepts/burden-vs-harm.md), the product stance that constrains every claim the platform makes.
