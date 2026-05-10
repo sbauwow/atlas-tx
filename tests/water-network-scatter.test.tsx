@@ -8,7 +8,7 @@ vi.mock("@/lib/water/hydrology-dependencies", () => ({
 }));
 
 describe("/water/network scatter", () => {
-  it("renders scatter plot axes and county points", async () => {
+  it("renders scatter plot axes, county points, and linked brushing state", async () => {
     buildGraph.mockResolvedValueOnce({
       flowDirectionMethod: "seeded-river-network-v1",
       nodes: [
@@ -42,13 +42,16 @@ describe("/water/network scatter", () => {
     });
 
     const pageModule = await import("@/app/water/network/page");
-    const element = await pageModule.default();
+    const element = await pageModule.default({ searchParams: Promise.resolve({ county: "travis-county", scope: "top10" }) });
     const html = renderToStaticMarkup(element);
 
     expect(html).toContain("Dependency scatter");
     expect(html).toContain("x-axis: upstream contribution");
     expect(html).toContain("y-axis: downstream dependency");
     expect(html).toContain('data-scatter-county="travis-county"');
+    expect(html).toContain('href="/water/network?county=travis-county&amp;scope=top10#network-workspace"');
+    expect(html).toContain('data-selected-scatter="travis-county"');
+    expect(html).toContain("Currently brushing Travis County");
     expect(html).toContain("Top 10 only");
   });
 });

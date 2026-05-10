@@ -3,6 +3,8 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const readFileMock = vi.fn();
 const getTceqPendingPermitsPageDataMock = vi.fn();
+const buildSourceNetworkMock = vi.fn();
+const buildHydrologyGraphMock = vi.fn();
 
 vi.mock("fs/promises", () => ({
   readFile: (...args: unknown[]) => readFileMock(...args),
@@ -15,6 +17,14 @@ vi.mock("@/lib/tceq-permits", async (importOriginal) => {
     getTceqPendingPermitsPageData: (...args: unknown[]) => getTceqPendingPermitsPageDataMock(...args),
   };
 });
+
+vi.mock("@/lib/water/source-network", () => ({
+  getDefaultCountyDependencyNetworkService: () => ({ buildNetwork: buildSourceNetworkMock }),
+}));
+
+vi.mock("@/lib/water/hydrology-dependencies", () => ({
+  getDefaultHydrologyDependencyService: () => ({ buildGraph: buildHydrologyGraphMock }),
+}));
 
 function analyticsFile(filename: string) {
   if (filename.includes("county-history.json")) {
@@ -256,6 +266,27 @@ describe("statewide analytics page", () => {
     vi.resetModules();
     readFileMock.mockReset();
     getTceqPendingPermitsPageDataMock.mockReset();
+    buildSourceNetworkMock.mockReset();
+    buildHydrologyGraphMock.mockReset();
+    buildSourceNetworkMock.mockResolvedValue({
+      schemaVersion: 1,
+      flowDirectionMethod: "centroid-gulf-proxy-v1",
+      nodes: [
+        { countySlug: "harris-county", countyName: "Harris County", lat: 29.76, lon: -95.37, multiCountySourceCount: 4, contagionScore: 3.8 },
+        { countySlug: "orange-county", countyName: "Orange County", lat: 30.09, lon: -93.74, multiCountySourceCount: 2, contagionScore: 1.5 },
+      ],
+      edges: [],
+      directedEdges: [],
+    });
+    buildHydrologyGraphMock.mockResolvedValue({
+      schemaVersion: 1,
+      flowDirectionMethod: "seeded-river-network-v1",
+      nodes: [
+        { countySlug: "harris-county", countyName: "Harris County", lat: 29.76, lon: -95.37, upstreamContributionScore: 1, downstreamDependencyScore: 5, contagionScore: 3.8 },
+        { countySlug: "travis-county", countyName: "Travis County", lat: 30.27, lon: -97.74, upstreamContributionScore: 4, downstreamDependencyScore: 2, contagionScore: 2.6 },
+      ],
+      edges: [],
+    });
   });
 
   it("renders statewide movers, scatter analysis, and provenance cards from Wave 1 artifacts", async () => {
@@ -280,11 +311,17 @@ describe("statewide analytics page", () => {
     expect(text).toContain("County risk score");
     expect(text).toContain("Permit pressure");
     expect(text).toContain("Open this county next");
+    expect(text).toContain("Map overlays");
+    expect(text).toContain("Shared source network");
+    expect(text).toContain("Downstream hydrology dependency");
+    expect(text).toContain("Source-linked counties");
+    expect(text).toContain("Downstream dependency counties");
     expect(text).toContain("Top counties in this view");
     expect(text).toContain('href="/analytics?mode=pressure&amp;county=harris-county#analytics-map"');
     expect(text).toContain('href="/analytics?mode=risk&amp;county=harris-county#statewide-scatter"');
     expect(text).toContain('href="/analytics?mode=risk&amp;county=orange-county#analytics-map"');
     expect(text).toContain("Harris County: risk 100, pressure 100 — Up 2 rank slots.");
+    expect(text).toContain("Shared source network — Downstream hydrology dependency");
     expect(text).toContain("What changed");
     expect(text).toContain("Recent movement across committed snapshots");
     expect(text).toContain("Recent movement across committed snapshots: 1 up, 0 down, 1 new.");

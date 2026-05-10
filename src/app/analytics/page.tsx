@@ -12,6 +12,8 @@ import { DecompositionBarsPanel, MoversTable, ScatterplotPanel } from "@/app/com
 import { ACCENT_HEX, SEVERITY_HEX, SEVERITY_LABEL, type SeverityLevel } from "@/app/design/states";
 import { AddToWatchlistControl } from "@/app/watchlists/watchlist-client";
 import { TEXAS_COUNTY_CENTROIDS } from "@/lib/texas-county-centroids";
+import { getDefaultHydrologyDependencyService } from "@/lib/water/hydrology-dependencies";
+import { getDefaultCountyDependencyNetworkService } from "@/lib/water/source-network";
 
 import { formatNumber, formatTimestamp, loadStatewideAnalyticsViewModel } from "./analytics-data";
 
@@ -20,6 +22,15 @@ const MAP_HEIGHT = 520;
 
 type CountyProps = { name?: string; fips: string };
 type CountyTopology = Topology<{ counties: GeometryCollection<{ name?: string }> }>;
+type AnalyticsOverlayTone = "outline" | "hatch";
+type AnalyticsMapOverlay = {
+  id: string;
+  label: string;
+  description: string;
+  tone: AnalyticsOverlayTone;
+  color: string;
+  countySlugs: Set<string>;
+};
 
 let cachedAnalyticsCountyFeatures: FeatureCollection<Geometry, CountyProps> | null = null;
 
@@ -95,6 +106,7 @@ function AnalyticsCountyCorrelationMap({
   counties,
   selectedSlug,
   mode,
+  overlays,
 }: {
   counties: Array<{
     slug: string;
@@ -104,9 +116,11 @@ function AnalyticsCountyCorrelationMap({
     riskScore: number;
     movementLabel: string;
     quadrantDetail: string;
+    href: string;
   }>;
   selectedSlug: string | null;
   mode: "risk" | "pressure";
+  overlays: AnalyticsMapOverlay[];
 }) {
   const features = loadTexasCountyFeatures();
   const bySlug = new Map(counties.map((county) => [county.slug, county]));
@@ -114,6 +128,7 @@ function AnalyticsCountyCorrelationMap({
   const projection = projectionFor(MAP_WIDTH, MAP_HEIGHT);
   const selectedCounty = selectedSlug ? bySlug.get(selectedSlug) ?? null : null;
   const selectedFips = selectedCounty?.fips;
+  const overlayPatterns = overlays.filter((overlay) => overlay.tone === "hatch");
 
   return (
     <div className="relative overflow-hidden rounded-xl bg-slate-950 ring-1 ring-white/5">
@@ -123,6 +138,11 @@ function AnalyticsCountyCorrelationMap({
             <stop offset="0%" stopColor="#0f172a" />
             <stop offset="100%" stopColor="#020617" />
           </radialGradient>
+          {overlayPatterns.map((overlay) => (
+            <pattern key={overlay.id} id={`analytics-overlay-${overlay.id}`} width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(135)">
+              <line x1="0" y1="0" x2="0" y2="6" stroke={overlay.color} strokeWidth="2" />
+            </pattern>
+          ))}
         </defs>
         <rect x="0" y="0" width={MAP_WIDTH} height={MAP_HEIGHT} fill="url(#analyticsMapVignette)" />
 
@@ -135,23 +155,36 @@ function AnalyticsCountyCorrelationMap({
                 const focusValue = mode === "pressure" ? county?.pressureScore ?? 0 : county?.riskScore ?? 0;
                 const severity = analyticsMapSeverity(focusValue, mode);
                 const isSelected = county?.slug === selectedSlug;
-                return (
-                  <path
-                    key={currentFeature.properties.fips}
-                    d={path}
-                    fill={isSelected ? ACCENT_HEX : SEVERITY_HEX[severity]}
-                    stroke={county ? "#f8fafc" : "#0f172a"}
-                    strokeWidth={county ? 0.9 : 0.55}
-                    fillOpacity={county ? 1 : 0.28}
-                    data-county-slug={county?.slug ?? `fips-${currentFeature.properties.fips}`}
-                    data-mode={mode}
-                  >
+                const countyOverlays = county ? overlays.filter((overlay) => overlay.countySlugs.has(county.slug)) : [];
+                const outlineOverlay = countyOverlays.find((overlay) => overlay.tone === "outline");
+                const titleSuffix = countyOverlays.length ? ` — ${countyOverlays.map((overlay) => overlay.label).join(" — ")}` : "";
+                const countyShape = (
+                  <g data-county-slug={county?.slug ?? `fips-${currentFeature.properties.fips}`} data-mode={mode}>
+                    <path
+                      d={path}
+                      fill={isSelected ? ACCENT_HEX : SEVERITY_HEX[severity]}
+                      stroke={county ? (outlineOverlay?.color ?? "#f8fafc") : "#0f172a"}
+                      strokeWidth={county ? (isSelected ? 1.55 : outlineOverlay ? 1.15 : 0.9) : 0.55}
+                      fillOpacity={county ? 1 : 0.28}
+                    />
+                    {countyOverlays
+                      .filter((overlay) => overlay.tone === "hatch")
+                      .map((overlay) => (
+                        <path key={`${county?.slug}-${overlay.id}`} d={path} fill={`url(#analytics-overlay-${overlay.id})`} opacity={0.82} />
+                      ))}
                     <title>
                       {county
-                        ? `${county.name}: risk ${formatNumber(county.riskScore)}, pressure ${formatNumber(county.pressureScore)} — ${county.movementLabel}. ${county.quadrantDetail}`
+                        ? `${county.name}: risk ${formatNumber(county.riskScore)}, pressure ${formatNumber(county.pressureScore)} — ${county.movementLabel}. ${county.quadrantDetail}${titleSuffix}`
                         : `${currentFeature.properties.name} County (no statewide analytics point)`}
                     </title>
-                  </path>
+                  </g>
+                );
+                return county ? (
+                  <a key={county.slug} href={county.href} aria-label={`Open ${county.name}`}>
+                    {countyShape}
+                  </a>
+                ) : (
+                  <g key={currentFeature.properties.fips}>{countyShape}</g>
                 );
               })}
 
@@ -354,6 +387,38 @@ export default async function AnalyticsPage({
     .sort((left, right) => (mapMode === "pressure" ? right.pressureScore - left.pressureScore : right.riskScore - left.riskScore))
     .slice(0, 3);
 
+  const [sourceNetwork, hydrologyGraph] = await Promise.all([
+    getDefaultCountyDependencyNetworkService().buildNetwork().catch(() => null),
+    getDefaultHydrologyDependencyService().buildGraph().catch(() => null),
+  ]);
+  const sourceLinkedCountySlugs = new Set(
+    (sourceNetwork?.nodes ?? []).filter((node) => node.multiCountySourceCount > 0).map((node) => node.countySlug),
+  );
+  const downstreamDependencyCountySlugs = new Set(
+    (hydrologyGraph?.nodes ?? []).filter((node) => node.downstreamDependencyScore > 0).map((node) => node.countySlug),
+  );
+  const mapOverlays: AnalyticsMapOverlay[] = [
+    {
+      id: "source-network",
+      label: "Shared source network",
+      description: "Hatched counties participate in the multi-county shared-source graph from Atlas water-source dependency data.",
+      tone: "hatch" as const,
+      color: "rgba(248,250,252,0.85)",
+      countySlugs: sourceLinkedCountySlugs,
+    },
+    {
+      id: "downstream-hydrology",
+      label: "Downstream hydrology dependency",
+      description: "Outlined counties currently register downstream dependency in the seeded hydrology graph.",
+      tone: "outline" as const,
+      color: "#f59e0b",
+      countySlugs: downstreamDependencyCountySlugs,
+    },
+  ].filter((overlay) => overlay.countySlugs.size > 0);
+  const selectedOverlayLabels = selectedCounty
+    ? mapOverlays.filter((overlay) => overlay.countySlugs.has(selectedCounty.slug)).map((overlay) => overlay.label)
+    : [];
+
   return (
     <main className="mx-auto flex w-full max-w-7xl flex-1 flex-col gap-8 px-6 py-16">
       <section className="space-y-5">
@@ -407,7 +472,7 @@ export default async function AnalyticsPage({
         </div>
 
         <div className="mt-6 grid gap-6 xl:grid-cols-[1.3fr_0.7fr]">
-          <AnalyticsCountyCorrelationMap counties={countyMapRows} selectedSlug={selectedCounty?.slug ?? null} mode={mapMode} />
+          <AnalyticsCountyCorrelationMap counties={countyMapRows} selectedSlug={selectedCounty?.slug ?? null} mode={mapMode} overlays={mapOverlays} />
 
           <aside className="space-y-4 rounded-2xl border border-white/10 bg-white/[0.03] p-5">
             <div>
@@ -418,6 +483,18 @@ export default async function AnalyticsPage({
                   ? `${selectedCounty.movementLabel}. ${selectedCounty.quadrantDetail}`
                   : "The county map will activate once pressure-risk-scatter.json exposes counties with mappable FIPS coverage."}
               </p>
+              {selectedOverlayLabels.length ? (
+                <div className="mt-3 space-y-2 text-xs text-slate-300">
+                  <div>{selectedOverlayLabels.join(" — ")}</div>
+                  <div className="flex flex-wrap gap-2">
+                    {selectedOverlayLabels.map((label) => (
+                      <span key={label} className="rounded-full border border-white/10 bg-white/[0.04] px-2.5 py-1">
+                        {label}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              ) : null}
             </div>
 
             {selectedCounty ? (
@@ -432,6 +509,19 @@ export default async function AnalyticsPage({
                     <div className="text-[11px] font-medium uppercase tracking-[0.18em] text-slate-500">Permit pressure</div>
                     <div className="mt-2 text-3xl font-semibold text-white">{formatNumber(selectedCounty.pressureScore)}</div>
                     <div className="mt-1 text-xs text-slate-500">Severity {SEVERITY_LABEL[analyticsMapSeverity(selectedCounty.pressureScore, "pressure")]}</div>
+                  </div>
+                </div>
+
+                <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
+                  <div className="rounded-2xl border border-white/10 bg-slate-950/60 p-4">
+                    <div className="text-[11px] font-medium uppercase tracking-[0.18em] text-slate-500">Source-linked counties</div>
+                    <div className="mt-2 text-3xl font-semibold text-white">{sourceLinkedCountySlugs.size}</div>
+                    <div className="mt-1 text-xs text-slate-500">Counties currently present in the shared source network overlay.</div>
+                  </div>
+                  <div className="rounded-2xl border border-white/10 bg-slate-950/60 p-4">
+                    <div className="text-[11px] font-medium uppercase tracking-[0.18em] text-slate-500">Downstream dependency counties</div>
+                    <div className="mt-2 text-3xl font-semibold text-white">{downstreamDependencyCountySlugs.size}</div>
+                    <div className="mt-1 text-xs text-slate-500">Counties currently outlined by the hydrology dependency overlay.</div>
                   </div>
                 </div>
 
@@ -489,6 +579,26 @@ export default async function AnalyticsPage({
                   </>
                 )}
               </ul>
+              {mapOverlays.length ? (
+                <div className="mt-5 border-t border-white/10 pt-4">
+                  <div className="text-[11px] font-medium uppercase tracking-[0.18em] text-slate-500">Map overlays</div>
+                  <ul className="mt-3 space-y-3 text-xs text-slate-300">
+                    {mapOverlays.map((overlay) => (
+                      <li key={overlay.id} className="flex items-start gap-3">
+                        <span
+                          aria-hidden="true"
+                          className={overlay.tone === "hatch" ? "mt-0.5 inline-block h-3.5 w-3.5 rounded-[4px] border border-white/30 bg-[repeating-linear-gradient(135deg,rgba(248,250,252,0.95)_0,rgba(248,250,252,0.95)_2px,transparent_2px,transparent_5px)]" : "mt-0.5 inline-block h-3.5 w-3.5 rounded-[4px] border bg-transparent"}
+                          style={overlay.tone === "outline" ? { borderColor: overlay.color } : undefined}
+                        />
+                        <div>
+                          <div className="text-slate-100">{overlay.label}</div>
+                          <div className="text-slate-500">{overlay.description}</div>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ) : null}
             </div>
           </aside>
         </div>
