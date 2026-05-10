@@ -3,14 +3,11 @@ import TrackedLink from "@/app/components/tracked-link";
 
 const NAV_LINKS: Array<{ label: string; href: string }> = [
   { label: "Overview", href: "/" },
-  { label: "Analytics", href: "/analytics" },
-  { label: "Operators", href: "/operators" },
-  { label: "Water", href: "/water" },
+  { label: "Maps", href: "/maps" },
   { label: "Counties", href: "/counties" },
-  { label: "Maps", href: "/map" },
+  { label: "Analytics", href: "/analytics" },
+  { label: "Permits", href: "/permits" },
   { label: "Education", href: "/education" },
-  { label: "Glossary", href: "/glossary" },
-  { label: "API health", href: "/api/health" },
 ];
 
 export default function TopNav() {

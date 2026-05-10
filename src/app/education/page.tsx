@@ -2,6 +2,9 @@ import Link from "next/link";
 import GlossaryTooltip, { GlossaryInlineList } from "@/app/components/glossary-tooltip";
 import { CATEGORY_BORDER_CLASS, CATEGORY_TEXT_CLASS } from "@/app/design/categories";
 import { countyRiskSignals, governanceLayers, surfaceVsGroundwater, texasWaterDiagram, texasWaterFlow, waterPrimerCards } from "@/app/education/content";
+import { GLOSSARY } from "@/lib/glossary";
+
+const GLOSSARY_ENTRIES = Object.entries(GLOSSARY).sort(([a], [b]) => a.localeCompare(b));
 
 export default function EducationPage() {
   return (
@@ -189,6 +192,25 @@ export default function EducationPage() {
             <div key={signal} className="rounded-xl border border-white/5 bg-white/[0.03] px-4 py-3 text-sm text-slate-300">
               {signal}
             </div>
+          ))}
+        </div>
+      </section>
+
+      <section id="glossary" className="space-y-6">
+        <div className="space-y-2">
+          <h2 className="text-3xl font-semibold tracking-tight text-white">Glossary</h2>
+          <p className="max-w-3xl text-sm leading-7 text-slate-400">
+            Plain-English definitions for the agencies, datasets, and regulatory acronyms used across Atlas Texas.
+          </p>
+        </div>
+        <div className="grid gap-3 md:grid-cols-2">
+          {GLOSSARY_ENTRIES.map(([key, entry]) => (
+            <article key={key} className="rounded-xl border border-white/5 bg-white/[0.03] px-5 py-4">
+              <div className="flex flex-wrap items-baseline gap-3">
+                <h3 className="font-mono text-base font-semibold text-cyan-300">{entry.short}</h3>
+                <div className="text-sm text-white">{entry.long}</div>
+              </div>
+            </article>
           ))}
         </div>
       </section>
