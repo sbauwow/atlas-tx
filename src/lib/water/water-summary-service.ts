@@ -98,18 +98,56 @@ function buildMismatch(
   alerts: WaterAlert[],
   sewerOverflows: SewerOverflowEvent[],
   surfaceWaterQuality: SurfaceWaterQualitySegment[],
+  gauges: StreamGauge[] = [],
+  permits: WaterPermitRecord[] = [],
 ): { score: number; flags: string[] } | undefined {
   const flags: string[] = [];
+  let score = 0;
   const impairedCount = surfaceWaterQuality.filter((row) => row.isImpaired).length;
-  if (impairedCount > 0 && sewerOverflows.length > 0) {
-    flags.push("surface-water impairment overlaps recent sewer overflow activity");
+  const segmentCount = surfaceWaterQuality.length;
+  const permitCount = permits.length;
+  const gaugeCount = gauges.length;
+  const overflowCount = sewerOverflows.length;
+  const alertCount = alerts.length;
+
+  if (impairedCount > 0 && overflowCount > 0) {
+    flags.push(`${impairedCount} impaired segment${impairedCount === 1 ? "" : "s"} overlap ${overflowCount} sewer overflow${overflowCount === 1 ? "" : "s"} in the last 30 days`);
+    score += 25 + Math.min(20, overflowCount * 4);
   }
-  if (impairedCount > 0 && alerts.length <= 1) {
-    flags.push("surface-water impairment is present with only light active alert coverage");
+
+  if (impairedCount > 0 && alertCount === 0) {
+    flags.push("surface-water impairment is present with no active hazard alerts in the cached feed");
+    score += 18;
   }
+
+  if (impairedCount >= 5 && gaugeCount === 0) {
+    flags.push(`${impairedCount} impaired segments without any cached USGS stream gauges — under-monitored surface water`);
+    score += 22;
+  }
+
+  if (overflowCount > 0 && impairedCount === 0 && segmentCount > 0) {
+    flags.push("sewer overflow activity present but surface segments carry no impairment flag — assessment lag suspected");
+    score += 14;
+  }
+
+  if (permitCount >= 5 && gaugeCount === 0) {
+    flags.push(`${permitCount} active permits without any USGS stream gauges — unmonitored discharge buildup`);
+    score += 15;
+  }
+
+  if (segmentCount === 0 && (overflowCount > 0 || permitCount >= 3)) {
+    flags.push("no cached surface-water assessment despite operational pressure (overflows or permits) — data desert risk");
+    score += 12;
+  }
+
+  if (impairedCount >= 3 && permitCount === 0) {
+    flags.push(`${impairedCount} impaired segments without any cached active permit pressure — enforcement gap candidate`);
+    score += 16;
+  }
+
   if (flags.length === 0) return undefined;
   return {
-    score: Math.min(100, flags.length * 25 + (sewerOverflows.length > 0 ? 25 : 0)),
+    score: Math.min(100, score),
     flags,
   };
 }
@@ -235,7 +273,7 @@ function buildSummary(
 ): CountyWaterSummary {
   const floodplainFeatureCount = getFloodplainCount(countyName, floodplainCoverage);
   const impairedSurfaceWaterSegmentCount = surfaceWaterQuality.filter((row) => row.isImpaired).length;
-  const mismatch = buildMismatch(alerts, sewerOverflows, surfaceWaterQuality);
+  const mismatch = buildMismatch(alerts, sewerOverflows, surfaceWaterQuality, gauges, permits);
 
   return {
     county: {
