@@ -42,7 +42,7 @@ class SettingsRepository(private val store: DataStore<Preferences>) {
     suspend fun regenerateDeviceId() = store.edit { it[KEY_DEVICE_ID] = UUID.randomUUID().toString() }
 
     companion object {
-        const val DEFAULT_BASE_URL = "http://10.0.2.2:3000"
+        const val DEFAULT_BASE_URL = "https://atlastexas.org"
         const val DEFAULT_STRIP_BRAND = "JED Pool Tools 5-way"
 
         private val KEY_BASE_URL = stringPreferencesKey("base_url")
