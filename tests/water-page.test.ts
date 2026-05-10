@@ -55,6 +55,12 @@ describe("water page", () => {
     expect(text).toContain("National Flood Hazard Layer");
     expect(text).toContain("Lower Colorado River Authority");
     expect(text).toContain("Guadalupe-Blanco River Authority");
+    expect(text).toContain("Map-first county workflow");
+    expect(text).toContain("Start on the county map, switch between operational risk and mismatch severity");
+    expect(text).toContain("1. Start on the map");
+    expect(text).toContain("2. Inspect county detail");
+    expect(text).toContain("3. Compare in county table");
+    expect(text).toContain("Map-driven county detail for the current water slice.");
     expect(text).toContain("Travis County");
     expect(text).toContain("General permits");
     expect(text).toContain("Pending permits");
