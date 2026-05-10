@@ -2,6 +2,18 @@
 
 ## 2026-05-09
 
+### research: final polish pass on paper draft prose and structure
+
+What shipped:
+- improved section transitions and tightened academic prose across the paper draft for a cleaner near-submission read
+- normalized section and table/figure headings, removed drafty phrasing, and sharpened the wording around the heat ablation result and limitations
+
+### research: polish submission-style paper draft language
+
+What shipped:
+- tightened the paper title, abstract, introduction, contribution framing, discussion prose, and conclusion for a cleaner submission-style read
+- standardized the draft around the phrases `temperature-seasonality context`, `non-temperature trigger stack`, and `open-data ranking utility` to reduce ambiguity
+
 ### research: foreground contest open-data framing in thesis artifacts
 
 What shipped:

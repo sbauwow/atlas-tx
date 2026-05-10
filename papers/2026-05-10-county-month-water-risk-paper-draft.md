@@ -1,20 +1,20 @@
-# What Texas open data can and cannot tell us about next-month drinking-water risk
+# What Texas Open Data Can and Cannot Tell Us About Next-Month Drinking-Water Risk
 
 Generated: 2026-05-10
 
 ## Abstract
 
-We build a reproducible Texas county-month panel from contest-relevant Texas open data, enriched with adjacent federal public environmental context, to test what an integrated open-data stack can actually contribute to drinking-water risk ranking. The panel links SDWIS health-based violation outcomes to Texas sewer overflows, permits, surface-water context, precipitation, flood-warning context, nearest-gauge streamflow, drought, and county-centroid temperature proxies from 2020-01 through 2025-12. The resulting panel contains 18,288 county-month rows across 254 counties and 72 months. We evaluate pooled logistic and county fixed-effects-style predictive ladders for ranking next-month county SDWIS event occurrence. Across model families, persistent county baseline risk dominates most short-run trigger layers, and an empirical-Bayes county baseline materially improves ranking performance relative to persistence-only baselines. Precipitation, flood-warning, streamflow, and drought context add limited incremental value beyond the stabilized chronic baseline. Temperature context adds the clearest improvement in both pooled and within-county-style backtests. In the full pooled trigger stack, validation AUPRC rises from 0.559 for the non-heat EB trigger benchmark to 0.578 with temperature terms, with test AUPRC rising from 0.460 to 0.475. In the county fixed-effects-style pass, the analogous improvement is from 0.559 to 0.578 in validation and from 0.462 to 0.478 in test. Heat-focused ablations suggest that freeze-day and heat-day counts carry more signal than mean-temperature anomaly alone. We interpret these results as predictive association and open-data ranking utility rather than causal proof.
+We build a reproducible Texas county-month panel from contest-relevant Texas open data, enriched with adjacent federal public environmental context, to test what an integrated open-data stack can contribute to drinking-water risk ranking. The panel links SDWIS health-based violation outcomes to Texas sewer overflows, permits, surface-water context, precipitation, flood-warning context, nearest-gauge streamflow, drought, and county-centroid temperature proxies from 2020-01 through 2025-12. It contains 18,288 county-month rows spanning 254 counties and 72 months. We evaluate pooled logistic and county fixed-effects-style predictive ladders for ranking next-month county SDWIS event occurrence. Across model families, persistent county baseline risk dominates most short-run trigger layers, and a simple empirical-Bayes county baseline materially improves ranking performance relative to persistence-only baselines. Precipitation, flood-warning, streamflow, and drought context add limited incremental value beyond the stabilized chronic baseline. Temperature-seasonality context adds the clearest improvement in both pooled and within-county-style backtests. In the full pooled trigger stack, validation AUPRC rises from 0.559 for the non-temperature EB trigger benchmark to 0.578, while test AUPRC rises from 0.460 to 0.475. In the county fixed-effects-style pass, the analogous improvement is from 0.559 to 0.578 in validation and from 0.462 to 0.478 in test. Heat-focused ablations indicate that freeze-day context and the combined heat-days-plus-freeze-days bundle carry more signal than mean-temperature anomaly alone. We interpret these results as evidence about predictive association and open-data ranking utility rather than causal proof.
 
 ---
 
 ## 1. Introduction
 
-Public drinking-water risk is often communicated through isolated incidents, system-specific enforcement actions, or after-the-fact notice events. That mode of analysis is important, but it makes it difficult to compare places systematically and to ask whether available public signals improve short-horizon risk ranking. The Texas open-data contest framing makes this problem more concrete: Texas agencies expose multiple fragmented but high-value open datasets, yet there is no single integrated, reproducible open-data workflow for identifying where next-month drinking-water stress may be elevated or where official signals appear inconsistent. Texas therefore offers a useful setting for testing what open data can and cannot do when assembled into a statewide drinking-water monitoring panel.
+Public drinking-water risk is often communicated through isolated incidents, system-specific enforcement actions, or after-the-fact notice events. That mode of analysis remains important, but it makes it difficult to compare places systematically or to ask whether available public signals improve short-horizon risk ranking. The Texas open-data contest framing sharpens this problem: Texas agencies expose multiple fragmented but high-value open datasets, yet there is no single integrated, reproducible workflow for identifying where next-month drinking-water stress may be elevated or where official signals appear inconsistent. Texas therefore offers a useful setting for testing what open data can and cannot do when assembled into a statewide drinking-water monitoring panel.
 
-This paper studies a pragmatic question rather than a causal one: given a county-month stack built from Texas open data and adjacent federal public environmental context, which features improve ranking of **next-month** SDWIS health-based event occurrence? In particular, we ask whether short-run trigger layers such as precipitation, flood warnings, streamflow, drought, and temperature contribute predictive value beyond persistent county-level baseline risk.
+This paper asks a pragmatic rather than causal question: given a county-month stack built from Texas open data and adjacent federal public environmental context, which features improve ranking of **next-month** SDWIS health-based event occurrence? More specifically, do short-run trigger layers such as precipitation, flood warnings, streamflow, drought, and temperature add predictive value beyond persistent county-level baseline risk?
 
-The resulting empirical picture is more specific than a generic “weather matters” story. Most tested trigger layers contribute only modest incremental value once persistent county risk is encoded properly. A simple empirical-Bayes county baseline provides a strong small-area stabilization device and substantially improves predictive ranking. Among the tested contextual layers, temperature-seasonality features are the first to show a clear and robust incremental gain beyond the existing non-heat trigger stack.
+The resulting empirical picture is narrower and more informative than a generic “weather matters” story. Most tested trigger layers contribute only modest incremental value once persistent county risk is encoded properly. A simple empirical-Bayes county baseline provides a strong small-area stabilization device and substantially improves predictive ranking. Among the tested contextual layers, temperature-seasonality features are the first to show a clear and robust incremental gain beyond the existing non-temperature trigger stack.
 
 ### 1.1 Questions
 
@@ -37,12 +37,12 @@ This framing matters because one of the paper's central findings is not just pre
 
 ### 1.3 Contributions
 
-This draft makes four bounded claims.
+The paper makes four bounded contributions.
 
-1. **Open-data systems contribution**: a reproducible Texas county-month panel built from contest-relevant Texas open data plus adjacent public federal context.
-2. **Method contribution**: a simple empirical-Bayes county baseline is a strong and interpretable small-area stabilization baseline for county-month event prediction.
+1. **Open-data systems contribution**: it assembles contest-relevant Texas open data plus adjacent public federal context into a reproducible county-month drinking-water risk panel.
+2. **Method contribution**: a simple empirical-Bayes county baseline provides a strong and interpretable small-area stabilization baseline for county-month event prediction.
 3. **Empirical contribution**: chronic county baseline risk dominates most short-run trigger layers, while temperature-seasonality context adds measurable incremental ranking value.
-4. **Civic-tech contribution**: statewide open-data water-risk monitoring appears to benefit more from baseline stabilization plus selected contextual layers than from naive event-trigger stacking alone, and it creates a natural interface for later community validation layers.
+4. **Civic-tech contribution**: statewide open-data water-risk monitoring appears to benefit more from baseline stabilization plus selected contextual layers than from naive event-trigger stacking alone, and it creates a natural interface for later community-validation layers.
 
 ### 1.4 Non-claims
 
@@ -178,7 +178,7 @@ This design preserves temporal ordering and makes the final test period a genuin
 
 ### 3.3 Model families
 
-We evaluate two main families.
+We evaluate two main model families. The first asks how far a simple statewide pooled ranking model can go. The second asks whether the same trigger layers still help after absorbing county-specific baseline propensity more explicitly.
 
 #### Pooled ladder
 
@@ -217,7 +217,7 @@ Because the event is relatively imbalanced and the intended use is ranking, **AU
 
 ## 4.1 Persistent county baseline risk dominates
 
-The first consistent result is that persistent county baseline risk is the strongest signal in the panel. The persistence-only model already substantially outperforms the prevalence baseline, and adding the EB county baseline produces another material jump.
+The first and most stable result is that persistent county baseline risk is the strongest signal in the panel. The persistence-only model already substantially outperforms the prevalence baseline, and adding the EB county baseline produces another material jump.
 
 In the pooled ladder:
 
@@ -269,7 +269,7 @@ with:
 
 Relative to the non-heat EB trigger benchmark, this is a meaningful gain in both validation and test. It is also the first trigger-layer addition in the weather stack to improve both model families clearly enough to change the thesis narrative.
 
-### Table 1. Core model comparison summary
+### Table 1. Core Model Comparison Summary
 
 | Family | Model | Validation AUPRC | Test AUPRC |
 |---|---|---:|---:|
@@ -284,13 +284,13 @@ Relative to the non-heat EB trigger benchmark, this is a meaningful gain in both
 | County FE-style | FE trigger stack + temperature | 0.578 | 0.478 |
 | County FE-style | FE + precipitation interaction model | 0.567 | 0.459 |
 
-### Figure 1. Selected model comparisons by family and split
+### Figure 1. Selected Model Comparisons by Family and Split
 
 ![Selected model comparisons](../outputs/figures/model-comparison-selected.png)
 
-## 4.4 Heat-focused ablation
+## 4.4 Heat-Focused Ablation
 
-A dedicated heat ablation was run against the non-heat EB trigger benchmark. The most important findings are:
+A dedicated heat ablation was run against the non-temperature EB trigger benchmark. Four findings matter most:
 
 1. The gain is **not** solely an artifact of including every heat variable at once.
 2. The strongest **single** added temperature-seasonality term by validation AUPRC is `freeze_days` in both pooled and county-FE-style ladders.
@@ -317,9 +317,9 @@ Key ablation values:
 ### County-FE-style compact bundle
 - Benchmark + `heat_days + freeze_days`: validation AUPRC **0.578**, test **0.478**
 
-This changes the most precise wording of the result. The paper should not claim merely that “hot days” explain the gain. A better description is that **temperature-seasonality context**, especially the `freeze_days` term and the `heat_days + freeze_days` bundle, carries measurable incremental ranking value.
+This ablation sharpens the wording of the result. The paper should not claim merely that “hot days” explain the gain. A more accurate description is that **temperature-seasonality context**, especially the `freeze_days` term and the `heat_days + freeze_days` bundle, carries measurable incremental ranking value.
 
-### Table 2. Heat ablation summary
+### Table 2. Heat Ablation Summary
 
 | Family | Ablation model | Validation AUPRC | Test AUPRC |
 |---|---|---:|---:|
@@ -332,7 +332,7 @@ This changes the most precise wording of the result. The paper should not claim 
 | County FE-style | + `heat_days + freeze_days` | 0.578 | 0.478 |
 | County FE-style | + full heat stack | 0.578 | 0.478 |
 
-### Figure 2. Heat ablation AUPRC by family and split
+### Figure 2. Heat Ablation AUPRC by Family and Split
 
 ![Heat ablation AUPRC](../outputs/figures/heat-ablation-auprc.png)
 
@@ -351,9 +351,9 @@ This remains strong, but the heat-enriched trigger stack now surpasses it in val
 
 ## 5.1 Main interpretation
 
-The clearest reading of the results is that county-month drinking-water risk ranking from public/open data is dominated by persistent baseline heterogeneity, and that simple small-area stabilization is crucial. Most contextual weather layers do not overwhelm that chronic-risk structure. Temperature-seasonality context is the first contextual layer to materially improve ranking beyond the stabilized baseline.
+The clearest reading of the results is that county-month drinking-water risk ranking from public/open data is dominated by persistent baseline heterogeneity and that simple small-area stabilization is crucial. Most contextual weather layers do not overwhelm that chronic-risk structure. Temperature-seasonality context is the first contextual layer to materially improve ranking beyond the stabilized baseline.
 
-This is a stronger and more defensible contribution than a looser story about generic weather influence. The panel demonstrates that many intuitively plausible open-data trigger layers either add little at this resolution or are already partially absorbed by persistent county differences. That negative result is informative for the contest/open-data framing: it tells us not just how to predict better, but which public layers are mainly contextual versus which ones materially improve the ranking system.
+This is a stronger and more defensible contribution than a looser story about generic weather influence. The panel shows that many intuitively plausible open-data trigger layers either add little at this resolution or are already partially absorbed by persistent county differences. That negative result is informative for the contest/open-data framing: it tells us not just how to predict better, but which public layers are mainly contextual and which ones materially improve the ranking system.
 
 ## 5.2 Why temperature-seasonality may matter more than the other triggers
 
@@ -368,7 +368,7 @@ The current evidence does not distinguish among these mechanisms causally. But i
 
 ## 5.3 Why the county-month panel still matters
 
-The county-month unit is coarse, but it remains useful for three reasons.
+The county-month unit is coarse, but it remains analytically useful for three reasons.
 
 1. It permits statewide reproducible ranking from public data.
 2. It is sufficient to reveal the chronic-baseline-versus-trigger tradeoff.
@@ -380,7 +380,7 @@ The fact that temperature-seasonality context still helps at this coarse level s
 
 ## 6. Limitations
 
-This draft should foreground the following limitations explicitly.
+The main limitations should be foregrounded explicitly.
 
 A contest-facing version of the paper should also make clear that open-data integration strength and predictive utility are not the same thing: some datasets are valuable because they improve ranking, while others are valuable because they improve interpretability, provenance, or investigative follow-up.
 
@@ -409,13 +409,13 @@ A contest-facing version of the paper should also make clear that open-data inte
 
 ## 7. Conclusion
 
-This paper presents a reproducible Texas county-month panel for ranking next-month SDWIS health-based event risk from contest-relevant open data plus adjacent public federal environmental context. The main empirical result is that **persistent county baseline risk dominates most short-run trigger layers**, and that a simple **empirical-Bayes county baseline** materially improves ranking performance. Precipitation, flood-warning, streamflow, and drought context add limited value beyond that stabilized baseline. Temperature-seasonality context adds the clearest incremental gain, with heat-focused ablations indicating that `freeze_days` and the `heat_days + freeze_days` bundle carry the strongest additional signal.
+This paper presents a reproducible Texas county-month panel for ranking next-month SDWIS health-based event risk from contest-relevant open data plus adjacent public federal environmental context. Its main empirical result is that **persistent county baseline risk dominates most short-run trigger layers**, and that a simple **empirical-Bayes county baseline** materially improves ranking performance. Precipitation, flood-warning, streamflow, and drought context add limited value beyond that stabilized baseline. Temperature-seasonality context adds the clearest incremental gain, with heat-focused ablations indicating that `freeze_days` and the `heat_days + freeze_days` bundle carry the strongest additional signal.
 
-The resulting contribution is best framed as an open-data systems, predictive, and methodological one. A practical statewide water-risk ranking pipeline can be built from public/open data, but not all open-data layers contribute equally: some mainly encode chronic structure, some mainly improve interpretation, and a smaller subset materially improves holdout ranking performance. The next research step should be either a formal partial-pooling county model or a finer-resolution PWS-month design, followed by a separate grassroots validation layer for testing where open-data ranking and community-observed anomalies align or diverge.
+The contribution is therefore best framed as open-data systems, predictive, and methodological at the same time. A practical statewide water-risk ranking pipeline can be built from public/open data, but not all open-data layers contribute equally: some mainly encode chronic structure, some mainly improve interpretation, and a smaller subset materially improves holdout ranking performance. The next research step should be either a formal partial-pooling county model or a finer-resolution PWS-month design, followed by a separate grassroots validation layer for testing where open-data ranking and community-observed anomalies align or diverge.
 
 ---
 
-## 8. Tables and figures to produce next
+## 8. Tables and Figures for the Next Draft
 
 ### Core tables
 1. Panel coverage table
