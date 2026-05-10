@@ -34,3 +34,42 @@ data class Observation(
     val llmModel: String? = null,
     @SerialName("llmReading") val llmReading: JsonElement? = null,
 )
+
+@Serializable
+data class ObservationListResponse(
+    val items: List<Observation> = emptyList(),
+)
+
+@Serializable
+data class WaterOverviewResponse(
+    val counties: List<CountyOverviewEntry> = emptyList(),
+)
+
+@Serializable
+data class CountyOverviewEntry(
+    val county: CountyOverviewRef,
+    val metrics: CountyOverviewMetrics = CountyOverviewMetrics(),
+    val mismatch: CountyOverviewMismatch? = null,
+)
+
+@Serializable
+data class CountyOverviewRef(
+    val slug: String,
+    val name: String,
+    val fips: String? = null,
+)
+
+@Serializable
+data class CountyOverviewMetrics(
+    val floodplainFeatureCount: Int? = null,
+    val activeWaterAlertCount: Int? = null,
+    val sewerOverflowCount30d: Int? = null,
+    val streamGaugeCount: Int? = null,
+    val generalPermitCount: Int? = null,
+)
+
+@Serializable
+data class CountyOverviewMismatch(
+    val score: Int? = null,
+    val flags: List<String> = emptyList(),
+)

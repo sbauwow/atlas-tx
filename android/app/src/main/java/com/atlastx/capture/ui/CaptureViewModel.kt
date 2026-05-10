@@ -10,9 +10,13 @@ import androidx.lifecycle.viewModelScope
 import com.atlastx.capture.AtlasApp
 import com.atlastx.capture.data.ApiClient
 import com.atlastx.capture.data.CaptureSettings
+import com.atlastx.capture.data.Centroids
+import com.atlastx.capture.data.CountyCentroid
+import com.atlastx.capture.data.CountyOverviewEntry
 import com.atlastx.capture.data.Observation
 import com.atlastx.capture.data.SettingsRepository
 import com.atlastx.capture.data.SubmitResult
+import com.atlastx.capture.data.WaterOverviewResponse
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -29,6 +33,23 @@ sealed interface UploadState {
     data object InFlight : UploadState
     data class Done(val observation: Observation, val deduped: Boolean) : UploadState
     data class Failed(val message: String) : UploadState
+}
+
+sealed interface MapDataState {
+    data object Idle : MapDataState
+    data object Loading : MapDataState
+    data class Ready(
+        val centroids: List<CountyCentroid>,
+        val overviewBySlug: Map<String, CountyOverviewEntry>,
+    ) : MapDataState
+    data class Failed(val message: String) : MapDataState
+}
+
+sealed interface ActivityState {
+    data object Idle : ActivityState
+    data object Loading : ActivityState
+    data class Ready(val items: List<Observation>) : ActivityState
+    data class Failed(val message: String) : ActivityState
 }
 
 class CaptureViewModel(
@@ -59,6 +80,12 @@ class CaptureViewModel(
 
     private val _countySlug = MutableStateFlow<String?>(null)
     val countySlug: StateFlow<String?> = _countySlug.asStateFlow()
+
+    private val _mapData = MutableStateFlow<MapDataState>(MapDataState.Idle)
+    val mapData: StateFlow<MapDataState> = _mapData.asStateFlow()
+
+    private val _activity = MutableStateFlow<ActivityState>(ActivityState.Idle)
+    val activity: StateFlow<ActivityState> = _activity.asStateFlow()
 
     fun newCaptureFile(): Pair<File, Uri> {
         val dir = File(app.filesDir, "captures").apply { mkdirs() }
@@ -141,6 +168,34 @@ class CaptureViewModel(
 
     private fun timestamp(): String =
         SimpleDateFormat("yyyyMMdd-HHmmss", Locale.US).format(Date())
+
+    fun loadMapData(force: Boolean = false) {
+        val current = _mapData.value
+        if (!force && (current is MapDataState.Ready || current is MapDataState.Loading)) return
+        _mapData.value = MapDataState.Loading
+        viewModelScope.launch {
+            val centroids = runCatching { Centroids.load(app) }.getOrNull()
+            if (centroids == null) {
+                _mapData.value = MapDataState.Failed("Could not load county centroids.")
+                return@launch
+            }
+            val baseUrl = settings.current().baseUrl
+            val overview: WaterOverviewResponse? = api.fetchWaterOverview(baseUrl)
+            val map = overview?.counties.orEmpty().associateBy { it.county.slug }
+            _mapData.value = MapDataState.Ready(centroids = centroids, overviewBySlug = map)
+        }
+    }
+
+    fun loadActivity(force: Boolean = false) {
+        val current = _activity.value
+        if (!force && (current is ActivityState.Ready || current is ActivityState.Loading)) return
+        _activity.value = ActivityState.Loading
+        viewModelScope.launch {
+            val baseUrl = settings.current().baseUrl
+            val items = api.fetchRecentObservations(baseUrl)
+            _activity.value = ActivityState.Ready(items)
+        }
+    }
 
     fun setBaseUrl(value: String) = viewModelScope.launch { settings.setBaseUrl(value) }
     fun setStripBrand(value: String) = viewModelScope.launch { settings.setStripBrand(value) }
