@@ -5,7 +5,7 @@ import { GlossaryInlineList } from "@/app/components/glossary-tooltip";
 import { CATEGORY_BORDER_CLASS, CATEGORY_TEXT_CLASS, DATASET_CATEGORY_GLYPH, DATASET_CATEGORY_LABEL, DATASET_CATEGORY_TOKEN } from "@/app/design/categories";
 import { surfaceVsGroundwater, texasWaterDiagram, waterPrimerCards } from "@/app/education/content";
 import { getDefaultAtlasCountyExplorerService } from "@/lib/atlas-county-explorer";
-import { MAP_ENTRIES, MAP_STATUS_CHIP } from "@/lib/map-entries";
+import { MAP_ENTRIES } from "@/lib/map-entries";
 import { MVP_DATASETS } from "@/lib/mvp-datasets";
 import { getTceqPendingPermitsPageData } from "@/lib/tceq-permits";
 import { getDefaultAtlasWaterSummaryService } from "@/lib/water/water-summary-service";
@@ -39,7 +39,7 @@ export default async function Home() {
               Texas, mapped from public data.
             </h1>
             <p className="max-w-3xl text-pretty text-lg leading-8 text-slate-400">
-              Atlas pulls public records — federal, state, and city — into county-level maps you can read without a data team. Water and water quality is the first map live. More are on the way.
+              Atlas pulls public records — federal, state, and city — into county-level maps you can read without a data team. Water + water quality first; more themes on the way.
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-3 text-sm">
@@ -75,12 +75,11 @@ export default async function Home() {
         </div>
 
         <aside className="rounded-2xl bg-gradient-to-b from-white/[0.06] to-white/[0.02] p-6 ring-1 ring-white/10 backdrop-blur">
-          <div className="text-xs font-medium uppercase tracking-[0.18em] text-slate-400">First map: water</div>
-          <ul className="mt-4 space-y-3.5 text-sm leading-7 text-slate-300">
+          <ul className="space-y-3.5 text-sm leading-7 text-slate-300">
             <li className="flex gap-3"><span aria-hidden="true" className="mt-2.5 size-1 shrink-0 rounded-full bg-cat-1" />County choropleth of flood, alert, and overflow signal — every cell sourced.</li>
             <li className="flex gap-3"><span aria-hidden="true" className="mt-2.5 size-1 shrink-0 rounded-full bg-cat-2" />Public-water governance overlay: who runs the system in each county.</li>
             <li className="flex gap-3"><span aria-hidden="true" className="mt-2.5 size-1 shrink-0 rounded-full bg-cat-4" />Mismatch lens for places where official signals don&rsquo;t line up with each other.</li>
-            <li className="flex gap-3"><span aria-hidden="true" className="mt-2.5 size-1 shrink-0 rounded-full bg-cat-6" />Permits, drought, heat, and demographics next on the map roadmap.</li>
+            <li className="flex gap-3"><span aria-hidden="true" className="mt-2.5 size-1 shrink-0 rounded-full bg-cat-6" />Permits, drought, heat, and demographics next on the roadmap.</li>
           </ul>
         </aside>
       </section>
@@ -91,7 +90,6 @@ export default async function Home() {
 
       <section className="grid gap-4 lg:grid-cols-3">
         <EntryPathCard
-          eyebrow="Live"
           title="Water + water quality"
           description="Flood footprint, gauges, alerts, sewer overflows, and PWS governance by county."
           metric={`${activeAlertCount} active alerts · ${gaugeCount} gauges`}
@@ -101,7 +99,6 @@ export default async function Home() {
           cta="Open water map"
         />
         <EntryPathCard
-          eyebrow="Live"
           title="County index"
           description="Every Texas county, ranked across the source lanes Atlas already ingests."
           metric={`${countyOverview.countyCount} counties`}
@@ -111,7 +108,6 @@ export default async function Home() {
           cta="Open county index"
         />
         <EntryPathCard
-          eyebrow="Live"
           title="Permit tracker"
           description="Pending TCEQ water-quality permits, county hotspots, and filings worth a closer look."
           metric={`${permitData.summary.pendingPermitCount} pending permits`}
@@ -146,55 +142,35 @@ export default async function Home() {
         />
       </section>
 
-      <section id="themed-maps" className="space-y-5">
-        <div className="flex flex-wrap items-end justify-between gap-4">
-          <div className="space-y-2">
-            <div className="text-xs font-medium uppercase tracking-[0.18em] text-slate-500">Themed maps</div>
-            <h2 className="text-3xl font-semibold tracking-tight text-white">One map per question.</h2>
-            <p className="max-w-3xl text-sm leading-7 text-slate-400">
-              Each themed map opens with one cached live layer plus a roadmap of additional signals. The cross-cutting interactive map at <Link href="/map" className="text-cyan-300 transition-colors hover:text-cyan-200">/map</Link> stacks layers across themes.
-            </p>
-          </div>
-          <div className="flex flex-wrap gap-3 text-[11px] font-medium uppercase tracking-[0.18em] text-slate-500">
-            <span><span className="text-emerald-300 tabular-nums">{MAP_ENTRIES.filter((entry) => entry.status === "live").length}</span> live</span>
-            <span><span className="text-cyan-300 tabular-nums">{MAP_ENTRIES.filter((entry) => entry.status === "scaffold").length}</span> scaffold</span>
-            <span><span className="text-slate-300 tabular-nums">{MAP_ENTRIES.filter((entry) => entry.status === "coming-soon").length}</span> coming soon</span>
-          </div>
+      <section id="themed-maps" className="space-y-6">
+        <div className="max-w-3xl space-y-2">
+          <h2 className="text-3xl font-semibold tracking-tight text-white">One map per question.</h2>
+          <p className="text-sm leading-7 text-slate-400">
+            <Link href="/map" className="text-cyan-300 transition-colors hover:text-cyan-200">The interactive map</Link> stacks layers across themes; these are the single-question views.
+          </p>
         </div>
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {MAP_ENTRIES.map((entry) => {
-            const chip = MAP_STATUS_CHIP[entry.status];
-            return (
-              <Link
-                key={entry.slug}
-                href={`/maps/${entry.slug}`}
-                className="group flex flex-col gap-3 rounded-2xl border border-white/10 bg-slate-950/40 p-5 ring-1 ring-white/5 transition-colors hover:border-cyan-300/30 hover:bg-slate-950/70"
-              >
-                <div className="flex items-start justify-between gap-3">
-                  <div className="text-[11px] font-medium uppercase tracking-[0.18em] text-cyan-300/80">{entry.eyebrow}</div>
-                  <span className={`shrink-0 rounded-full border px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-[0.16em] ${chip.classes}`}>
-                    {chip.label}
-                  </span>
-                </div>
-                <h3 className="text-lg font-semibold text-white transition-colors group-hover:text-cyan-100">
-                  {entry.title}
-                  <span aria-hidden="true" className="ml-1.5 inline-block text-slate-500 transition-transform group-hover:translate-x-0.5 group-hover:text-cyan-300">→</span>
-                </h3>
-                <p className="text-sm leading-6 text-slate-400">{entry.description}</p>
-                <div className="mt-auto rounded-xl border border-white/5 bg-white/[0.02] px-3 py-2 text-xs text-slate-400">
-                  <span className="font-medium uppercase tracking-[0.14em] text-slate-500">Live layer · </span>
-                  {entry.liveLayer}
-                </div>
-              </Link>
-            );
-          })}
+          {MAP_ENTRIES.map((entry) => (
+            <Link
+              key={entry.slug}
+              href={`/maps/${entry.slug}`}
+              className="group flex flex-col gap-2.5 rounded-2xl border border-white/10 bg-slate-950/40 p-5 ring-1 ring-white/5 transition-colors hover:border-cyan-300/30 hover:bg-slate-950/70"
+            >
+              <h3 className="text-lg font-semibold text-white transition-colors group-hover:text-cyan-100">
+                {entry.title}
+                <span aria-hidden="true" className="ml-1.5 inline-block text-slate-500 transition-transform group-hover:translate-x-0.5 group-hover:text-cyan-300">→</span>
+              </h3>
+              <p className="text-sm leading-6 text-slate-400">{entry.description}</p>
+              <div className="mt-auto pt-2 text-[11px] font-medium uppercase tracking-[0.18em] text-slate-500">{entry.eyebrow}</div>
+            </Link>
+          ))}
         </div>
       </section>
 
       <section className="grid gap-px overflow-hidden rounded-2xl bg-white/5 ring-1 ring-white/10 sm:grid-cols-3">
-        <StatTile value="254" label="Texas counties on the map" />
-        <StatTile value="1" label="Map lane live (water + water quality)" />
-        <StatTile value={`${MVP_DATASETS.length}`} label="Open datasets in the registry" />
+        <StatTile value="254" label="Texas counties" />
+        <StatTile value={`${MAP_ENTRIES.length}`} label="Themed map views" />
+        <StatTile value={`${MVP_DATASETS.length}`} label="Open datasets" />
       </section>
 
       <section id="education-primer" className="space-y-6">
@@ -345,7 +321,6 @@ function SecondaryCard({
 }
 
 function EntryPathCard({
-  eyebrow,
   title,
   description,
   metric,
@@ -354,7 +329,6 @@ function EntryPathCard({
   href,
   cta,
 }: {
-  eyebrow: string;
   title: string;
   description: string;
   metric: string;
@@ -365,8 +339,7 @@ function EntryPathCard({
 }) {
   return (
     <article className="rounded-2xl border border-white/10 bg-slate-950/30 p-5 ring-1 ring-white/5">
-      <div className="text-xs font-medium uppercase tracking-[0.18em] text-slate-500">{eyebrow}</div>
-      <h2 className="mt-3 text-2xl font-semibold text-white">{title}</h2>
+      <h2 className="text-2xl font-semibold text-white">{title}</h2>
       <p className="mt-3 text-sm leading-7 text-slate-400">{description}</p>
       <div className="mt-4 flex flex-wrap items-center gap-3 text-sm">
         <div className="font-medium text-cyan-300">{metric}</div>
