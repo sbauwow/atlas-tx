@@ -156,20 +156,34 @@ export default async function Home() {
               Photograph any pool, well, or tap-water test strip and Atlas reads the bands client-side. Submissions populate a separate community-observation layer — never the regulated water-risk score. You stay in control of what gets shared.
             </p>
           </div>
-          <Link
-            href="/citizen"
-            className="group inline-flex shrink-0 items-center gap-2 self-start rounded-full bg-cyan-300 px-5 py-2.5 text-sm font-medium text-slate-950 transition-colors hover:bg-cyan-200 lg:self-center"
-          >
-            <svg aria-hidden="true" viewBox="0 0 16 16" className="size-4">
-              <rect x="4" y="2" width="8" height="12" rx="1.4" fill="none" stroke="currentColor" strokeWidth="1.4" />
-              <rect x="5.5" y="3.5" width="5" height="1.8" rx="0.4" fill="currentColor" opacity="0.45" />
-              <rect x="5.5" y="6" width="5" height="1.8" rx="0.4" fill="currentColor" opacity="0.7" />
-              <rect x="5.5" y="8.5" width="5" height="1.8" rx="0.4" fill="currentColor" opacity="0.95" />
-              <rect x="5.5" y="11" width="5" height="1.8" rx="0.4" fill="currentColor" opacity="0.55" />
-            </svg>
-            Submit a strip
-            <span aria-hidden="true" className="transition-transform group-hover:translate-x-0.5">→</span>
-          </Link>
+          <div className="flex flex-col items-start gap-3 lg:items-end">
+            <Link
+              href="/citizen"
+              className="group inline-flex shrink-0 items-center gap-2 rounded-full bg-cyan-300 px-5 py-2.5 text-sm font-medium text-slate-950 transition-colors hover:bg-cyan-200"
+            >
+              <svg aria-hidden="true" viewBox="0 0 16 16" className="size-4">
+                <rect x="4" y="2" width="8" height="12" rx="1.4" fill="none" stroke="currentColor" strokeWidth="1.4" />
+                <rect x="5.5" y="3.5" width="5" height="1.8" rx="0.4" fill="currentColor" opacity="0.45" />
+                <rect x="5.5" y="6" width="5" height="1.8" rx="0.4" fill="currentColor" opacity="0.7" />
+                <rect x="5.5" y="8.5" width="5" height="1.8" rx="0.4" fill="currentColor" opacity="0.95" />
+                <rect x="5.5" y="11" width="5" height="1.8" rx="0.4" fill="currentColor" opacity="0.55" />
+              </svg>
+              Submit on the web
+              <span aria-hidden="true" className="transition-transform group-hover:translate-x-0.5">→</span>
+            </Link>
+            <TrackedLink
+              event="outbound"
+              eventTarget="repo:github.com/sbauwow/atlas-tx@android-readme"
+              href="https://github.com/sbauwow/atlas-tx/blob/main/android/README.md"
+              className="inline-flex items-center gap-1.5 text-xs text-slate-300 transition-colors hover:text-cyan-100"
+            >
+              <svg aria-hidden="true" viewBox="0 0 16 16" className="size-3.5">
+                <rect x="4" y="2" width="8" height="12" rx="1.4" fill="none" stroke="currentColor" strokeWidth="1.3" />
+                <circle cx="8" cy="11.4" r="0.7" fill="currentColor" />
+              </svg>
+              Or use the Android app (Atlas TX Capture) ↗
+            </TrackedLink>
+          </div>
         </div>
       </section>
 
