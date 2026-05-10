@@ -86,6 +86,18 @@ export function CountyContextBlock({
             : "No active stream gauges in the cached water-summary feed. Hydrologic stress signal lands once gauges fold in."}
           footnote="USGS streamflow anomaly + drought class join in next-up."
         />
+
+        <ContextPanel
+          tone="notice"
+          eyebrow="Boil-water proxy · microbial rule"
+          title={context.publicNotices.microbialViolations > 0
+            ? `${context.publicNotices.microbialViolations.toLocaleString("en-US")} microbial violations`
+            : "No microbial violations cached"}
+          body={context.publicNotices.microbialViolations > 0
+            ? `${context.publicNotices.microbialPwsImpacted} PWS${context.publicNotices.microbialPwsImpacted === 1 ? "" : "es"} carry SDWIS rule-group 100 (microbial) violations — the same rule that triggers Texas boil-water advisories.${context.publicNotices.tier1ViolationCount > 0 ? ` ${context.publicNotices.tier1ViolationCount} of those are Tier 1 (24-hour public notice).` : ""}`
+            : "No SDWIS rule-group 100 microbial violations cached for this county. Tier-1 boil-water-equivalent events activate this lane when they post."}
+          footnote={publicNoticeFootnote(context.publicNotices)}
+        />
       </div>
 
       {surfaceWater.topImpairedSegments.length > 0 ? (
@@ -112,6 +124,21 @@ function layerSummary(layerCounts: Record<string, number>): string | null {
   return entries.slice(0, 3).map(([layer, count]) => `${count} ${layer}`).join(" · ");
 }
 
+function publicNoticeFootnote(pn: {
+  topMicrobialPws: { pwsName: string; violationCount: number } | null;
+  latestMicrobialViolation: string | null;
+  tier1ViolationCount: number;
+}): string | null {
+  const parts: string[] = [];
+  if (pn.topMicrobialPws) {
+    parts.push(`Top PWS: ${pn.topMicrobialPws.pwsName} (${pn.topMicrobialPws.violationCount} viol.)`);
+  }
+  if (pn.latestMicrobialViolation) {
+    parts.push(`Latest: ${pn.latestMicrobialViolation}`);
+  }
+  return parts.length ? parts.join(" · ") : null;
+}
+
 function dwrsFootnote(dw: { topViolatingPws: { pwsName: string; violationCount: number } | null; topContaminantCode: string | null; populationExposureRate: number | null; acsCountyPopulation: number | null }): string | null {
   const parts: string[] = [];
   if (dw.topViolatingPws) {
@@ -126,20 +153,22 @@ function dwrsFootnote(dw: { topViolatingPws: { pwsName: string; violationCount: 
   return parts.length ? parts.join(" · ") : null;
 }
 
-const TONE_RING: Record<"hazard" | "hydrology" | "surface" | "infra" | "dwrs", string> = {
+const TONE_RING: Record<"hazard" | "hydrology" | "surface" | "infra" | "dwrs" | "notice", string> = {
   hazard: "ring-amber-400/15 bg-amber-400/[0.04]",
   hydrology: "ring-cyan-400/15 bg-cyan-400/[0.04]",
   surface: "ring-emerald-400/15 bg-emerald-400/[0.04]",
   infra: "ring-slate-300/10 bg-white/[0.03]",
   dwrs: "ring-fuchsia-400/15 bg-fuchsia-400/[0.04]",
+  notice: "ring-rose-400/15 bg-rose-400/[0.04]",
 };
 
-const TONE_EYEBROW: Record<"hazard" | "hydrology" | "surface" | "infra" | "dwrs", string> = {
+const TONE_EYEBROW: Record<"hazard" | "hydrology" | "surface" | "infra" | "dwrs" | "notice", string> = {
   hazard: "text-amber-200",
   hydrology: "text-cyan-200",
   surface: "text-emerald-200",
   infra: "text-slate-300",
   dwrs: "text-fuchsia-200",
+  notice: "text-rose-200",
 };
 
 function ContextPanel({
@@ -149,7 +178,7 @@ function ContextPanel({
   body,
   footnote,
 }: {
-  tone: "hazard" | "hydrology" | "surface" | "infra" | "dwrs";
+  tone: "hazard" | "hydrology" | "surface" | "infra" | "dwrs" | "notice";
   eyebrow: string;
   title: string;
   body: string;

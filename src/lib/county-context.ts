@@ -35,11 +35,20 @@ export type CountyContextDrinkingWaterSummary = {
   populationExposureRate: number | null;
 };
 
+export type CountyContextPublicNoticeSummary = {
+  microbialViolations: number;
+  tier1ViolationCount: number;
+  microbialPwsImpacted: number;
+  latestMicrobialViolation: string | null;
+  topMicrobialPws: { pwsName: string; violationCount: number } | null;
+};
+
 export type CountyContextSnapshot = {
   countySlug: string;
   surfaceWater: CountyContextSurfaceWaterSummary;
   hydrology: CountyContextHydrologySummary;
   drinkingWater: CountyContextDrinkingWaterSummary;
+  publicNotices: CountyContextPublicNoticeSummary;
 };
 
 const IMPAIRMENT_LABELS: Record<keyof SurfaceWaterQualityRow["impairmentFlags"], string> = {
@@ -116,6 +125,10 @@ export async function loadCountyContext(rawSlug: string): Promise<CountyContextS
   const sdwisMatches: SdwisRow[] = sdwis.rows.filter((row) => row.county && countySlug(row.county) === slug);
   const pwsTotals = new Map<string, { pwsName: string; populationServed: number; violationCount: number }>();
   const contaminantCounts = new Map<string, number>();
+  let tier1ViolationCount = 0;
+  let microbialViolations = 0;
+  let latestMicrobialViolation: string | null = null;
+  const microbialPwsCounts = new Map<string, { pwsName: string; violationCount: number }>();
   for (const row of sdwisMatches) {
     const key = row.pwsid;
     const tracker = pwsTotals.get(key);
@@ -130,6 +143,27 @@ export async function loadCountyContext(rawSlug: string): Promise<CountyContextS
     }
     if (row.contaminantCode) {
       contaminantCounts.set(row.contaminantCode, (contaminantCounts.get(row.contaminantCode) ?? 0) + 1);
+    }
+    if (row.publicNotificationTier === 1) tier1ViolationCount += 1;
+    if (row.ruleGroupCode === "100") {
+      microbialViolations += 1;
+      const microbialKey = row.pwsid;
+      const m = microbialPwsCounts.get(microbialKey);
+      if (m) {
+        m.violationCount += 1;
+      } else {
+        microbialPwsCounts.set(microbialKey, { pwsName: row.pwsName ?? row.pwsid, violationCount: 1 });
+      }
+      const dt = row.complPerBeginDate ?? null;
+      if (dt && (!latestMicrobialViolation || dt > latestMicrobialViolation)) {
+        latestMicrobialViolation = dt;
+      }
+    }
+  }
+  let topMicrobialPws: CountyContextPublicNoticeSummary["topMicrobialPws"] = null;
+  for (const tracker of microbialPwsCounts.values()) {
+    if (!topMicrobialPws || tracker.violationCount > topMicrobialPws.violationCount) {
+      topMicrobialPws = { ...tracker };
     }
   }
   let topViolatingPws: CountyContextDrinkingWaterSummary["topViolatingPws"] = null;
@@ -174,6 +208,13 @@ export async function loadCountyContext(rawSlug: string): Promise<CountyContextS
       topContaminantCode,
       acsCountyPopulation,
       populationExposureRate,
+    },
+    publicNotices: {
+      microbialViolations,
+      tier1ViolationCount,
+      microbialPwsImpacted: microbialPwsCounts.size,
+      latestMicrobialViolation,
+      topMicrobialPws,
     },
   };
 }
