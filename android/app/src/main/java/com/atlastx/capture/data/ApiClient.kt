@@ -88,6 +88,37 @@ class ApiClient {
         runCatching { http.newCall(request).execute().use { it.isSuccessful } }.getOrDefault(false)
     }
 
+    suspend fun fetchWaterOverview(baseUrl: String): WaterOverviewResponse? = withContext(Dispatchers.IO) {
+        val request = Request.Builder()
+            .url("${baseUrl.trimEnd('/')}/api/water/overview")
+            .header("User-Agent", "atlas-tx-capture/0.2.0 (android)")
+            .get()
+            .build()
+        runCatching {
+            http.newCall(request).execute().use { resp ->
+                if (!resp.isSuccessful) return@use null
+                val text = resp.body?.string().orEmpty()
+                if (text.isEmpty()) null else json.decodeFromString<WaterOverviewResponse>(text)
+            }
+        }.getOrNull()
+    }
+
+    suspend fun fetchRecentObservations(baseUrl: String): List<Observation> = withContext(Dispatchers.IO) {
+        val request = Request.Builder()
+            .url("${baseUrl.trimEnd('/')}/api/citizen/observations")
+            .header("User-Agent", "atlas-tx-capture/0.2.0 (android)")
+            .get()
+            .build()
+        runCatching {
+            http.newCall(request).execute().use { resp ->
+                if (!resp.isSuccessful) return@use emptyList()
+                val text = resp.body?.string().orEmpty()
+                if (text.isEmpty()) emptyList()
+                else json.decodeFromString<ObservationListResponse>(text).items
+            }
+        }.getOrDefault(emptyList())
+    }
+
     @Suppress("unused")
     private fun emptyJsonBody() = "{}".toRequestBody("application/json".toMediaType())
 }
