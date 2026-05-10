@@ -6,6 +6,12 @@
  * existing county-keyed services (water summary, ACS, NWS alerts, etc.) and to
  * lat/lon-buffered services later (EJScreen).
  *
+ * Census is free but flaky — its frontend wraps an internal gateway that
+ * intermittently returns HTTP 502 *and* sometimes returns HTTP 200 with a body
+ * shaped like `{"errors": [...], "status": "502"}` instead of an
+ * `addressMatches` payload. Both cases are transient. The fetch loop retries
+ * on either; without retries the user sees one in three lookups fail.
+ *
  * Docs: https://geocoding.geo.census.gov/geocoder/Geocoding_Services_API.pdf
  */
 
@@ -13,6 +19,8 @@ const ENDPOINT =
   "https://geocoding.geo.census.gov/geocoder/geographies/onelineaddress";
 const DEFAULT_TIMEOUT_MS = 6000;
 const TEXAS_STATE_FIPS = "48";
+const DEFAULT_RETRY_ATTEMPTS = 3;
+const DEFAULT_RETRY_BACKOFF_MS = [250, 750];
 
 export type GeocodedAddress = {
   matchedAddress: string;
@@ -55,6 +63,8 @@ type CensusResponse = {
   result?: {
     addressMatches?: CensusAddressMatch[];
   };
+  errors?: unknown;
+  status?: unknown;
 };
 
 function pickFirst(geographies: CensusGeographies | undefined, ...keys: string[]) {
@@ -66,9 +76,87 @@ function pickFirst(geographies: CensusGeographies | undefined, ...keys: string[]
   return undefined;
 }
 
+type AttemptOutcome =
+  | { kind: "ok"; body: CensusResponse }
+  | { kind: "retryable"; error: GeocoderError }
+  | { kind: "fatal"; error: GeocoderError };
+
+async function attemptCensusFetch(
+  url: string,
+  fetchImpl: typeof fetch,
+  timeoutMs: number,
+): Promise<AttemptOutcome> {
+  let response: Response;
+  try {
+    response = await fetchImpl(url, {
+      signal: AbortSignal.timeout(timeoutMs),
+      headers: { accept: "application/json" },
+    });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    const isTimeout = error instanceof DOMException && error.name === "TimeoutError";
+    return {
+      kind: "retryable",
+      error: { kind: isTimeout ? "timeout" : "network", message },
+    };
+  }
+
+  if (response.status >= 500) {
+    return {
+      kind: "retryable",
+      error: { kind: "network", message: `Census geocoder ${response.status}` },
+    };
+  }
+  if (!response.ok) {
+    return {
+      kind: "fatal",
+      error: { kind: "network", message: `Census geocoder ${response.status}` },
+    };
+  }
+
+  let body: CensusResponse;
+  try {
+    body = (await response.json()) as CensusResponse;
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    return { kind: "retryable", error: { kind: "network", message } };
+  }
+
+  // Census's frontend sometimes wraps an upstream gateway error inside an
+  // HTTP 200 response, e.g. `{"errors": ["..."], "status": "502"}`. Treat any
+  // non-2xx status string as a retryable network error.
+  const inBodyStatus = typeof body.status === "string" || typeof body.status === "number"
+    ? Number(body.status)
+    : null;
+  if (
+    Array.isArray(body.errors) &&
+    body.errors.length > 0 &&
+    (!body.result?.addressMatches || body.result.addressMatches.length === 0)
+  ) {
+    const message = `Census geocoder reported errors${inBodyStatus ? ` (status ${inBodyStatus})` : ""}`;
+    if (!inBodyStatus || inBodyStatus >= 500) {
+      return { kind: "retryable", error: { kind: "network", message } };
+    }
+    return { kind: "fatal", error: { kind: "network", message } };
+  }
+
+  return { kind: "ok", body };
+}
+
+function delay(ms: number): Promise<void> {
+  if (ms <= 0) return Promise.resolve();
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 export async function geocodeAddress(
   query: string,
-  options: { timeoutMs?: number; texasOnly?: boolean; fetchImpl?: typeof fetch } = {},
+  options: {
+    timeoutMs?: number;
+    texasOnly?: boolean;
+    fetchImpl?: typeof fetch;
+    retryAttempts?: number;
+    retryBackoffMs?: readonly number[];
+  } = {},
 ): Promise<GeocoderResult> {
   const trimmed = query.trim();
   if (trimmed.length < 4) {
@@ -86,35 +174,29 @@ export async function geocodeAddress(
 
   const fetchImpl = options.fetchImpl ?? fetch;
   const timeoutMs = options.timeoutMs ?? DEFAULT_TIMEOUT_MS;
+  const maxAttempts = Math.max(1, options.retryAttempts ?? DEFAULT_RETRY_ATTEMPTS);
+  const backoff = options.retryBackoffMs ?? DEFAULT_RETRY_BACKOFF_MS;
 
-  let response: Response;
-  try {
-    response = await fetchImpl(url.toString(), {
-      signal: AbortSignal.timeout(timeoutMs),
-      headers: { accept: "application/json" },
-    });
-  } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
-    const isTimeout = error instanceof DOMException && error.name === "TimeoutError";
-    return {
-      ok: false,
-      error: { kind: isTimeout ? "timeout" : "network", message },
-    };
+  let lastError: GeocoderError = { kind: "network", message: "no attempts made" };
+  let body: CensusResponse | null = null;
+
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    const outcome = await attemptCensusFetch(url.toString(), fetchImpl, timeoutMs);
+    if (outcome.kind === "ok") {
+      body = outcome.body;
+      break;
+    }
+    lastError = outcome.error;
+    if (outcome.kind === "fatal") {
+      return { ok: false, error: lastError };
+    }
+    if (attempt < maxAttempts) {
+      await delay(backoff[attempt - 1] ?? backoff[backoff.length - 1] ?? 0);
+    }
   }
 
-  if (!response.ok) {
-    return {
-      ok: false,
-      error: { kind: "network", message: `Census geocoder ${response.status}` },
-    };
-  }
-
-  let body: CensusResponse;
-  try {
-    body = (await response.json()) as CensusResponse;
-  } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
-    return { ok: false, error: { kind: "network", message } };
+  if (!body) {
+    return { ok: false, error: lastError };
   }
 
   const match = body.result?.addressMatches?.[0];
