@@ -14,6 +14,7 @@ import com.atlastx.capture.data.Centroids
 import com.atlastx.capture.data.CountyCentroid
 import com.atlastx.capture.data.CountyOverviewEntry
 import com.atlastx.capture.data.Observation
+import com.atlastx.capture.data.ObservationComparison
 import com.atlastx.capture.data.SettingsRepository
 import com.atlastx.capture.data.SubmitResult
 import com.atlastx.capture.data.WaterOverviewResponse
@@ -31,7 +32,11 @@ import java.util.Locale
 sealed interface UploadState {
     data object Idle : UploadState
     data object InFlight : UploadState
-    data class Done(val observation: Observation, val deduped: Boolean) : UploadState
+    data class Done(
+        val observation: Observation,
+        val deduped: Boolean,
+        val comparison: ObservationComparison?,
+    ) : UploadState
     data class Failed(val message: String) : UploadState
 }
 
@@ -152,7 +157,7 @@ class CaptureViewModel(
                 imageMime = _capturedMime.value,
             )
             _upload.value = when (result) {
-                is SubmitResult.Ok -> UploadState.Done(result.observation, result.deduped)
+                is SubmitResult.Ok -> UploadState.Done(result.observation, result.deduped, result.comparison)
                 is SubmitResult.Error -> UploadState.Failed(result.message)
             }
         }

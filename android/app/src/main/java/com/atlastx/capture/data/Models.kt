@@ -19,6 +19,36 @@ data class ObservationResponse(
     val observation: Observation? = null,
     val deduped: Boolean? = null,
     val error: String? = null,
+    val comparison: ObservationComparison? = null,
+)
+
+@Serializable
+data class ObservationComparison(
+    val countySlug: String? = null,
+    val countyScope: ComparisonScope? = null,
+    val stateScope: ComparisonScope,
+    val smallSampleThreshold: Int = 5,
+)
+
+@Serializable
+data class ComparisonScope(
+    val observationCount: Int,
+    val perAnalyte: List<AnalyteComparison> = emptyList(),
+)
+
+@Serializable
+data class AnalyteComparison(
+    val analyteId: String,
+    val analyteName: String,
+    val bandLabels: List<String> = emptyList(),
+    val yourBandIndex: Int,
+    val yourBandLabel: String,
+    val distribution: List<Int> = emptyList(),
+    val distributionPercent: List<Double> = emptyList(),
+    val totalCount: Int,
+    val yourPercentile: Int,
+    val modeBandIndex: Int? = null,
+    val smallSample: Boolean = true,
 )
 
 @Serializable
