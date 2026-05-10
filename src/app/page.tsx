@@ -5,6 +5,7 @@ import { GlossaryInlineList } from "@/app/components/glossary-tooltip";
 import { CATEGORY_BORDER_CLASS, CATEGORY_TEXT_CLASS, DATASET_CATEGORY_GLYPH, DATASET_CATEGORY_LABEL, DATASET_CATEGORY_TOKEN } from "@/app/design/categories";
 import { surfaceVsGroundwater, texasWaterDiagram, waterPrimerCards } from "@/app/education/content";
 import { getDefaultAtlasCountyExplorerService } from "@/lib/atlas-county-explorer";
+import { MAP_ENTRIES, MAP_STATUS_CHIP } from "@/lib/map-entries";
 import { MVP_DATASETS } from "@/lib/mvp-datasets";
 import { getTceqPendingPermitsPageData } from "@/lib/tceq-permits";
 import { getDefaultAtlasWaterSummaryService } from "@/lib/water/water-summary-service";
@@ -143,6 +144,51 @@ export default async function Home() {
           href="/operators"
           cta="Open operators"
         />
+      </section>
+
+      <section id="themed-maps" className="space-y-5">
+        <div className="flex flex-wrap items-end justify-between gap-4">
+          <div className="space-y-2">
+            <div className="text-xs font-medium uppercase tracking-[0.18em] text-slate-500">Themed maps</div>
+            <h2 className="text-3xl font-semibold tracking-tight text-white">One map per question.</h2>
+            <p className="max-w-3xl text-sm leading-7 text-slate-400">
+              Each themed map opens with one cached live layer plus a roadmap of additional signals. The cross-cutting interactive map at <Link href="/map" className="text-cyan-300 transition-colors hover:text-cyan-200">/map</Link> stacks layers across themes.
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-3 text-[11px] font-medium uppercase tracking-[0.18em] text-slate-500">
+            <span><span className="text-emerald-300 tabular-nums">{MAP_ENTRIES.filter((entry) => entry.status === "live").length}</span> live</span>
+            <span><span className="text-cyan-300 tabular-nums">{MAP_ENTRIES.filter((entry) => entry.status === "scaffold").length}</span> scaffold</span>
+            <span><span className="text-slate-300 tabular-nums">{MAP_ENTRIES.filter((entry) => entry.status === "coming-soon").length}</span> coming soon</span>
+          </div>
+        </div>
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {MAP_ENTRIES.map((entry) => {
+            const chip = MAP_STATUS_CHIP[entry.status];
+            return (
+              <Link
+                key={entry.slug}
+                href={`/maps/${entry.slug}`}
+                className="group flex flex-col gap-3 rounded-2xl border border-white/10 bg-slate-950/40 p-5 ring-1 ring-white/5 transition-colors hover:border-cyan-300/30 hover:bg-slate-950/70"
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div className="text-[11px] font-medium uppercase tracking-[0.18em] text-cyan-300/80">{entry.eyebrow}</div>
+                  <span className={`shrink-0 rounded-full border px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-[0.16em] ${chip.classes}`}>
+                    {chip.label}
+                  </span>
+                </div>
+                <h3 className="text-lg font-semibold text-white transition-colors group-hover:text-cyan-100">
+                  {entry.title}
+                  <span aria-hidden="true" className="ml-1.5 inline-block text-slate-500 transition-transform group-hover:translate-x-0.5 group-hover:text-cyan-300">→</span>
+                </h3>
+                <p className="text-sm leading-6 text-slate-400">{entry.description}</p>
+                <div className="mt-auto rounded-xl border border-white/5 bg-white/[0.02] px-3 py-2 text-xs text-slate-400">
+                  <span className="font-medium uppercase tracking-[0.14em] text-slate-500">Live layer · </span>
+                  {entry.liveLayer}
+                </div>
+              </Link>
+            );
+          })}
+        </div>
       </section>
 
       <section className="grid gap-px overflow-hidden rounded-2xl bg-white/5 ring-1 ring-white/10 sm:grid-cols-3">
