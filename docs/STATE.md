@@ -12,6 +12,7 @@ Schema for every row: `workstream | agent | branch | intent | started | ref`
 |---|---|---|---|---|---|
 | docs | hermes | web/color-tokens | Review all plan docs, align additive weather/community roadmap to current repo state, and add coordination-aware implementation checklist around active feynman/UI work | 2026-05-09T05:52:00Z | working tree |
 | cross (android + docs) | claude-opus-4-7 | cross/android-capture-app | Scaffold the Atlas TX Capture Android client (Kotlin/Compose, minSdk 31) under `android/`, wire it to `POST /api/citizen/observations`, and add the `android` workstream to OWNERSHIP/AGENTS. v1 deferred: on-device colorimetry, CameraX preview, GPS attach. | 2026-05-09T19:00:00Z | branch `cross/android-capture-app` |
+| web | claude-opus-4-7 | web/maps-* (stack) | Scaffold themed maps collection at `/maps` plus seven themed routes (`/maps/{weather,ej,operators,citizen,energy,open-data,satellite}`). Each route ships scaffold + one cached live layer where possible. Branch per view, sequenced for overnight delivery. Top-nav adds `Maps` entry. Stays clear of `src/app/design/` (hermes color-tokens) and `src/app/map/` (parallel `web/interactive-map` MapLibre hub). | 2026-05-09T23:50:00Z | branch `web/maps-index` (head of stack) |
 
 ---
 
