@@ -1,113 +1,197 @@
 # Atlas TX
 
-Open-source Texas drinking-water-risk and environmental-justice explorer for newsroom investigators and civic-tech analysts.
+Atlas TX is an open-source Texas county intelligence platform for public-interest data work.
 
-Atlas TX joins state Texas water permits + water districts with federal SDWIS, EJScreen, ACS, and Texas water-quality context to surface Public Water Systems and counties where drinking-water risk, environmental burden indicators, and official signals disagree — outliers and contradictions that exist in raw public data but no one ships pre-computed.
+It combines permit, water, hydrology, governance, environmental, and county-level context into map-first analytical workflows, APIs, cached research artifacts, and a local MCP server. The product is designed for investigators, civic-tech analysts, policy operators, and agentic workflows that need grounded Texas county evidence rather than generic dashboards.
 
-Built for the [Brainforge / Vicinity Texas Open Data Track](docs/plans/2026-05-08-water-risk-refocus.md). MCP server + agent skill are the centerpiece, but Atlas now also ships map-first county workflows so humans can start on the statewide county view, drill into counties, and test their own correlations against the same cached evidence the agent uses.
+## What Atlas TX is
 
-## Who it's for
+Atlas TX is not a generic consumer app and not a single-score black box.
 
-- **Texas county-newsroom journalists** — surface overlooked drinking-water-risk stories, official-data mismatches, and outliers with cited rows.
-- **Civic-tech policy analysts, county budget officers, lobbyists** — county-level briefings on water infrastructure risk + EJ exposure.
+It is a governed county-intelligence workspace that helps users:
+- start from a statewide county map
+- drill into water, permit, operator, and dependency signals
+- inspect contradictions and outliers in public data
+- open the underlying county, source, permit, and operator surfaces
+- use the same cached evidence through UI, API, and MCP tools
 
-## Datasets
+## Current product surfaces
 
-### Texas core (Socrata, `data.texas.gov`)
+### Human-facing routes
+- `/` — platform overview
+- `/analytics` — statewide analytics terminal with county map headliner, risk / pressure / oil views, movers, scatter, and watchlist-ready lanes
+- `/water` — county-map-first water explorer with operational risk, mismatch severity, and TXG31 oil-and-gas extraction footprint
+- `/water/network` — county dependency and hydrology relationship workspace
+- `/water/counties/[slug]` — county water detail
+- `/water/sources/[slug]` — source provenance and anomaly detail
+- `/counties` — county explorer
+- `/counties/[slug]` — county intelligence page
+- `/permits` — permit pressure workspace
+- `/permits/[tceqId]` — permit detail
+- `/operators` — operator index
+- `/operators/[slug]` — operator detail
+- `/watchlists` — saved watchlists
+- `/map` — interactive map client
+- `/citizen` — isolated citizen observation prototype lane
+- `/glossary` — term definitions
+- `/education` — supporting explainers
+
+### API routes
+- `/api/health`
+- `/api/beacon` — first-party pageview/click pixel telemetry
+- `/api/event` — structured telemetry event ingest
+- `/api/counties/overview`
+- `/api/counties/[slug]`
+- `/api/permits/locations`
+- `/api/tiles/[z]/[x]/[y]`
+- `/api/watchlists`, `/api/watchlists/*`
+- `/api/water/overview`
+- `/api/water/counties/[slug]`
+- `/api/water/oil-gas-extraction`
+- `/api/water/alerts`
+- `/api/water/gauges`
+- `/api/water/sources/[slug]`
+- `/api/water/sources/network`
+- `/api/water/sources/network/hydrology`
+- `/api/water/fema/nfhl/*`
+- `/api/water/lcra/*`
+- `/api/water/gbra/*`
+- `/api/citizen/observations`, `/api/citizen/observations/[id]`
+- `/api/scrape/plan`
+
+## Core workflows
+
+### 1. Map-first county analysis
+Atlas leads with county maps, not tables.
+
+- `/analytics` emphasizes statewide county risk, permit pressure, and TXG31 oil extraction density.
+- `/water` emphasizes operational water risk, mismatch severity, and oil-and-gas extraction permit footprint.
+- Supporting tables, movers, and scatterplots are secondary validation layers.
+
+### 2. County-to-detail drilldown
+A user should be able to move from statewide map → county selection → county detail → source / permit / operator evidence without changing mental model.
+
+### 3. Evidence parity across UI, API, and MCP
+The same cached and normalized public-data layers are intended to power:
+- the Next.js UI
+- JSON API routes
+- local MCP tools
+- scripted refresh / pipeline health utilities
+
+### 4. Watchlist-ready analytical handoff
+Atlas includes watchlist and queue-style surfaces so a user or agent can save, rank, and reopen counties, operators, and analytical leads.
+
+## Data lanes
+
+### Texas core sources
 - `7fq8-wig2` — TCEQ Water Quality Individual Permits (Active/Pending)
+- `6pm5-am5m` — TCEQ General Water Permits
 - `hr84-s96f` — Texas Water Districts
+- additional TCEQ/TWDB/authority lanes as documented in the repo contracts and wiki
 
-### Federal joins
-- **EPA SDWIS** — drinking-water health-based violations per Public Water System
-- **EPA EJScreen** — demographic + environmental indicators per census block group
-- **Census ACS 5-year** — population denominators and demographics
+### Federal joins and national context
+- EPA SDWIS
+- EPA EJScreen
+- Census ACS 5-year
+- FEMA NFHL
+- USGS NWIS
+- NOAA/NWS
 
-### Secondary (load if scope allows)
-- EPA ECHO (compliance/enforcement), EPA TRI (toxics releases)
-- TCEQ Surface Water Quality Segments Viewer — surface-water impairment / use-support context for water bodies
-- TCEQ boil-water / public-notice sources — public-facing service disruption context for Public Water Systems
-- TCEQ E2 / disinfectant residual reporting — operational treatment-stress context for drinking-water systems
-- TCEQ aquatic-life / biological integrity sources — ecology signals that can disagree with compliance summaries
-- Weather / hydrologic context sources — NWS alerts, USGS streamflow, drought status, precipitation, and heat indicators for explaining event-driven water anomalies
+### Regional authority and basin context
+Atlas also includes basin-specific and authority-specific lanes where useful, including LCRA and GBRA integrations, with explicit caveats when a lane is basin-scoped rather than statewide.
 
-### Registered but out-of-scope for v1
-Fiscal/debt datasets (CPI investigations, Comptroller returns, sales tax, BRB debt, bond elections) remain in `src/lib/mvp-datasets.ts` for a future fiscal-stress angle.
+## Derived / normalized signals
 
-## Derived signals
+Current and planned signal families include:
+- county risk signals
+- permit pressure signals
+- TXG31 oil-and-gas extraction permit counts
+- TXG34 petroleum bulk permit counts
+- county mismatch signals
+- source dependency signals
+- downstream hydrology dependency scores
+- governance density
+- floodplain coverage proxies
+- stream gauge and alert context
+- county-month research artifacts for water-risk modeling
 
-- **Drinking Water Risk Score (DWRS)** per Public Water System — weighted SDWIS health-based violations × population served × recency.
-- **EJ Burden Overlap** per block group / PWS service area — EJScreen demographic indicators × TCEQ permit-buffer density.
-- **Surface Water Impairment Context** (additive) — TCEQ segment-level use-support / impairment status for nearby water bodies.
-- **Notice / Treatment Stress Context** (planned) — boil-water notices plus disinfectant residual reporting as public-notice and operational-stress indicators.
-- **Weather / Hydrologic Context** (planned) — flood alerts, streamflow, drought, rainfall, and heat indicators that help explain when water events are weather-driven versus structurally unusual.
-- **Official-Signal Mismatch Detector** (planned) — outlier ranking for counties/PWSs where notices, overflows, burden indicators, and water-quality context do not line up cleanly.
-- **Compliance Gap** (secondary) — TCEQ permits × ECHO violations addressed ratio.
-
-## Journalist-first anomaly workflow
-
-Atlas TX should prioritize outliers over generic correlation hunting. The best stories are often places where official indicators do not line up cleanly.
-
-Current anomaly directions to build toward:
-- **Notice mismatch detection** — flag places where sanitary sewer overflows, boil-water notices, or future public-notice streams do not match the apparent water-quality / impairment / compliance picture.
-- **Biological integrity context** — add Index of Biotic Integrity (IBI) style signals so biology can disagree with chemistry/compliance and create a reporter lead.
-- **Treatment-stress indicators** — add E2 disinfectant reporting as an operational water-quality signal.
-- **Weather normalization** — attach rainfall, flood alerts, streamflow, drought, and heat context so Atlas TX can distinguish storm-driven anomalies from chronic governance or infrastructure patterns.
-- **Distributed submission / tip intake** — treat community-reported or reporter-submitted outliers as a first-class workflow, especially when they contradict the baseline data stack.
-
-Spec lives in `docs/contracts/dataset-registry.md`.
-
-## Map-first analyst workflows
-
-- `/analytics` is now county-map first. The choropleth is the headliner, and decomposition bars, movers tables, and scatterplots act as correlation-hunting follow-on views rather than the first surface.
-- `/water` is also county-map first. Users can switch between operational risk and mismatch severity, then move from the statewide map into county detail and county table views.
-- County maps are meant to empower user-led pattern discovery, not force a single narrative. Atlas surfaces grounded county evidence and lets the user test relationships across pressure, risk, mismatch, hydrology, permits, and operator concentration.
-
-## Whitepaper and research artifacts
-
-Atlas TX now includes a paper-style research track inside the repo itself. The current whitepaper-oriented artifacts are:
-
-- `papers/2026-05-10-county-month-water-risk-paper-draft.md` — current paper draft for the Texas county-month open-data water-risk study
-- `outputs/thesis-status/2026-05-09-thesis-status-memo.md` — concise thesis-status memo with current empirical read
-- `papers/2026-05-09-panel-spec-and-experiment-plan.md` — panel contract and experiment plan
-- `papers/2026-05-10-grassroots-strip-validation-preregistration-and-schema.md` — separate preregistration/schema for the grassroots validation lane
-- `outputs/thesis-status/2026-05-09-heat-ablation-memo.md` — decomposition of the earlier temperature/heat result
-- `outputs/thesis-status/2026-05-10-seasonality-robustness-memo.md` — month-of-year robustness pass showing broad seasonality as a major predictor
-
-Whitepaper summary, in one paragraph:
-
-- the current county-month study asks what contest-relevant Texas open data can and cannot support for next-month SDWIS risk ranking
-- chronic county baseline risk and broad month-of-year seasonality dominate the predictive signal
-- empirical-Bayes stabilization materially improves county risk ranking
-- precipitation, flood-warning, streamflow, and drought layers add limited incremental value at this resolution
-- compact temperature-seasonality terms add only a smaller residual refinement after explicit month-of-year controls
-- grassroots strip observations remain a separate community-validation lane, not a core supervisory target
+Atlas treats these as evidence layers, not final causal verdicts.
 
 ## Architecture
 
-- `src/app/` — Next.js 16 frontend + API routes (UI is decoration; agent is centerpiece — see [`AGENTS.md`](AGENTS.md))
-- `src/lib/` — dataset registry, fetchers, county normalization, scoring functions
-- `packages/mcp-server/` — MCP server exposing discovery / scoring / summary tools
-- `scripts/refresh-cid.ts` — executable CID refresh scaffold for chunked Search One planning/execution + Search Two snapshot generation
-- `skills/atlas-tx/` — agent skill doc + references for safe use
-- `docs/plans/` — dated implementation plans
-- `docs/contracts/` — cross-workstream API surfaces (dataset registry, MCP tools, skill protocol)
-- `docs/STATE.md` — live coordination state for collaborating agents
-- `docs/OWNERSHIP.md` — path → workstream map
+### App/runtime
+- Next.js 16 App Router
+- React 19
+- TypeScript
+- Tailwind
+- Prisma
+- SQLite for local app/stateful prototype lanes
 
-## Getting started
+### Major directories
+- `src/app/` — Next.js routes, pages, API endpoints
+- `src/lib/` — normalization, fetchers, scoring, telemetry, query helpers, county logic, water services
+- `src/app/components/` — reusable app UI and chart shells
+- `packages/mcp-server/` — local MCP surface
+- `scripts/` — refresh pipelines and dataset builders
+- `public/cache/` — committed or generated cache artifacts used by the app
+- `docs/` — contracts, plans, design, wiki, state, ownership, research
+- `skills/` — repo-local agent skills
+- `tests/` — Vitest coverage
 
-```bash
-npm install
-npm run dev
-```
+### Important internal modules
+- `src/lib/water/water-summary-service.ts` — water overview + county breakdown orchestration
+- `src/lib/water/tceq-general-permits.ts` — permit normalization and lane classification (`TXG31`, `TXG34`, residual)
+- `src/lib/query-params.ts` — shared parsing for route-state parameters
+- `src/lib/telemetry/*` — local telemetry envelope and client helpers
+- `src/app/components/track.ts` — pixel-style beacon tracking
+- `src/app/components/tracked-link.tsx` — structured event tracking on link interactions
+- `src/app/components/page-view-beacon.tsx` — pageview beacon client hook
 
-Open `http://localhost:3000`.
+## Telemetry model
+
+Atlas now ships two first-party telemetry paths:
+
+### 1. Beacon path
+- route: `/api/beacon`
+- purpose: low-friction pageview/click-style tracking via image pixel
+- current usage: pageview and lightweight link/event emission
+
+### 2. Structured event path
+- route: `/api/event`
+- purpose: normalized event ingestion with session ID and envelope metadata
+- envelope fields:
+  - `app`
+  - `env`
+  - `release`
+  - `user_id`
+  - `session_id`
+  - `event_name`
+  - `props`
+  - `ts`
+
+This split preserves fail-open beacon tracking while enabling richer product telemetry across map mode, county selection, watchlists, and drilldowns.
+
+## Query-state model
+
+Atlas uses URL-driven analytical state heavily.
+
+Shared helpers now live in:
+- `src/lib/query-params.ts`
+
+Current helper set:
+- `getFirstQueryParam`
+- `parseEnumQueryParam`
+- `resolveAllowedQueryParam`
+- `clampQueryText`
+- `parsePositiveIntQueryParam`
+
+These are used to stabilize mode/county parsing across analytics and water surfaces and are intended to expand to permits, operators, and map routes.
 
 ## MCP server
 
-Atlas TX ships a local MCP tool surface in `packages/mcp-server/`.
+Atlas ships a local MCP surface in `packages/mcp-server/`.
 
-Run it directly:
+Run it with:
 
 ```bash
 npm run mcp -- discover_datasets
@@ -118,72 +202,151 @@ npm run mcp -- list_county_pending_fights '{"county":"Travis County","limit":5}'
 npm run mcp -- get_pipeline_health
 ```
 
-Current MCP surface includes:
-- `discover_datasets`
-- `get_dataset_schema`
-- `score_pws_drinking_water_risk`
-- `list_protested_permits`
-- `score_protest_density`
-- `list_permit_filing_red_flags`
-- `get_permit_filing_detail`
-- `build_permit_protest_prep`
-- `list_county_pending_fights`
-- `get_pipeline_health`
+See:
+- `docs/contracts/mcp-tools.md`
+- `docs/contracts/skill-protocol.md`
 
-Note: filing-detail and protest-prep commands require a CID snapshot row for the requested `tceq_id`. If CID has not been refreshed yet, run `npm run refresh:cid` first.
+## Refresh and pipeline operations
 
-See `docs/contracts/mcp-tools.md` for the contract.
-
-## CID refresh utility
-
-The repo now includes a CID refresh scaffold runnable with:
-
+### Local development
 ```bash
-CID_COUNTIES=111111111111156 \
-CID_PROGRAM_AREAS='APO;Aggregate Production Operation Registration;NO_PARENT' \
-CID_SEARCH_TWO_ORG_NAME='Sierra' \
-npm run refresh:cid
+npm install
+npm run dev
 ```
 
-Current limitation: Search Two works with a seeded organization / permit / person-name query, but live Search One still often returns the upstream TCEQ error page even for chunked county/program requests. The script now fails loud on that condition instead of silently producing misleading case rows. It also exposes a browser-automation fallback hook for Search One so a future browser-driven retriever can be swapped in without changing the refresh pipeline.
+### Build/test/lint
+```bash
+npm test
+npm run lint
+npm run build
+```
 
-Run the staged refresh pipeline:
-
+### Data refresh entrypoints
 ```bash
 npm run refresh:all
+npm run refresh:cid
+npm run refresh:surface-water-quality
+npm run refresh:city-open-data
+npm run refresh:city-open-data-curated
+npm run refresh:city-open-data-ranked
+npm run refresh:twdb-hydrology
+npm run refresh:county-month-precipitation
+npm run refresh:county-month-streamflow
+npm run refresh:county-month-drought
+npm run refresh:county-month-temperature
+npm run refresh:county-month-nws-flood-alerts
 ```
 
-That command executes the refresh stack in dependency order and writes `public/cache/pipeline-health.json` with per-step status, timing, and overall health.
+### Pipeline outputs
+- `public/cache/pipeline-health.json` — refresh pipeline health/status
+- `public/cache/*` — analytics and dataset artifacts consumed by pages and APIs
 
-Automation plan: `docs/plans/2026-05-09-mcp-and-pipeline-automation.md`
+## Technical documentation index
 
-## Citizen observation layer (prototype)
+### Primary operational docs
+- `AGENTS.md` — development guide for agents and contributors
+- `docs/STATE.md` — current operational/project state
+- `docs/OWNERSHIP.md` — path and workstream ownership
+- `docs/plans/README.md` — plan index
 
-A separate, **non-regulatory** lane at [`/citizen`](src/app/citizen/page.tsx)
-where users can submit a photograph of a freshwater test strip laid next to
-its bottle's color chart. A hybrid pipeline (browser pixel-sampling + Claude
-Opus vision sanity-check) produces per-analyte band labels — never numeric
-measurements. Results are stored in a local SQLite DB via Prisma.
+### Contracts
+- `docs/contracts/dataset-registry.md`
+- `docs/contracts/mcp-tools.md`
+- `docs/contracts/skill-protocol.md`
+- `docs/contracts/community-observation.md`
+- `docs/contracts/county-month-water-risk-panel.md`
 
-Strict isolation: this layer does **not** feed DWRS, EJ Burden Overlap, the
-mismatch detector, or any other scorer. See
-[`docs/contracts/dataset-registry.md`](docs/contracts/dataset-registry.md) §0.7.0
-and [`docs/research/smartphone-colorimetry.md`](docs/research/smartphone-colorimetry.md) §17
-for the constraints that govern this lane.
+### Design and execution plans
+- `docs/design/atlas-missions-design-memo.md`
+- `docs/plans/2026-05-09-atlas-of-maps-reframe.md`
+- `docs/plans/2026-05-09-mcp-and-pipeline-automation.md`
+- `docs/plans/2026-05-10-county-dataset-roadmap.md`
+- additional dated plans under `docs/plans/`
 
-It is a UX/architecture prototype, not a validated measurement system. Bands
-depend on lighting, strip brand, incubation timing, and the user's in-frame
-chart. Treat outputs as approximate, never as compliance or diagnosis.
+### Research and wiki
+- `docs/research/` — method and source research
+- `docs/wiki/index.md` — wiki index
+- `docs/wiki/datasets/` — per-dataset notes
+- `docs/wiki/concepts/` — domain vocabulary
+- `docs/wiki/agencies/` — agency references
+- `docs/wiki/comparisons/` — source comparisons
+- `docs/wiki/episodes/` — execution log slices
 
-## For collaborating agents
+### Repo-local skills
+- `skills/atlas-tx-bootstrap/SKILL.md`
+- `skills/atlas-tx-public-data-lanes/SKILL.md`
+- `skills/atlas-tx-water-data-lane/SKILL.md`
+- `skills/atlas-tx-mcp-pipeline-automation/SKILL.md`
+- `skills/atlas-tx-pending-permits-dashboard/SKILL.md`
+- `skills/atlas-tx-permit-red-flags-protest-helper/SKILL.md`
+- `skills/atlas-tx-regional-water-authority-ingestion/SKILL.md`
+- `skills/atlas-tx-glossary-tooltips/SKILL.md`
+- `skills/atlas-tx-web-style-taxonomy/SKILL.md`
+- `skills/atlas-tx/SKILL.md`
 
-Read [`AGENTS.md`](AGENTS.md) before opening a PR. It covers Next.js 16 gotchas, workstream ownership, and the no-stomp protocol.
+## Documentation completeness checklist
 
-## Constraints
+This README is intended to cover the platform at the level of a public technical overview.
 
-- Public data with attribution. No scraping behind authentication.
-- No medical / diagnostic / causal claims about drinking water.
-- No investor-grade or rating-agency claims about municipal entities.
-- Every score and summary surfaces source datasets, query bounds, and uncertainty.
-- EJ overlay is described as *exposure / burden indicators*, not as harm.
-- Environmental burden is inferred from indicator layers (for example: impaired surface-water segments, DWRS, permit density, EJScreen), not claimed as a directly observed outcome.
+Covered here:
+- product purpose
+- route surfaces
+- API surfaces
+- data lanes
+- architecture
+- telemetry model
+- query-state model
+- MCP surface
+- refresh/pipeline commands
+- documentation index
+- testing/build workflow
+- guardrails and constraints
+
+Canonical deeper docs live in `docs/`, `skills/`, and `AGENTS.md`.
+
+## Citizen observation lane
+
+Atlas includes a separate, non-regulatory citizen observation prototype at `/citizen`.
+
+Important constraints:
+- it is isolated from the main scoring stack
+- it does not feed county risk scoring or water mismatch scoring
+- it is a prototype workflow for strip-photo observation capture and review
+- it should not be interpreted as a compliance, diagnostic, or regulatory measurement system
+
+See:
+- `docs/contracts/community-observation.md`
+- `docs/research/smartphone-colorimetry.md`
+
+## Development workflow
+
+Atlas has been built through an agent-assisted workflow centered on Hermes Agent as the orchestration layer, with repo-local skills, MCP tooling, and iterative map/API/test slices inside this repository.
+
+Public README copy intentionally stays focused on the platform and its technical surfaces rather than on specific model-vendor branding.
+
+## Constraints and product guardrails
+
+- public/open data only, with source attribution
+- no medical or diagnostic claims
+- no unsupported causal claims
+- no investor-grade or ratings-agency claims
+- burden/exposure indicators are described as indicators, not proof of harm
+- every serious score or summary should remain explainable by source datasets, joins, and caveats
+- basin-specific lanes must stay clearly labeled as basin-specific, not statewide truth
+
+## Contributing
+
+Start with:
+- `AGENTS.md`
+- `docs/OWNERSHIP.md`
+- `docs/STATE.md`
+
+Then run:
+```bash
+npm install
+npm test
+npm run lint
+npm run build
+```
+
+If you are touching route-state, telemetry, map modes, or water summary logic, update the relevant tests in `tests/` in the same slice.
