@@ -1,6 +1,8 @@
 package com.atlastx.capture.ui
 
 import android.app.Application
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.net.Uri
 import androidx.core.content.FileProvider
 import androidx.lifecycle.AndroidViewModel
@@ -92,6 +94,11 @@ class CaptureViewModel(
     private val _activity = MutableStateFlow<ActivityState>(ActivityState.Idle)
     val activity: StateFlow<ActivityState> = _activity.asStateFlow()
 
+    private val _importError = MutableStateFlow<String?>(null)
+    val importError: StateFlow<String?> = _importError.asStateFlow()
+
+    fun clearImportError() { _importError.value = null }
+
     fun newCaptureFile(): Pair<File, Uri> {
         val dir = File(app.filesDir, "captures").apply { mkdirs() }
         val name = "strip-" + timestamp() + ".jpg"
@@ -106,34 +113,53 @@ class CaptureViewModel(
         _upload.value = UploadState.Idle
     }
 
+    /**
+     * Decode any picked image (jpeg / png / webp / heic / heif) into a Bitmap and
+     * re-encode as JPEG, so the server side never sees a HEIC payload mislabeled
+     * as JPEG. Surfaces failure as `importError` instead of silently returning
+     * null — the gallery flow used to dead-end on Pixel HEIC files because
+     * the byte stream copied through unchanged but the server's vision pass
+     * could not actually grade the image.
+     */
     fun importGalleryUri(uri: Uri): File? {
+        _importError.value = null
         val resolver = app.contentResolver
-        val mime = resolver.getType(uri)?.lowercase()
-        val (ext, normalizedMime) = when (mime) {
-            "image/png" -> "png" to "image/png"
-            "image/webp" -> "webp" to "image/webp"
-            "image/jpeg", "image/jpg" -> "jpg" to "image/jpeg"
-            else -> "jpg" to "image/jpeg"
-        }
         val dir = File(app.filesDir, "captures").apply { mkdirs() }
-        val file = File(dir, "strip-${timestamp()}.$ext")
-        return runCatching {
+        val file = File(dir, "strip-${timestamp()}.jpg")
+
+        val bitmap: Bitmap? = runCatching {
             resolver.openInputStream(uri)?.use { input ->
-                file.outputStream().use { input.copyTo(it) }
-            } ?: error("could not open input stream")
-            if (file.length() == 0L) {
-                file.delete()
-                null
-            } else {
-                _capturedFile.value = file
-                _capturedMime.value = normalizedMime
-                _upload.value = UploadState.Idle
-                file
+                BitmapFactory.decodeStream(input)
+            }
+        }.getOrNull()
+
+        if (bitmap == null) {
+            _importError.value = "Could not read this image. Try a JPEG/PNG/HEIC photo from the gallery."
+            return null
+        }
+
+        val ok = runCatching {
+            file.outputStream().use { out ->
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 92, out)
             }
         }.getOrElse {
+            _importError.value = "Failed to save the picked image: ${it.message ?: it.javaClass.simpleName}"
             file.takeIf { it.exists() }?.delete()
-            null
+            return null
         }
+
+        bitmap.recycle()
+
+        if (!ok || file.length() == 0L) {
+            file.takeIf { it.exists() }?.delete()
+            _importError.value = "Encoded image was empty."
+            return null
+        }
+
+        _capturedFile.value = file
+        _capturedMime.value = "image/jpeg"
+        _upload.value = UploadState.Idle
+        return file
     }
 
     fun setCountySlug(slug: String?) { _countySlug.value = slug?.takeIf { it.isNotBlank() } }
