@@ -99,40 +99,91 @@ class CaptureViewModel(
 
     fun clearImportError() { _importError.value = null }
 
+    /**
+     * Pending camera output. Lives on the view model rather than Compose
+     * `remember` so we still know which file to ingest if Android killed the
+     * activity while the camera was foregrounded.
+     */
+    private val _pendingCameraFile = MutableStateFlow<File?>(null)
+    val pendingCameraFile: StateFlow<File?> = _pendingCameraFile.asStateFlow()
+
     fun newCaptureFile(): Pair<File, Uri> {
         val dir = File(app.filesDir, "captures").apply { mkdirs() }
         val name = "strip-" + timestamp() + ".jpg"
         val file = File(dir, name)
         val uri = FileProvider.getUriForFile(app, "${app.packageName}.fileprovider", file)
+        _pendingCameraFile.value = file
         return file to uri
     }
 
+    /**
+     * Result branch: when the system camera returns we keep whatever bytes
+     * landed on disk and try to ingest them ourselves. Some cameras report
+     * `ok = false` but still wrote a complete image; we treat any non-empty
+     * file as a try-it-anyway. `cameraOk` is only used for the cancel
+     * fallback when the file is also empty.
+     */
+    fun finishCameraCapture(cameraOk: Boolean): CameraResult {
+        val pending = _pendingCameraFile.value
+        _pendingCameraFile.value = null
+
+        if (pending == null) {
+            android.util.Log.w(LOG_TAG, "finishCameraCapture: no pending file (process killed?)")
+            return CameraResult.Canceled
+        }
+        if (!pending.exists()) {
+            android.util.Log.w(LOG_TAG, "finishCameraCapture: pending file ${pending.absolutePath} missing")
+            return if (cameraOk) {
+                _importError.value = "Camera reported success but no photo landed on disk."
+                CameraResult.Failed
+            } else {
+                CameraResult.Canceled
+            }
+        }
+        val length = pending.length()
+        if (length == 0L) {
+            pending.delete()
+            android.util.Log.w(LOG_TAG, "finishCameraCapture: pending file empty (cameraOk=$cameraOk)")
+            return CameraResult.Canceled
+        }
+
+        android.util.Log.d(LOG_TAG, "finishCameraCapture: ${pending.absolutePath} ($length bytes, cameraOk=$cameraOk)")
+
+        val processed = decodeAndReencodeJpeg(
+            source = ImageSource.LocalFile(pending),
+            destDir = File(app.filesDir, "captures"),
+        )
+        if (processed == null) {
+            android.util.Log.e(LOG_TAG, "finishCameraCapture: decode/encode failed for ${pending.absolutePath}")
+            _importError.value =
+                "Could not read this photo. The camera may have written an unsupported format."
+            // Keep the original around so we can debug, but stop pretending we have a captured file.
+            return CameraResult.Failed
+        }
+        if (processed.absolutePath != pending.absolutePath) {
+            pending.takeIf { it.exists() }?.delete()
+        }
+        _capturedFile.value = processed
+        _capturedMime.value = "image/jpeg"
+        _upload.value = UploadState.Idle
+        return CameraResult.Captured
+    }
+
     fun setCapturedFromCamera(file: File?) {
+        // Legacy entry point retained for compatibility with the gallery flow's
+        // pattern (and any tests that still call this directly). The capture
+        // screen now uses finishCameraCapture, which knows about pending files.
         if (file == null) {
             _capturedFile.value = null
             _capturedMime.value = "image/jpeg"
             _upload.value = UploadState.Idle
             return
         }
-        // Even camera output gets re-encoded so we never ship HEIC-as-JPEG
-        // and so the upload stays comfortably under the server's 8 MB cap.
-        val processed = decodeAndReencodeJpeg(
-            source = ImageSource.LocalFile(file),
-            destDir = File(app.filesDir, "captures"),
-        )
-        if (processed == null) {
-            _importError.value = "Could not read the captured photo."
-            file.takeIf { it.exists() }?.delete()
-            return
-        }
-        // Drop the camera's original if we wrote a separate processed file.
-        if (processed.absolutePath != file.absolutePath) {
-            file.takeIf { it.exists() }?.delete()
-        }
-        _capturedFile.value = processed
-        _capturedMime.value = "image/jpeg"
-        _upload.value = UploadState.Idle
+        _pendingCameraFile.value = file
+        finishCameraCapture(cameraOk = true)
     }
+
+    enum class CameraResult { Captured, Canceled, Failed }
 
     /**
      * Decode any picked image (jpeg / png / webp / heic / heif) into a Bitmap and
@@ -278,6 +329,8 @@ class CaptureViewModel(
     fun regenerateDeviceId() = viewModelScope.launch { settings.regenerateDeviceId() }
 
     companion object {
+        private const val LOG_TAG = "AtlasCapture"
+
         fun factory(settings: SettingsRepository): ViewModelProvider.Factory =
             object : ViewModelProvider.Factory {
                 @Suppress("UNCHECKED_CAST")

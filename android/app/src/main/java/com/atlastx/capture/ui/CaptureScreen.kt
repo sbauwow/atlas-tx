@@ -60,23 +60,24 @@ fun CaptureScreen(
     val countySlug by viewModel.countySlug.collectAsStateWithLifecycle()
     val importError by viewModel.importError.collectAsStateWithLifecycle()
 
-    var pendingFile by remember { mutableStateOf<File?>(null) }
-    var pendingUri by remember { mutableStateOf<Uri?>(null) }
     var autoLaunched by remember { mutableStateOf(false) }
-    var pickerCanceled by remember { mutableStateOf(false) }
 
     val cameraLauncher = rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { ok ->
-        val f = pendingFile
-        if (ok && f != null && f.exists() && f.length() > 0) {
-            viewModel.setCapturedFromCamera(f)
-        } else {
-            f?.takeIf { it.exists() }?.delete()
-            if (initialSource == CaptureSource.CAMERA && captured == null) {
-                pickerCanceled = true
-            }
+        // Even on `ok = false` some cameras still wrote a usable image to our
+        // FileProvider URI. The view model checks file existence + bytes and
+        // surfaces the right error UI.
+        val outcome = viewModel.finishCameraCapture(cameraOk = ok)
+        if (outcome == CaptureViewModel.CameraResult.Canceled &&
+            initialSource == CaptureSource.CAMERA &&
+            captured == null
+        ) {
+            // Genuine cancel (no file or empty file) → back to capture home so
+            // the user is not stranded on a blank preview screen.
+            onBack()
         }
-        pendingFile = null
-        pendingUri = null
+        // Failed (file existed but decode bombed) keeps the user on the
+        // capture screen with the inline error card, so they can retry from
+        // the in-screen buttons.
     }
 
     val galleryLauncher = rememberLauncherForActivityResult(
@@ -85,13 +86,6 @@ fun CaptureScreen(
         if (uri != null) {
             viewModel.importGalleryUri(uri)
         } else if (initialSource == CaptureSource.GALLERY && captured == null) {
-            pickerCanceled = true
-        }
-    }
-
-    LaunchedEffect(pickerCanceled) {
-        if (pickerCanceled) {
-            pickerCanceled = false
             onBack()
         }
     }
@@ -111,9 +105,7 @@ fun CaptureScreen(
             }
             CaptureSource.CAMERA -> {
                 autoLaunched = true
-                val (file, uri) = viewModel.newCaptureFile()
-                pendingFile = file
-                pendingUri = uri
+                val (_, uri) = viewModel.newCaptureFile()
                 cameraLauncher.launch(uri)
             }
             CaptureSource.NONE -> Unit
@@ -146,9 +138,7 @@ fun CaptureScreen(
                 )
             },
             onShoot = {
-                val (file, uri) = viewModel.newCaptureFile()
-                pendingFile = file
-                pendingUri = uri
+                val (_, uri) = viewModel.newCaptureFile()
                 cameraLauncher.launch(uri)
             },
             onCountySlugChange = viewModel::setCountySlug,
