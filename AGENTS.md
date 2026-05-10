@@ -32,6 +32,7 @@ Five workstreams. Each owns a path. Each has one assigned agent at a time.
 | **web** | `src/app/`, `public/` | `dataset-registry.md` |
 | **mcp** | `packages/mcp-server/` | `dataset-registry.md`, `mcp-tools.md` |
 | **skill** | `skills/atlas-tx/` | `mcp-tools.md`, `skill-protocol.md` |
+| **android** | `android/` | `community-observation.md` (consumes `/api/citizen/observations`) |
 | **docs** | `docs/`, `README.md`, `AGENTS.md` | all |
 
 Full path map: [`docs/OWNERSHIP.md`](docs/OWNERSHIP.md).
@@ -55,8 +56,8 @@ When you finish:
 
 ## 4. Branch + commit conventions
 
-- Branches: `<workstream>/<slug>`. Examples: `data/sdwis-fetcher`, `mcp/dwrs-tool`, `web/county-map`, `skill/ej-guardrails`, `docs/m1-plan`.
-- Commit prefix matches workstream: `data:`, `web:`, `mcp:`, `skill:`, `docs:`. Cross-cutting: `cross:`.
+- Branches: `<workstream>/<slug>`. Examples: `data/sdwis-fetcher`, `mcp/dwrs-tool`, `web/county-map`, `skill/ej-guardrails`, `android/capture-app`, `docs/m1-plan`.
+- Commit prefix matches workstream: `data:`, `web:`, `mcp:`, `skill:`, `android:`, `docs:`. Cross-cutting: `cross:`.
 - One concept per commit. PR description should reference the milestone in `docs/plans/2026-05-08-water-risk-refocus.md`.
 
 ## 5. Things that fail demo (don't do)

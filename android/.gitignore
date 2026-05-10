@@ -1,0 +1,19 @@
+# Build outputs
+build/
+.gradle/
+.cxx/
+captures/
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# Local config
+local.properties
+keystore.properties
+*.jks
+*.keystore
+
+# OS
+.DS_Store

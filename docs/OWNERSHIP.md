@@ -10,6 +10,7 @@
 | **web** | Next.js app + UI. Renders against cached fixtures, never live federal APIs in the demo path. |
 | **mcp** | MCP server exposing tools the agent skill calls. Returns structured envelopes per `mcp-tools.md`. |
 | **skill** | Agent skill doc, references, guardrails. End-to-end runnable against the MCP server. |
+| **android** | Native capture client (Kotlin/Compose) for the citizen-observation lane. Reads the existing `/api/citizen/observations` contract; never embeds new data sources. |
 | **docs** | Plans, contracts, state, ownership, README, AGENTS.md. |
 
 ## Path map
@@ -28,6 +29,7 @@
 | `data/` | data | **gitignored**. Raw downloads, working scratch, intermediate joins. Never the demo path. |
 | `packages/mcp-server/` | mcp | MCP scaffold |
 | `packages/mcp-server/src/` | mcp | Tool implementations + dispatcher |
+| `android/` | android | Native capture client (Gradle / Kotlin / Compose). No imports from `src/` — consumes the web API as a black box. |
 | `skills/atlas-tx/` | skill | SKILL.md + references |
 | `docs/plans/` | docs | Dated implementation plans (latest = canonical, mark older as superseded) |
 | `docs/contracts/` | docs (cross) | Cross-workstream APIs. Any workstream may propose a change; **must** notify dependent workstreams in `STATE.md` |
