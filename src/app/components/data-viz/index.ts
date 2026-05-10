@@ -8,3 +8,5 @@ export { default as TileCartogram } from "./tile-cartogram";
 export type { TileCartogramProps, TileCartogramCounty } from "./tile-cartogram";
 export { default as Sankey } from "./sankey";
 export type { SankeyProps, SankeyNode, SankeyEdge } from "./sankey";
+export { default as MareyChart } from "./marey-chart";
+export type { MareyChartProps, MareySegment } from "./marey-chart";
