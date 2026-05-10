@@ -1,4 +1,5 @@
 import Link from "next/link";
+import AddressSearch from "@/app/components/address-search";
 import TrackedLink from "@/app/components/tracked-link";
 import GlossaryTooltip, { GlossaryInlineList } from "@/app/components/glossary-tooltip";
 import { CATEGORY_BORDER_CLASS, CATEGORY_TEXT_CLASS, DATASET_CATEGORY_GLYPH, DATASET_CATEGORY_LABEL, DATASET_CATEGORY_TOKEN } from "@/app/design/categories";
@@ -98,6 +99,8 @@ export default async function Home() {
       </section>
 
       <GlossaryInlineList label="Common terms" terms={["TCEQ", "DWRS", "EJ", "SDWIS", "ACS"]} />
+
+      <AddressSearch />
 
       <section className="grid gap-4 lg:grid-cols-3">
         <EntryPathCard
