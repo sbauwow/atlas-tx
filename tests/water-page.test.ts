@@ -15,8 +15,10 @@ vi.mock("@/lib/water/water-summary-service", () => ({
             activeWaterAlertCount: 1,
             sewerOverflowCount30d: 1,
             sewerOverflowGallons30d: 200,
-            generalPermitCount: 2,
-            oilAndGasExtractionPermitCount: 1,
+            generalPermitCount: 4,
+            oilAndGasExtractionPermitCount: 2,
+            petroleumBulkStationPermitCount: 1,
+            otherGeneralPermitCount: 1,
             waterDistrictCount: 3,
             waterUtilityCount: 4,
           },
@@ -33,15 +35,30 @@ vi.mock("@/lib/water/water-summary-service", () => ({
           activeWaterAlertCount: 1,
           sewerOverflowCount30d: 1,
           sewerOverflowGallons30d: 200,
-          generalPermitCount: 2,
-          oilAndGasExtractionPermitCount: 1,
+          generalPermitCount: 4,
+          oilAndGasExtractionPermitCount: 2,
+          petroleumBulkStationPermitCount: 1,
+          otherGeneralPermitCount: 1,
           waterDistrictCount: 3,
           waterUtilityCount: 4,
         },
         overlays: { hasFloodplainLayer: false, hasGaugeLayer: true, hasAlertLayer: true, hasSewerOverflowLayer: true },
         annotations: [],
       },
-      layers: { alerts: [], gauges: [], sewerOverflows: [], permits: [{ permitNumber: "TXG123" }], governance: [], lcraArrpOutfalls: [], lcraArrpLandPermits: [] },
+      layers: {
+        alerts: [],
+        gauges: [],
+        sewerOverflows: [],
+        permits: [
+          { permitNumber: "TXG310001", permitLane: "oil-gas-extraction", permitStatus: "ACTIVE", siteName: "Pad A" },
+          { permitNumber: "TXG310002", permitLane: "oil-gas-extraction", permitStatus: "PENDING", siteName: "Pad B" },
+          { permitNumber: "TXG340100", permitLane: "petroleum-bulk-stations", permitStatus: "ACTIVE", siteName: "Terminal" },
+          { permitNumber: "TXG560100", permitLane: "other-general-permit", permitStatus: "ACTIVE", siteName: "Outfall" },
+        ],
+        governance: [],
+        lcraArrpOutfalls: [],
+        lcraArrpLandPermits: [],
+      },
       notes: [],
     }),
   })),
@@ -66,6 +83,11 @@ describe("water page", () => {
     expect(text).toContain("Travis County");
     expect(text).toContain("General permits");
     expect(text).toContain("Oil &amp; gas extraction");
+    expect(text).toContain("Oil and gas extraction footprint");
+    expect(text).toContain("TXG31 county drilldown");
+    expect(text).toContain("TXG31 active");
+    expect(text).toContain("Petroleum bulk stations");
+    expect(text).toContain("Selected county TXG31 API");
     expect(text).toContain("Pending permits");
     expect(text).toContain("title=\"National Flood Hazard Layer\"");
   });

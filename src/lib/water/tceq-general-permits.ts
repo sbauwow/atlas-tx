@@ -5,6 +5,14 @@ import type { WaterPermitRecord } from "@/lib/water/types";
 
 const GENERAL_PERMITS_TTL_MS = 12 * 60 * 60 * 1000;
 const OIL_AND_GAS_EXTRACTION_PREFIX = "TXG31";
+const PETROLEUM_BULK_STATIONS_PREFIX = "TXG34";
+
+export function classifyGeneralPermitLane(permitNumber: string): WaterPermitRecord["permitLane"] {
+  const normalized = permitNumber.toUpperCase();
+  if (normalized.startsWith(OIL_AND_GAS_EXTRACTION_PREFIX)) return "oil-gas-extraction";
+  if (normalized.startsWith(PETROLEUM_BULK_STATIONS_PREFIX)) return "petroleum-bulk-stations";
+  return "other-general-permit";
+}
 
 type GeneralPermitRow = {
   permit_no?: string;
@@ -22,12 +30,14 @@ function numberValue(value: string | number | undefined): number | null {
 }
 
 export function normalizeGeneralPermitRecord(row: GeneralPermitRow): WaterPermitRecord {
+  const permitNumber = String(row.permit_no ?? "unknown-permit");
   return {
     sourceId: "tceq-general-water-permits",
-    permitNumber: String(row.permit_no ?? "unknown-permit"),
+    permitNumber,
     countyName: row.county_name ? normalizeCountyName(row.county_name) : null,
     permitStatus: row.permit_status ?? null,
     permitType: row.permit_type ?? null,
+    permitLane: classifyGeneralPermitLane(permitNumber),
     siteName: row.site_name ?? null,
     latitude: numberValue(row.latitude),
     longitude: numberValue(row.longitude),
@@ -48,11 +58,19 @@ export function summarizeGeneralPermitsByCounty(records: WaterPermitRecord[]): M
 }
 
 export function filterOilAndGasExtractionPermits(records: WaterPermitRecord[]): WaterPermitRecord[] {
-  return records.filter((record) => record.permitNumber.toUpperCase().startsWith(OIL_AND_GAS_EXTRACTION_PREFIX));
+  return records.filter((record) => (record.permitLane ?? classifyGeneralPermitLane(record.permitNumber)) === "oil-gas-extraction");
 }
 
 export function summarizeOilAndGasExtractionPermitsByCounty(records: WaterPermitRecord[]): Map<string, { count: number; countyName: string }> {
   return summarizeGeneralPermitsByCounty(filterOilAndGasExtractionPermits(records));
+}
+
+export function filterPetroleumBulkStationPermits(records: WaterPermitRecord[]): WaterPermitRecord[] {
+  return records.filter((record) => (record.permitLane ?? classifyGeneralPermitLane(record.permitNumber)) === "petroleum-bulk-stations");
+}
+
+export function summarizePetroleumBulkStationPermitsByCounty(records: WaterPermitRecord[]): Map<string, { count: number; countyName: string }> {
+  return summarizeGeneralPermitsByCounty(filterPetroleumBulkStationPermits(records));
 }
 
 async function fetchGeneralWaterPermitsUncached(signal?: AbortSignal): Promise<WaterPermitRecord[]> {

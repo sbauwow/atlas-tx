@@ -245,6 +245,7 @@ export type WaterPermitRecord = {
   countyName?: string | null;
   permitStatus?: string | null;
   permitType?: string | null;
+  permitLane?: "oil-gas-extraction" | "petroleum-bulk-stations" | "other-general-permit";
   siteName?: string | null;
   latitude?: number | null;
   longitude?: number | null;
@@ -307,6 +308,8 @@ export type CountyWaterSummary = {
     sewerOverflowGallons30d?: number;
     generalPermitCount?: number;
     oilAndGasExtractionPermitCount?: number;
+    petroleumBulkStationPermitCount?: number;
+    otherGeneralPermitCount?: number;
     waterDistrictCount?: number;
     waterUtilityCount?: number;
     surfaceWaterSegmentCount?: number;

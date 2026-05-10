@@ -21,6 +21,9 @@ export type ChoroplethCounty = {
     floodplainFeatureCount?: number;
     activeWaterAlertCount?: number;
     streamGaugeCount?: number;
+    oilAndGasExtractionPermitCount?: number;
+    petroleumBulkStationPermitCount?: number;
+    otherGeneralPermitCount?: number;
   };
 };
 
@@ -75,10 +78,12 @@ export default function TexasChoropleth({
   counties,
   gauges,
   selectedSlug,
+  variant = "risk",
 }: {
   counties: ChoroplethCounty[];
   gauges: ChoroplethGauge[];
   selectedSlug?: string | null;
+  variant?: "risk" | "oil-gas";
 }) {
   const features = loadTexasCountyFeatures();
   const bySlug = new Map(counties.map((c) => [c.slug, c]));
@@ -93,7 +98,12 @@ export default function TexasChoropleth({
 
   return (
     <div className="relative overflow-hidden rounded-xl bg-slate-950 ring-1 ring-white/5">
-      <svg viewBox={`0 0 ${MAP_WIDTH} ${MAP_HEIGHT}`} className="h-[420px] w-full" role="img" aria-label="Texas county water risk map">
+      <svg
+        viewBox={`0 0 ${MAP_WIDTH} ${MAP_HEIGHT}`}
+        className="h-[420px] w-full"
+        role="img"
+        aria-label={variant === "oil-gas" ? "Texas county oil and gas extraction permit map" : "Texas county water risk map"}
+      >
         <defs>
           <radialGradient id="mapVignette" cx="50%" cy="40%" r="60%">
             <stop offset="0%" stopColor="#0f172a" />
@@ -129,7 +139,9 @@ export default function TexasChoropleth({
                   >
                     <title>
                       {county
-                        ? `${county.name}: mismatch ${county.mismatchScore}, NFHL ${county.metrics.floodplainFeatureCount ?? 0}, alerts ${county.metrics.activeWaterAlertCount ?? 0}, gauges ${county.metrics.streamGaugeCount ?? 0} — ${SEVERITY_LABEL[level]} ${SEVERITY_GLYPH[level]}`
+                        ? variant === "oil-gas"
+                          ? `${county.name}: TXG31 ${county.metrics.oilAndGasExtractionPermitCount ?? 0}, TXG34 ${county.metrics.petroleumBulkStationPermitCount ?? 0}, other permits ${county.metrics.otherGeneralPermitCount ?? 0} — ${SEVERITY_LABEL[level]} ${SEVERITY_GLYPH[level]}`
+                          : `${county.name}: mismatch ${county.mismatchScore}, NFHL ${county.metrics.floodplainFeatureCount ?? 0}, alerts ${county.metrics.activeWaterAlertCount ?? 0}, gauges ${county.metrics.streamGaugeCount ?? 0} — ${SEVERITY_LABEL[level]} ${SEVERITY_GLYPH[level]}`
                         : `${feat.properties.name} County (no data)`}
                     </title>
                   </path>

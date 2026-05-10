@@ -61,6 +61,25 @@ function formatFreshnessLabel(expiresAt: string | null) {
   return expiresAt ? `Cached until ${expiresAt}` : "Cache pending";
 }
 
+function permitDensitySeverity(count: number | undefined): SeverityLevel {
+  if (!count) return 0;
+  if (count >= 10) return 4;
+  if (count >= 5) return 3;
+  if (count >= 2) return 2;
+  return 1;
+}
+
+function permitCountByStatus(
+  permits: Array<{ permitLane?: string | null; permitStatus?: string | null }>,
+  permitLane: string,
+  status?: string,
+) {
+  return permits.filter((permit) => {
+    if (permit.permitLane !== permitLane) return false;
+    return status ? (permit.permitStatus ?? "").toUpperCase() === status : true;
+  }).length;
+}
+
 export default async function WaterPage({
   searchParams,
 }: {
@@ -92,6 +111,26 @@ export default async function WaterPage({
         floodplainFeatureCount: county.metrics.floodplainFeatureCount,
         activeWaterAlertCount: county.metrics.activeWaterAlertCount,
         streamGaugeCount: county.metrics.streamGaugeCount,
+        oilAndGasExtractionPermitCount: county.metrics.oilAndGasExtractionPermitCount,
+        petroleumBulkStationPermitCount: county.metrics.petroleumBulkStationPermitCount,
+        otherGeneralPermitCount: county.metrics.otherGeneralPermitCount,
+      },
+    };
+  });
+
+  const oilAndGasChoroplethCounties: ChoroplethCounty[] = overview.counties.map((county) => {
+    const oilAndGasCount = county.metrics.oilAndGasExtractionPermitCount ?? 0;
+    return {
+      slug: county.county.slug,
+      name: county.county.name,
+      fips: county.county.fips ?? TEXAS_COUNTY_CENTROIDS[county.county.slug]?.fips,
+      severity: permitDensitySeverity(oilAndGasCount),
+      riskScore: oilAndGasCount,
+      mismatchScore: 0,
+      metrics: {
+        oilAndGasExtractionPermitCount: oilAndGasCount,
+        petroleumBulkStationPermitCount: county.metrics.petroleumBulkStationPermitCount,
+        otherGeneralPermitCount: county.metrics.otherGeneralPermitCount,
       },
     };
   });
@@ -109,9 +148,44 @@ export default async function WaterPage({
     .filter((county) => (county.mismatch?.score ?? 0) > 0)
     .sort((left, right) => (right.mismatch?.score ?? 0) - (left.mismatch?.score ?? 0))
     .slice(0, 3);
+  const topOilAndGasCounties = [...overview.counties]
+    .filter((county) => (county.metrics.oilAndGasExtractionPermitCount ?? 0) > 0)
+    .sort(
+      (left, right) =>
+        (right.metrics.oilAndGasExtractionPermitCount ?? 0) - (left.metrics.oilAndGasExtractionPermitCount ?? 0) ||
+        left.county.name.localeCompare(right.county.name),
+    )
+    .slice(0, 5);
 
   const countiesWithFloodplain = overview.counties.filter((county) => (county.metrics.floodplainFeatureCount ?? 0) > 0).length;
+  const countiesWithOilAndGasExtraction = overview.counties.filter((county) => (county.metrics.oilAndGasExtractionPermitCount ?? 0) > 0).length;
+  const statewideOilAndGasPermits = overview.counties.reduce((sum, county) => sum + (county.metrics.oilAndGasExtractionPermitCount ?? 0), 0);
   const selectedMismatchLevel = severityFromMismatch(breakdown?.county.mismatch?.score);
+  const selectedPermitLaneCards = breakdown
+    ? [
+        {
+          label: "TXG31 active",
+          value: permitCountByStatus(breakdown.layers.permits, "oil-gas-extraction", "ACTIVE"),
+          note: "Oil and gas extraction authorizations currently active in the selected county.",
+        },
+        {
+          label: "TXG31 pending",
+          value: permitCountByStatus(breakdown.layers.permits, "oil-gas-extraction", "PENDING"),
+          note: "Pending oil and gas extraction authorizations in the county pipeline.",
+        },
+        {
+          label: "TXG34 petroleum bulk",
+          value: permitCountByStatus(breakdown.layers.permits, "petroleum-bulk-stations"),
+          note: "Petroleum bulk station and terminal authorizations split out from the same general permit inventory.",
+        },
+        {
+          label: "Other general permits",
+          value: permitCountByStatus(breakdown.layers.permits, "other-general-permit"),
+          note: "Residual general permits outside the TXG31/TXG34 lanes.",
+        },
+      ]
+    : [];
+  const selectedOilAndGasPermits = breakdown?.layers.permits.filter((permit) => permit.permitLane === "oil-gas-extraction") ?? [];
 
   return (
     <main className="relative mx-auto flex w-full max-w-7xl flex-1 flex-col gap-12 px-6 py-12">
@@ -260,6 +334,8 @@ export default async function WaterPage({
                 <DetailMetric label="Sewer overflows (30d)" value={formatNumber(breakdown.county.metrics.sewerOverflowCount30d)} />
                 <DetailMetric label="General permits" value={formatNumber(breakdown.county.metrics.generalPermitCount)} />
                 <DetailMetric label="Oil & gas extraction" value={formatNumber(breakdown.county.metrics.oilAndGasExtractionPermitCount)} />
+                <DetailMetric label="Petroleum bulk stations" value={formatNumber(breakdown.county.metrics.petroleumBulkStationPermitCount)} />
+                <DetailMetric label="Other general permits" value={formatNumber(breakdown.county.metrics.otherGeneralPermitCount)} />
                 <DetailMetric label="Water districts" value={formatNumber(breakdown.county.metrics.waterDistrictCount)} />
                 <DetailMetric label="Water utilities" value={formatNumber(breakdown.county.metrics.waterUtilityCount)} />
                 <DetailMetric label="LCRA ARRP outfalls" value={formatNumber(breakdown.county.metrics.lcraArrpOutfallCount)} />
@@ -284,6 +360,37 @@ export default async function WaterPage({
                 LCRA ARRP land permits: <NumPill v={breakdown.layers.lcraArrpLandPermits.length} />
               </div>
 
+              <div className="grid gap-2 sm:grid-cols-2">
+                {selectedPermitLaneCards.map((card) => (
+                  <div key={card.label} className="rounded-xl bg-white/[0.02] px-4 py-3 ring-1 ring-white/5">
+                    <div className="text-[11px] font-medium uppercase tracking-[0.14em] text-slate-500">{card.label}</div>
+                    <div className="mt-1.5 text-2xl font-semibold tabular-nums tracking-tight text-white">{formatNumber(card.value)}</div>
+                    <p className="mt-1.5 text-xs leading-5 text-slate-400">{card.note}</p>
+                  </div>
+                ))}
+              </div>
+
+              <div className="rounded-xl bg-white/[0.02] px-4 py-3 ring-1 ring-white/5">
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <div>
+                    <div className="text-[11px] font-medium uppercase tracking-[0.14em] text-slate-500">TXG31 county drilldown</div>
+                    <p className="mt-1 text-xs leading-5 text-slate-400">Selected county extraction authorizations with permit number and status pulled from the TCEQ general permits lane.</p>
+                  </div>
+                  {selectedSlug ? <ApiPill href={`/api/water/oil-gas-extraction?county=${selectedSlug}`} label="Selected county TXG31 API" /> : null}
+                </div>
+                <div className="mt-3 space-y-2">
+                  {selectedOilAndGasPermits.length ? selectedOilAndGasPermits.slice(0, 5).map((permit) => (
+                    <div key={permit.permitNumber} className="rounded-lg bg-slate-950/40 px-3 py-2 text-xs text-slate-300 ring-1 ring-white/5">
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <span className="font-mono text-slate-200">{permit.permitNumber}</span>
+                        <span className="rounded-full bg-white/[0.05] px-2 py-0.5 text-[10px] uppercase tracking-[0.12em] text-slate-400">{permit.permitStatus ?? "unknown status"}</span>
+                      </div>
+                      <div className="mt-1 text-slate-400">{permit.siteName ?? "Unnamed site"}</div>
+                    </div>
+                  )) : <p className="text-xs text-slate-500">No TXG31 permits matched the selected county.</p>}
+                </div>
+              </div>
+
               {breakdown.notes.length ? (
                 <div className="rounded-xl bg-white/[0.02] px-4 py-3 text-xs leading-6 text-slate-400 ring-1 ring-white/5">
                   {breakdown.notes.join(" · ")}
@@ -292,6 +399,74 @@ export default async function WaterPage({
             </div>
           ) : null}
         </aside>
+      </section>
+
+      <section className="rounded-2xl bg-white/[0.02] p-5 ring-1 ring-white/5 sm:p-6">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <div className="text-[11px] font-medium uppercase tracking-[0.18em] text-cyan-300/80">Permit lane split</div>
+            <h2 className="mt-2 text-2xl font-semibold tracking-tight text-white">Oil and gas extraction footprint</h2>
+            <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-400">
+              TXG31 extraction authorizations are broken out from TXG34 petroleum bulk stations and the rest of the general permit inventory, so the statewide map and county drilldown can isolate actual oilfield extraction pressure.
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-2 text-xs">
+            <ApiPill href="/api/water/oil-gas-extraction" label="Statewide TXG31 API" />
+            {selectedSlug ? <ApiPill href={`/api/water/oil-gas-extraction?county=${selectedSlug}`} label="Selected county TXG31 API" /> : null}
+          </div>
+        </div>
+
+        <div className="mt-5 grid gap-px overflow-hidden rounded-xl bg-white/5 ring-1 ring-white/10 sm:grid-cols-3">
+          <KpiTile label="Counties with TXG31" value={formatNumber(countiesWithOilAndGasExtraction)} />
+          <KpiTile label="Statewide TXG31 permits" value={formatNumber(statewideOilAndGasPermits)} />
+          <KpiTile label="Selected county TXG31" value={formatNumber(breakdown?.county.metrics.oilAndGasExtractionPermitCount)} />
+        </div>
+
+        <div className="mt-5 grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
+          <div>
+            <TexasChoropleth counties={oilAndGasChoroplethCounties} gauges={[]} selectedSlug={selectedSlug ?? null} variant="oil-gas" />
+          </div>
+          <div className="space-y-4">
+            <div className="rounded-xl bg-white/[0.02] p-4 ring-1 ring-white/5">
+              <div className="text-xs font-medium uppercase tracking-[0.14em] text-slate-500">Top TXG31 counties</div>
+              <div className="mt-2.5 flex flex-wrap gap-1.5">
+                {topOilAndGasCounties.length ? topOilAndGasCounties.map((county) => (
+                  <Link
+                    key={county.county.slug}
+                    href={`/water?county=${county.county.slug}&mode=${mapMode}#oil-gas-footprint`}
+                    className="inline-flex items-center gap-1.5 rounded-full bg-white/[0.04] px-2.5 py-1 text-xs text-slate-200 ring-1 ring-white/10 transition-colors hover:bg-white/10 hover:ring-white/20"
+                  >
+                    <span>{county.county.name}</span>
+                    <span className="font-mono text-[11px] tabular-nums text-slate-400">{formatNumber(county.metrics.oilAndGasExtractionPermitCount)}</span>
+                  </Link>
+                )) : <span className="text-xs text-slate-500">No TXG31 counties in the current cache snapshot.</span>}
+              </div>
+            </div>
+
+            <div className="rounded-xl bg-white/[0.02] p-4 ring-1 ring-white/5">
+              <div className="text-xs font-medium uppercase tracking-[0.14em] text-slate-500">Permit density legend</div>
+              <ul className="mt-2.5 space-y-1.5 text-xs text-slate-300">
+                <LegendRow level={4} text="10+ TXG31 permits" />
+                <LegendRow level={3} text="5–9 TXG31 permits" />
+                <LegendRow level={2} text="2–4 TXG31 permits" />
+                <LegendRow level={1} text="1 TXG31 permit" />
+                <LegendRow level={0} text="0 TXG31 permits" />
+              </ul>
+            </div>
+
+            <div id="oil-gas-footprint" className="rounded-xl bg-white/[0.02] p-4 ring-1 ring-white/5">
+              <div className="text-xs font-medium uppercase tracking-[0.14em] text-slate-500">Selected county permit lanes</div>
+              <p className="mt-1 text-xs leading-5 text-slate-400">
+                TXG31 extraction, TXG34 petroleum bulk stations, and other general permits are separated into distinct operational lanes for the selected county.
+              </p>
+              <div className="mt-3 grid gap-2 sm:grid-cols-3">
+                <PermitLaneMini label="TXG31" value={formatNumber(breakdown?.county.metrics.oilAndGasExtractionPermitCount)} />
+                <PermitLaneMini label="TXG34" value={formatNumber(breakdown?.county.metrics.petroleumBulkStationPermitCount)} />
+                <PermitLaneMini label="Other" value={formatNumber(breakdown?.county.metrics.otherGeneralPermitCount)} />
+              </div>
+            </div>
+          </div>
+        </div>
       </section>
 
       <section className="rounded-2xl bg-white/[0.02] p-5 ring-1 ring-white/5 sm:p-6">
@@ -349,6 +524,8 @@ export default async function WaterPage({
                   <th className="px-3 py-3 text-right">Sewer overflows</th>
                   <th className="px-3 py-3 text-right">General permits</th>
                   <th className="px-3 py-3 text-right">Oil &amp; gas extraction</th>
+                  <th className="px-3 py-3 text-right">Petroleum bulk</th>
+                  <th className="px-3 py-3 text-right">Other permits</th>
                   <th className="px-3 py-3 text-right">Water districts</th>
                   <th className="px-3 py-3 text-right">Water utilities</th>
                   <th className="px-3 py-3 text-right">LCRA outfalls</th>
@@ -380,6 +557,8 @@ export default async function WaterPage({
                       <NumCell v={county.metrics.sewerOverflowCount30d} />
                       <NumCell v={county.metrics.generalPermitCount} />
                       <NumCell v={county.metrics.oilAndGasExtractionPermitCount} />
+                      <NumCell v={county.metrics.petroleumBulkStationPermitCount} />
+                      <NumCell v={county.metrics.otherGeneralPermitCount} />
                       <NumCell v={county.metrics.waterDistrictCount} />
                       <NumCell v={county.metrics.waterUtilityCount} />
                       <NumCell v={county.metrics.lcraArrpOutfallCount} />
@@ -492,4 +671,13 @@ function NumCell({ v }: { v: number | undefined }) {
 
 function NumPill({ v }: { v: number }) {
   return <span className="tabular-nums text-slate-200">{v}</span>;
+}
+
+function PermitLaneMini({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-lg bg-slate-950/40 px-3 py-3 ring-1 ring-white/5">
+      <div className="text-[11px] font-medium uppercase tracking-[0.14em] text-slate-500">{label}</div>
+      <div className="mt-1.5 text-xl font-semibold tabular-nums tracking-tight text-white">{value}</div>
+    </div>
+  );
 }

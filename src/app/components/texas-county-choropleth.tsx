@@ -1,7 +1,7 @@
 import { TEXAS_COUNTY_CENTROIDS } from "@/lib/texas-county-centroids";
 import type { PendingPermitCountyMapRow } from "@/lib/tceq-permits";
 
-import { CountyChoroplethSvg, type CountyMapRecord, type CountyMetricMode } from "./county-map-primitives";
+import { CountyChoroplethSvg, type CountyMetricMode } from "./county-map-primitives";
 
 const texasCountyFipsBySlug = Object.fromEntries(
   Object.entries(TEXAS_COUNTY_CENTROIDS).flatMap(([slug, centroid]) => (centroid.fips ? [[slug, centroid.fips]] : [])),
