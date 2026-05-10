@@ -137,6 +137,36 @@ Caveats:
 - curated inclusion is keyword/theme based and is a triage aid, not a guarantee that every matched dataset is in-scope or high-quality;
 - ranked scores are heuristic prioritization for Atlas ingestion, not claims about data quality, policy importance, or public harm.
 
+### SDWIS Water System Facilities (additive — storage tanks)
+File: `src/lib/datasets/sdwis-facilities.ts`
+Script: `scripts/refresh-sdwis-facilities.ts`
+Snapshot: `public/cache/sdwis-storage-tx.json`
+
+Purpose:
+- inventory water-tower / ground-storage / reservoir facilities under each Texas Public Water System so the address-lookup composite can answer "what does my system store water in?";
+- joinable by `pwsid` to existing SDWIS PWS rows and to the GEOGRAPHIC_AREA county join in `sdwis.ts`;
+- foundation for future filtration / treatment / pump inventory by re-running with a wider `facilityTypeCodes` filter.
+
+Normalized row shape:
+```ts
+export type SdwisFacility = {
+  pwsid: string;
+  facilityId: string;
+  facilityName: string | null;
+  stateFacilityId: string | null;
+  facilityTypeCode: "ST" | "WL" | "IN" | "TP" | "DS" | "PC" | "OT";
+  isActive: boolean;
+};
+```
+
+Default snapshot filter: `FACILITY_TYPE_CODE=ST` (storage) + `FACILITY_ACTIVITY_CODE=A` (active). Current snapshot ≈ 28,500 active storage facilities across ~8,000 PWSs (~4.3 MB minified).
+
+Caveats:
+- WATER_SYSTEM_FACILITY rows have no latitude/longitude; geography is via `pwsid` joins only;
+- `facility_name` strings often embed capacity hints (e.g. "0.2 MG GST" = 0.2 MG Ground Storage Tank, "15 MG RES" = 15 MG Reservoir) — treat as descriptive, not authoritative volume;
+- a deactivated PWS may still own active facility rows in this table;
+- widen with `loadSdwisFacilities({live: true, fetchParams: {facilityTypeCodes: ['ST','WL','TP','PC']}})` and write to `data/` (gitignored) for analysis runs that need the full facility footprint.
+
 ## Scoring functions
 
 Each derived signal lives at `src/lib/scoring/<slug>.ts` and exports:

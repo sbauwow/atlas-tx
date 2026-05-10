@@ -300,6 +300,51 @@ function AddressLookupResult({
           )}
         </ResultBlock>
 
+        <ResultBlock title="Storage tanks (water towers)">
+          {data.storage.totalCount === 0 ? (
+            <p className="text-slate-400">
+              No SDWIS storage facilities for the in-county PWSs surfaced above.
+            </p>
+          ) : (
+            <>
+              <p className="text-xs text-slate-400">
+                {data.storage.totalCount} active storage{" "}
+                {data.storage.totalCount === 1 ? "facility" : "facilities"} across{" "}
+                {data.storage.pwsCount} PWS{data.storage.pwsCount === 1 ? "" : "s"}
+              </p>
+              <ul className="mt-2 space-y-2">
+                {data.storage.groups.map((group) => (
+                  <li key={group.pwsid} className="text-slate-200">
+                    <div className="text-sm font-medium text-white">
+                      {group.pwsName ?? group.pwsid}
+                      <span className="ml-2 text-xs text-slate-400">
+                        {group.storageCount} tank{group.storageCount === 1 ? "" : "s"}
+                      </span>
+                    </div>
+                    <ul className="mt-1 space-y-0.5 pl-3 text-xs text-slate-400">
+                      {group.facilities.map((facility) => (
+                        <li key={facility.facilityId}>
+                          {facility.facilityName ?? facility.facilityId}
+                          {facility.stateFacilityId ? (
+                            <span className="ml-1 text-slate-500">
+                              · {facility.stateFacilityId}
+                            </span>
+                          ) : null}
+                        </li>
+                      ))}
+                      {group.storageCount > group.facilities.length ? (
+                        <li className="text-slate-500">
+                          + {group.storageCount - group.facilities.length} more
+                        </li>
+                      ) : null}
+                    </ul>
+                  </li>
+                ))}
+              </ul>
+            </>
+          )}
+        </ResultBlock>
+
         <ResultBlock title="County water summary">
           {summary ? (
             <ul className="space-y-1 text-slate-300">

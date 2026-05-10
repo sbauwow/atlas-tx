@@ -12,6 +12,7 @@ Schema for every row: `workstream | agent | branch | intent | started | ref`
 |---|---|---|---|---|---|
 | docs | hermes | web/color-tokens | Review all plan docs, align additive weather/community roadmap to current repo state, and add coordination-aware implementation checklist around active feynman/UI work | 2026-05-09T05:52:00Z | working tree |
 | cross (android + docs) | claude-opus-4-7 | cross/android-capture-app | Scaffold the Atlas TX Capture Android client (Kotlin/Compose, minSdk 31) under `android/`, wire it to `POST /api/citizen/observations`, and add the `android` workstream to OWNERSHIP/AGENTS. v1 deferred: on-device colorimetry, CameraX preview, GPS attach. | 2026-05-09T19:00:00Z | branch `cross/android-capture-app` |
+| data (cross: web + docs) | claude-opus-4-7 | data/sdwis-storage | Add SDWIS WATER_SYSTEM_FACILITY ingest filtered to active storage (FACILITY_TYPE_CODE=ST). New `src/lib/datasets/sdwis-facilities.ts` (fetch / normalize / load), `npm run refresh:sdwis-facilities`, committed `public/cache/sdwis-storage-tx.json` (4.3 MB, 28.5k storage facilities across 8k PWSs). Plumb `storage.groups[]` into the address-lookup envelope keyed by the in-county PWS list, render a "Storage tanks (water towers)" block in `<AddressSearch />`, register the dataset in `mvp-datasets.ts` + bump `dataset-registry.md`. Wells/treatment/pumps deferred to a follow-on widening of `facilityTypeCodes`. | 2026-05-10T07:05:00Z | branch `data/sdwis-storage` |
 
 ---
 
