@@ -98,6 +98,18 @@ export function CountyContextBlock({
             : "No SDWIS rule-group 100 microbial violations cached for this county. Tier-1 boil-water-equivalent events activate this lane when they post."}
           footnote={publicNoticeFootnote(context.publicNotices)}
         />
+
+        <ContextPanel
+          tone="treatment"
+          eyebrow="Treatment stress · E2 disinfectant"
+          title={context.disinfectant.disinfectantViolations > 0
+            ? `${context.disinfectant.disinfectantViolations.toLocaleString("en-US")} disinfectant violations`
+            : "No disinfectant violations cached"}
+          body={context.disinfectant.disinfectantViolations > 0
+            ? `${context.disinfectant.disinfectantPwsImpacted} PWS${context.disinfectant.disinfectantPwsImpacted === 1 ? "" : "es"} carry SDWIS rule-group 200 (Disinfectants and Disinfection Byproducts Rule) violations — the same rule family that drives E2 disinfectant residual reporting.`
+            : "No cached SDWIS rule-group 200 disinfectant violations in this county. Treatment-stress signal activates as new D/DBP rule violations post."}
+          footnote={disinfectantFootnote(context.disinfectant)}
+        />
       </div>
 
       {surfaceWater.topImpairedSegments.length > 0 ? (
@@ -122,6 +134,24 @@ function layerSummary(layerCounts: Record<string, number>): string | null {
   const entries = Object.entries(layerCounts).filter(([, count]) => count > 0);
   if (!entries.length) return null;
   return entries.slice(0, 3).map(([layer, count]) => `${count} ${layer}`).join(" · ");
+}
+
+function disinfectantFootnote(d: {
+  topDisinfectantPws: { pwsName: string; violationCount: number } | null;
+  latestDisinfectantViolation: string | null;
+  topDisinfectantContaminantCode: string | null;
+}): string | null {
+  const parts: string[] = [];
+  if (d.topDisinfectantPws) {
+    parts.push(`Top PWS: ${d.topDisinfectantPws.pwsName} (${d.topDisinfectantPws.violationCount} viol.)`);
+  }
+  if (d.topDisinfectantContaminantCode) {
+    parts.push(`Top contaminant code: ${d.topDisinfectantContaminantCode}`);
+  }
+  if (d.latestDisinfectantViolation) {
+    parts.push(`Latest: ${d.latestDisinfectantViolation}`);
+  }
+  return parts.length ? parts.join(" · ") : null;
 }
 
 function publicNoticeFootnote(pn: {
@@ -153,22 +183,26 @@ function dwrsFootnote(dw: { topViolatingPws: { pwsName: string; violationCount: 
   return parts.length ? parts.join(" · ") : null;
 }
 
-const TONE_RING: Record<"hazard" | "hydrology" | "surface" | "infra" | "dwrs" | "notice", string> = {
+type ContextPanelTone = "hazard" | "hydrology" | "surface" | "infra" | "dwrs" | "notice" | "treatment";
+
+const TONE_RING: Record<ContextPanelTone, string> = {
   hazard: "ring-amber-400/15 bg-amber-400/[0.04]",
   hydrology: "ring-cyan-400/15 bg-cyan-400/[0.04]",
   surface: "ring-emerald-400/15 bg-emerald-400/[0.04]",
   infra: "ring-slate-300/10 bg-white/[0.03]",
   dwrs: "ring-fuchsia-400/15 bg-fuchsia-400/[0.04]",
   notice: "ring-rose-400/15 bg-rose-400/[0.04]",
+  treatment: "ring-violet-400/15 bg-violet-400/[0.04]",
 };
 
-const TONE_EYEBROW: Record<"hazard" | "hydrology" | "surface" | "infra" | "dwrs" | "notice", string> = {
+const TONE_EYEBROW: Record<ContextPanelTone, string> = {
   hazard: "text-amber-200",
   hydrology: "text-cyan-200",
   surface: "text-emerald-200",
   infra: "text-slate-300",
   dwrs: "text-fuchsia-200",
   notice: "text-rose-200",
+  treatment: "text-violet-200",
 };
 
 function ContextPanel({
@@ -178,7 +212,7 @@ function ContextPanel({
   body,
   footnote,
 }: {
-  tone: "hazard" | "hydrology" | "surface" | "infra" | "dwrs" | "notice";
+  tone: ContextPanelTone;
   eyebrow: string;
   title: string;
   body: string;
