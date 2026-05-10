@@ -40,9 +40,8 @@ export default function RootLayout({
             <div>Atlas TX · Texas OSINT maps from open data</div>
             <div className="flex flex-wrap items-center gap-4">
               <Link href="/analytics" className="transition-colors hover:text-white">Analytics</Link>
+              <Link href="/permits" className="transition-colors hover:text-white">Permits</Link>
               <Link href="/watchlists" className="transition-colors hover:text-white">Watchlists</Link>
-              <Link href="/operators" className="transition-colors hover:text-white">Operators</Link>
-              <Link href="/glossary" className="transition-colors hover:text-white">Glossary</Link>
               <Link href="/education" className="transition-colors hover:text-white">Education</Link>
             </div>
           </div>
