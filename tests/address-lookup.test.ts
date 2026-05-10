@@ -106,7 +106,38 @@ describe("lookupAddress", () => {
                 },
               ],
               permits: [],
-              governance: [],
+              governance: [
+                {
+                  sourceId: "tceq-water-districts",
+                  entityId: "DIST-1",
+                  entityName: "Travis County MUD No. 1",
+                  countyName: "Travis County",
+                  entityType: "Municipal Utility District",
+                  activityStatus: "Active",
+                  city: "Austin",
+                  raw: {},
+                },
+                {
+                  sourceId: "tceq-water-districts",
+                  entityId: "DIST-2",
+                  entityName: "Northwest Travis SUD",
+                  countyName: "Travis County",
+                  entityType: "Special Utility District",
+                  activityStatus: "Active",
+                  city: null,
+                  raw: {},
+                },
+                {
+                  sourceId: "puct-water-iou",
+                  entityId: "CCN-1234",
+                  entityName: "Aqua Texas",
+                  countyName: "Travis County",
+                  entityType: "Investor-Owned Utility",
+                  activityStatus: null,
+                  city: "Austin",
+                  raw: {},
+                },
+              ],
               surfaceWaterQuality: [
                 {
                   layerId: 7,
@@ -275,7 +306,17 @@ describe("lookupAddress", () => {
     expect(envelope.data.water.activeAlerts).toHaveLength(1);
     expect(envelope.data.water.nearbySewerOverflows).toHaveLength(1);
 
+    // Governance: classified into MUD/SUD/IOU buckets.
+    expect(envelope.data.governance.totalCount).toBe(3);
+    expect(envelope.data.governance.byCode.MUD).toBe(1);
+    expect(envelope.data.governance.byCode.SUD).toBe(1);
+    expect(envelope.data.governance.byCode.IOU).toBe(1);
+    const codes = envelope.data.governance.entities.map((e) => e.code);
+    expect(codes).toContain("MUD");
+    expect(codes).toContain("SUD");
+
     expect(envelope.sources).toContain("us-census-geocoder");
+    expect(envelope.sources).toContain("tceq-water-districts");
     expect(envelope.caveats.length).toBeGreaterThan(0);
   });
 
