@@ -12,6 +12,7 @@ Schema for every row: `workstream | agent | branch | intent | started | ref`
 |---|---|---|---|---|---|
 | docs | hermes | web/color-tokens | Review all plan docs, align additive weather/community roadmap to current repo state, and add coordination-aware implementation checklist around active feynman/UI work | 2026-05-09T05:52:00Z | working tree |
 | cross (android + docs) | claude-opus-4-7 | cross/android-capture-app | Scaffold the Atlas TX Capture Android client (Kotlin/Compose, minSdk 31) under `android/`, wire it to `POST /api/citizen/observations`, and add the `android` workstream to OWNERSHIP/AGENTS. v1 deferred: on-device colorimetry, CameraX preview, GPS attach. | 2026-05-09T19:00:00Z | branch `cross/android-capture-app` |
+| web | claude-opus-4-7 | web/interactive-map | Add `/map` route: full-viewport MapLibre GL (CARTO dark + OSM tiles, no token), three toggleable layers — TX county polygons (cached `public/cache/tx-counties-topo.json`), TCEQ pending permits (new `/api/permits/locations` GeoJSON endpoint), USGS stream gauges (existing `/api/water/gauges`). Click → popup with deep links into `/permits?county=` / `/counties/[slug]` / USGS NWIS. URL-persisted layer toggle. Android map mirror deferred. | 2026-05-10T00:08:00Z | branch `web/interactive-map` |
 
 ---
 
@@ -25,6 +26,7 @@ _(empty)_
 
 | workstream | agent | intent | ref |
 |---|---|---|---|
+| web | claude-opus-4-7 | Demo-prep visual + copy + empty-state polish across `/`, `/water`, `/counties`, `/permits`, `/analytics`: hero CTA pruning on home (6→3 + secondary row), 9 debug API pills wrapped in `<details>` disclosure on `/water`, podium ranks + empty state + hover affordance on `/counties`, hero anchor jumps on `/permits`, terminal eyebrow demoted on `/analytics`. Stays clear of `src/app/design/` color-token lane. | branch `web/demo-polish` |
 | docs | hermes | Add county dataset roadmap (`docs/plans/2026-05-10-county-dataset-roadmap.md`) and link it from the plans index for quick execution against county priorities. | working tree |
 | docs | hermes | Update README + CHANGELOG to reflect the new map-first county workflow: county choropleths lead analytics and water, while other charts remain user-directed correlation lanes. | commit `6edd23f` |
 | data (cross: docs) | hermes | Add first JED Pool Tools 5-way strip support to the citizen observation prototype: new chart file/registry, route-side chart resolution by `clientReading.chartId`, and JED-default citizen capture/results wiring. Verified with `tests/observations-route.test.ts`, `tests/observations-sampling.test.ts`, and `tests/observations-status.test.ts`. `npm run build` still fails on a pre-existing type error in `experiments/build_county_month_water_risk_panel.ts` unrelated to the citizen-strip changes. | working tree |
