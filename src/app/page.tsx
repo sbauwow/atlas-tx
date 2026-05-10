@@ -1,5 +1,8 @@
 import Link from "next/link";
 import AddressSearch from "@/app/components/address-search";
+import PulseDot from "@/app/components/pulse-dot";
+import Ticker from "@/app/components/ticker";
+import TopographicBackground from "@/app/components/topographic-background";
 import TrackedLink from "@/app/components/tracked-link";
 import { GlossaryInlineList } from "@/app/components/glossary-tooltip";
 import { CATEGORY_BORDER_CLASS, CATEGORY_TEXT_CLASS, DATASET_CATEGORY_GLYPH, DATASET_CATEGORY_LABEL, DATASET_CATEGORY_TOKEN } from "@/app/design/categories";
@@ -23,23 +26,20 @@ export default async function Home() {
 
   return (
     <main className="relative mx-auto flex w-full max-w-6xl flex-1 flex-col gap-16 px-6 py-16">
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[480px] bg-[radial-gradient(ellipse_60%_50%_at_50%_0%,rgba(34,211,238,0.10),transparent_70%)]"
-      />
+      <TopographicBackground />
 
       <section className="grid gap-10 lg:grid-cols-[1.4fr_0.9fr] lg:items-end">
-        <div className="space-y-7">
+        <div className="space-y-7 atlas-fade-rise">
           <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-medium uppercase tracking-[0.18em] text-slate-300 backdrop-blur">
-            <span aria-hidden="true" className="size-1.5 rounded-full bg-accent" />
-            Atlas TX · Texas OSINT maps from open data
+            <PulseDot size={6} />
+            Atlas TX · county intelligence, water evidence, field missions
           </span>
           <div className="space-y-5">
-            <h1 className="max-w-4xl text-balance text-5xl font-semibold leading-[1.05] tracking-tight text-white sm:text-6xl">
-              Texas, mapped from public data.
+            <h1 className="max-w-4xl text-balance text-5xl font-semibold leading-[1.05] tracking-tight sm:text-6xl">
+              <span className="atlas-hero-gradient">Texas county evidence, mapped and made usable.</span>
             </h1>
             <p className="max-w-3xl text-pretty text-lg leading-8 text-slate-400">
-              Atlas pulls public records — federal, state, and city — into county-level maps you can read without a data team. Water + water quality first; more themes on the way.
+              Atlas TX turns fragmented public records into a map-first investigation system for counties, permits, water risk, operators, and field verification. Start on the map, drill into the evidence, and carry the workflow into Android missions.
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-3 text-sm">
@@ -74,7 +74,7 @@ export default async function Home() {
           </div>
         </div>
 
-        <aside className="rounded-2xl bg-gradient-to-b from-white/[0.06] to-white/[0.02] p-6 ring-1 ring-white/10 backdrop-blur">
+        <aside className="atlas-fade-rise atlas-fade-rise-delay-2 rounded-2xl bg-gradient-to-b from-white/[0.06] to-white/[0.02] p-6 ring-1 ring-white/10 backdrop-blur">
           <ul className="space-y-3.5 text-sm leading-7 text-slate-300">
             <li className="flex gap-3"><span aria-hidden="true" className="mt-2.5 size-1 shrink-0 rounded-full bg-cat-1" />County choropleth of flood, alert, and overflow signal — every cell sourced.</li>
             <li className="flex gap-3"><span aria-hidden="true" className="mt-2.5 size-1 shrink-0 rounded-full bg-cat-2" />Public-water governance overlay: who runs the system in each county.</li>
@@ -168,9 +168,9 @@ export default async function Home() {
       </section>
 
       <section className="grid gap-px overflow-hidden rounded-2xl bg-white/5 ring-1 ring-white/10 sm:grid-cols-3">
-        <StatTile value="254" label="Texas counties" />
-        <StatTile value={`${MAP_ENTRIES.length}`} label="Themed map views" />
-        <StatTile value={`${MVP_DATASETS.length}`} label="Open datasets" />
+        <StatTile value="254" animate={254} label="Texas counties" />
+        <StatTile value={`${MAP_ENTRIES.length}`} animate={MAP_ENTRIES.length} label="Themed map views" />
+        <StatTile value={`${MVP_DATASETS.length}`} animate={MVP_DATASETS.length} label="Open datasets" />
       </section>
 
       <section id="education-primer" className="space-y-6">
@@ -285,10 +285,12 @@ export default async function Home() {
   );
 }
 
-function StatTile({ value, label }: { value: string; label: string }) {
+function StatTile({ value, label, animate }: { value: string; label: string; animate?: number }) {
   return (
     <div className="bg-slate-950/40 p-6">
-      <div className="text-4xl font-semibold tabular-nums tracking-tight text-white">{value}</div>
+      <div className="text-4xl font-semibold tabular-nums tracking-tight text-white">
+        {animate !== undefined ? <Ticker value={animate} /> : value}
+      </div>
       <div className="mt-2 text-sm leading-6 text-slate-400">{label}</div>
     </div>
   );
@@ -308,7 +310,7 @@ function SecondaryCard({
   cta: string;
 }) {
   return (
-    <article className="rounded-2xl border border-white/10 bg-slate-900/40 p-5 ring-1 ring-white/5">
+    <article className="atlas-card-shimmer rounded-2xl border border-white/10 bg-slate-900/40 p-5 ring-1 ring-white/5">
       <div className="text-xs font-medium uppercase tracking-[0.18em] text-slate-500">{eyebrow}</div>
       <h3 className="mt-2 text-xl font-semibold text-white">{title}</h3>
       <p className="mt-2 text-sm leading-7 text-slate-400">{description}</p>
@@ -338,11 +340,14 @@ function EntryPathCard({
   cta: string;
 }) {
   return (
-    <article className="rounded-2xl border border-white/10 bg-slate-950/30 p-5 ring-1 ring-white/5">
+    <article className="atlas-card-shimmer rounded-2xl border border-white/10 bg-slate-950/30 p-5 ring-1 ring-white/5">
       <h2 className="text-2xl font-semibold text-white">{title}</h2>
       <p className="mt-3 text-sm leading-7 text-slate-400">{description}</p>
       <div className="mt-4 flex flex-wrap items-center gap-3 text-sm">
-        <div className="font-medium text-cyan-300">{metric}</div>
+        <div className="inline-flex items-center gap-2 font-medium text-cyan-300">
+          <PulseDot size={6} />
+          {metric}
+        </div>
         <Link href={statusHref} className="text-xs font-medium uppercase tracking-[0.16em] text-slate-400 transition-colors hover:text-cyan-300">
           {statusLabel}
         </Link>

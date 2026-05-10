@@ -12,6 +12,7 @@ export type TceqWaterPermitRawRow = {
   nearest_city?: string;
   latitude?: string | null;
   longitude?: string | null;
+  date_coverage_began?: string | null;
 };
 
 export type TceqWaterPermit = {
@@ -23,6 +24,16 @@ export type TceqWaterPermit = {
   nearestCity: string | null;
   latitude: number | null;
   longitude: number | null;
+  coverageBeganAt?: string | null;
+};
+
+export type ActivePermitTenureRow = {
+  permitNumber: string;
+  permitteeName: string;
+  authorizationType: string;
+  county: string | null;
+  countySlug: string | null;
+  coverageBeganAt: string;
 };
 
 export type TceqPermitStatusCount = {
@@ -44,6 +55,7 @@ export type PendingPermitsPageData = {
   summary: PendingPermitSummary;
   cidSummary: CidOpenCasesSummary;
   permits: TceqWaterPermit[];
+  activeTenure: ActivePermitTenureRow[];
 };
 
 export type PermitFilingDetailPageData = {
@@ -152,6 +164,12 @@ function normalizeNumber(value?: string | null): number | null {
   return Number.isFinite(parsed) ? parsed : null;
 }
 
+function normalizeDateString(value?: string | null): string | null {
+  if (!value?.trim()) return null;
+  const parsed = new Date(value);
+  return Number.isNaN(parsed.getTime()) ? null : parsed.toISOString();
+}
+
 export function normalizeTceqWaterPermits(rows: TceqWaterPermitRawRow[]): TceqWaterPermit[] {
   return rows
     .map((row) => ({
@@ -163,8 +181,36 @@ export function normalizeTceqWaterPermits(rows: TceqWaterPermitRawRow[]): TceqWa
       nearestCity: normalizeOptionalTitle(row.nearest_city),
       latitude: normalizeNumber(row.latitude),
       longitude: normalizeNumber(row.longitude),
+      coverageBeganAt: normalizeDateString(row.date_coverage_began),
     }))
     .filter((row) => row.permitNumber.length > 0);
+}
+
+/**
+ * Active-permit tenure rows for the Marey-style coverage chart on /permits.
+ * Filters to ACTIVE permits with a parseable `date_coverage_began`.
+ */
+export function buildActivePermitTenureRows(rows: TceqWaterPermitRawRow[]): ActivePermitTenureRow[] {
+  return rows
+    .map((row) => {
+      const coverageBeganAt = normalizeDateString(row.date_coverage_began);
+      const permitNumber = row.permit_number?.trim() ?? "";
+      const status = row.authorization_status?.trim() ?? "";
+      if (!coverageBeganAt || !permitNumber || status !== "ACTIVE") return null;
+      const county = row.facility_county?.trim() ? normalizeCountyName(row.facility_county) : null;
+      const startYear = new Date(coverageBeganAt).getFullYear();
+      // Drop the SQL "1800-01-01" placeholder rows TCEQ uses for legacy permits.
+      if (startYear < 1950) return null;
+      return {
+        permitNumber,
+        permitteeName: row.permittee_name?.trim() ?? "Unknown permittee",
+        authorizationType: row.authorization_type?.trim() ?? "Unknown",
+        county,
+        countySlug: county ? countySlug(county) : null,
+        coverageBeganAt,
+      } satisfies ActivePermitTenureRow;
+    })
+    .filter((row): row is ActivePermitTenureRow => row !== null);
 }
 
 export function filterPendingPermitsByCounty(permits: TceqWaterPermit[], county?: string | null): TceqWaterPermit[] {
@@ -498,6 +544,20 @@ export async function fetchTceqPendingPermits(signal?: AbortSignal): Promise<Tce
   return normalizeTceqWaterPermits(rows);
 }
 
+export async function fetchTceqActivePermitTenure(signal?: AbortSignal): Promise<ActivePermitTenureRow[]> {
+  const rows = await fetchDatasetRows<TceqWaterPermitRawRow>(
+    "7fq8-wig2",
+    {
+      where: "authorization_status='ACTIVE' AND date_coverage_began IS NOT NULL",
+      select: "permit_number, authorization_type, authorization_status, permittee_name, facility_county, date_coverage_began",
+      order: "date_coverage_began ASC",
+      limit: 5000,
+    },
+    signal,
+  );
+  return buildActivePermitTenureRows(rows);
+}
+
 export async function fetchTceqPermitStatusCounts(signal?: AbortSignal): Promise<TceqPermitStatusCount[]> {
   const rows = await fetchDatasetRows<{ authorization_status?: string; c?: string }>(
     "7fq8-wig2",
@@ -516,17 +576,22 @@ export async function fetchTceqPermitStatusCounts(signal?: AbortSignal): Promise
 }
 
 export async function getTceqPendingPermitsPageData(county?: string | null, signal?: AbortSignal): Promise<PendingPermitsPageData> {
-  const [permits, statusCounts, cidSummary] = await Promise.all([
+  const [permits, statusCounts, cidSummary, activeTenureSettled] = await Promise.all([
     fetchTceqPendingPermits(signal),
     fetchTceqPermitStatusCounts(signal),
     loadCidOpenCasesSummary(county),
+    fetchTceqActivePermitTenure(signal).catch(() => [] as ActivePermitTenureRow[]),
   ]);
   const filteredPermits = filterPendingPermitsByCounty(permits, county);
+  const activeTenure = county?.trim()
+    ? activeTenureSettled.filter((row) => row.county && sameCounty(row.county, county))
+    : activeTenureSettled;
   return {
     countyFilter: county?.trim() ? county.trim() : null,
     generatedAt: new Date().toISOString(),
     summary: summarizePendingPermits(filteredPermits, statusCounts),
     cidSummary,
     permits: filteredPermits,
+    activeTenure,
   };
 }

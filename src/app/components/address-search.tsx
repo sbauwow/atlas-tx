@@ -268,6 +268,83 @@ function AddressLookupResult({
           )}
         </ResultBlock>
 
+        <ResultBlock title="Water governance (MUDs, SUDs, utilities)">
+          {data.governance.totalCount === 0 ? (
+            <p className="text-slate-400">No districts or PUCT-registered utilities for this county.</p>
+          ) : (
+            <>
+              <p className="text-xs text-slate-400">
+                {data.governance.totalCount} entit{data.governance.totalCount === 1 ? "y" : "ies"} in county
+                {Object.entries(data.governance.byCode)
+                  .sort((a, b) => b[1] - a[1])
+                  .slice(0, 4)
+                  .map(([code, count]) => ` · ${count} ${code}`)
+                  .join("")}
+              </p>
+              <ul className="mt-2 space-y-1.5">
+                {data.governance.entities.map((entity) => (
+                  <li key={`${entity.sourceId}-${entity.entityId}`} className="text-slate-200">
+                    <span className="font-medium text-white">{entity.entityName}</span>
+                    <span className="ml-2 rounded-md border border-white/10 bg-white/5 px-1.5 py-0.5 text-[10px] uppercase tracking-[0.16em] text-slate-300">
+                      {entity.code}
+                    </span>
+                    <span className="block text-xs text-slate-400">
+                      {entity.typeLabel}
+                      {entity.city ? ` · ${entity.city}` : ""}
+                      {entity.activityStatus ? ` · ${entity.activityStatus}` : ""}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </>
+          )}
+        </ResultBlock>
+
+        <ResultBlock title="Storage tanks (water towers)">
+          {data.storage.totalCount === 0 ? (
+            <p className="text-slate-400">
+              No SDWIS storage facilities for the in-county PWSs surfaced above.
+            </p>
+          ) : (
+            <>
+              <p className="text-xs text-slate-400">
+                {data.storage.totalCount} active storage{" "}
+                {data.storage.totalCount === 1 ? "facility" : "facilities"} across{" "}
+                {data.storage.pwsCount} PWS{data.storage.pwsCount === 1 ? "" : "s"}
+              </p>
+              <ul className="mt-2 space-y-2">
+                {data.storage.groups.map((group) => (
+                  <li key={group.pwsid} className="text-slate-200">
+                    <div className="text-sm font-medium text-white">
+                      {group.pwsName ?? group.pwsid}
+                      <span className="ml-2 text-xs text-slate-400">
+                        {group.storageCount} tank{group.storageCount === 1 ? "" : "s"}
+                      </span>
+                    </div>
+                    <ul className="mt-1 space-y-0.5 pl-3 text-xs text-slate-400">
+                      {group.facilities.map((facility) => (
+                        <li key={facility.facilityId}>
+                          {facility.facilityName ?? facility.facilityId}
+                          {facility.stateFacilityId ? (
+                            <span className="ml-1 text-slate-500">
+                              · {facility.stateFacilityId}
+                            </span>
+                          ) : null}
+                        </li>
+                      ))}
+                      {group.storageCount > group.facilities.length ? (
+                        <li className="text-slate-500">
+                          + {group.storageCount - group.facilities.length} more
+                        </li>
+                      ) : null}
+                    </ul>
+                  </li>
+                ))}
+              </ul>
+            </>
+          )}
+        </ResultBlock>
+
         <ResultBlock title="County water summary">
           {summary ? (
             <ul className="space-y-1 text-slate-300">

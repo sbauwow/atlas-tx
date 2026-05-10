@@ -14,6 +14,7 @@ sources:
 registry_id: census-acs5-2023-county
 relationships:
   - {type: published_by, target: agencies/census-bureau.md}
+  - {type: implements, target: concepts/acs.md}
 stale: false
 ---
 

@@ -106,7 +106,38 @@ describe("lookupAddress", () => {
                 },
               ],
               permits: [],
-              governance: [],
+              governance: [
+                {
+                  sourceId: "tceq-water-districts",
+                  entityId: "DIST-1",
+                  entityName: "Travis County MUD No. 1",
+                  countyName: "Travis County",
+                  entityType: "Municipal Utility District",
+                  activityStatus: "Active",
+                  city: "Austin",
+                  raw: {},
+                },
+                {
+                  sourceId: "tceq-water-districts",
+                  entityId: "DIST-2",
+                  entityName: "Northwest Travis SUD",
+                  countyName: "Travis County",
+                  entityType: "Special Utility District",
+                  activityStatus: "Active",
+                  city: null,
+                  raw: {},
+                },
+                {
+                  sourceId: "puct-water-iou",
+                  entityId: "CCN-1234",
+                  entityName: "Aqua Texas",
+                  countyName: "Travis County",
+                  entityType: "Investor-Owned Utility",
+                  activityStatus: null,
+                  city: "Austin",
+                  raw: {},
+                },
+              ],
               surfaceWaterQuality: [
                 {
                   layerId: 7,
@@ -275,8 +306,106 @@ describe("lookupAddress", () => {
     expect(envelope.data.water.activeAlerts).toHaveLength(1);
     expect(envelope.data.water.nearbySewerOverflows).toHaveLength(1);
 
+    // Governance: classified into MUD/SUD/IOU buckets.
+    expect(envelope.data.governance.totalCount).toBe(3);
+    expect(envelope.data.governance.byCode.MUD).toBe(1);
+    expect(envelope.data.governance.byCode.SUD).toBe(1);
+    expect(envelope.data.governance.byCode.IOU).toBe(1);
+    const codes = envelope.data.governance.entities.map((e) => e.code);
+    expect(codes).toContain("MUD");
+    expect(codes).toContain("SUD");
+
     expect(envelope.sources).toContain("us-census-geocoder");
+    expect(envelope.sources).toContain("tceq-water-districts");
     expect(envelope.caveats.length).toBeGreaterThan(0);
+  });
+
+  it("groups SDWIS storage facilities under the in-county PWS list", async () => {
+    const envelope = await lookupAddress(
+      { address: "1100 Congress Ave, Austin, TX" },
+      {
+        geocoder: stubGeocoder(TRAVIS_GEOCODE),
+        loaders: {
+          waterBreakdown: async () => null,
+          countyBreakdown: async () => null,
+          sdwis: async () => [
+            {
+              pwsid: "TX2270001",
+              pwsName: "City of Austin",
+              county: "Travis County",
+              populationServed: 1000000,
+              violationId: null,
+              violationCode: null,
+              violationCategory: null,
+              isHealthBased: true,
+              contaminantCode: null,
+              complianceStatusCode: null,
+              complPerBeginDate: null,
+              complPerEndDate: "2025-09-30",
+              pwsTypeCode: null,
+              ruleCode: null,
+              ruleGroupCode: null,
+              publicNotificationTier: null,
+            },
+          ],
+          sdwisFacilities: async () => [
+            {
+              pwsid: "TX2270001",
+              facilityId: "1",
+              facilityName: "AUSTIN GST 0.5 MG",
+              stateFacilityId: "ST1",
+              facilityTypeCode: "ST",
+              isActive: true,
+            },
+            {
+              pwsid: "TX2270001",
+              facilityId: "2",
+              facilityName: "AUSTIN ELEVATED 1 MG",
+              stateFacilityId: "ST2",
+              facilityTypeCode: "ST",
+              isActive: true,
+            },
+            {
+              pwsid: "TX2270001",
+              facilityId: "3",
+              facilityName: "AUSTIN INACTIVE",
+              stateFacilityId: "ST3",
+              facilityTypeCode: "ST",
+              isActive: false,
+            },
+            {
+              pwsid: "TX2270001",
+              facilityId: "4",
+              facilityName: "AUSTIN WELL 1",
+              stateFacilityId: "WL1",
+              facilityTypeCode: "WL",
+              isActive: true,
+            },
+            {
+              pwsid: "TX0570001",
+              facilityId: "5",
+              facilityName: "DALLAS TANK (off-county)",
+              stateFacilityId: "ST99",
+              facilityTypeCode: "ST",
+              isActive: true,
+            },
+          ],
+          permits: async () => [],
+          acsPopulation: async () => ({}),
+        },
+      },
+    );
+
+    expect(envelope.ok).toBe(true);
+    if (!envelope.ok) return;
+
+    expect(envelope.data.storage.totalCount).toBe(2);
+    expect(envelope.data.storage.pwsCount).toBe(1);
+    expect(envelope.data.storage.groups[0].pwsid).toBe("TX2270001");
+    expect(
+      envelope.data.storage.groups[0].facilities.map((f) => f.facilityId),
+    ).toEqual(["2", "1"]);
+    expect(envelope.sources).toContain("epa-sdwis-water-system-facilities");
   });
 
   it("returns the geocoder error envelope when the address does not match", async () => {

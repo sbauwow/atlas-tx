@@ -16,6 +16,8 @@ registry_id: epa-sdwis-violations
 relationships:
   - {type: published_by, target: agencies/epa.md}
   - {type: derives_from, target: agencies/epa.md}
+  - {type: implements, target: concepts/sdwa.md}
+  - {type: implements, target: projects/refresh-cached-snapshot.md}
 stale: false
 ---
 

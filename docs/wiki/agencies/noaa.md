@@ -11,7 +11,9 @@ decay_profile: slow
 tags: [agency, federal, weather, climate, water]
 sources:
   - docs/research/texas-gis-inventory.md
-relationships: []
+relationships:
+  - {type: references, target: datasets/noaa-storm-events.md}
+  - {type: references, target: datasets/usdm-drought-monitor.md}
 stale: false
 ---
 

@@ -13,6 +13,9 @@ sources:
   - docs/research/texas-gis-inventory.md
 relationships:
   - {type: references, target: agencies/noaa.md}
+  - {type: references, target: concepts/nri.md}
+  - {type: references, target: concepts/sfha.md}
+  - {type: references, target: concepts/firm.md}
 stale: false
 ---
 

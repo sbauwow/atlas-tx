@@ -1,6 +1,10 @@
 import { TEXAS_COUNTY_CENTROIDS } from "@/lib/texas-county-centroids";
 import type { PendingPermitCountyMapRow } from "@/lib/tceq-permits";
 
+import {
+  ChoroplethTooltipLayer,
+  type ChoroplethTooltipContent,
+} from "./choropleth-tooltip-layer";
 import { CountyChoroplethSvg, type CountyMetricMode } from "./county-map-primitives";
 
 const texasCountyFipsBySlug = Object.fromEntries(
@@ -41,28 +45,55 @@ export function TexasCountyChoropleth({ rows }: { rows: PendingPermitCountyMapRo
     })
     .filter((row): row is NonNullable<typeof row> => Boolean(row));
 
+  const proceduralSlugs = new Set(rows.filter((row) => row.hasProceduralPressure).map((row) => row.slug));
+  const tooltips: Array<[string, ChoroplethTooltipContent]> = rows.map((row) => [
+    row.slug,
+    {
+      title: row.county,
+      subtitle: "TCEQ permit pressure",
+      rows: [
+        {
+          label: "Pending permits",
+          value: row.permitCount.toLocaleString(),
+          tone: row.permitCount >= 3 ? "warn" : "default",
+        },
+        {
+          label: "CID cases",
+          value: row.cidCaseCount.toLocaleString(),
+          tone: row.cidCaseCount > 0 ? "warn" : "muted",
+        },
+        ...(proceduralSlugs.has(row.slug)
+          ? [{ value: "Procedural pressure flagged", tone: "accent" as const }]
+          : []),
+      ],
+      footer: "Click to open county-filtered permits.",
+    },
+  ]);
+
   return (
-    <CountyChoroplethSvg
-      counties={counties}
-      metricMode={permitMetricMode}
-      overlays={[
-        {
-          id: "procedural-pressure",
-          label: "Procedural pressure",
-          countySlugs: rows.filter((row) => row.hasProceduralPressure).map((row) => row.slug),
-          tone: "outline",
-          color: "#f8fafc",
-        },
-        {
-          id: "cid-cases",
-          label: "CID cases present",
-          countySlugs: rows.filter((row) => row.cidCaseCount > 0).map((row) => row.slug),
-          tone: "hatch",
-          color: "rgba(248,250,252,0.85)",
-        },
-      ]}
-      ariaLabel="Texas county permit pressure map"
-      idPrefix="permit-map"
-    />
+    <ChoroplethTooltipLayer tooltips={tooltips}>
+      <CountyChoroplethSvg
+        counties={counties}
+        metricMode={permitMetricMode}
+        overlays={[
+          {
+            id: "procedural-pressure",
+            label: "Procedural pressure",
+            countySlugs: rows.filter((row) => row.hasProceduralPressure).map((row) => row.slug),
+            tone: "outline",
+            color: "#f8fafc",
+          },
+          {
+            id: "cid-cases",
+            label: "CID cases present",
+            countySlugs: rows.filter((row) => row.cidCaseCount > 0).map((row) => row.slug),
+            tone: "hatch",
+            color: "rgba(248,250,252,0.85)",
+          },
+        ]}
+        ariaLabel="Texas county permit pressure map"
+        idPrefix="permit-map"
+      />
+    </ChoroplethTooltipLayer>
   );
 }

@@ -10,6 +10,10 @@ import { getDefaultAtlasWaterSummaryService } from "@/lib/water/water-summary-se
 import { getDefaultAtlasCountyExplorerService } from "@/lib/atlas-county-explorer";
 import { fetchTceqPendingPermits, type TceqWaterPermit } from "@/lib/tceq-permits";
 import { loadSdwis, type SdwisRow } from "@/lib/datasets/sdwis";
+import {
+  loadSdwisFacilities,
+  type SdwisFacility,
+} from "@/lib/datasets/sdwis-facilities";
 import { loadAcsCountyPopulationFromSnapshot } from "@/lib/datasets/acs";
 import type { CountyBreakdown } from "@/lib/atlas-county-explorer";
 import type { WaterBreakdown } from "@/lib/water/water-summary-service";
@@ -17,14 +21,22 @@ import type {
   CountyWaterSummary,
   StreamGauge,
   WaterAlert,
+  WaterGovernanceEntity,
   SewerOverflowEvent,
   SurfaceWaterQualitySegment,
 } from "@/lib/water/types";
+import {
+  classifyDistrictType,
+  type DistrictTypeCode,
+} from "@/lib/water/district-type";
 
 const PROXIMITY_PERMIT_LIMIT = 5;
 const PROXIMITY_GAUGE_LIMIT = 3;
 const PROXIMITY_PWS_LIMIT = 5;
 const PROXIMITY_OVERFLOW_LIMIT = 5;
+const GOVERNANCE_LIMIT = 8;
+const STORAGE_PWS_LIMIT = 5;
+const STORAGE_FACILITIES_PER_PWS = 6;
 
 export type AddressLookupRequest = {
   address: string;
@@ -58,6 +70,44 @@ export type AddressLookupPws = {
   latestViolationEnd: string | null;
 };
 
+export type AddressLookupGovernanceEntity = {
+  entityId: string;
+  entityName: string;
+  rawType: string | null;
+  code: DistrictTypeCode;
+  typeLabel: string;
+  typeDescription: string;
+  city: string | null;
+  activityStatus: string | null;
+  sourceId: WaterGovernanceEntity["sourceId"];
+};
+
+export type AddressLookupGovernance = {
+  totalCount: number;
+  byCode: Record<string, number>;
+  entities: AddressLookupGovernanceEntity[];
+};
+
+export type AddressLookupStorageFacility = {
+  facilityId: string;
+  facilityName: string | null;
+  stateFacilityId: string | null;
+};
+
+export type AddressLookupStoragePwsGroup = {
+  pwsid: string;
+  pwsName: string | null;
+  populationServed: number | null;
+  storageCount: number;
+  facilities: AddressLookupStorageFacility[];
+};
+
+export type AddressLookupStorage = {
+  totalCount: number;
+  pwsCount: number;
+  groups: AddressLookupStoragePwsGroup[];
+};
+
 export type AddressLookupData = {
   query: string;
   matchedAddress: string;
@@ -78,6 +128,8 @@ export type AddressLookupData = {
     nearest: AddressLookupNearbyPermit[];
   };
   pws: AddressLookupPws[];
+  governance: AddressLookupGovernance;
+  storage: AddressLookupStorage;
   countyProfile: CountyBreakdown | null;
 };
 
@@ -97,8 +149,12 @@ export type AddressLookupEnvelope =
 const STATIC_SOURCES = [
   "us-census-geocoder",
   "epa-sdwis-violations",
+  "epa-sdwis-water-system-facilities",
   "acs-county-population-tx",
   "tceq-water-quality-individual-permits",
+  "tceq-water-districts",
+  "puct-water-iou",
+  "puct-water-submeter",
   "atlas-county-explorer",
   "atlas-water-summary",
 ];
@@ -107,6 +163,8 @@ const STATIC_CAVEATS = [
   "EJ outputs are exposure / burden indicators, not harm.",
   "Census geocoder is live; matched address depends on Census Bureau benchmark vintage.",
   "SDWIS rows are filtered to TX health-based violations from the committed snapshot.",
+  "SDWIS storage facilities have no lat/lon; they are joined by pwsid to PWSs in the resolved county.",
+  "facility_name strings often embed capacity hints (e.g. '0.2 MG GST'); treat as descriptive, not authoritative volume.",
   "Distance ranking uses the geocoded point and permit/gauge centroid; small offsets may flip neighboring entries.",
 ];
 
@@ -247,6 +305,88 @@ function rankPwsForCounty(rows: SdwisRow[], countyName: string): AddressLookupPw
     .slice(0, PROXIMITY_PWS_LIMIT);
 }
 
+function summarizeGovernance(
+  records: WaterGovernanceEntity[],
+): AddressLookupGovernance {
+  const enriched: AddressLookupGovernanceEntity[] = records.map((record) => {
+    const info = classifyDistrictType(record.entityType);
+    return {
+      entityId: record.entityId,
+      entityName: record.entityName,
+      rawType: record.entityType ?? null,
+      code: info.code,
+      typeLabel: info.label,
+      typeDescription: info.description,
+      city: record.city ?? null,
+      activityStatus: record.activityStatus ?? null,
+      sourceId: record.sourceId,
+    };
+  });
+  const byCode: Record<string, number> = {};
+  for (const entity of enriched) {
+    byCode[entity.code] = (byCode[entity.code] ?? 0) + 1;
+  }
+  const ranked = enriched
+    .slice()
+    .sort((a, b) => {
+      const aActive = a.activityStatus?.toLowerCase().startsWith("active") ? 0 : 1;
+      const bActive = b.activityStatus?.toLowerCase().startsWith("active") ? 0 : 1;
+      if (aActive !== bActive) return aActive - bActive;
+      return a.entityName.localeCompare(b.entityName);
+    })
+    .slice(0, GOVERNANCE_LIMIT);
+  return {
+    totalCount: enriched.length,
+    byCode,
+    entities: ranked,
+  };
+}
+
+function summarizeStorageForPws(
+  facilities: SdwisFacility[],
+  pws: AddressLookupPws[],
+): AddressLookupStorage {
+  if (pws.length === 0 || facilities.length === 0) {
+    return { totalCount: 0, pwsCount: 0, groups: [] };
+  }
+  const pwsIndex = new Map(pws.map((entry) => [entry.pwsid, entry]));
+  const grouped = new Map<string, SdwisFacility[]>();
+  for (const facility of facilities) {
+    if (facility.facilityTypeCode !== "ST") continue;
+    if (!facility.isActive) continue;
+    if (!pwsIndex.has(facility.pwsid)) continue;
+    const list = grouped.get(facility.pwsid) ?? [];
+    list.push(facility);
+    grouped.set(facility.pwsid, list);
+  }
+  const groups: AddressLookupStoragePwsGroup[] = [];
+  for (const entry of pws) {
+    const list = grouped.get(entry.pwsid);
+    if (!list || list.length === 0) continue;
+    const sorted = [...list].sort((a, b) =>
+      (a.facilityName ?? a.facilityId).localeCompare(b.facilityName ?? b.facilityId),
+    );
+    groups.push({
+      pwsid: entry.pwsid,
+      pwsName: entry.pwsName,
+      populationServed: entry.populationServed,
+      storageCount: sorted.length,
+      facilities: sorted.slice(0, STORAGE_FACILITIES_PER_PWS).map((facility) => ({
+        facilityId: facility.facilityId,
+        facilityName: facility.facilityName,
+        stateFacilityId: facility.stateFacilityId,
+      })),
+    });
+    if (groups.length >= STORAGE_PWS_LIMIT) break;
+  }
+  const totalCount = groups.reduce((sum, group) => sum + group.storageCount, 0);
+  return {
+    totalCount,
+    pwsCount: groups.length,
+    groups,
+  };
+}
+
 function recentSewerOverflows(
   overflows: SewerOverflowEvent[],
   countyName: string,
@@ -277,6 +417,7 @@ export type AddressLookupOptions = {
     waterBreakdown: (countySlug: string) => Promise<WaterBreakdown | null>;
     countyBreakdown: (countySlug: string) => Promise<CountyBreakdown | null>;
     sdwis: () => Promise<SdwisRow[]>;
+    sdwisFacilities: () => Promise<SdwisFacility[]>;
     permits: () => Promise<TceqWaterPermit[]>;
     acsPopulation: () => Promise<Record<string, number>>;
   }>;
@@ -306,27 +447,37 @@ export async function lookupAddress(
     loaders.countyBreakdown ??
     (async (slug: string) => countyService.getCountyBreakdown(slug));
   const sdwisLoader = loaders.sdwis ?? (() => loadSdwis());
+  const sdwisFacilitiesLoader = loaders.sdwisFacilities ?? (() => loadSdwisFacilities());
   const permitsLoader = loaders.permits ?? (() => fetchTceqPendingPermits());
   const acsLoader = loaders.acsPopulation ?? (() => loadAcsCountyPopulationFromSnapshot());
 
-  const [waterBreakdown, countyBreakdown, sdwisRows, permits, acsPopulation] =
-    await Promise.all([
-      county ? safeRun(() => waterBreakdownLoader(county.slug), null) : Promise.resolve(null),
-      county ? safeRun(() => countyBreakdownLoader(county.slug), null) : Promise.resolve(null),
-      safeRun(sdwisLoader, [] as SdwisRow[]),
-      safeRun(permitsLoader, [] as TceqWaterPermit[]),
-      safeRun(acsLoader, {} as Record<string, number>),
-    ]);
+  const [
+    waterBreakdown,
+    countyBreakdown,
+    sdwisRows,
+    sdwisFacilities,
+    permits,
+    acsPopulation,
+  ] = await Promise.all([
+    county ? safeRun(() => waterBreakdownLoader(county.slug), null) : Promise.resolve(null),
+    county ? safeRun(() => countyBreakdownLoader(county.slug), null) : Promise.resolve(null),
+    safeRun(sdwisLoader, [] as SdwisRow[]),
+    safeRun(sdwisFacilitiesLoader, [] as SdwisFacility[]),
+    safeRun(permitsLoader, [] as TceqWaterPermit[]),
+    safeRun(acsLoader, {} as Record<string, number>),
+  ]);
 
   const summary = waterBreakdown?.county ?? null;
   const activeAlerts = waterBreakdown?.layers.alerts ?? [];
   const allGauges = waterBreakdown?.layers.gauges ?? [];
   const allOverflows = waterBreakdown?.layers.sewerOverflows ?? [];
   const segments = waterBreakdown?.layers.surfaceWaterQuality ?? [];
+  const governanceRecords = waterBreakdown?.layers.governance ?? [];
 
   const permitsRanked = county
     ? rankNearbyPermits(permits, county.name, point)
     : { pendingInCounty: 0, nearest: [] };
+  const pwsRanked = county ? rankPwsForCounty(sdwisRows, county.name) : [];
 
   const data: AddressLookupData = {
     query: request.address,
@@ -350,7 +501,9 @@ export async function lookupAddress(
       surfaceWaterSegments: segments,
     },
     permits: permitsRanked,
-    pws: county ? rankPwsForCounty(sdwisRows, county.name) : [],
+    pws: pwsRanked,
+    governance: summarizeGovernance(governanceRecords),
+    storage: summarizeStorageForPws(sdwisFacilities, pwsRanked),
     countyProfile: countyBreakdown,
   };
 

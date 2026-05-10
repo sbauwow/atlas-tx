@@ -1,10 +1,13 @@
 import Link from "next/link";
-import GlossaryTooltip, { GlossaryInlineList } from "@/app/components/glossary-tooltip";
+import PulseDot from "@/app/components/pulse-dot";
+import TopographicBackground from "@/app/components/topographic-background";
+import { GlossaryInlineList } from "@/app/components/glossary-tooltip";
 import { countySlug } from "@/lib/counties";
 import { parseEnumQueryParam, resolveAllowedQueryParam } from "@/lib/query-params";
 import { TEXAS_COUNTY_CENTROIDS } from "@/lib/texas-county-centroids";
 import { getDefaultAtlasWaterSummaryService } from "@/lib/water/water-summary-service";
 import TexasChoropleth, { type ChoroplethCounty, type ChoroplethGauge } from "@/app/water/components/texas-choropleth";
+import { MismatchStrip, TileCartogram, type TileCartogramCounty } from "@/app/components/data-viz";
 import {
   freshnessFromCacheMeta,
   FRESHNESS_TEXT_CLASS,
@@ -109,6 +112,18 @@ export default async function WaterPage({
     breakdown = await service.getCountyWaterBreakdown(selectedSlug);
   }
 
+  const sourceFreshness = Object.values(overview.freshness?.sources ?? {});
+  const anySourceStale = sourceFreshness.some((source) => freshnessFromCacheMeta(source) === "stale");
+  const anySourceMissing = sourceFreshness.length === 0 || sourceFreshness.every((source) => freshnessFromCacheMeta(source) === "missing");
+  const freshnessFor = (county: typeof overview.counties[number]) => {
+    const hasAnySignal =
+      (county.metrics.floodplainFeatureCount ?? 0) > 0 ||
+      (county.metrics.activeWaterAlertCount ?? 0) > 0 ||
+      (county.metrics.streamGaugeCount ?? 0) > 0 ||
+      (county.metrics.sewerOverflowCount30d ?? 0) > 0;
+    return !hasAnySignal && anySourceMissing ? "missing" : anySourceStale ? "stale" : "fresh";
+  };
+
   const choroplethCounties: ChoroplethCounty[] = overview.counties.map((county) => {
     const riskScore = countyRiskScore(county);
     const mismatchScore = county.mismatch?.score ?? 0;
@@ -128,6 +143,7 @@ export default async function WaterPage({
         petroleumBulkStationPermitCount: county.metrics.petroleumBulkStationPermitCount,
         otherGeneralPermitCount: county.metrics.otherGeneralPermitCount,
       },
+      freshness: freshnessFor(county),
     };
   });
 
@@ -145,6 +161,7 @@ export default async function WaterPage({
         petroleumBulkStationPermitCount: county.metrics.petroleumBulkStationPermitCount,
         otherGeneralPermitCount: county.metrics.otherGeneralPermitCount,
       },
+      freshness: freshnessFor(county),
     };
   });
 
@@ -170,7 +187,43 @@ export default async function WaterPage({
     )
     .slice(0, 5);
 
+  // Two-bar mismatch rows: "compliance side" vs "world side"
+  const mismatchRows = overview.counties
+    .map((county) => {
+      const compliance =
+        (county.metrics.impairedSurfaceWaterSegmentCount ?? 0) +
+        (county.metrics.sewerOverflowCount30d ?? 0);
+      const world =
+        (county.metrics.activeWaterAlertCount ?? 0) +
+        (county.metrics.floodplainFeatureCount ?? 0);
+      const divergence = Math.abs(compliance - world);
+      return { county, compliance, world, divergence };
+    })
+    .filter((row) => row.compliance > 0 || row.world > 0)
+    .sort((a, b) => b.divergence - a.divergence)
+    .slice(0, 12);
+  const mismatchScaleMax = mismatchRows.reduce(
+    (acc, row) => Math.max(acc, row.compliance, row.world),
+    1,
+  );
+
+  // Tile cartogram: full state in small multiples, severity = current map mode
+  const cartogramCounties: TileCartogramCounty[] = overview.counties.map((county) => {
+    const riskScore = countyRiskScore(county);
+    const severity = countySeverity(riskScore, county.mismatch?.score, mapMode);
+    const flag = mapMode === "mismatch" ? (county.mismatch?.score ?? 0) >= 40 : (county.metrics.activeWaterAlertCount ?? 0) > 0;
+    return {
+      slug: county.county.slug,
+      name: county.county.name,
+      severity,
+      flag,
+      title: `${county.county.name}: risk ${riskScore}, mismatch ${county.mismatch?.score ?? 0}, alerts ${county.metrics.activeWaterAlertCount ?? 0}`,
+      href: `/water?county=${county.county.slug}&mode=${mapMode}#water-map`,
+    };
+  });
+
   const countiesWithFloodplain = overview.counties.filter((county) => (county.metrics.floodplainFeatureCount ?? 0) > 0).length;
+  const activeAlertCount = overview.counties.reduce((sum, county) => sum + (county.metrics.activeWaterAlertCount ?? 0), 0);
   const countiesWithOilAndGasExtraction = overview.counties.filter((county) => (county.metrics.oilAndGasExtractionPermitCount ?? 0) > 0).length;
   const statewideOilAndGasPermits = overview.counties.reduce((sum, county) => sum + (county.metrics.oilAndGasExtractionPermitCount ?? 0), 0);
   const selectedMismatchLevel = severityFromMismatch(breakdown?.county.mismatch?.score);
@@ -202,14 +255,15 @@ export default async function WaterPage({
 
   return (
     <main className="relative mx-auto flex w-full max-w-7xl flex-1 flex-col gap-12 px-6 py-12">
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[420px] bg-[radial-gradient(ellipse_60%_45%_at_50%_0%,rgba(34,211,238,0.08),transparent_70%)]"
-      />
+      <TopographicBackground />
 
-      <section className="space-y-6">
-        <h1 className="max-w-4xl text-balance text-4xl font-semibold leading-[1.1] tracking-tight text-white sm:text-5xl">
-          Texas water, by county.
+      <section className="space-y-6 atlas-fade-rise">
+        <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-medium uppercase tracking-[0.18em] text-slate-300 backdrop-blur">
+          <PulseDot size={6} />
+          Live water lane · {activeAlertCount} active alerts
+        </span>
+        <h1 className="max-w-4xl text-balance text-4xl font-semibold leading-[1.1] tracking-tight sm:text-5xl">
+          <span className="atlas-hero-gradient">Texas water, by county.</span>
         </h1>
         <p className="max-w-3xl text-pretty text-base leading-7 text-slate-400 sm:text-lg sm:leading-8">
           Floodplain footprint, alerts, gauges, sewer overflows, permits, and who runs the public water system — joined at the county level from federal and Texas open data.
@@ -217,6 +271,7 @@ export default async function WaterPage({
         <div className="flex flex-wrap gap-2 text-xs">
           <RoutePill href="/permits" label="Pending permits" />
           <RoutePill href="/water/network" label="County dependency map" />
+          <RoutePill href="/water/mechanism" label="Evidence chain" />
         </div>
         <details className="group rounded-xl border border-white/5 bg-white/[0.02] open:bg-white/[0.03]">
           <summary className="flex cursor-pointer list-none items-center gap-2 px-4 py-2.5 text-xs font-medium uppercase tracking-[0.14em] text-slate-500 transition-colors hover:text-slate-300">
@@ -312,6 +367,54 @@ export default async function WaterPage({
 
           <div className="mt-5">
             <TexasChoropleth counties={choroplethCounties} gauges={choroplethGauges} selectedSlug={selectedSlug ?? null} />
+          </div>
+
+          <div className="mt-5 rounded-xl bg-white/[0.02] p-4 ring-1 ring-white/5">
+            <div className="flex items-baseline justify-between gap-2">
+              <div className="text-xs font-medium uppercase tracking-[0.14em] text-slate-500">Tile cartogram · all 254 counties</div>
+              <div className="text-[11px] text-slate-500">Equal-area tiles, geographic layout. Outliers don&rsquo;t hide behind small counties.</div>
+            </div>
+            <div className="mt-3">
+              <TileCartogram counties={cartogramCounties} selectedSlug={selectedSlug ?? null} />
+            </div>
+          </div>
+
+          <div className="mt-5 rounded-xl bg-white/[0.02] p-4 ring-1 ring-white/5">
+            <div className="flex flex-wrap items-baseline justify-between gap-2">
+              <div className="text-xs font-medium uppercase tracking-[0.14em] text-slate-500">Mismatch strips · compliance vs world</div>
+              <div className="text-[11px] text-slate-500">
+                Left bar: impairments + sewer overflows. Right bar: alerts + floodplain footprint. Imbalance = follow-up lead.
+              </div>
+            </div>
+            {mismatchRows.length ? (
+              <div className="mt-3 grid gap-1.5">
+                <div className="grid grid-cols-[140px_180px_1fr] items-center gap-3 px-1 text-[10px] font-medium uppercase tracking-[0.12em] text-slate-600">
+                  <span>County</span>
+                  <span className="flex items-center justify-between"><span>Compliance ◀</span><span>▶ World</span></span>
+                  <span>Flags</span>
+                </div>
+                {mismatchRows.map(({ county, compliance, world }) => (
+                  <Link
+                    key={county.county.slug}
+                    href={`/water?county=${county.county.slug}&mode=${mapMode}#water-map`}
+                    className="grid grid-cols-[140px_180px_1fr] items-center gap-3 rounded-md px-1.5 py-1.5 text-xs text-slate-300 transition-colors hover:bg-white/5"
+                  >
+                    <span className="truncate text-slate-200">{county.county.name}</span>
+                    <MismatchStrip
+                      complianceValue={compliance}
+                      worldValue={world}
+                      scaleMax={mismatchScaleMax}
+                      ariaLabel={`${county.county.name}: compliance ${compliance}, world ${world}`}
+                    />
+                    <span className="truncate text-[11px] text-slate-400">
+                      {county.mismatch?.flags?.[0] ?? `compliance ${compliance} · world ${world}`}
+                    </span>
+                  </Link>
+                ))}
+              </div>
+            ) : (
+              <p className="mt-3 text-xs text-slate-500">No counties with paired compliance/world signals yet.</p>
+            )}
           </div>
 
           <div className="mt-4 grid gap-px overflow-hidden rounded-xl bg-white/5 ring-1 ring-white/10 sm:grid-cols-3">

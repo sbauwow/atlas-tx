@@ -13,6 +13,9 @@ _Repeatable atlas-tx workflows._
 | Page | Topic |
 |---|---|
 | [Refresh a cached snapshot](projects/refresh-cached-snapshot.md) | The atlas-tx pattern for refreshing external-source snapshots — Socrata / federal / ColdFusion / shared-loader variants |
+| [Author an SVG viz primitive](projects/author-an-svg-viz-primitive.md) | The atlas-tx pattern for new charts in `src/app/components/data-viz/` — pure SVG, no deps, server-rendered, token colors, motion gated |
+
+_Lint pattern lives in `scripts/lint-wiki.ts` — rebuilds `graph.md` + `lint-report.md` and computes idempotent decay. Run with `npx tsx scripts/lint-wiki.ts`._
 
 ---
 
@@ -86,6 +89,16 @@ _(none yet — geometry-first pages will land when NFHL or NHD are cached as fea
 | [Socrata + SoQL](concepts/socrata-soql.md) | Querying data.texas.gov — URL shape, params, pagination, tokens |
 | [EJ Index](concepts/ej-index.md) | EJScreen index methodology, percentile semantics |
 | [Burden vs Harm](concepts/burden-vs-harm.md) | Atlas TX product stance — indicator-grade, never harm claims |
+| [Marey chart](concepts/marey-chart.md) | Train-schedule diagram — durations as diagonals in lane × time |
+| [Sankey flow](concepts/sankey-flow.md) | Ribbon-width-by-magnitude flow diagram across columns |
+| [Clean Water Act (CWA)](concepts/cwa.md) | Federal surface-water-quality framework; cornerstone for NPDES/TPDES |
+| [Safe Drinking Water Act (SDWA)](concepts/sdwa.md) | Federal drinking-water regulatory framework; cornerstone for SDWIS / DWRS |
+| [NPDES](concepts/npdes.md) | Federal pollutant discharge permit program (CWA § 402) |
+| [TPDES](concepts/tpdes.md) | TX primacy implementation of NPDES — what `7fq8-wig2` actually is |
+| [TCEQ Central Index (CID)](concepts/cid.md) | TCEQ's case + filings public-record system; backs APD |
+| [SOAH](concepts/soah.md) | TX State Office of Administrative Hearings — referral signal in CID |
+| [TRI](concepts/tri.md) | EPA Toxics Release Inventory — self-reported chemical releases |
+| [American Community Survey (ACS)](concepts/acs.md) | Census continuous demographic survey — ACS5 vs ACS1, methodology |
 
 ### Comparisons
 
@@ -111,6 +124,7 @@ _(none yet — geometry-first pages will land when NFHL or NHD are cached as fea
 | [2026-05-09 — Water/env/weather expansion](episodes/2026-05-09-water-env-weather.md) | Add drinking-water-quality, environmental-factors, and weather-impact pages |
 | [2026-05-09 — Close registry drift](episodes/2026-05-09-close-registry-drift.md) | Add 8 dataset pages for already-registered IDs + 4 foundational concept pages |
 | [2026-05-09 — Concepts + first procedural](episodes/2026-05-09-concepts-and-procedural.md) | 7 concepts (SFHA, FIRM, NHD, PFAS, FRS-ID, LSLI, NRI), 2 watershed-unit comparisons, USGS NWIS dataset, first procedural page |
+| [2026-05-10 — Tufte primitives, Marey unblock, eye-candy](episodes/2026-05-10-tufte-marey-eyecandy.md) | 6 SVG primitives generalize to a tier-4 page; live-confirmed `7fq8-wig2` schema asymmetry; new Marey + Sankey concept pages |
 
 ---
 

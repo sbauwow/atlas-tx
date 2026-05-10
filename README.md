@@ -1,8 +1,124 @@
 # Atlas TX
 
-Atlas TX is an open-source Texas county intelligence platform for public-interest data work.
+Atlas TX is a map-first intelligence system for Texas public-interest evidence.
 
-It combines permit, water, hydrology, governance, environmental, and county-level context into map-first analytical workflows, APIs, cached research artifacts, and a local MCP server. The product is designed for investigators, civic-tech analysts, policy operators, and agentic workflows that need grounded Texas county evidence rather than generic dashboards.
+It is built to help people find, verify, and act on county-level signals across permits, water, hydrology, operators, governance, environmental burden, and field observations.
+
+This is not another passive dashboard.
+
+Atlas TX is designed as an operating system for county evidence:
+- statewide county intelligence maps
+- public-record ingestion and normalization
+- API and MCP access to the same underlying evidence
+- watchlist and queue workflows for investigators and operators
+- Android-based field verification and water-testing missions
+
+The product thesis is simple: Texas has too much fragmented public data, too much local variation, and too many decisions hidden inside county-by-county process. Atlas TX turns that fragmentation into a usable, governed evidence layer for humans, communities, and AI-native workflows.
+
+## Why Texas
+
+Texas is the right proving ground because it combines:
+- county-scale variation that actually matters
+- intense water, land-use, permitting, and infrastructure pressure
+- large public-data surface area spread across agencies and authorities
+- real need for field verification, not just desktop analysis
+
+Atlas is also shaped by an AI TX community framing.
+
+That means the system is not built as a closed expert terminal for a tiny class of insiders. It is built in the spirit of a Texas AI community that wants better public tools, stronger evidence workflows, and more local capacity to investigate what is happening on the ground.
+
+## Why Atlas TX is compelling
+
+Atlas TX closes a gap that most public-data products leave open.
+
+They show records. Atlas is built to help users investigate them.
+
+It combines three layers that usually live in separate products:
+- county intelligence from public records
+- field-ready water and infrastructure verification workflows
+- agent-native analytical tooling for repeatable investigation
+
+That creates something bigger than a website:
+- a county intelligence workspace for researchers, journalists, and local operators
+- a structured permit and water watch system
+- an Android field-missions product for evidence capture and review
+- a patent-pending system that links public-record intelligence, map workflows, and structured field verification
+
+## Why this wins over ordinary dashboards
+
+Most dashboards stop at display.
+
+Atlas TX is designed to go further:
+- start from county maps, not buried filters
+- connect records, operators, water signals, and field evidence in one workflow
+- expose the same evidence through UI, API, and MCP
+- support repeat investigation, not one-off browsing
+- preserve separation between authoritative records, modeled signals, and community submissions
+
+The result should feel less like a static civic site and more like an evidence workstation for Texas.
+
+## Example workflow
+
+1. Start on the county map.
+   Spot a county with unusual permit pressure, water alerts, or mismatch signals.
+2. Launch a field mission.
+   Use the Android workflow to capture strip results, photos, notes, and site context in a constrained evidence flow.
+3. Review the evidence together.
+   Compare public records, modeled signals, and community submissions without collapsing them into one opaque score.
+
+## Hackathon judging criteria coverage
+
+This submission is designed to score clearly against the four published judging criteria.
+
+### 1. Technical Execution & Completeness
+Atlas is not a mockup.
+
+This repo already includes:
+- a working Next.js application with multiple production-style route surfaces
+- statewide county intelligence pages across analytics, water, permits, operators, watchlists, and maps
+- JSON API routes powering the same evidence model
+- a local MCP server for agent/tool access to the same system
+- structured telemetry, shared query-state parsing, refresh pipelines, and committed cache artifacts
+- an Android/mobile field-verification lane and citizen observation workflow
+- test, lint, and build validation paths
+
+In other words: this is a real, multi-surface system, not a thin demo shell.
+
+### 2. Partner Ecosystem & Utility
+Atlas fits the AITX Community × Codex environment directly.
+
+It is built around:
+- agent-native development and iteration during the Codex hackathon
+- MCP-compatible system access through `packages/mcp-server/`
+- Texas open-data utility, matching the event's Texas public-data track
+- a workflow that makes public records usable by both humans and AI agents
+
+This is the area we most wanted to make explicit in the README: Atlas is not only a civic data app, it is a practical Codex-era agent workspace with an MCP surface and a clear public-data use case.
+
+### 3. Value & Impact
+Atlas targets a real problem with real users.
+
+The value is not hypothetical:
+- investigators can find county hotspots faster
+- journalists can move from map to source evidence faster
+- communities can compare official records against field observations
+- operators can track permits, water signals, and county-level pressure in one place
+- future field teams can carry the workflow into Android missions and water-testing review
+
+The core impact claim is simple: Atlas makes fragmented Texas public data materially more usable.
+
+### 4. Innovation & Execution
+Atlas pushes beyond a normal dashboard by combining:
+- county intelligence maps
+- public-record evidence normalization
+- agent/MCP access to the same evidence base
+- Android mission workflows
+- structured water-testing and field verification
+- explicit separation of authoritative, explanatory, and community evidence classes
+
+That combination is the main innovation.
+
+The system is trying to bridge desktop analysis, agent workflows, and real-world field verification in a single evidence architecture.
 
 ## What Atlas TX is
 
@@ -119,6 +235,37 @@ Atlas treats these as evidence layers, not final causal verdicts.
 
 ## Architecture
 
+### Compact architecture diagram
+
+```text
+                        public/open datasets
+   TCEQ / TWDB / EPA / FEMA / USGS / NOAA / regional authorities
+                                  |
+                                  v
+                 src/lib/* fetchers + normalizers + scoring services
+                                  |
+                                  v
+      public/cache/* <---- scripts/refresh:* ----> pipeline-health.json
+                                  |
+                    +-------------+-------------+
+                    |                           |
+                    v                           v
+           Next.js route pages            JSON API routes
+   /analytics /water /permits /counties   /api/water/* /api/counties/*
+                    |                           |
+                    +-------------+-------------+
+                                  |
+                                  v
+                     map-first county intelligence UX
+                                  |
+                    +-------------+-------------+
+                    |                           |
+                    v                           v
+              watchlists + telemetry       local MCP server
+            /watchlists /api/beacon        packages/mcp-server/
+                 /api/event
+```
+
 ### App/runtime
 - Next.js 16 App Router
 - React 19
@@ -137,6 +284,30 @@ Atlas treats these as evidence layers, not final causal verdicts.
 - `docs/` — contracts, plans, design, wiki, state, ownership, research
 - `skills/` — repo-local agent skills
 - `tests/` — Vitest coverage
+
+### Key route-to-file map
+
+| Surface | Primary file | Notes |
+|---|---|---|
+| `/` | `src/app/page.tsx` | product overview |
+| `/analytics` | `src/app/analytics/page.tsx` | statewide map-first analytics terminal |
+| `/water` | `src/app/water/page.tsx` | county-map-first water workspace |
+| `/water/network` | `src/app/water/network/page.tsx` | dependency + hydrology view |
+| `/water/counties/[slug]` | `src/app/water/counties/[slug]/page.tsx` | county water detail |
+| `/water/sources/[slug]` | `src/app/water/sources/[slug]/page.tsx` | source anomaly/provenance |
+| `/counties` | `src/app/counties/page.tsx` | county index |
+| `/counties/[slug]` | `src/app/counties/[slug]/page.tsx` | county intelligence detail |
+| `/permits` | `src/app/permits/page.tsx` | permit pressure workspace |
+| `/permits/[tceqId]` | `src/app/permits/[tceqId]/page.tsx` | permit detail |
+| `/operators` | `src/app/operators/page.tsx` | operator index |
+| `/operators/[slug]` | `src/app/operators/[slug]/page.tsx` | operator detail |
+| `/watchlists` | `src/app/watchlists/page.tsx` | saved watchlists |
+| `/map` | `src/app/map/page.tsx` | map shell entry |
+| `/api/event` | `src/app/api/event/route.ts` | structured telemetry ingest |
+| `/api/beacon` | `src/app/api/beacon/route.ts` | pixel telemetry ingest |
+| `/api/water/overview` | `src/app/api/water/overview/route.ts` | statewide water summary |
+| `/api/water/oil-gas-extraction` | `src/app/api/water/oil-gas-extraction/route.ts` | TXG31 permit lane |
+| local MCP server | `packages/mcp-server/src/index.js` | command entrypoint |
 
 ### Important internal modules
 - `src/lib/water/water-summary-service.ts` — water overview + county breakdown orchestration
@@ -258,6 +429,7 @@ npm run refresh:county-month-nws-flood-alerts
 
 ### Design and execution plans
 - `docs/design/atlas-missions-design-memo.md`
+- `docs/design/agent-build-workflow.md`
 - `docs/plans/2026-05-09-atlas-of-maps-reframe.md`
 - `docs/plans/2026-05-09-mcp-and-pipeline-automation.md`
 - `docs/plans/2026-05-10-county-dataset-roadmap.md`
@@ -304,25 +476,77 @@ Covered here:
 
 Canonical deeper docs live in `docs/`, `skills/`, and `AGENTS.md`.
 
-## Citizen observation lane
+## Citizen observation and Android field lane
 
-Atlas includes a separate, non-regulatory citizen observation prototype at `/citizen`.
+Atlas includes a separate, non-regulatory citizen observation prototype at `/citizen`, and the broader system roadmap includes a mission-driven Android application for field verification.
+
+The Android/mobile direction is not a generic upload app. It is intended to support:
+- mission-based field collection
+- guided water-strip capture
+- site-context notes and corroborating photos
+- repeat monitoring loops
+- confidence-aware evidence submission
+- later integration with map, county, and source workflows
+
+The current mobile/field product direction is documented in:
+- `docs/design/android-missions-mobile-flow.md`
+- `docs/contracts/community-observation.md`
+- `docs/research/smartphone-colorimetry.md`
+
+### Water testing and field verification
+
+A major Atlas system lane is structured water testing and field verification.
+
+That lane is designed around:
+- smartphone-assisted strip/colorimetry workflows
+- constrained capture rather than arbitrary photo uploads
+- confidence scoring and QA flags
+- explicit separation between community screening and regulatory/public-record evidence
+- county/watershed aggregation as additive context rather than silent score modification
 
 Important constraints:
 - it is isolated from the main scoring stack
-- it does not feed county risk scoring or water mismatch scoring
+- it does not feed county risk scoring or water mismatch scoring by default
 - it is a prototype workflow for strip-photo observation capture and review
 - it should not be interpreted as a compliance, diagnostic, or regulatory measurement system
+- it is best framed as screening, verification, and lead-generation evidence
 
-See:
-- `docs/contracts/community-observation.md`
-- `docs/research/smartphone-colorimetry.md`
+## Patent-pending system framing
+
+Atlas TX is being developed as part of a broader patent-pending system concept spanning:
+- map-first county intelligence
+- public-record permit and water evidence integration
+- mobile mission workflows
+- structured community water-testing capture
+- confidence-scored field verification
+- explicit separation of authoritative, explanatory, and community evidence classes
+
+### Patent-pending system components
+
+```text
+county intelligence maps
+        +
+public-record permit + water evidence
+        +
+Android mission workflows
+        +
+community water-testing capture
+        +
+confidence-aware field verification
+        +
+evidence-class separation and review
+```
+
+This repository is the open technical platform layer for that system. It should describe the product honestly and compellingly, while avoiding unsupported legal, medical, or regulatory claims.
 
 ## Development workflow
 
 Atlas has been built through an agent-assisted workflow centered on Hermes Agent as the orchestration layer, with repo-local skills, MCP tooling, and iterative map/API/test slices inside this repository.
 
 Public README copy intentionally stays focused on the platform and its technical surfaces rather than on specific model-vendor branding.
+
+For the internal workflow summary, see:
+- `docs/design/agent-build-workflow.md`
 
 ## Constraints and product guardrails
 

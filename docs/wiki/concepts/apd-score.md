@@ -17,7 +17,9 @@ relationships:
   - {type: derives_from, target: datasets/census-acs5-2023-county.md}
   - {type: depends_on, target: datasets/tceq-cid-search-one.md}
   - {type: depends_on, target: datasets/tceq-cid-search-two.md}
+  - {type: depends_on, target: concepts/cid.md}
   - {type: references, target: concepts/burden-vs-harm.md}
+  - {type: references, target: concepts/soah.md}
 stale: false
 ---
 
