@@ -1,30 +1,82 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Atlas TX">
   <title>Atlas TX</title>
   <defs>
-    <radialGradient id="halo" cx="50%" cy="46%" r="55%">
+    <radialGradient id="halo" cx="50%" cy="50%" r="55%">
       <stop offset="0%" stop-color="#22d3ee" stop-opacity="0.35"/>
       <stop offset="100%" stop-color="#22d3ee" stop-opacity="0"/>
     </radialGradient>
   </defs>
 
-  <circle cx="32" cy="30" r="26" fill="url(#halo)"/>
+  <circle cx="29" cy="32" r="29" fill="url(#halo)"/>
 
-  <circle cx="58" cy="14" r="0.9" fill="#22d3ee"/>
-  <circle cx="55" cy="22" r="0.6" fill="#22d3ee" fill-opacity="0.7"/>
-  <circle cx="8"  cy="50" r="0.9" fill="#22d3ee"/>
-  <circle cx="6"  cy="42" r="0.6" fill="#22d3ee" fill-opacity="0.7"/>
-  <circle cx="50" cy="56" r="0.6" fill="#22d3ee" fill-opacity="0.7"/>
+  <circle cx="56" cy="10" r="0.9" fill="#22d3ee"/>
+  <circle cx="58" cy="18" r="0.6" fill="#22d3ee" fill-opacity="0.7"/>
+  <circle cx="6"  cy="52" r="0.9" fill="#22d3ee"/>
 
+  <!--
+    Texas silhouette in 64x64. Coordinates derived from actual bounds
+    (36.5°N..25.8°N, 106.6°W..93.5°W) projected into bounding box
+    x ∈ [5,53], y ∈ [7,57]. Going clockwise from panhandle NW:
+      panhandle (18-29, 7-17)
+      Red River wave east to Texarkana (49, 17)
+      down NE corner past Caddo, slight Sabine concavity
+      Sabine Pass / SE corner (49, 45)
+      Gulf coast curve SW: Galveston, Matagorda, Corpus
+      Brownsville southernmost point (38, 57)
+      Rio Grande NW: Laredo → Eagle Pass → Del Rio → Big Bend bulge → Presidio
+      El Paso (5, 29)
+      32°N jog at NM border
+      north along 103°W up to panhandle base, close to NW corner
+  -->
   <path
-    d="M22 10 L34 10 L34 22 L52 22 L54 28 L54 36 L50 42 L44 46 L40 52 L26 38 L14 30 L12 24 L22 22 Z"
+    d="M 18 7
+       L 29 7
+       L 29 17
+       L 33 16
+       L 39 17
+       L 44 16
+       L 49 17
+       L 51 22
+       L 53 28
+       L 52 34
+       L 51 40
+       L 49 45
+       L 46 49
+       L 42 52
+       L 38 55
+       L 38 57
+       L 35 54
+       L 31 49
+       L 27 43
+       L 25 40
+       L 18 42
+       L 13 39
+       L 8 33
+       L 5 29
+       L 5 28
+       L 18 28
+       L 18 17
+       Z"
     fill="#0f172a"
     stroke="#22d3ee"
     stroke-width="1.6"
     stroke-linejoin="round"
+    stroke-linecap="round"
   />
 
+  <!-- Lone Star at Austin (~30.27°N, 97.74°W → ~(37, 36)). -->
   <path
-    d="M30 24 L31.8 29.53 L37.61 29.53 L32.91 32.95 L34.7 38.47 L30 35.06 L25.3 38.47 L27.09 32.95 L22.39 29.53 L28.2 29.53 Z"
+    d="M 37 31
+       L 38.4 35.3
+       L 42.9 35.3
+       L 39.25 37.95
+       L 40.65 42.25
+       L 37 39.6
+       L 33.35 42.25
+       L 34.75 37.95
+       L 31.1 35.3
+       L 35.6 35.3
+       Z"
     fill="#22d3ee"
     stroke="#0f172a"
     stroke-width="0.4"
