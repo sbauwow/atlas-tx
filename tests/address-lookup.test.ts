@@ -320,6 +320,94 @@ describe("lookupAddress", () => {
     expect(envelope.caveats.length).toBeGreaterThan(0);
   });
 
+  it("groups SDWIS storage facilities under the in-county PWS list", async () => {
+    const envelope = await lookupAddress(
+      { address: "1100 Congress Ave, Austin, TX" },
+      {
+        geocoder: stubGeocoder(TRAVIS_GEOCODE),
+        loaders: {
+          waterBreakdown: async () => null,
+          countyBreakdown: async () => null,
+          sdwis: async () => [
+            {
+              pwsid: "TX2270001",
+              pwsName: "City of Austin",
+              county: "Travis County",
+              populationServed: 1000000,
+              violationId: null,
+              violationCode: null,
+              violationCategory: null,
+              isHealthBased: true,
+              contaminantCode: null,
+              complianceStatusCode: null,
+              complPerBeginDate: null,
+              complPerEndDate: "2025-09-30",
+              pwsTypeCode: null,
+              ruleCode: null,
+              ruleGroupCode: null,
+              publicNotificationTier: null,
+            },
+          ],
+          sdwisFacilities: async () => [
+            {
+              pwsid: "TX2270001",
+              facilityId: "1",
+              facilityName: "AUSTIN GST 0.5 MG",
+              stateFacilityId: "ST1",
+              facilityTypeCode: "ST",
+              isActive: true,
+            },
+            {
+              pwsid: "TX2270001",
+              facilityId: "2",
+              facilityName: "AUSTIN ELEVATED 1 MG",
+              stateFacilityId: "ST2",
+              facilityTypeCode: "ST",
+              isActive: true,
+            },
+            {
+              pwsid: "TX2270001",
+              facilityId: "3",
+              facilityName: "AUSTIN INACTIVE",
+              stateFacilityId: "ST3",
+              facilityTypeCode: "ST",
+              isActive: false,
+            },
+            {
+              pwsid: "TX2270001",
+              facilityId: "4",
+              facilityName: "AUSTIN WELL 1",
+              stateFacilityId: "WL1",
+              facilityTypeCode: "WL",
+              isActive: true,
+            },
+            {
+              pwsid: "TX0570001",
+              facilityId: "5",
+              facilityName: "DALLAS TANK (off-county)",
+              stateFacilityId: "ST99",
+              facilityTypeCode: "ST",
+              isActive: true,
+            },
+          ],
+          permits: async () => [],
+          acsPopulation: async () => ({}),
+        },
+      },
+    );
+
+    expect(envelope.ok).toBe(true);
+    if (!envelope.ok) return;
+
+    expect(envelope.data.storage.totalCount).toBe(2);
+    expect(envelope.data.storage.pwsCount).toBe(1);
+    expect(envelope.data.storage.groups[0].pwsid).toBe("TX2270001");
+    expect(
+      envelope.data.storage.groups[0].facilities.map((f) => f.facilityId),
+    ).toEqual(["2", "1"]);
+    expect(envelope.sources).toContain("epa-sdwis-water-system-facilities");
+  });
+
   it("returns the geocoder error envelope when the address does not match", async () => {
     const envelope = await lookupAddress(
       { address: "Nowhere" },

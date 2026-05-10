@@ -128,6 +128,17 @@ export const MVP_DATASETS: MvpDataset[] = [
     accessType: "external",
   },
   {
+    id: "epa-sdwis-water-system-facilities",
+    name: "EPA SDWIS Water System Facilities (TX storage)",
+    category: "infrastructure",
+    publisher: "U.S. EPA Office of Water",
+    summary:
+      "Per-PWS facility records (storage tanks, wells, treatment plants, pumps, distribution-system entries) from SDWIS WATER_SYSTEM_FACILITY. Atlas committed snapshot is filtered to active storage facilities (FACILITY_TYPE_CODE=ST).",
+    keyFields: ["pwsid", "facility_id", "facility_name", "state_facility_id", "facility_type_code", "facility_activity_code"],
+    useCase: "Surface water-tower / ground-storage / reservoir inventory under each county's PWS list. Joined by pwsid; no lat/lon in this table.",
+    accessType: "external",
+  },
+  {
     id: "epa-ejscreen-2024",
     name: "EPA EJScreen Environmental Justice Indicators",
     category: "demographic",
