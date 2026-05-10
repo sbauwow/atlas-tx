@@ -3,16 +3,18 @@ import Link from "next/link";
 import GlossaryTooltip, { GlossaryInlineList } from "@/app/components/glossary-tooltip";
 import { CountyWorkspaceHeader } from "@/app/components/county-workspace-header";
 import { buildCountyAnalyticsViewModel, type CountyAnalyticsViewModel } from "@/app/counties/county-analytics";
+import { getOperatorIntelligencePageData } from "@/app/operators/operator-page-data";
 import { getDefaultAtlasCountyExplorerService } from "@/lib/atlas-county-explorer";
 import { getAdjacentCountyRefs } from "@/lib/water/county-lookup";
 
 export default async function CountyIntelligencePage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const service = getDefaultAtlasCountyExplorerService();
-  const breakdown = await service.getCountyBreakdown(slug);
+  const [breakdown, operatorDataset] = await Promise.all([service.getCountyBreakdown(slug), getOperatorIntelligencePageData()]);
   const county = breakdown.overview.county;
   const adjacent = getAdjacentCountyRefs(county.slug);
   const analytics = await buildCountyAnalyticsViewModel(breakdown);
+  const countyOperators = getCountyOperatorRows(operatorDataset.detailRows, county.slug);
 
   return (
     <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-10 px-6 py-16">
@@ -156,6 +158,75 @@ export default async function CountyIntelligencePage({ params }: { params: Promi
                 No top-system highlights were available in the committed county-history record for this county.
               </div>
             )}
+          </div>
+        </article>
+      </section>
+
+      <section className="grid gap-6 lg:grid-cols-[1.05fr_0.95fr]">
+        <article className="rounded-2xl bg-slate-900/40 p-6 ring-1 ring-white/5">
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-cyan-300/80">Operator lane</p>
+              <h2 className="mt-2 text-2xl font-semibold text-white">Operators visible in this county snapshot</h2>
+              <p className="mt-2 max-w-3xl text-sm text-slate-400">
+                Ranked only from the current permittee and CID applicant snapshot. Atlas links out where operator presence is visible; it does not invent a deeper hierarchy or historical market share.
+              </p>
+            </div>
+            <div className="text-xs font-medium uppercase tracking-[0.18em] text-slate-500">{countyOperators.length} visible operators</div>
+          </div>
+          <div className="mt-5 space-y-3">
+            {countyOperators.length ? (
+              countyOperators.map((operator) => (
+                <article key={operator.slug} className="rounded-xl border border-white/5 bg-white/[0.03] p-4">
+                  <div className="flex flex-wrap items-start justify-between gap-3">
+                    <div>
+                      <div className="text-lg font-medium text-white">{operator.operatorName}</div>
+                      <div className="mt-1 text-sm text-slate-400">
+                        {operator.countyPermitCount} permits · {operator.countyCaseCount} cases · {operator.countyProceduralPressureScore} procedural pressure in {county.name}
+                      </div>
+                    </div>
+                    <div className="rounded-full bg-white/5 px-3 py-1 text-sm font-medium text-cyan-300">
+                      Statewide footprint: {operator.countyCount} counties
+                    </div>
+                  </div>
+                  <div className="mt-4 flex flex-wrap items-center gap-2 text-sm">
+                    <Link href={`/operators/${operator.slug}`} className="rounded-full bg-white px-3 py-1.5 font-medium text-slate-950 transition-colors hover:bg-slate-200">
+                      Open operator detail
+                    </Link>
+                    <Link href={`/permits?county=${county.slug}`} className="rounded-full border border-white/10 px-3 py-1.5 text-slate-200 transition-colors hover:border-white/20 hover:bg-white/5">
+                      County permits
+                    </Link>
+                  </div>
+                  <div className="mt-4 text-xs text-slate-500">
+                    Current record mix: {operator.filingCounts.hearingRequests} hearing requests · {operator.filingCounts.publicMeetingRequests} public meeting requests · {operator.filingCounts.comments} comments across visible cases.
+                  </div>
+                </article>
+              ))
+            ) : (
+              <div className="rounded-xl border border-dashed border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-slate-400">
+                No operator grouping is visible for this county in the current permit and CID snapshot.
+              </div>
+            )}
+          </div>
+        </article>
+
+        <article className="rounded-2xl bg-slate-900/40 p-6 ring-1 ring-white/5">
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-amber-300/80">County ↔ operator navigation</p>
+          <h2 className="mt-2 text-2xl font-semibold text-white">Move from county stress to named operators</h2>
+          <div className="mt-4 space-y-4 text-sm text-slate-300">
+            <p>
+              County rankings show where signal concentrates. Operator pages show which named permittees and applicants are currently visible inside that signal.
+            </p>
+            <div className="rounded-xl border border-white/5 bg-white/[0.03] px-4 py-3 text-slate-400">
+              {countyOperators.length
+                ? `The strongest visible crosslinks here come from ${countyOperators.slice(0, 2).map((operator) => operator.operatorName).join(" and ")}. Use those pages to inspect county concentration, case posture, and permit roster.`
+                : "This county currently has no grounded operator crosslink from the permit/CID dataset, so Atlas keeps the page anchored in county and permit context only."}
+            </div>
+            <ul className="space-y-2 text-slate-400">
+              <li>• County page: risk, hydrology, and statewide rank context.</li>
+              <li>• Operator page: county footprint, open CID case posture, and pending permit roster.</li>
+              <li>• Permit view: county-scoped transaction list for the current public snapshot.</li>
+            </ul>
           </div>
         </article>
       </section>
@@ -325,4 +396,58 @@ function formatSignedDeltaMetric(current: number | null, delta: number | null) {
 
 function shortTimestamp(timestamp: string) {
   return timestamp.replace("T", " ").replace(".000Z", "Z").replace(/\.\d{3}Z$/, "Z");
+}
+
+function getCountyOperatorRows(
+  operators: Array<{
+    slug: string;
+    operatorName: string;
+    countyCount: number;
+    filingCounts: { comments: number; hearingRequests: number; publicMeetingRequests: number };
+    counties: Array<{
+      countySlug: string;
+      permitCount: number;
+      caseCount: number;
+      proceduralPressureScore: number;
+    }>;
+  }>,
+  countySlug: string,
+) {
+  type CountyOperatorRow = {
+    slug: string;
+    operatorName: string;
+    countyCount: number;
+    filingCounts: { comments: number; hearingRequests: number; publicMeetingRequests: number };
+    countyPermitCount: number;
+    countyCaseCount: number;
+    countyProceduralPressureScore: number;
+  };
+
+  return operators
+    .map((operator): CountyOperatorRow | null => {
+      const countyRow = operator.counties.find((row) => row.countySlug === countySlug);
+      if (!countyRow) {
+        return null;
+      }
+
+      return {
+        slug: operator.slug,
+        operatorName: operator.operatorName,
+        countyCount: operator.countyCount,
+        filingCounts: operator.filingCounts,
+        countyPermitCount: countyRow.permitCount,
+        countyCaseCount: countyRow.caseCount,
+        countyProceduralPressureScore: countyRow.proceduralPressureScore,
+      };
+    })
+    .filter((operator): operator is CountyOperatorRow => operator !== null)
+    .sort((left, right) => {
+      return (
+        right.countyPermitCount - left.countyPermitCount ||
+        right.countyCaseCount - left.countyCaseCount ||
+        right.countyProceduralPressureScore - left.countyProceduralPressureScore ||
+        left.operatorName.localeCompare(right.operatorName)
+      );
+    })
+    .slice(0, 5);
 }

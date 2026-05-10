@@ -27,6 +27,82 @@ function LaneCard({ title, badge, href, primary, secondary }: { title: string; b
   );
 }
 
+function WatchQueuePanel({
+  title,
+  description,
+  sourceLabel,
+  entries,
+  emptyMessage,
+}: {
+  title: string;
+  description: string;
+  sourceLabel: string;
+  entries: Array<{
+    id: string;
+    label: string;
+    href: string;
+    kind: string;
+    headline: string;
+    detail: string;
+    queueLine: string;
+  }>;
+  emptyMessage: string;
+}) {
+  const exportValue = entries.map((entry) => entry.queueLine).join("\n");
+
+  return (
+    <section className="rounded-3xl border border-white/10 bg-slate-950/80 p-6 shadow-[0_0_0_1px_rgba(255,255,255,0.02)]">
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <div className="text-[11px] font-medium uppercase tracking-[0.22em] text-cyan-300/80">Watchlist-ready lane</div>
+          <h2 className="mt-2 text-2xl font-semibold text-white">{title}</h2>
+          <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-400">{description}</p>
+          <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-500">
+            This is a current-session public-record queue only. Atlas does not save or sync watchlists yet, so copy the lines below into your own notes or handoff doc.
+          </p>
+        </div>
+        <div className="rounded-full border border-white/10 px-3 py-1 text-xs text-slate-400">{sourceLabel}</div>
+      </div>
+
+      {entries.length ? (
+        <>
+          <div className="mt-5 grid gap-4 lg:grid-cols-3">
+            {entries.map((entry, index) => (
+              <article key={entry.id} className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div className="text-sm font-semibold text-white">{entry.label}</div>
+                  <span className="rounded-full border border-cyan-400/20 bg-cyan-400/10 px-2.5 py-1 text-[11px] uppercase tracking-[0.18em] text-cyan-100">
+                    {entry.kind} #{index + 1}
+                  </span>
+                </div>
+                <p className="mt-3 text-sm text-slate-200">{entry.headline}</p>
+                <p className="mt-2 text-sm leading-6 text-slate-400">{entry.detail}</p>
+                <Link href={entry.href} className="mt-4 inline-flex text-sm font-medium text-cyan-300 transition-colors hover:text-cyan-200">
+                  Open next →
+                </Link>
+              </article>
+            ))}
+          </div>
+
+          <div className="mt-5 rounded-2xl border border-white/10 bg-slate-900/70 p-4">
+            <div className="text-xs font-medium uppercase tracking-[0.18em] text-slate-400">Copyable queue</div>
+            <textarea
+              readOnly
+              value={exportValue}
+              aria-label={`${title} copyable queue`}
+              className="mt-3 min-h-36 w-full rounded-2xl border border-white/10 bg-slate-950/80 px-4 py-3 text-sm leading-6 text-slate-200"
+            />
+          </div>
+        </>
+      ) : (
+        <div className="mt-5 rounded-2xl border border-dashed border-white/10 bg-white/[0.02] px-5 py-8 text-sm leading-6 text-slate-400">
+          {emptyMessage}
+        </div>
+      )}
+    </section>
+  );
+}
+
 export default async function AnalyticsPage() {
   const analytics = await loadStatewideAnalyticsViewModel();
 
@@ -35,6 +111,39 @@ export default async function AnalyticsPage() {
     warning: "border-amber-400/20 bg-amber-400/10 text-amber-100",
     neutral: "border-white/10 bg-white/[0.03] text-slate-200",
   };
+
+  const countyWatchEntries = [...analytics.whatChangedLanes, ...analytics.screeningLanes]
+    .filter((lane) => lane.href.startsWith("/counties/"))
+    .reduce<Array<{ id: string; label: string; href: string; kind: string; headline: string; detail: string; queueLine: string }>>((accumulator, lane) => {
+      if (accumulator.some((entry) => entry.href === lane.href)) {
+        return accumulator;
+      }
+
+      accumulator.push({
+        id: lane.href,
+        label: lane.title,
+        href: lane.href,
+        kind: "County",
+        headline: lane.primary,
+        detail: lane.secondary,
+        queueLine: `county | ${lane.title} | ${lane.href} | ${lane.badge} | ${lane.primary} | ${lane.secondary}`,
+      });
+
+      return accumulator;
+    }, [])
+    .slice(0, 4);
+
+  const operatorWatchEntries = analytics.operatorConcentrationLanes.slice(0, 2).map((lane) => ({
+    id: lane.href,
+    label: lane.title,
+    href: lane.href,
+    kind: "Operator",
+    headline: lane.primary,
+    detail: lane.secondary,
+    queueLine: `operator | ${lane.title} | ${lane.href} | ${lane.badge} | ${lane.primary} | ${lane.secondary}`,
+  }));
+
+  const statewideWatchEntries = [...countyWatchEntries, ...operatorWatchEntries].slice(0, 6);
 
   return (
     <main className="mx-auto flex w-full max-w-7xl flex-1 flex-col gap-8 px-6 py-16">
@@ -120,6 +229,14 @@ export default async function AnalyticsPage() {
           </div>
         )}
       </section>
+
+      <WatchQueuePanel
+        title="Statewide open-next queue"
+        description="A watchlist-ready handoff lane grounded to counties already surfacing in mover and screening cards, plus the most concentrated operators already visible on this page."
+        sourceLabel="Current session only"
+        entries={statewideWatchEntries}
+        emptyMessage="Atlas has not exposed enough county or operator lanes to build a watch queue yet. Once committed statewide rows appear above, this export-ready queue will populate automatically."
+      />
 
       <section className="rounded-3xl border border-white/10 bg-slate-950/80 p-6 shadow-[0_0_0_1px_rgba(255,255,255,0.02)]">
         <div className="flex flex-wrap items-start justify-between gap-4">

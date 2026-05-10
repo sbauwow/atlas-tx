@@ -18,6 +18,7 @@ describe("RootLayout telemetry", () => {
     expect(html).toContain('data-testid="page-view-beacon"');
     expect(html).toContain("hello");
     expect(html).toContain('href="/analytics"');
+    expect(html).toContain('href="/operators"');
     expect(html).toContain('href="/glossary"');
     expect(html).toContain("Atlas TX public-interest county intelligence");
   });

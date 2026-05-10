@@ -6,94 +6,94 @@ vi.mock("@/lib/tceq-permits", async (importOriginal) => {
   return {
     ...actual,
     getTceqPendingPermitsPageData: vi.fn(async () => ({
-    countyFilter: null,
-    generatedAt: "2026-05-09T00:00:00.000Z",
-    summary: {
-      pendingPermitCount: 3,
-      activePermitCount: 9,
-      countyCount: 2,
-      authorizationTypeCount: 2,
-      topCounties: [
-        { county: "Travis County", count: 2 },
-        { county: "Hays County", count: 1 },
-      ],
-    },
-    cidSummary: {
-      available: true,
+      countyFilter: null,
       generatedAt: "2026-05-09T00:00:00.000Z",
-      openCaseCount: 2,
-      protestedCaseCount: 2,
-      hearingRequestCount: 1,
-      publicMeetingRequestCount: 1,
-      caveats: ["CID Search One is fragile; treat this lane as best-effort procedural context."],
-      topProgramAreas: [{ programArea: "WQ", count: 2 }],
-      cases: [
+      summary: {
+        pendingPermitCount: 3,
+        activePermitCount: 9,
+        countyCount: 2,
+        authorizationTypeCount: 2,
+        topCounties: [
+          { county: "Travis County", count: 2 },
+          { county: "Hays County", count: 1 },
+        ],
+      },
+      cidSummary: {
+        available: true,
+        generatedAt: "2026-05-09T00:00:00.000Z",
+        openCaseCount: 2,
+        protestedCaseCount: 2,
+        hearingRequestCount: 1,
+        publicMeetingRequestCount: 1,
+        caveats: ["CID Search One is fragile; treat this lane as best-effort procedural context."],
+        topProgramAreas: [{ programArea: "WQ", count: 2 }],
+        cases: [
+          {
+            tceqId: "WQ0000447000",
+            applicantName: "Alpha Water LLC",
+            county: "Travis County",
+            programArea: "WQ",
+            itemStatus: "open",
+            tceqDocketNumber: "2026-001",
+            soahDocketNumber: "582-26-0001",
+            regulatedEntityNumber: null,
+            customerNumber: null,
+            filingCounts: { comments: 1, hearingRequests: 1, publicMeetingRequests: 1 },
+            latestFiledAt: "2026-04-13",
+          },
+          {
+            tceqId: "WQ0000555000",
+            applicantName: "Beta Utility District",
+            county: "Travis County",
+            programArea: "WQ",
+            itemStatus: "open",
+            tceqDocketNumber: null,
+            soahDocketNumber: null,
+            regulatedEntityNumber: null,
+            customerNumber: null,
+            filingCounts: { comments: 1, hearingRequests: 0, publicMeetingRequests: 0 },
+            latestFiledAt: "2026-04-02",
+          },
+        ],
+      },
+      permits: [
         {
-          tceqId: "WQ0000447000",
-          applicantName: "Alpha Water LLC",
+          permitNumber: "WQ0001",
+          authorizationType: "IND WW",
+          authorizationStatus: "PENDING",
+          permitteeName: "Alpha Water LLC",
           county: "Travis County",
-          programArea: "WQ",
-          itemStatus: "open",
-          tceqDocketNumber: "2026-001",
-          soahDocketNumber: "582-26-0001",
-          regulatedEntityNumber: null,
-          customerNumber: null,
-          filingCounts: { comments: 1, hearingRequests: 1, publicMeetingRequests: 1 },
-          latestFiledAt: "2026-04-13",
+          nearestCity: "Austin",
+          latitude: 30.27,
+          longitude: -97.74,
         },
         {
-          tceqId: "WQ0000555000",
-          applicantName: "Beta Utility District",
+          permitNumber: "WQ0002",
+          authorizationType: "MUN WW",
+          authorizationStatus: "PENDING",
+          permitteeName: "Alpha Water LLC",
+          county: "Hays County",
+          nearestCity: "Buda",
+          latitude: 30.08,
+          longitude: -97.84,
+        },
+        {
+          permitNumber: "WQ0003",
+          authorizationType: "IND WW",
+          authorizationStatus: "PENDING",
+          permitteeName: "Beta Utility District",
           county: "Travis County",
-          programArea: "WQ",
-          itemStatus: "open",
-          tceqDocketNumber: null,
-          soahDocketNumber: null,
-          regulatedEntityNumber: null,
-          customerNumber: null,
-          filingCounts: { comments: 1, hearingRequests: 0, publicMeetingRequests: 0 },
-          latestFiledAt: "2026-04-02",
+          nearestCity: "Austin",
+          latitude: 30.29,
+          longitude: -97.75,
         },
       ],
-    },
-    permits: [
-      {
-        permitNumber: "WQ0001",
-        authorizationType: "IND WW",
-        authorizationStatus: "PENDING",
-        permitteeName: "Alpha Water LLC",
-        county: "Travis County",
-        nearestCity: "Austin",
-        latitude: 30.27,
-        longitude: -97.74,
-      },
-      {
-        permitNumber: "WQ0002",
-        authorizationType: "MUN WW",
-        authorizationStatus: "PENDING",
-        permitteeName: "Alpha Water LLC",
-        county: "Hays County",
-        nearestCity: "Buda",
-        latitude: 30.08,
-        longitude: -97.84,
-      },
-      {
-        permitNumber: "WQ0003",
-        authorizationType: "IND WW",
-        authorizationStatus: "PENDING",
-        permitteeName: "Beta Utility District",
-        county: "Travis County",
-        nearestCity: "Austin",
-        latitude: 30.29,
-        longitude: -97.75,
-      },
-    ],
     })),
   };
 });
 
 describe("operator detail page", () => {
-  it("renders public-record operator detail with county footprint and rosters", async () => {
+  it("renders public-record operator detail with county footprint, watch queue, and rosters", async () => {
     const pageModule = await import("@/app/operators/[slug]/page");
     const page = await pageModule.default({ params: Promise.resolve({ slug: "alpha-water-llc" }) });
     const text = renderToStaticMarkup(page);
@@ -106,6 +106,13 @@ describe("operator detail page", () => {
     expect(text).toContain("67%");
     expect(text).toContain("Interpretation");
     expect(text).toContain("Elevated procedural pressure is visible in current CID filings.");
+    expect(text).toContain("Watchlist-ready lane");
+    expect(text).toContain("Watch next from this operator");
+    expect(text).toContain("This queue is built from the current public-record operator snapshot only.");
+    expect(text).toContain("county | Travis County | /counties/travis-county | permits 1 | cases 1 | pressure 10");
+    expect(text).toContain("permit-lane | WQ0001 | /permits?county=travis-county | IND WW | Travis County");
+    expect(text).toContain('aria-label="Watch next from this operator copyable queue"');
+    expect(text).toContain("Route back into county context");
     expect(text).toContain("County footprint");
     expect(text).toContain("Travis County");
     expect(text).toContain("Hays County");
@@ -115,10 +122,12 @@ describe("operator detail page", () => {
     expect(text).toContain("Pending permit roster");
     expect(text).toContain("WQ0001");
     expect(text).toContain("WQ0002");
-    expect(text).toContain("href=\"/operators\"");
-    expect(text).toContain("href=\"/counties/travis-county\"");
-    expect(text).toContain("href=\"/permits?county=hays-county\"");
-    expect(text).toContain("href=\"/water/counties/travis-county\"");
+    expect(text).toContain('href=\"/operators\"');
+    expect(text).toContain('href=\"/counties/travis-county\"');
+    expect(text).toContain('href=\"/counties/hays-county\"');
+    expect(text).toContain('href=\"/permits?county=hays-county\"');
+    expect(text).toContain('href=\"/water/counties/travis-county\"');
+    expect(text).toContain('href=\"/water/counties/hays-county\"');
   });
 
   it("throws not found for unknown slugs and has a graceful fallback page", async () => {

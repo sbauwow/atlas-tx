@@ -276,6 +276,13 @@ describe("statewide analytics page", () => {
     expect(text).toContain("New in lane: 1");
     expect(text).toContain("Screening lanes");
     expect(text).toContain("Counties to open next");
+    expect(text).toContain("Watchlist-ready lane");
+    expect(text).toContain("Statewide open-next queue");
+    expect(text).toContain("This is a current-session public-record queue only.");
+    expect(text).toContain("Copyable queue");
+    expect(text).toContain("county | Harris County | /counties/harris-county | Riser");
+    expect(text).toContain("operator | Alpha Water LLC | /operators/alpha-water-llc | Largest share");
+    expect(text).toContain('aria-label="Statewide open-next queue copyable queue"');
     expect(text).toContain('href="/counties/harris-county"');
     expect(text).toContain('href="/counties/orange-county"');
     expect(text).toContain("Risk +3.6 · pressure 100 · prior rank 3");
@@ -338,6 +345,7 @@ describe("statewide analytics page", () => {
     expect(text).toContain("Wave 1 comparison snapshots are not available yet.");
     expect(text).toContain("Atlas only shows this lane when committed artifacts support a real comparison window.");
     expect(text).toContain("Wave 1 did not produce enough mover rows for screening lanes yet.");
+    expect(text).toContain("Atlas has not exposed enough county or operator lanes to build a watch queue yet.");
     expect(text).toContain("Operator concentration activates when Atlas has permittee or applicant names in the statewide permit/CID lane.");
     expect(text).toContain("Atlas will surface operator concentration here once the permit roster or CID lane exposes enough named operators to compare shares.");
     expect(text).toContain("Movers unavailable");
@@ -412,6 +420,8 @@ describe("statewide analytics page", () => {
     expect(text).toContain("No county movement was recorded across the latest committed comparison window.");
     expect(text).toContain("Held rank #1 · risk 100");
     expect(text).toContain("No movement between committed snapshots · pressure 100 · prior risk 100.");
+    expect(text).toContain("Statewide open-next queue");
+    expect(text).toContain("county | Harris County | /counties/harris-county | Steady");
     expect(text).toContain("Steady: 2");
   });
 });

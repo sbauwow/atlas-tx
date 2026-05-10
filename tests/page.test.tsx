@@ -46,7 +46,9 @@ describe("Home landing page", () => {
     expect(html).toContain("Journalists, policy analysts, and civic-tech teams");
     expect(html).toContain('href=\"/counties\"');
     expect(html).toContain('href=\"/analytics\"');
+    expect(html).toContain('href=\"/operators\"');
     expect(html).toContain("Statewide analytics terminal");
+    expect(html).toContain("Operator directory");
     expect(html).toContain("County workspace overview");
     expect(html).toContain("Entry paths");
     expect(html).toContain("Permit tracker");
@@ -80,6 +82,16 @@ describe("Home landing page", () => {
     expect(html).toContain("pressure-versus-risk screening");
     expect(html).toContain("Open analytics");
     expect(html).toContain('href="/analytics"');
+  });
+
+  it("adds a concise homepage operator callout", async () => {
+    const html = renderToStaticMarkup(await Home());
+
+    expect(html).toContain("Entity navigation");
+    expect(html).toContain("Operator directory");
+    expect(html).toContain("permittee and applicant footprints");
+    expect(html).toContain("Open operators");
+    expect(html).toContain('href="/operators"');
   });
 
   it("describes the refocused product thesis and signals", async () => {

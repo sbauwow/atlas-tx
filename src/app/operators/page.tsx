@@ -2,9 +2,99 @@ import Link from "next/link";
 
 import { getOperatorIntelligencePageData } from "@/app/operators/operator-page-data";
 
+function WatchQueueSection({
+  title,
+  description,
+  entries,
+}: {
+  title: string;
+  description: string;
+  entries: Array<{
+    slug: string;
+    operatorName: string;
+    headline: string;
+    detail: string;
+    queueLine: string;
+  }>;
+}) {
+  const exportValue = entries.map((entry) => entry.queueLine).join("\n");
+
+  return (
+    <section className="rounded-2xl bg-slate-900/40 p-6 ring-1 ring-white/5">
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <div className="text-xs font-medium uppercase tracking-[0.18em] text-cyan-300">Watchlist-ready lane</div>
+          <h2 className="mt-2 text-2xl font-semibold text-white">{title}</h2>
+          <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-400">{description}</p>
+          <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-500">
+            This queue is session-only and grounded to the current public-record snapshot. Atlas does not save operator watchlists yet.
+          </p>
+        </div>
+        <div className="rounded-full border border-white/10 px-3 py-1 text-xs text-slate-400">Copy into notes</div>
+      </div>
+
+      {entries.length ? (
+        <>
+          <div className="mt-5 grid gap-4 lg:grid-cols-3">
+            {entries.map((entry, index) => (
+              <article key={entry.slug} className="rounded-xl border border-white/5 bg-white/[0.03] p-4">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div className="text-sm font-semibold text-white">{entry.operatorName}</div>
+                  <span className="rounded-full border border-cyan-400/20 bg-cyan-400/10 px-2.5 py-1 text-[11px] uppercase tracking-[0.18em] text-cyan-100">
+                    Queue #{index + 1}
+                  </span>
+                </div>
+                <p className="mt-3 text-sm text-slate-200">{entry.headline}</p>
+                <p className="mt-2 text-sm leading-6 text-slate-400">{entry.detail}</p>
+                <Link href={`/operators/${entry.slug}`} className="mt-4 inline-flex text-sm font-medium text-cyan-300 transition-colors hover:text-cyan-200">
+                  Open operator detail →
+                </Link>
+              </article>
+            ))}
+          </div>
+
+          <div className="mt-5 rounded-2xl border border-white/10 bg-slate-950/70 p-4">
+            <div className="text-xs font-medium uppercase tracking-[0.18em] text-slate-400">Copyable queue</div>
+            <textarea
+              readOnly
+              value={exportValue}
+              aria-label={`${title} copyable queue`}
+              className="mt-3 min-h-32 w-full rounded-2xl border border-white/10 bg-slate-950/80 px-4 py-3 text-sm leading-6 text-slate-200"
+            />
+          </div>
+        </>
+      ) : (
+        <div className="mt-5 rounded-xl border border-dashed border-white/10 bg-white/[0.03] px-4 py-5 text-sm leading-6 text-slate-400">
+          No operator rows are visible in the current snapshot yet, so Atlas cannot build an open-next watch queue.
+        </div>
+      )}
+    </section>
+  );
+}
+
 export default async function OperatorsDirectoryPage() {
   const dataset = await getOperatorIntelligencePageData();
   const spotlightRows = dataset.detailRows.slice(0, 24);
+  const watchQueueEntries = [...dataset.detailRows]
+    .sort((left, right) => {
+      return (
+        right.proceduralPressureScore - left.proceduralPressureScore ||
+        right.caseCount - left.caseCount ||
+        right.permitCount - left.permitCount ||
+        left.operatorName.localeCompare(right.operatorName)
+      );
+    })
+    .slice(0, 6)
+    .map((row) => ({
+      slug: row.slug,
+      operatorName: row.operatorName,
+      headline: `${row.permitCount} permits · ${row.caseCount} cases · ${row.proceduralPressureScore} pressure`,
+      detail:
+        row.counties.length > 0
+          ? `${row.counties.slice(0, 2).map((county) => county.county).join(" · ")} ${row.counties.length > 2 ? `+${row.counties.length - 2} more counties` : ""}`.trim()
+          : "No county footprint attached in the current snapshot.",
+      queueLine: `operator | ${row.operatorName} | /operators/${row.slug} | permits ${row.permitCount} | cases ${row.caseCount} | pressure ${row.proceduralPressureScore}`,
+    }));
 
   return (
     <main className="relative mx-auto flex w-full max-w-6xl flex-1 flex-col gap-14 px-6 py-16">
@@ -64,6 +154,12 @@ export default async function OperatorsDirectoryPage() {
         <StatTile value={String(dataset.statewide.filingCounts.publicMeetingRequests)} label="Public meeting requests" />
         <StatTile value={String(dataset.statewide.protestedCaseCount)} label="Cases with visible filings" />
       </section>
+
+      <WatchQueueSection
+        title="Operators to monitor next"
+        description="A lightweight open-next queue ranked from the same operator rows already on this page. Use it as a handoff or copyable watchlist seed while saved screens are still out of scope."
+        entries={watchQueueEntries}
+      />
 
       <section className="rounded-2xl bg-slate-900/40 p-6 ring-1 ring-white/5">
         <div className="flex flex-wrap items-start justify-between gap-4">

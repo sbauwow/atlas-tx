@@ -3,6 +3,77 @@ import { notFound } from "next/navigation";
 
 import { getOperatorDetailPageData } from "@/app/operators/operator-page-data";
 
+function DetailWatchQueueSection({
+  title,
+  description,
+  entries,
+}: {
+  title: string;
+  description: string;
+  entries: Array<{
+    id: string;
+    label: string;
+    href: string;
+    headline: string;
+    detail: string;
+    queueLine: string;
+  }>;
+}) {
+  const exportValue = entries.map((entry) => entry.queueLine).join("\n");
+
+  return (
+    <section className="rounded-2xl bg-slate-900/40 p-6 ring-1 ring-white/5">
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <div className="text-xs font-medium uppercase tracking-[0.18em] text-cyan-300">Watchlist-ready lane</div>
+          <h2 className="mt-2 text-2xl font-semibold text-white">{title}</h2>
+          <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-400">{description}</p>
+          <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-500">
+            This queue is built from the current public-record operator snapshot only. Atlas does not save personal watchlists yet.
+          </p>
+        </div>
+        <div className="rounded-full border border-white/10 px-3 py-1 text-xs text-slate-400">Current session only</div>
+      </div>
+
+      {entries.length ? (
+        <>
+          <div className="mt-5 grid gap-4 lg:grid-cols-3">
+            {entries.map((entry, index) => (
+              <article key={entry.id} className="rounded-xl border border-white/5 bg-white/[0.03] p-4">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div className="text-sm font-semibold text-white">{entry.label}</div>
+                  <span className="rounded-full border border-cyan-400/20 bg-cyan-400/10 px-2.5 py-1 text-[11px] uppercase tracking-[0.18em] text-cyan-100">
+                    Queue #{index + 1}
+                  </span>
+                </div>
+                <p className="mt-3 text-sm text-slate-200">{entry.headline}</p>
+                <p className="mt-2 text-sm leading-6 text-slate-400">{entry.detail}</p>
+                <Link href={entry.href} className="mt-4 inline-flex text-sm font-medium text-cyan-300 transition-colors hover:text-cyan-200">
+                  Open next →
+                </Link>
+              </article>
+            ))}
+          </div>
+
+          <div className="mt-5 rounded-2xl border border-white/10 bg-slate-950/70 p-4">
+            <div className="text-xs font-medium uppercase tracking-[0.18em] text-slate-400">Copyable queue</div>
+            <textarea
+              readOnly
+              value={exportValue}
+              aria-label={`${title} copyable queue`}
+              className="mt-3 min-h-32 w-full rounded-2xl border border-white/10 bg-slate-950/80 px-4 py-3 text-sm leading-6 text-slate-200"
+            />
+          </div>
+        </>
+      ) : (
+        <div className="mt-5 rounded-xl border border-dashed border-white/10 bg-white/[0.03] px-4 py-5 text-sm leading-6 text-slate-400">
+          No county, case, or permit records are attached to this operator yet, so Atlas cannot build a watch queue from the current snapshot.
+        </div>
+      )}
+    </section>
+  );
+}
+
 export default async function OperatorDetailPage({
   params,
 }: {
@@ -14,6 +85,43 @@ export default async function OperatorDetailPage({
   if (!operator) {
     notFound();
   }
+
+  const countyQueueEntries = [...operator.counties]
+    .sort((left, right) => {
+      return (
+        right.proceduralPressureScore - left.proceduralPressureScore ||
+        right.caseCount - left.caseCount ||
+        right.permitCount - left.permitCount ||
+        left.county.localeCompare(right.county)
+      );
+    })
+    .slice(0, 3)
+    .map((county) => ({
+      id: `county-${county.countySlug}`,
+      label: county.county,
+      href: `/counties/${county.countySlug}`,
+      headline: `${county.permitCount} permits · ${county.caseCount} cases · ${county.proceduralPressureScore} pressure`,
+      detail: `County intelligence plus permit and water drill-downs are already linked from this operator footprint. Latest filing: ${formatDate(county.latestFiledAt)}.`,
+      queueLine: `county | ${county.county} | /counties/${county.countySlug} | permits ${county.permitCount} | cases ${county.caseCount} | pressure ${county.proceduralPressureScore}`,
+    }));
+
+  const countySlugLookup = new Map(operator.counties.map((county) => [county.county, county.countySlug]));
+
+  const permitQueueEntries = operator.permits
+    .map((permit) => {
+      const countySlug = permit.county ? countySlugLookup.get(permit.county) ?? null : null;
+      return {
+        id: `permit-${permit.permitNumber}`,
+        label: permit.permitNumber,
+        href: countySlug ? `/permits?county=${countySlug}` : "/permits",
+        headline: `${permit.authorizationType} · ${permit.county ?? "Unknown county"}`,
+        detail: `${permit.nearestCity ?? "Unknown city"} is the nearest city in the current public-record row for this operator permit.`,
+        queueLine: `permit-lane | ${permit.permitNumber} | ${countySlug ? `/permits?county=${countySlug}` : "/permits"} | ${permit.authorizationType} | ${permit.county ?? "Unknown county"}`,
+      };
+    })
+    .slice(0, 2);
+
+  const watchQueueEntries = [...countyQueueEntries, ...permitQueueEntries].slice(0, 5);
 
   return (
     <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-10 px-6 py-16">
@@ -89,47 +197,91 @@ export default async function OperatorDetailPage({
         </article>
       </section>
 
-      <section className="rounded-2xl bg-slate-900/40 p-6 ring-1 ring-white/5">
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <div>
-            <h2 className="text-2xl font-semibold text-white">County footprint</h2>
-            <p className="mt-2 max-w-3xl text-sm text-slate-400">
-              Counties where this operator appears in pending permit or CID case records, with direct links into county and permit workflows.
+      <DetailWatchQueueSection
+        title="Watch next from this operator"
+        description="A lightweight queue of county and permit lanes already visible from this operator record. Use it to open the next geography or permit workspace without pretending there is a saved watchlist backend tonight."
+        entries={watchQueueEntries}
+      />
+
+      <section className="grid gap-6 lg:grid-cols-[0.92fr_1.08fr]">
+        <article className="rounded-2xl bg-slate-900/40 p-6 ring-1 ring-white/5">
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-amber-300/80">County intelligence surfaces</p>
+          <h2 className="mt-2 text-2xl font-semibold text-white">Route back into county context</h2>
+          <div className="mt-4 space-y-4 text-sm text-slate-300">
+            <p>
+              Operator detail is only one lens. Follow the strongest county crosslinks to see how this footprint sits inside county rank, water, and permit context.
             </p>
-          </div>
-          <div className="text-xs font-medium uppercase tracking-[0.18em] text-slate-500">{operator.counties.length} counties</div>
-        </div>
-        <div className="mt-5 grid gap-4 lg:grid-cols-2">
-          {operator.counties.map((county) => (
-            <article key={county.countySlug} className="rounded-xl border border-white/5 bg-white/[0.03] p-4">
-              <div className="flex flex-wrap items-start justify-between gap-3">
-                <div>
-                  <div className="text-lg font-medium text-white">{county.county}</div>
-                  <div className="mt-1 text-sm text-slate-400">
-                    {county.permitCount} permits · {county.caseCount} cases · {county.proceduralPressureScore} pressure
+            <div className="space-y-3">
+              {operator.counties.slice(0, 3).map((county) => (
+                <div key={county.countySlug} className="rounded-xl border border-white/5 bg-white/[0.03] p-4">
+                  <div className="flex flex-wrap items-start justify-between gap-3">
+                    <div>
+                      <div className="font-medium text-white">{county.county}</div>
+                      <div className="mt-1 text-sm text-slate-400">
+                        {county.permitCount} permits · {county.caseCount} cases · {county.proceduralPressureScore} procedural pressure
+                      </div>
+                    </div>
+                    <div className="text-xs uppercase tracking-[0.18em] text-slate-500">Latest {formatDate(county.latestFiledAt)}</div>
+                  </div>
+                  <div className="mt-4 flex flex-wrap items-center gap-2 text-sm">
+                    <Link href={`/counties/${county.countySlug}`} className="rounded-full bg-white px-3 py-1.5 font-medium text-slate-950 transition-colors hover:bg-slate-200">
+                      County intelligence
+                    </Link>
+                    <Link href={`/permits?county=${county.countySlug}`} className="rounded-full border border-white/10 px-3 py-1.5 text-slate-200 transition-colors hover:border-white/20 hover:bg-white/5">
+                      County permits
+                    </Link>
+                    <Link href={`/water/counties/${county.countySlug}`} className="rounded-full border border-white/10 px-3 py-1.5 text-slate-200 transition-colors hover:border-white/20 hover:bg-white/5">
+                      Water context
+                    </Link>
                   </div>
                 </div>
-                <div className="rounded-full bg-white/5 px-3 py-1 text-sm font-medium text-cyan-300">
-                  Latest: {formatDate(county.latestFiledAt)}
+              ))}
+            </div>
+          </div>
+        </article>
+
+        <article className="rounded-2xl bg-slate-900/40 p-6 ring-1 ring-white/5">
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            <div>
+              <h2 className="text-2xl font-semibold text-white">County footprint</h2>
+              <p className="mt-2 max-w-3xl text-sm text-slate-400">
+                Counties where this operator appears in pending permit or CID case records, with direct links into county and permit workflows.
+              </p>
+            </div>
+            <div className="text-xs font-medium uppercase tracking-[0.18em] text-slate-500">{operator.counties.length} counties</div>
+          </div>
+          <div className="mt-5 grid gap-4 lg:grid-cols-2">
+            {operator.counties.map((county) => (
+              <article key={county.countySlug} className="rounded-xl border border-white/5 bg-white/[0.03] p-4">
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <div>
+                    <div className="text-lg font-medium text-white">{county.county}</div>
+                    <div className="mt-1 text-sm text-slate-400">
+                      {county.permitCount} permits · {county.caseCount} cases · {county.proceduralPressureScore} pressure
+                    </div>
+                  </div>
+                  <div className="rounded-full bg-white/5 px-3 py-1 text-sm font-medium text-cyan-300">
+                    Latest: {formatDate(county.latestFiledAt)}
+                  </div>
                 </div>
-              </div>
-              <div className="mt-4 flex flex-wrap items-center gap-2 text-sm">
-                <Link href={`/counties/${county.countySlug}`} className="rounded-full border border-white/10 px-3 py-1.5 text-slate-200 transition-colors hover:border-white/20 hover:bg-white/5">
-                  County intelligence
-                </Link>
-                <Link href={`/permits?county=${county.countySlug}`} className="rounded-full border border-white/10 px-3 py-1.5 text-slate-200 transition-colors hover:border-white/20 hover:bg-white/5">
-                  County permits
-                </Link>
-                <Link href={`/water/counties/${county.countySlug}`} className="rounded-full border border-white/10 px-3 py-1.5 text-slate-200 transition-colors hover:border-white/20 hover:bg-white/5">
-                  Water
-                </Link>
-              </div>
-              <div className="mt-4 text-xs text-slate-500">
-                Filings: {county.filingCounts.hearingRequests} hearing requests · {county.filingCounts.publicMeetingRequests} public meeting requests · {county.filingCounts.comments} comments
-              </div>
-            </article>
-          ))}
-        </div>
+                <div className="mt-4 flex flex-wrap items-center gap-2 text-sm">
+                  <Link href={`/counties/${county.countySlug}`} className="rounded-full border border-white/10 px-3 py-1.5 text-slate-200 transition-colors hover:border-white/20 hover:bg-white/5">
+                    County intelligence
+                  </Link>
+                  <Link href={`/permits?county=${county.countySlug}`} className="rounded-full border border-white/10 px-3 py-1.5 text-slate-200 transition-colors hover:border-white/20 hover:bg-white/5">
+                    County permits
+                  </Link>
+                  <Link href={`/water/counties/${county.countySlug}`} className="rounded-full border border-white/10 px-3 py-1.5 text-slate-200 transition-colors hover:border-white/20 hover:bg-white/5">
+                    Water
+                  </Link>
+                </div>
+                <div className="mt-4 text-xs text-slate-500">
+                  Filings: {county.filingCounts.hearingRequests} hearing requests · {county.filingCounts.publicMeetingRequests} public meeting requests · {county.filingCounts.comments} comments
+                </div>
+              </article>
+            ))}
+          </div>
+        </article>
       </section>
 
       <section className="grid gap-6 lg:grid-cols-[1.05fr_0.95fr]">
@@ -155,7 +307,15 @@ export default async function OperatorDetailPage({
                     <tr key={row.tceqId} className="border-t border-white/5 align-top">
                       <td className="py-3 pr-4 font-mono text-cyan-300">{row.tceqId}</td>
                       <td className="py-3 pr-4">{row.programArea}</td>
-                      <td className="py-3 pr-4">{row.county ?? "Unknown"}</td>
+                      <td className="py-3 pr-4">
+                        {row.county && countySlugLookup.get(row.county) ? (
+                          <Link href={`/counties/${countySlugLookup.get(row.county)}`} className="text-slate-200 underline decoration-white/10 underline-offset-4 transition-colors hover:text-white hover:decoration-white/40">
+                            {row.county}
+                          </Link>
+                        ) : (
+                          row.county ?? "Unknown"
+                        )}
+                      </td>
                       <td className="py-3 pr-4">{row.filingCounts.hearingRequests} HR / {row.filingCounts.publicMeetingRequests} PM / {row.filingCounts.comments} C</td>
                       <td className="py-3 pr-4">{formatDate(row.latestFiledAt)}</td>
                     </tr>
@@ -191,7 +351,15 @@ export default async function OperatorDetailPage({
                     <tr key={permit.permitNumber} className="border-t border-white/5 align-top">
                       <td className="py-3 pr-4 font-mono text-cyan-300">{permit.permitNumber}</td>
                       <td className="py-3 pr-4">{permit.authorizationType}</td>
-                      <td className="py-3 pr-4">{permit.county ?? "Unknown"}</td>
+                      <td className="py-3 pr-4">
+                        {permit.county && countySlugLookup.get(permit.county) ? (
+                          <Link href={`/counties/${countySlugLookup.get(permit.county)}`} className="text-slate-200 underline decoration-white/10 underline-offset-4 transition-colors hover:text-white hover:decoration-white/40">
+                            {permit.county}
+                          </Link>
+                        ) : (
+                          permit.county ?? "Unknown"
+                        )}
+                      </td>
                       <td className="py-3 pr-4">{permit.nearestCity ?? "Unknown"}</td>
                     </tr>
                   ))}

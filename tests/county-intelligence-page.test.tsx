@@ -49,6 +49,106 @@ vi.mock("@/lib/atlas-county-explorer", () => ({
   }),
 }));
 
+vi.mock("@/app/operators/operator-page-data", () => ({
+  getOperatorIntelligencePageData: vi.fn(async () => ({
+    statewide: {
+      operatorCount: 2,
+      permitCount: 3,
+      caseCount: 2,
+      protestedCaseCount: 2,
+      filingCounts: { comments: 2, hearingRequests: 1, publicMeetingRequests: 1 },
+      proceduralPressureScore: 11,
+    },
+    summaryRows: [],
+    detailRows: [
+      {
+        slug: "alpha-water-llc",
+        operatorName: "Alpha Water LLC",
+        normalizedName: "ALPHA WATER LLC",
+        aliases: ["Alpha Water LLC"],
+        countyCount: 2,
+        permitCount: 2,
+        caseCount: 1,
+        protestedCaseCount: 1,
+        filingCounts: { comments: 1, hearingRequests: 1, publicMeetingRequests: 1 },
+        proceduralPressureScore: 10,
+        latestFiledAt: "2026-04-13",
+        concentration: {
+          permitShareStatewide: 0.67,
+          caseShareStatewide: 0.5,
+          protestedCaseShareStatewide: 0.5,
+          proceduralPressureShareStatewide: 0.91,
+          countyPermitConcentration: 0.5,
+          countyCaseConcentration: 1,
+          topPermitCounty: { county: "Travis County", share: 0.5, permitCount: 1 },
+          topCaseCounty: { county: "Travis County", share: 1, caseCount: 1 },
+        },
+        counties: [
+          {
+            county: "Travis County",
+            countySlug: "travis-county",
+            permitCount: 1,
+            caseCount: 1,
+            protestedCaseCount: 1,
+            filingCounts: { comments: 1, hearingRequests: 1, publicMeetingRequests: 1 },
+            proceduralPressureScore: 10,
+            latestFiledAt: "2026-04-13",
+          },
+          {
+            county: "Hays County",
+            countySlug: "hays-county",
+            permitCount: 1,
+            caseCount: 0,
+            protestedCaseCount: 0,
+            filingCounts: { comments: 0, hearingRequests: 0, publicMeetingRequests: 0 },
+            proceduralPressureScore: 0,
+            latestFiledAt: null,
+          },
+        ],
+        permits: [],
+        cases: [],
+      },
+      {
+        slug: "beta-utility-district",
+        operatorName: "Beta Utility District",
+        normalizedName: "BETA UTILITY DISTRICT",
+        aliases: ["Beta Utility District"],
+        countyCount: 1,
+        permitCount: 1,
+        caseCount: 1,
+        protestedCaseCount: 1,
+        filingCounts: { comments: 1, hearingRequests: 0, publicMeetingRequests: 0 },
+        proceduralPressureScore: 1,
+        latestFiledAt: "2026-04-02",
+        concentration: {
+          permitShareStatewide: 0.33,
+          caseShareStatewide: 0.5,
+          protestedCaseShareStatewide: 0.5,
+          proceduralPressureShareStatewide: 0.09,
+          countyPermitConcentration: 1,
+          countyCaseConcentration: 1,
+          topPermitCounty: { county: "Travis County", share: 1, permitCount: 1 },
+          topCaseCounty: { county: "Travis County", share: 1, caseCount: 1 },
+        },
+        counties: [
+          {
+            county: "Travis County",
+            countySlug: "travis-county",
+            permitCount: 1,
+            caseCount: 1,
+            protestedCaseCount: 1,
+            filingCounts: { comments: 1, hearingRequests: 0, publicMeetingRequests: 0 },
+            proceduralPressureScore: 1,
+            latestFiledAt: "2026-04-02",
+          },
+        ],
+        permits: [],
+        cases: [],
+      },
+    ],
+  })),
+}));
+
 function analyticsFile(filename: string) {
   if (filename.includes("county-history.json")) {
     return JSON.stringify({
@@ -210,6 +310,12 @@ describe("county intelligence page", () => {
     expect(text).toContain("What changed and why");
     expect(text).toContain("Driver decomposition");
     expect(text).toContain("Top systems behind the county signal");
+    expect(text).toContain("Operators visible in this county snapshot");
+    expect(text).toContain("Alpha Water LLC");
+    expect(text).toContain("Beta Utility District");
+    expect(text).toContain('href=\"/operators/alpha-water-llc\"');
+    expect(text).toContain('href=\"/operators/beta-utility-district\"');
+    expect(text).toContain("Move from county stress to named operators");
     expect(text).toContain("Lower pressure + high risk");
     expect(text).toContain("CITY OF PFLUGERVILLE");
     expect(text).toContain("steady across the latest committed comparison window");

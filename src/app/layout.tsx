@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { Suspense } from "react";
 import { Geist, Geist_Mono } from "next/font/google";
 import PageViewBeacon from "@/app/components/page-view-beacon";
@@ -38,9 +39,10 @@ export default function RootLayout({
           <div className="mx-auto flex w-full max-w-7xl flex-wrap items-center justify-between gap-3">
             <div>Atlas TX public-interest county intelligence</div>
             <div className="flex flex-wrap items-center gap-4">
-              <a href="/analytics" className="transition-colors hover:text-white">Analytics</a>
-              <a href="/glossary" className="transition-colors hover:text-white">Glossary</a>
-              <a href="/education" className="transition-colors hover:text-white">Education</a>
+              <Link href="/analytics" className="transition-colors hover:text-white">Analytics</Link>
+              <Link href="/operators" className="transition-colors hover:text-white">Operators</Link>
+              <Link href="/glossary" className="transition-colors hover:text-white">Glossary</Link>
+              <Link href="/education" className="transition-colors hover:text-white">Education</Link>
             </div>
           </div>
         </footer>
