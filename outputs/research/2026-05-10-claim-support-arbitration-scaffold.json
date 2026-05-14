@@ -1,0 +1,21 @@
+{
+  "generatedAt": "2026-05-10T07:20:39.624Z",
+  "datasetPath": "data/claim-support/claim_support_arbitration_dataset.json",
+  "hasRealDataset": true,
+  "summary": {
+    "totalRows": 3,
+    "withChartVisible": 2,
+    "imageQualityCounts": {
+      "valid": 1,
+      "marginal": 1,
+      "invalid": 1
+    },
+    "readabilityCounts": {
+      "readable": 1,
+      "uncertain": 1,
+      "unreadable": 1
+    },
+    "rowsWithAnyManualBand": 2,
+    "rowsWithAnyQaFlag": 2
+  }
+}

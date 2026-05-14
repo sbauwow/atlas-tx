@@ -2,6 +2,20 @@
 
 ## 2026-05-10
 
+### research: add Atlas TX prize pitch for disagreement-triggered follow-up concept
+
+What shipped:
+- added a concise prize-facing pitch artifact for the narrowed patent concept centered on disagreement-triggered arbitration, external physical context, and confirmatory follow-up
+- captured one canonical title, one thesis sentence, the main novelty framing, likely skepticism, rebuttal, and best supporting experiment in a single memo under `outputs/research/`
+- kept the framing explicitly away from generic smartphone strip scanning and toward workflow governance of low-confidence strip observations
+
+### research: add CSV-to-JSON conversion helper for Experiment A review workflow
+
+What shipped:
+- added a conversion helper that turns the spreadsheet-friendly arbitration review sheet into the JSON benchmark dataset used by the Experiment A evaluator
+- added package script `convert:claim-support-arbitration-csv`, conversion test coverage, and an import report artifact documenting the CSV-to-JSON step
+- verified the end-to-end loop: CSV review sheet → JSON benchmark dataset → arbitration evaluator outputs
+
 ### docs: prepare Atlas TX v1.0.0 public launch surfaces
 
 What shipped:
