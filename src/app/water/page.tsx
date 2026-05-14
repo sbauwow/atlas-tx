@@ -8,6 +8,7 @@ import { TEXAS_COUNTY_CENTROIDS } from "@/lib/texas-county-centroids";
 import { getDefaultAtlasWaterSummaryService } from "@/lib/water/water-summary-service";
 import TexasChoropleth, { type ChoroplethCounty, type ChoroplethGauge } from "@/app/water/components/texas-choropleth";
 import { MismatchStrip, TileCartogram, type TileCartogramCounty } from "@/app/components/data-viz";
+import UncertaintyBadge from "@/app/components/uncertainty-badge";
 import {
   freshnessFromCacheMeta,
   FRESHNESS_TEXT_CLASS,
@@ -80,6 +81,33 @@ function permitCountByStatus(
     if (permit.permitLane !== permitLane) return false;
     return status ? (permit.permitStatus ?? "").toUpperCase() === status : true;
   }).length;
+}
+
+function uncertaintyLevelForCounty(county: {
+  metrics: {
+    activeWaterAlertCount?: number;
+    streamGaugeCount?: number;
+    sewerOverflowCount30d?: number;
+    generalPermitCount?: number;
+    waterDistrictCount?: number;
+    waterUtilityCount?: number;
+  };
+  mismatch?: { score?: number };
+}): "measured" | "seeded" | "modeled" | "sparse" {
+  const measuredSignals =
+    (county.metrics.activeWaterAlertCount ?? 0) +
+    (county.metrics.streamGaugeCount ?? 0) +
+    (county.metrics.sewerOverflowCount30d ?? 0);
+  const registrySignals =
+    (county.metrics.generalPermitCount ?? 0) +
+    (county.metrics.waterDistrictCount ?? 0) +
+    (county.metrics.waterUtilityCount ?? 0);
+  const mismatch = county.mismatch?.score ?? 0;
+
+  if (measuredSignals === 0 && registrySignals === 0) return "sparse";
+  if (measuredSignals > 0) return "measured";
+  if (mismatch >= 40) return "modeled";
+  return "seeded";
 }
 
 export default async function WaterPage({
@@ -634,6 +662,7 @@ export default async function WaterPage({
               <thead className="sticky top-14 z-10 bg-slate-950/85 backdrop-blur">
                 <tr className="text-left text-[11px] font-medium uppercase tracking-[0.14em] text-slate-500">
                   <th className="px-5 py-3 sm:px-6">County</th>
+                  <th className="px-3 py-3 text-right">Confidence</th>
                   <th className="px-3 py-3 text-right">NFHL footprint</th>
                   <th className="px-3 py-3 text-right">Alerts</th>
                   <th className="px-3 py-3 text-right">Gauges</th>
@@ -667,6 +696,7 @@ export default async function WaterPage({
                           {county.county.name}
                         </Link>
                       </td>
+                      <td className="px-3 py-3 text-right"><UncertaintyBadge level={uncertaintyLevelForCounty(county)} /></td>
                       <NumCell v={county.metrics.floodplainFeatureCount} />
                       <NumCell v={county.metrics.activeWaterAlertCount} />
                       <NumCell v={county.metrics.streamGaugeCount} />

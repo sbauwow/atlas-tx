@@ -71,5 +71,7 @@ describe("/water page", () => {
 
     expect(html).toContain("County dependency map");
     expect(html).toContain("/water/network");
+    expect(html).toContain("Confidence");
+    expect(html).toContain("Sparse");
   });
 });

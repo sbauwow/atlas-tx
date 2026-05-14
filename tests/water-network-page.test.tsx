@@ -38,6 +38,10 @@ describe("/water/network page", () => {
 
     expect(html).toContain("County dependency flow map");
     expect(html).toContain("Flow method: seeded-river-network-v1");
+    expect(html).toContain("Map reading notes");
+    expect(html).toContain("Data quality");
+    expect(html).toContain("Seeded");
+    expect(html).toContain("Modeled");
     expect(html).toContain("Travis County");
     expect(html).toContain("Linked brushing");
     expect(html).toContain("Open county water page");

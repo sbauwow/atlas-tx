@@ -33,6 +33,11 @@ describe("/water/sources/[slug] page", () => {
     const html = renderToStaticMarkup(element);
 
     expect(html).toContain("Travis County water source analysis");
+    expect(html).toContain("How to read this view");
+    expect(html).toContain("Quality + provenance");
+    expect(html).toContain("Measured");
+    expect(html).toContain("Modeled");
+    expect(html).toContain("Sparse");
     expect(html).toContain("Austin Water");
     expect(html).toContain("Timeline matrix");
     expect(html).toContain("Coverage ratio");

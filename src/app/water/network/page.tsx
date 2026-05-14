@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { Sankey, type SankeyEdge, type SankeyNode } from "@/app/components/data-viz";
+import UncertaintyBadge from "@/app/components/uncertainty-badge";
 import { getDefaultHydrologyDependencyService } from "@/lib/water/hydrology-dependencies";
 import { buildNetworkCorrelationSummary } from "@/lib/water/network-analytics";
 
@@ -110,7 +111,25 @@ export default async function WaterNetworkPage({
       </header>
 
       <section className="rounded-2xl bg-slate-900/40 p-6 ring-1 ring-white/5">
-        <div className="flex flex-wrap items-start justify-between gap-3">
+        <div className="grid gap-4 rounded-xl border border-white/10 bg-white/[0.03] p-4 text-sm text-slate-300 md:grid-cols-2">
+          <div>
+            <div className="text-xs uppercase tracking-[0.12em] text-slate-500">Map reading notes</div>
+            <ul className="mt-2 space-y-1 text-slate-400">
+              <li>• Method: <span className="text-slate-200">{graph.flowDirectionMethod}</span> (seeded, not full NHDPlus yet) <UncertaintyBadge level="seeded" /></li>
+              <li>• Edge weight unit: <span className="text-slate-200">relative dependency weight</span></li>
+              <li>• Bubble size: <span className="text-slate-200">contagion score</span> <UncertaintyBadge level="modeled" /></li>
+            </ul>
+          </div>
+          <div>
+            <div className="text-xs uppercase tracking-[0.12em] text-slate-500">Data quality</div>
+            <ul className="mt-2 space-y-1 text-slate-400">
+              <li>• Missing coordinates are excluded from map rendering (not zero risk).</li>
+              <li>• Correlations are exploratory and should be paired with county evidence drilldown.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div className="mt-5 flex flex-wrap items-start justify-between gap-3">
           <div>
             <div className="text-[11px] font-medium uppercase tracking-[0.18em] text-cyan-300/80">Watershed lineage</div>
             <h2 className="mt-2 text-2xl font-semibold text-white">Where the water actually flows</h2>

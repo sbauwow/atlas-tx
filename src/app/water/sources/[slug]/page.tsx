@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { MetricTrendChart, type MetricTrendPoint } from "@/app/components/charts/metric-trend-chart";
+import UncertaintyBadge from "@/app/components/uncertainty-badge";
 import { getDefaultCountyWaterSourceProfileService } from "@/lib/water/source-provenance";
 
 export const dynamic = "force-dynamic";
@@ -111,6 +112,27 @@ export default async function WaterSourcePage({ params }: { params: Promise<{ sl
           Provenance-first view of where county water service likely routes through, plus monthly pressure analysis across permits, overflows, weather alerts, and community strip observations.
         </p>
       </header>
+
+      <section className="rounded-2xl bg-slate-900/40 p-6 ring-1 ring-white/5">
+        <div className="grid gap-4 rounded-xl border border-white/10 bg-white/[0.03] p-4 text-sm text-slate-300 md:grid-cols-2">
+          <div>
+            <div className="text-xs uppercase tracking-[0.12em] text-slate-500">How to read this view</div>
+            <ul className="mt-2 space-y-1 text-slate-400">
+              <li>• Timeline units: monthly event counts (alerts, overflows, permits, samples) <UncertaintyBadge level="measured" />.</li>
+              <li>• Anomaly score: pressure-heavy mismatch proxy (0-100), not regulatory risk <UncertaintyBadge level="modeled" />.</li>
+              <li>• Source-mix bars are entity counts, not flow volume <UncertaintyBadge level="seeded" />.</li>
+            </ul>
+          </div>
+          <div>
+            <div className="text-xs uppercase tracking-[0.12em] text-slate-500">Quality + provenance</div>
+            <ul className="mt-2 space-y-1 text-slate-400">
+              <li>• Community strips are non-regulatory observations and may be sparse <UncertaintyBadge level="sparse" />.</li>
+              <li>• Missing months are omitted from timeline (absence of records ≠ zero water risk).</li>
+              <li>• Evidence drilldown links open month-filtered API payloads.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
 
       <section className="grid gap-px overflow-hidden rounded-2xl bg-white/5 ring-1 ring-white/10 sm:grid-cols-5">
         <Stat label="Water districts" value={profile.openDataSummary.activeWaterDistricts} />
