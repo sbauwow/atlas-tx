@@ -107,6 +107,16 @@ _(empty)_
 
 Listed in the order the refocus plan (`docs/plans/2026-05-08-water-risk-refocus.md`) needs them. Claim by moving a row to In-progress.
 
+### Milestone 0 — engineering health (do before promoting CI; see `docs/plans/2026-05-18-de-network-test-and-build.md`)
+
+`npm test` (15 files / 24 tests) and `npm run build` are both red on `main` — one root cause: live external fetches on the render/build/test path with no cached fallback (AGENTS.md §5). CI exists (PR #47) but is informational-only until this is fixed.
+
+| workstream | task | notes |
+|---|---|---|
+| cross (web + data) | Cache-fallback `getCountyOverview` so `/` prerenders offline — unblocks `next build` | Step 1. `src/lib/atlas-county-explorer.ts:238` calls `fetchDatasetRows("7fq8-wig2", …)` with no `safeLoad`; homepage prerender dies on ECONNRESET. Apply the existing `safeLoad` pattern + commit `public/cache` snapshot. P0. |
+| cross (data + web) | Make vitest hermetic: `setupFiles` network-guard + dataset fixtures | Step 2. `vitest.config.ts` has no `setupFiles`/network isolation. Stub `fetch` (fail-loud) + mock `fetchDatasetRows` from `tests/fixtures/`. P0. |
+| cross (docs) | Promote CI to a hard gate: drop `continue-on-error`/`if: always()`, add `main` branch protection requiring `verify`, pin Node 20 (`engines`+`.nvmrc`) | Step 4. Only after the two P0 rows are green in CI. |
+
 ### Milestone 1 — data layer
 
 | workstream | task | notes |

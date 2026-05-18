@@ -86,6 +86,16 @@ Use for:
 - subtle civic-trust polish layer (pulse, fill-bar, count-up, hover ripple)
 - holding the line against gimmicky animations or homepage cursor changes
 
+### 8. `2026-05-18-de-network-test-and-build.md`
+Status: active engineering-health plan — **blocks CI promotion**
+
+Read when working on test/build reliability, CI, or anything that touches a statically-generated page's data path.
+
+Use for:
+- why `npm test` + `npm run build` are red on `main` (one root cause: live external fetches on the render/build/test path)
+- the ordered fix: cache-fallback `getCountyOverview`, make vitest hermetic, then flip CI to a hard gate
+- the non-goal line: `scripts/refresh-*` are *meant* to hit live APIs; only the render/build/test path must be cached
+
 ---
 
 ## Historical / reference plans
@@ -127,6 +137,9 @@ If you are asking...
 
 - "How do protests fit the product?"
   - read `2026-05-08-protests-extension.md`
+
+- "Why are `npm test` / `npm run build` red, or why doesn't CI block?"
+  - read `2026-05-18-de-network-test-and-build.md`
 
 - "Can I use the original county explorer plan?"
   - no; read the refocus plan instead
