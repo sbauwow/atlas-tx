@@ -22,6 +22,7 @@ _(empty)_
 
 | workstream | agent | intent | ref |
 |---|---|---|---|
+| cross (web + data) | claude-opus-4-7 | Milestone 0 Step 1 — cache-fallback `getCountyOverview`: `safeCollect` wraps each source so one dead Socrata feed can't reject the statically-generated `/` prerender, plus a committed `public/cache/county-overview-tx.json` (256 counties) fallback via new `atlas-county-overview-snapshot.ts` + `npm run refresh:county-overview`. Offline build no longer hits the `getCountyOverview`/ECONNRESET prerender error; online `next build` clean. | branch `cross/cache-fallback-county-overview` |
 | cross | claude-opus-4-7 | Open-PR triage merge — fix production-down: register TCEQ general permits dataset `6pm5-am5m` in `MVP_DATASETS` (was throwing on every `/water-sources` request, ~848 errors/day), and prepend `prisma migrate deploy` to `start` + move `prisma` to runtime deps so Railway applies migration `20260509191802_add_watchlists` (~493 errors/day). | PR #42 (`fb652f8`) |
 | research (cross: docs) | claude-opus-4-7 | Open-PR triage merge — land Experiment A claim-support arbitration scaffold: `analyze:`/`convert:` scripts, JSON benchmark + CSV importer with vitest coverage, prize-pitch memo, and starter outputs under `outputs/research/`. | PR #43 (`df88426`) |
 | docs | hermes | Review all plan docs, align the additive weather/community roadmap to repo state, add a coordination-aware implementation checklist. _(In-progress row retired during 2026-05-18 triage sweep — branch merged & deleted on remote.)_ | branch `web/color-tokens` (merged) |
@@ -113,8 +114,7 @@ Listed in the order the refocus plan (`docs/plans/2026-05-08-water-risk-refocus.
 
 | workstream | task | notes |
 |---|---|---|
-| cross (web + data) | Cache-fallback `getCountyOverview` so `/` prerenders offline — unblocks `next build` | Step 1. `src/lib/atlas-county-explorer.ts:238` calls `fetchDatasetRows("7fq8-wig2", …)` with no `safeLoad`; homepage prerender dies on ECONNRESET. Apply the existing `safeLoad` pattern + commit `public/cache` snapshot. P0. |
-| cross (data + web) | Make vitest hermetic: `setupFiles` network-guard + dataset fixtures | Step 2. `vitest.config.ts` has no `setupFiles`/network isolation. Stub `fetch` (fail-loud) + mock `fetchDatasetRows` from `tests/fixtures/`. P0. |
+| cross (data + web) | Make vitest hermetic: `setupFiles` network-guard + dataset fixtures | Step 2 (**now the P0 — Step 1 done**). `vitest.config.ts` has no `setupFiles`/network isolation. Stub `fetch` (fail-loud) + mock `fetchDatasetRows` from `tests/fixtures/`. |
 | cross (docs) | Promote CI to a hard gate: drop `continue-on-error`/`if: always()`, add `main` branch protection requiring `verify`, pin Node 20 (`engines`+`.nvmrc`) | Step 4. Only after the two P0 rows are green in CI. |
 
 ### Milestone 1 — data layer

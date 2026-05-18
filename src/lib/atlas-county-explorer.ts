@@ -7,6 +7,7 @@ import {
   type TwdbHydrologyRow,
 } from "@/lib/datasets/twdb-hydrology";
 import { fetchDatasetRows } from "@/lib/texas-open-data";
+import { getCountyOverviewSnapshotPromise } from "@/lib/atlas-county-overview-snapshot";
 import { TEXAS_COUNTY_CENTROIDS, type CountyCentroid } from "@/lib/texas-county-centroids";
 
 export type CountyOverviewSourceRow = {
@@ -105,6 +106,22 @@ function numberValue(value: unknown): number {
   }
 
   return 0;
+}
+
+// One dead Socrata source must not reject the whole overview — that fails the
+// statically-generated `/` prerender in `next build` (AGENTS.md §5). Mirrors
+// the `safeLoad` pattern in water-summary-service.ts.
+async function safeCollect(
+  loader: () => Promise<CountyOverviewSourceRow[]>,
+): Promise<CountyOverviewSourceRow[]> {
+  try {
+    return await loader();
+  } catch (error) {
+    if (process.env.NODE_ENV !== "production") {
+      console.warn("[atlas-county-explorer] overview source failed, degrading", error);
+    }
+    return [];
+  }
 }
 
 function sortByValueDesc(rows: CountyOverviewSourceRow[]): CountyOverviewSourceRow[] {
@@ -352,7 +369,7 @@ export function createAtlasCountyExplorerService({
       const sourceRows = await Promise.all(
         overviewSources.map(async (source) => ({
           source,
-          rows: await source.collect(),
+          rows: await safeCollect(() => source.collect()),
         })),
       );
       const sourceIds = overviewSources.map((source) => source.sourceId);
@@ -364,6 +381,16 @@ export function createAtlasCountyExplorerService({
         metrics: county.metrics,
         sourceValues: county.sourceValues,
       }));
+
+      if (counties.length === 0) {
+        // Every source failed (offline / blocked / build sandbox). Serve the
+        // committed snapshot so `/` still prerenders with real data instead of
+        // failing the build.
+        const snapshot = await getCountyOverviewSnapshotPromise();
+        if (snapshot && snapshot.counties.length > 0) {
+          return snapshot;
+        }
+      }
 
       return {
         generatedAt: new Date().toISOString(),
