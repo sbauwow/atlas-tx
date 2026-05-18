@@ -1,0 +1,67 @@
+{
+  "generatedAt": "2026-05-10T07:20:39.625Z",
+  "datasetPath": "data/claim-support/claim_support_arbitration_dataset.json",
+  "hasRealDataset": true,
+  "summary": {
+    "totalRows": 3,
+    "withChartVisible": 2,
+    "imageQualityCounts": {
+      "valid": 1,
+      "marginal": 1,
+      "invalid": 1
+    },
+    "readabilityCounts": {
+      "readable": 1,
+      "uncertain": 1,
+      "unreadable": 1
+    },
+    "rowsWithAnyManualBand": 2,
+    "rowsWithAnyQaFlag": 2
+  },
+  "results": [
+    {
+      "arm": "A0_single_reader",
+      "metrics": {
+        "acceptedishCount": 3,
+        "reviewOrRejectedCount": 0,
+        "falseAcceptRateOnProblemCases": 1,
+        "acceptedPrecision": 0.3333333333333333,
+        "invalidCaptureRecall": 0,
+        "reviewRejectedEnrichment": null
+      }
+    },
+    {
+      "arm": "A1_qa_only",
+      "metrics": {
+        "acceptedishCount": 2,
+        "reviewOrRejectedCount": 1,
+        "falseAcceptRateOnProblemCases": 0.5,
+        "acceptedPrecision": 0.5,
+        "invalidCaptureRecall": 1,
+        "reviewRejectedEnrichment": 1
+      }
+    },
+    {
+      "arm": "A2_second_reader_only",
+      "metrics": {
+        "acceptedishCount": 2,
+        "reviewOrRejectedCount": 1,
+        "falseAcceptRateOnProblemCases": 0.5,
+        "acceptedPrecision": 0.5,
+        "invalidCaptureRecall": 1,
+        "reviewRejectedEnrichment": 1
+      }
+    },
+    {
+      "arm": "A3_full_workflow",
+      "metrics": {
+        "acceptedishCount": 2,
+        "reviewOrRejectedCount": 1,
+        "falseAcceptRateOnProblemCases": 0.5,
+        "acceptedPrecision": 0.5,
+        "invalidCaptureRecall": 1,
+        "reviewRejectedEnrichment": 1
+      }
+    }
+  ]
+}
