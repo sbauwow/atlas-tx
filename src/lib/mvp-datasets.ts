@@ -29,6 +29,17 @@ export const MVP_DATASETS: MvpDataset[] = [
     accessType: "dataset",
   },
   {
+    id: "6pm5-am5m",
+    name: "TCEQ Water Quality General Permits Active/Pending",
+    category: "environment",
+    publisher: "Texas Commission on Environmental Quality — Water Quality Division",
+    summary:
+      "Stormwater and wastewater general permits (MS4 Phase II, Multi-Sector, Concrete, Aquaculture, Oil & Gas Extraction, Petroleum Bulk Stations, Quarries, Water Treatment Plants, Pesticides, etc.).",
+    keyFields: ["permit_no", "authorization_type", "authorization_status", "permittee_name", "county", "latitude", "longitude"],
+    useCase: "General-permit density and oil-and-gas-extraction stormwater coverage by county.",
+    accessType: "dataset",
+  },
+  {
     id: "hr84-s96f",
     name: "Texas Water Districts",
     category: "infrastructure",
