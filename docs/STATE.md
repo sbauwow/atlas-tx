@@ -26,6 +26,8 @@ _(empty)_
 
 | workstream | agent | intent | ref |
 |---|---|---|---|
+| cross | claude-opus-4-7 | Open-PR triage merge — fix production-down: register TCEQ general permits dataset `6pm5-am5m` in `MVP_DATASETS` (was throwing on every `/water-sources` request, ~848 errors/day), and prepend `prisma migrate deploy` to `start` + move `prisma` to runtime deps so Railway applies migration `20260509191802_add_watchlists` (~493 errors/day). | PR #42 (`fb652f8`) |
+| research (cross: docs) | claude-opus-4-7 | Open-PR triage merge — land Experiment A claim-support arbitration scaffold: `analyze:`/`convert:` scripts, JSON benchmark + CSV importer with vitest coverage, prize-pitch memo, and starter outputs under `outputs/research/`. | PR #43 (`df88426`) |
 | docs | hermes | Expand the Atlas TX judge pack with spoken presenter notes, a one-page judge handout, and a backup demo path if the live water-strip test fails. | branch `docs/launch-copy-and-demo` |
 | docs | hermes | Add judge-facing launch copy pack: announcement post, GitHub pinned/social copy variants, and a 3–5 minute demo script that starts at `atlastexas.org`, moves through MCP + skill, and optionally ends with a live Android water-strip screening demo. | branch `docs/launch-copy-and-demo` |
 | docs | hermes | Prepare Atlas TX v1.0.0 public-launch surfaces: root README/release notes/changelog refresh, MIT license + version metadata, stronger `atlastexas.org` callouts in `docs/wiki/`, and GitHub homepage/topics aligned for release + Freshcrate discovery. | branch `docs/public-launch-v1` |
