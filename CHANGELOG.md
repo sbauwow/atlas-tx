@@ -154,6 +154,80 @@ Observed result:
 - county-FE `County FE + persistence + EB baseline + overflow + precipitation + NWS flood + streamflow + drought + heat` reached validation AUPRC `0.578` and test AUPRC `0.478`
 - unlike the earlier drought and streamflow passes, the heat layer produced a clear incremental gain over the prior EB-aware trigger stack
 
+### research: drought context plus EB-aware reruns
+
+Added:
+- `src/lib/datasets/drought.ts`
+- `scripts/refresh-county-month-drought.ts`
+- `tests/drought.test.ts`
+- `tests/refresh-county-month-drought.test.ts`
+- package script `refresh:county-month-drought`
+
+What shipped:
+- county-month drought context from weekly U.S. Drought Monitor county statistics aggregated to monthly mean D1+ and D3+ fractions
+- panel integration for `drought_fraction_d1plus`, `drought_fraction_d3plus`, and `overflow_x_drought`
+- regenerated pooled and county-FE EB-aware ladder outputs with drought included on top of precipitation, NWS flood, and streamflow context
+
+Observed result:
+- drought context attached to all 18,288 county-month rows, while trigger-model usability remained capped at 14,698 rows by streamflow availability
+- pooled `Persistence + EB baseline + overflow + precipitation + NWS flood + streamflow + drought` reached validation AUPRC `0.559` and test AUPRC `0.460`, not improving on the best EB structural model (`0.570` validation, `0.461` test)
+- county-FE `County FE + persistence + EB baseline + overflow + precipitation + NWS flood + streamflow + drought` reached validation AUPRC `0.559` and test AUPRC `0.463`, effectively matching the simpler FE + EB baseline (`0.559` validation, `0.463` test)
+
+### research: streamflow context plus EB-aware reruns
+
+Added:
+- `src/lib/datasets/streamflow.ts`
+- `scripts/refresh-county-month-streamflow.ts`
+- `tests/streamflow.test.ts`
+- `tests/refresh-county-month-streamflow.test.ts`
+- package script `refresh:county-month-streamflow`
+
+What shipped:
+- nearest-gauge county-month streamflow context using active Texas USGS streamflow sites and daily mean discharge (`00060`, statistic `00003`)
+- panel integration for `streamflow_high_count`, `streamflow_low_count`, `streamflow_extreme_high_any`, `streamflow_extreme_low_any`, and overflow × streamflow interactions
+- regenerated pooled and county-FE EB-aware ladder outputs with streamflow included
+
+Observed result:
+- streamflow context attached to 14,698 county-month rows (205 unique gauges across 254 counties via nearest-site assignment)
+- pooled `Persistence + EB baseline + overflow + precipitation + NWS flood + streamflow` reached validation AUPRC `0.559` and test AUPRC `0.460`, not surpassing the strongest EB structural model (`0.570` validation, `0.461` test)
+- county-FE `County FE + persistence + EB baseline + overflow + precipitation + NWS flood + streamflow` reached validation AUPRC `0.559` and test AUPRC `0.462`, again suggesting modest incremental signal rather than a major shift beyond EB baseline risk
+
+### research: NWS flood/flash-flood alert ingestion plus EB-aware reruns
+
+Added:
+- `src/lib/datasets/nws-flood-alerts.ts`
+- `scripts/refresh-county-month-nws-flood-alerts.ts`
+- `tests/nws-flood-alerts.test.ts`
+- `tests/refresh-county-month-nws-flood-alerts.test.ts`
+- package script `refresh:county-month-nws-flood-alerts`
+
+What shipped:
+- historical Texas county-month flood and flash-flood warning context derived from OpenFEMA IPAWS archived alerts filtered to NWS sender rows and Texas county SAME geocodes
+- panel integration for `flood_warning_any`, `flood_warning_count`, `flash_flood_warning_any`, and `overflow_x_flood_warning`
+- regenerated pooled and county-FE EB-aware ladder outputs with NWS flood context included
+
+Observed result:
+- flood/flash-flood warning context is now attached for all 18,288 county-month rows; 292 rows have any flood warning and 756 rows have any flash-flood warning
+- in the pooled ladder, `Persistence + EB baseline + overflow + precipitation + NWS flood` reached validation AUPRC `0.566` and test AUPRC `0.481`, effectively matching the strongest pre-flood EB-augmented models rather than clearly surpassing them
+- in the county-FE ladder, `County FE + persistence + EB baseline + overflow + precipitation + NWS flood` reached validation AUPRC `0.565` and test AUPRC `0.482`, again suggesting modest incremental value beyond the EB county baseline rather than a major new trigger breakthrough
+
+### research: shrunk county baseline added to pooled and fixed-effects ladders
+
+Updated:
+- `experiments/model_precipitation_ladder.ts`
+- `experiments/model_precipitation_fixed_effects.ts`
+
+What changed:
+- compute a training-only empirical-Bayes county baseline risk feature and inject it into both the pooled and county-FE precipitation-aware ladders
+- add comparison rows for `Persistence + EB county baseline` and the richest EB-augmented variants
+- regenerate the frozen pooled and fixed-effects result artifacts
+
+Observed result:
+- the EB county baseline is a very strong static county-risk feature in both ladders
+- pooled validation AUPRC improved from `0.424` for persistence-only to `0.559` for `Persistence + EB county baseline`, and to `0.566` for the richest EB-augmented pooled model
+- county-FE validation AUPRC improved from `0.439` for FE persistence-only to `0.559` for `County FE + persistence + EB baseline`, and to `0.565` for the richest EB-augmented FE model
+- interpretation caution: this is mostly a stronger way of encoding chronic county baseline risk, not evidence that short-run trigger features suddenly became dominant
+
 ### feat: add DWRS and surface water mismatch signals
 
 Atlas TX now ships a deeper water-risk and journalist-outlier detection stack.
