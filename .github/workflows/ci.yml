@@ -1,0 +1,55 @@
+# Minimal CI for Atlas TX.
+#
+# Why this exists: open-PR triage (May 2026) shipped a production-down fix with
+# zero automated gating — nothing verified the build or tests before it deployed
+# to Railway. This is the smallest gate that would have caught a broken merge.
+#
+# Hard gates: `npm test` (vitest) and `npm run build` (next build) must pass.
+# Advisory: `npm run lint` runs but does not block, because the repo's lint
+# baseline has not been verified clean and a red-from-day-one required lint
+# would wall off every PR. Promote lint to a hard gate once it is green on main.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+# One in-flight run per ref; new pushes cancel stale runs.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      # prisma.config.ts defaults to file:./prisma/dev.db when unset; point CI
+      # at a throwaway sqlite file so `prisma generate` / `next build` never
+      # touch a real database. No live external APIs (AGENTS.md §5).
+      DATABASE_URL: file:./prisma/ci.db
+      CI: "true"
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      # `npm ci` runs the `postinstall` → `prisma generate` hook.
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint (advisory — does not block merge)
+        run: npm run lint
+        continue-on-error: true
+
+      - name: Unit tests
+        run: npm test
+
+      - name: Production build
+        run: npm run build

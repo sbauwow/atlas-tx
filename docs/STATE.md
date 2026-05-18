@@ -8,11 +8,7 @@ Schema for every row: `workstream | agent | branch | intent | started | ref`
 
 ## In-progress
 
-| workstream | agent | branch | intent | started | ref |
-|---|---|---|---|---|---|
-| docs | hermes | web/color-tokens | Review all plan docs, align additive weather/community roadmap to current repo state, and add coordination-aware implementation checklist around active feynman/UI work | 2026-05-09T05:52:00Z | working tree |
-| cross (android + docs) | claude-opus-4-7 | cross/android-capture-app | Scaffold the Atlas TX Capture Android client (Kotlin/Compose, minSdk 31) under `android/`, wire it to `POST /api/citizen/observations`, and add the `android` workstream to OWNERSHIP/AGENTS. v1 deferred: on-device colorimetry, CameraX preview, GPS attach. | 2026-05-09T19:00:00Z | branch `cross/android-capture-app` |
-| data (cross: web + docs) | claude-opus-4-7 | data/sdwis-storage | Add SDWIS WATER_SYSTEM_FACILITY ingest filtered to active storage (FACILITY_TYPE_CODE=ST). New `src/lib/datasets/sdwis-facilities.ts` (fetch / normalize / load), `npm run refresh:sdwis-facilities`, committed `public/cache/sdwis-storage-tx.json` (4.3 MB, 28.5k storage facilities across 8k PWSs). Plumb `storage.groups[]` into the address-lookup envelope keyed by the in-county PWS list, render a "Storage tanks (water towers)" block in `<AddressSearch />`, register the dataset in `mvp-datasets.ts` + bump `dataset-registry.md`. Wells/treatment/pumps deferred to a follow-on widening of `facilityTypeCodes`. | 2026-05-10T07:05:00Z | branch `data/sdwis-storage` |
+_(empty — the 3 prior rows were swept to Recently-done during the 2026-05-18 open-PR triage follow-up; all three branches had already merged and were deleted on remote. Re-add a table row when you claim a task, per the schema above.)_
 
 ---
 
@@ -28,6 +24,9 @@ _(empty)_
 |---|---|---|---|
 | cross | claude-opus-4-7 | Open-PR triage merge — fix production-down: register TCEQ general permits dataset `6pm5-am5m` in `MVP_DATASETS` (was throwing on every `/water-sources` request, ~848 errors/day), and prepend `prisma migrate deploy` to `start` + move `prisma` to runtime deps so Railway applies migration `20260509191802_add_watchlists` (~493 errors/day). | PR #42 (`fb652f8`) |
 | research (cross: docs) | claude-opus-4-7 | Open-PR triage merge — land Experiment A claim-support arbitration scaffold: `analyze:`/`convert:` scripts, JSON benchmark + CSV importer with vitest coverage, prize-pitch memo, and starter outputs under `outputs/research/`. | PR #43 (`df88426`) |
+| docs | hermes | Review all plan docs, align the additive weather/community roadmap to repo state, add a coordination-aware implementation checklist. _(In-progress row retired during 2026-05-18 triage sweep — branch merged & deleted on remote.)_ | branch `web/color-tokens` (merged) |
+| cross (android + docs) | claude-opus-4-7 | Scaffold the Atlas TX Capture Android client (Kotlin/Compose, minSdk 31) under `android/`, wired to `POST /api/citizen/observations`, `android` workstream added to OWNERSHIP/AGENTS. _(Retired during 2026-05-18 triage sweep — `ApiClient.kt`/`CaptureScreen.kt` verified on main; branch deleted on remote.)_ | branch `cross/android-capture-app` (merged) |
+| data (cross: web + docs) | claude-opus-4-7 | SDWIS active-storage ingest: `src/lib/datasets/sdwis-facilities.ts`, `npm run refresh:sdwis-facilities`, committed `public/cache/sdwis-storage-tx.json`, storage block in `<AddressSearch />`, dataset registered. _(Retired during 2026-05-18 triage sweep — files verified on main; branch deleted on remote.)_ | branch `data/sdwis-storage` (merged) |
 | docs | hermes | Expand the Atlas TX judge pack with spoken presenter notes, a one-page judge handout, and a backup demo path if the live water-strip test fails. | branch `docs/launch-copy-and-demo` |
 | docs | hermes | Add judge-facing launch copy pack: announcement post, GitHub pinned/social copy variants, and a 3–5 minute demo script that starts at `atlastexas.org`, moves through MCP + skill, and optionally ends with a live Android water-strip screening demo. | branch `docs/launch-copy-and-demo` |
 | docs | hermes | Prepare Atlas TX v1.0.0 public-launch surfaces: root README/release notes/changelog refresh, MIT license + version metadata, stronger `atlastexas.org` callouts in `docs/wiki/`, and GitHub homepage/topics aligned for release + Freshcrate discovery. | branch `docs/public-launch-v1` |
