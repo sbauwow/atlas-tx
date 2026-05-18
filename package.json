@@ -21,6 +21,7 @@
     "refresh:water-snapshot": "tsx scripts/refresh-water-snapshot.ts",
     "build:android-county-polygons": "tsx scripts/build-android-county-polygons.ts",
     "refresh:sdwis-facilities": "tsx scripts/refresh-sdwis-facilities.ts",
+    "refresh:county-overview": "tsx scripts/refresh-county-overview.ts",
     "refresh:city-open-data": "tsx scripts/refresh-city-open-data.ts",
     "refresh:city-open-data-curated": "tsx scripts/refresh-city-open-data-curated.ts",
     "refresh:city-open-data-ranked": "tsx scripts/refresh-city-open-data-ranked.ts",

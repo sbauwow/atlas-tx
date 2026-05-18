@@ -35,7 +35,19 @@ function expandSummaryCaseFilingsToDerivedProtests(args: {
 }
 
 export async function getOperatorIntelligencePageData(): Promise<OperatorIntelligenceDataset> {
-  const permitsPageData = await getTceqPendingPermitsPageData();
+  let permitsPageData: Awaited<ReturnType<typeof getTceqPendingPermitsPageData>>;
+  try {
+    permitsPageData = await getTceqPendingPermitsPageData();
+  } catch (error) {
+    // `/operators` and `/maps/operators` are statically generated; a failed or
+    // slow live TCEQ fetch must not reject the prerender and fail `next build`
+    // (AGENTS.md §5). Degrade to an empty operator dataset instead.
+    if (process.env.NODE_ENV !== "production") {
+      console.warn("[operator-page-data] permits source failed, degrading to empty operators dataset", error);
+    }
+    return buildOperatorIntelligenceDataset({ permits: [], cidCases: [], cidProtests: [] });
+  }
+
   const derivedProtests = permitsPageData.cidSummary.cases.flatMap((row) =>
     expandSummaryCaseFilingsToDerivedProtests({
       tceqId: row.tceqId,
